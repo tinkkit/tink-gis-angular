@@ -1,10 +1,10 @@
 {
-  "name": "tink-skeleton-angular",
-  "description": "Tink skeleton Angular directive",
+  "name": "tink-gis-angular",
+  "description": "Tink gis Angular directive",
   "version": "1.0.0",
   "repository": {
     "type": "git",
-    "url": "git@github.com:tinkkit/tink-skeleton-angular.git"
+    "url": "git@github.com:tinkkit/tink-gis-angular.git"
   },
   "dependencies": {
     "bower": "^1.3.12",

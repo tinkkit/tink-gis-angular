@@ -1,5 +1,5 @@
 'use strict';
-describe('tink-skeleton-angular', function() {
+describe('tink-gis-angular', function() {
 
   var bodyEl = $('body'), sandboxEl;
   var $compile, $templateCache, scope;
