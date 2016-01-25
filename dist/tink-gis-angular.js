@@ -9,7 +9,8 @@
         return {
             templateUrl: "templates/tinkmaptemplate.html",
             scope: { 
-                layers: "="
+                layers: "=",
+                center:  "="
               },
             controller: function ($scope) {
                  var ourlayers = $scope.layers;
@@ -30,11 +31,7 @@
                 });
                 if ($scope.center == undefined) {
                     angular.extend($scope, {
-                        center: {
-                            lat: 51.2192159,
-                            lng: 4.4028818,
-                            zoom: 12
-                        }
+                        center: $scope.center
                     });
 
                 }
@@ -45,23 +42,6 @@
                                 kaart: ourlayers.kaart,
                                 luchtfoto: ourlayers.luchtfoto
                             },
-                            overlays: {
-                                perceel: {
-                                    name: "geoservice",
-                                    type: "agsFeature",
-                                    url: "http://app10.a.gis.local/arcgissql/rest/services/A_GeoService/operationallayers/MapServer/6",
-                                    visible: true,
-                                    layerOptions: {
-                                        simplifyFactor: 0.5,
-                                        precision: 5,
-                                        minZoom: 17,
-                                        maxZoom: 25 
-                                    },
-                                    group: "Test",
-                                    superGroup: "SuperTest"
-                                },
-
-                            }
                             
                         }
                         
@@ -79,7 +59,7 @@
   'use strict';
 
   $templateCache.put('templates/tinkmaptemplate.html',
-    "<style></style> <div id=content> <div class=wrapper> <leaflet class=leafletmap center=center layers=layers controls defaults=defaults> <div class=\"btn-group ll searchbtns\"> <button type=button class=btn><i class=\"fa fa-map-marker\"></i></button>\n" +
+    "<div id=content> <div class=wrapper> <leaflet class=leafletmap center=center layers=layers controls defaults=defaults> <div class=\"btn-group ll searchbtns\"> <button type=button class=btn><i class=\"fa fa-map-marker\"></i></button>\n" +
     "<button type=button class=btn><i class=\"fa fa-download\"></i></button> </div> <div class=\"btn-group btn-group-vertical ll interactiebtns\"> <button type=button class=\"btn active\"><i class=\"fa fa-info\"></i></button>\n" +
     "<button type=button class=btn><i class=\"fa fa-mouse-pointer\"></i></button>\n" +
     "<button type=button class=btn><i class=\"fa fa-download\"></i></button> </div> <div class=\"ll zoekbalken\"> <input id=zoekbalk1 placeholder=\"Welke locatie of adres zoek je?\">\n" +
