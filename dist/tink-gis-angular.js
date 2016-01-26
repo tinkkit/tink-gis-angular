@@ -59,7 +59,10 @@
   'use strict';
 
   $templateCache.put('templates/tinkmaptemplate.html',
-    "<div id=content> <div class=wrapper> <leaflet class=leafletmap center=center layers=layers controls defaults=defaults> <div class=\"btn-group ll searchbtns\"> <button type=button class=btn><i class=\"fa fa-map-marker\"></i></button>\n" +
+    " <div data-tink-nav-aside=\"\" data-auto-select=true data-toggle-id=asideNavRight class=\"nav-aside nav-right\"> <aside> <div class=nav-aside-section> <p class=nav-aside-title>Section title</p> <ul> <li> <a href=#> <span>Menu item</span> </a> </li> <li> <a href=#> <span>Menu item with badge</span>\n" +
+    "<span class=badge>2</span> </a> </li> <li> <a href=#> <span>Menu item with submenu items</span> </a> <ul> <li> <a href=#> <span>Submenu item</span> </a> </li> <li> <a href=#> <span>Submenu item with badge</span>\n" +
+    "<span class=badge>8</span> </a> </li> </ul> </li> <li> <a href=#> <i class=\"fa fa-fw fa-cogs\"></i>\n" +
+    "<span>Menu item with icon</span> </a> </li> </ul> </div> </aside> </div> <div id=content> <div class=wrapper> <leaflet class=leafletmap center=center layers=layers controls defaults=defaults> <div class=\"btn-group ll searchbtns\"> <button type=button class=btn><i class=\"fa fa-map-marker\"></i></button>\n" +
     "<button type=button class=btn><i class=\"fa fa-download\"></i></button> </div> <div class=\"btn-group btn-group-vertical ll interactiebtns\"> <button type=button class=\"btn active\"><i class=\"fa fa-info\"></i></button>\n" +
     "<button type=button class=btn><i class=\"fa fa-mouse-pointer\"></i></button>\n" +
     "<button type=button class=btn><i class=\"fa fa-download\"></i></button> </div> <div class=\"ll zoekbalken\"> <input id=zoekbalk1 placeholder=\"Welke locatie of adres zoek je?\">\n" +
