@@ -62,8 +62,8 @@
                 <input type="text" class="invisible" placeholder="Welke locatie of adres zoek je?" />
             </div>
             <div class="ll btn-group ll kaarttypes">
-                <button class="btn active" ng-click="changeLayer('kaart')">Kaart</button>
-                <button class="btn" ng-click="changeLayer('luchtfoto')">Luchtfoto</button>
+                <button class="btn active" ng-click="changeBaseLayer('kaart')">Kaart</button>
+                <button class="btn" ng-click="changeBaseLayer('luchtfoto')">Luchtfoto</button>
             </div>
             <div class="btn-group btn-group-vertical ll viewbtns">
                 <button type="button" class="btn"><i class="fa fa-plus"></i></button>
@@ -76,3 +76,70 @@
         </leaflet>
     </div>
 </div>
+
+<style>
+      .ll {
+        position: absolute;
+        z-index: 260;
+    }
+    
+    .interactiebtns {
+        left: 30px;
+        top: 100px;
+      
+    }
+    
+    .searchbtns {
+        left: 30px;
+        top: 40px;
+    }
+    
+    .zoekbalken {
+        left: 120px;
+        top: 40px;
+    }
+    
+    #zoekbalk1 {
+        width: 300px;
+    }
+    
+    .localiseerbtn {
+        right: 10px;
+        bottom: 20px;
+    }
+    
+    .viewbtns {
+        right: 10px;
+        bottom: 80px;
+    }
+
+    
+    .wrapper {
+        width: 100%;
+        height: 100%;
+    }
+    
+    button.btn.active {
+        background-color: dodgerblue;
+        color: white;
+    }
+    .leafletmap {
+        top: 0;
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+    }
+    .leaflet-left .leaflet-control-scale {
+        margin-left: 175px;
+        margin-bottom: 20px;
+    }
+    .kaarttypes {
+        left: 30px;
+        bottom:15px;
+    }
+    .kaarttypes > .btn 
+    {
+        font-size: 0.5rem;
+    }
+    </style>
