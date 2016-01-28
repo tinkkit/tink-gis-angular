@@ -1,5 +1,4 @@
 <!doctype html>
-<<<<<<< HEAD
 <html ng-app="tink.gis.angular">
 
 <head>
@@ -73,74 +72,6 @@
        }]);
     </script>
 </head>
-=======
-<html ng-app="tink.gis">
-<head>
-  <meta charset="utf-8">
-  <title>Tink Gis</title>
-  <meta name="description" content="">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="viewport" content="initial-scale=1.0,user-scalable=no,minimum-scale=1.0">
-  <!-- bower:css -->
-  <link rel="stylesheet" href="bower_components/tink-core/dist/tink.css" />
-  <link rel="stylesheet" href="bower_components/leaflet/dist/leaflet.css" />
-  <!-- endbower -->
-
-</head>
-<body>
-
-<div ng-controller="Controller">
-  <tink-map data-layers="ctrl.ourlayers" data-center="ctrl.center"></tink-map>
-</div>
-
-<!-- bower:js -->
-<script src="bower_components/jquery/dist/jquery.js"></script>
-<script src="bower_components/angular/angular.js"></script>
-<script src="bower_components/angular-resource/angular-resource.js"></script>
-<script src="bower_components/angular-cookies/angular-cookies.js"></script>
-<script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
-<script src="bower_components/angular-animate/angular-animate.js"></script>
-<script src="bower_components/angular-touch/angular-touch.js"></script>
-<script src="bower_components/angular-route/angular-route.js"></script>
-<script src="bower_components/lodash/lodash.js"></script>
-<script src="bower_components/tink-api-javascript/dist/tink-api-javascript.js"></script>
-<script src="bower_components/tink-api-angular/dist/tink-api-angular.js"></script>
-<script src="bower_components/tink-navigation-angular/dist/tink-navigation-angular.js"></script>
-<script src="bower_components/moment/moment.js"></script>
-<script src="bower_components/sprintf/src/sprintf.js"></script>
-<script src="bower_components/angular-logger/dist/angular-logger.min.js"></script>
-<script src="bower_components/leaflet/dist/leaflet-src.js"></script>
-<script src="bower_components/angular-leaflet-directive/dist/angular-leaflet-directive.js"></script>
-<!-- endbower -->
-
-<script src="scripts/directives/tinkmap.js"></script>
-
-<script>
-  var app = angular.module('tink.gis');
-  app.controller('Controller', [ '$scope', function($scope) {
-
-  var ctrl = this;
-
-    ctrl.center = {
-      lat: 51.2192159,
-      lng: 4.4028818,
-      zoom: 17
-    }
-
-    ctrl.ourlayers = {
-      kaart: {
-        name: 'kaart',
-        url: 'http://tiles.arcgis.com/tiles/1KSVSmnHT2Lw9ea6/arcgis/rest/services/basemap_stadsplan_v6/MapServer/tile/{z}/{y}/{x}',
-        type: 'xyz',
-        layerOptions: {
-          showOnSelector: true
-        }
-      }
-    }
-
-  }]);
-</script>
->>>>>>> f92fae7b1937c5362c49ee00df8a51d0eb9d71cb
 
 <body ng-controller="ExampleController as ctrl">
     <div>

@@ -1,5 +1,6 @@
 'use strict';
 (function (module) {
+<<<<<<< HEAD
     try {
         module = angular.module('tink.gis.angular');
     } catch (e) {
@@ -87,5 +88,57 @@
     });
 })
     ();
+=======
+  try {
+    module = angular.module('tink.gis');
+  } catch (e) {
+    module = angular.module('tink.gis', ['leaflet-directive']);
+  }
+  module.directive('tinkMap',[function() {
+    return {
+      templateUrl: 'templates/tinkmaptemplate.html',
+      scope: {
+        layers: '=',
+        center: '='
+      },
+      controller: function ($scope) {
 
+        var ourlayers = $scope.layers;
+        // console.log(ourlayers);
 
+        $scope.changeLayer = function (layername) {
+          $scope.layers = ourlayers[layername];
+        };
+
+        angular.extend($scope, {
+          defaults: {
+            zoomControl: false
+          },
+          controls: {
+            scale: {
+              imperial: false
+            }
+          }
+        });
+>>>>>>> f92fae7b1937c5362c49ee00df8a51d0eb9d71cb
+
+        if ($scope.center === undefined) {
+          angular.extend($scope, {
+            center: $scope.center
+          });
+        }
+
+        if ($scope.layers === undefined || $scope.layers.baselayers === undefined) {
+          angular.extend($scope, {
+            layers: {
+              baselayers: {
+                kaart: ourlayers.kaart,
+                luchtfoto: ourlayers.luchtfoto
+              },
+            }
+          });
+        }
+      }
+    };
+  }]);
+})();
