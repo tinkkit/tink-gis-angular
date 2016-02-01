@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="bower_components/tink-core/dist/tink.css" />
     <link rel="stylesheet" href="bower_components/leaflet/dist/leaflet.css" />
     <!-- endbower -->
-    <!--<link rel="stylesheet" href="styles/tinkmaps.css" />  TO FIX!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
+    <link rel="stylesheet" href="styles/tink-gis-angular.css" />  
 
 
 
@@ -36,7 +36,7 @@
     <!-- endbower -->
 
 
-    <script src="scripts/directives/tinkmap.js"></script>
+    <script src="scripts/directives/tink-map.js"></script>
     <script>
         app = angular.module('tink.gis.angular');
         app.controller('ExampleController', [ '$scope', function($scope) {
@@ -45,10 +45,6 @@
             lat: 51.2192159,
             lng: 4.4028818,
             zoom: 15
-        }
-        $scope.test = function()
-        { 
-            alert("ok");
         }
         ctrl.ourlayers = {
             kaart: {

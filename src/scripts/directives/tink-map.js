@@ -12,7 +12,8 @@
                 parlayers: '=',
                 parcenter: '='
             },
-            controller: function ($scope) {
+            controller: function ($scope, leafletData) {
+
                 function clone(obj) {
                     var copy;
 
@@ -48,11 +49,11 @@
                 }
                 var Alllayers = clone($scope.parlayers);
                 angular.extend($scope, {
-                    center: $scope.parcenter,
+                    center: clone($scope.parcenter),
                     layers: {
                         baselayers: $scope.parlayers
-
-                    },
+                    },       
+                    // tiles: $scope.parlayers.kaart,
                     defaults: {
                         zoomControl: false
                     },
@@ -62,30 +63,27 @@
                         }
                     }
                 });
-           
-                // var test = {
-                //     luchtfoto: {
-                //         name: 'luchtfoto',
-                //         url: 'http://tile.informatievlaanderen.be/ws/raadpleegdiensten/tms/1.0.0/omwrgbmrvl@GoogleMapsVL/{z}/{x}/{y}.png',
-                //         type: 'xyz',
-                //         visible: true,
-                //         layerOptions: {
-                //             showOnSelector: true,
-                //             tms: true
-                //         }
-                //     }
-                // };
-                $scope.changeBaseLayer = function (key) {
-                    var thebaselayeritem = { themap: clone(Alllayers[key]) };
-                    $scope.layers.baselayers = null;
-                    thebaselayeritem.themap.visible = true;
-                    $scope.layers.baselayers = thebaselayeritem;
-
+                $scope.zoomIn = function () {
+                    $scope.center.zoom++;
+                };
+                $scope.zoomOut = function () {
+                    $scope.center.zoom--;
+                };
+                $scope.fullExtent = function () {
+                    $scope.center.zoom = $scope.parcenter.zoom;
+                    $scope.center.lat = $scope.parcenter.lat;
+                    $scope.center.lng = $scope.parcenter.lng;
+                };
+                $scope.kaartIsGetoond = true;
+                $scope.toonKaart = function () {
+                    $scope.kaartIsGetoond = true;
+                    $scope.changeTiles('kaart');
+                };
+                $scope.toonLuchtfoto = function () {
+                    $scope.kaartIsGetoond = false;
+                    $scope.changeTiles('luchtfoto');
                 };
             }
         };
     });
-})
-    ();
-
-
+})();
