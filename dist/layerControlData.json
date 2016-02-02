@@ -15,7 +15,7 @@
                     },
                     {
                         "name": "hoofdgebouw",
-                        "visible": true,
+                        "visible": false,
                         "type": "agsFeature",
                         "url": "http://app10.a.gis.local/arcgissql/rest/services/A_GeoService/operationallayers/MapServer/1"
                     }

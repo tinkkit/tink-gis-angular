@@ -1,22 +1,26 @@
 'use strict';
 (function (module) {
+    console.log("registering stuff");
     try {
         module = angular.module('tink.gis.angular');
     } catch (e) {
-        module = angular.module('tink.gis.angular', ['leaflet-directive']);
+        module = angular.module('tink.gis.angular', ['leaflet-directive', 'tink.accordion', 'tink.tinkApi']);
     }
-    module.directive('tinkMap', function () {
+    console.log("registerED stuff");
+    module.directive('tinkmap', function () {
         return {
-            templateUrl: 'templates/tinkmaptemplate.html',
+            restrict: 'E',
+            replace: true,
+            templateUrl: 'templates/maptemplate.html',
             scope: {
                 parlayers: '=',
                 parcenter: '='
             },
             controller: function ($scope, leafletData) {
-
+                console.log('mapDirective CTOR');
                 function clone(obj) {
                     var copy;
-
+                    
                     // Handle the 3 simple types, and null or undefined
                     if (null == obj || "object" != typeof obj) return obj;
 
@@ -69,6 +73,20 @@
                 $scope.zoomOut = function () {
                     $scope.center.zoom--;
                 };
+                $scope.changeBaseLayer = function (layerName) {
+                    var baselayers = $scope.layers.baselayers;
+                    var switchLayerName;
+                    if (layerName == "luchtfoto") {
+                        switchLayerName = "kaart"
+                    }
+                    else {
+                        switchLayerName = "luchtfoto"
+                    }
+
+                    delete baselayers[switchLayerName];
+                    baselayers[layerName] = Alllayers[layerName];
+                };
+
                 $scope.fullExtent = function () {
                     $scope.center.zoom = $scope.parcenter.zoom;
                     $scope.center.lat = $scope.parcenter.lat;
@@ -77,11 +95,11 @@
                 $scope.kaartIsGetoond = true;
                 $scope.toonKaart = function () {
                     $scope.kaartIsGetoond = true;
-                    $scope.changeTiles('kaart');
+                    $scope.changeBaseLayer('kaart');
                 };
                 $scope.toonLuchtfoto = function () {
                     $scope.kaartIsGetoond = false;
-                    $scope.changeTiles('luchtfoto');
+                    $scope.changeBaseLayer('luchtfoto');
                 };
             }
         };

@@ -61,6 +61,6 @@
 
     theComponent.$inject = ['$log', 'appConfig'];
 
-    angular.module('AppService').factory(componentName, theComponent);
+    angular.module('tink.gis.angular').factory(componentName, theComponent);
 
 })();

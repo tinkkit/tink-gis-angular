@@ -1,41 +1,23 @@
 (function (module) {
-    
     'use strict';
-    
-    console.log("init layer")
-     
     module = angular.module('tink.gis.angular');
-  
-    var directiveName = "layer";
-   // var theDirective = function (appService) {
+    var theController = module.controller('layerController', function ($scope, $http, GisDataService) {
+        console.log('layerController CTOR');
+        $scope.changeVisibility = function (url) {
+            GisDataService.changeVisibility(url);
+        };
+    })
+    theController.$inject = ['GisDataService'];
     var theDirective = function () {
         return {
-            // link: function (scope, element, attrs) {
-            //                   
-            // },
-            restrict: "E",
+            restrict: 'E',
             scope: {
-                layerData: "="
+                layerData: '='
             },
-            templateUrl: window.location.pathname + "../scripts/layerControl/layer/layer.html",
-            controllerAs: 'layerctrl' ,
+            templateUrl: 'templates/layer.html',
+            controller: 'layerController',
         }
     };
-    
-    var theController = module.controller('layerctrl', function($scope, $http, GisDataService)
-{
-     
-    //   $scope.layers = GisDataService.layers;
-      $scope.changeVisibility = function(url){
-        
-      GisDataService.changeVisibility(url);
-                     
-      };
-     
-})
 
-    theController.$inject = ['GisDataService'];
-
-   
-    angular.module('tink.gis.angular').directive(directiveName, theDirective);
+    angular.module('tink.gis.angular').directive('layer', theDirective);
 })();
