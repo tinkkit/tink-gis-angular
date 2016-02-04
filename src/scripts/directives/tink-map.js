@@ -8,6 +8,7 @@
     module.directive('tinkMap', function () {
         return {
             templateUrl: 'templates/tinkmaptemplate.html',
+            replace: true,
             scope: {
                 parlayers: '=',
                 parcenter: '='
@@ -52,7 +53,7 @@
                     center: clone($scope.parcenter),
                     layers: {
                         baselayers: $scope.parlayers
-                    },       
+                    },
                     // tiles: $scope.parlayers.kaart,
                     defaults: {
                         zoomControl: false

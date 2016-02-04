@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="bower_components/tink-core/dist/tink.css" />
     <link rel="stylesheet" href="bower_components/leaflet/dist/leaflet.css" />
     <!-- endbower -->
-    <link rel="stylesheet" href="styles/tink-gis-angular.css" />  
+    <link rel="stylesheet" href="styles/tink-gis-angular.css" />
 
 
 
@@ -69,10 +69,9 @@
     </script>
 </head>
 <body ng-controller="ExampleController as ctrl">
-    <div>
-        <div tink-map parlayers="ctrl.ourlayers" parcenter="ctrl.center">
-        </div>
-    </div>
+    <!-- <div class="demo"> -->
+        <tink-map parlayers="ctrl.ourlayers" parcenter="ctrl.center"></tink-map>
+    <!-- </div> -->
 </body>
 
 </html>

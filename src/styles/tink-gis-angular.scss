@@ -1,41 +1,103 @@
+@import "../../bower_components/tink-core/dist/tink/functions";
+@import "../../bower_components/tink-core/dist/tink/mixins";
+@import "../../bower_components/tink-core/dist/tink/variables";
+
+// .demo {
+//   background-color: rgba(0, 0, 0, .2);
+//   bottom: 10%;
+//   left: 10%;
+//   position: fixed;
+//   right: 10%;
+//   top: 10%;
+// }
+
+.tink-map, .leafletmap {
+  height: 100%;
+  width: 100%;
+}
+
+.tink-map {
+  @include mq($screen-sm) {
+    padding-right: rem($nav-aside-width);
+  }
+
+  .nav-aside {
+    top: 0;
+  }
+
+  .fa-fw {
+    width: rem(10);
+  }
+}
+
+.leafletmap {
+  position: relative;
+}
+
+
+
+
 .ll {
   position: absolute;
-  z-index: 260;
+  z-index: layer('base');
 }
 
 .interactiebtns {
-  left: 30px;
-  top: 100px;
+  left: rem(10);
+  top: rem(100);
 
+  @include mq($screen-sm) {
+    left: rem(15);
+    top: rem(105);
+  }
 }
 
 .searchbtns {
-  left: 30px;
-  top: 40px;
+  left: rem(10);
+  top: rem(10);
+
+  @include mq($screen-sm) {
+    left: rem(15);
+    top: rem(15);
+  }
 }
 
 .zoekbalken {
-  left: 120px;
-  top: 40px;
+  left: rem(90);
+  top: rem(10);
+
+  @include mq($screen-sm) {
+    left: rem(95);
+    top: rem(15);
+  }
 }
 
 #zoekbalk1 {
-  width: 300px;
+  width: rem(250);
+
+  @include mq($screen-sm) {
+    width: rem(300);
+  }
 }
 
 .localiseerbtn {
-  right: 10px;
-  bottom: 20px;
+  right: rem(10);
+  bottom: rem(20);
+
+  @include mq($screen-sm) {
+    right: rem(15);
+    bottom: rem(20);
+  }
 }
 
 .viewbtns {
-  right: 10px;
-  bottom: 80px;
-}
+  right: rem(10);
+  bottom: rem(64);
 
-.wrapper {
-  width: 100%;
-  height: 100%;
+  @include mq($screen-sm) {
+    right: rem(15);
+    bottom: rem(69);
+  }
 }
 
 button.btn.active {
@@ -43,24 +105,26 @@ button.btn.active {
   color: white;
 }
 
-.leafletmap {
-  top: 0;
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-}
-
 .leaflet-left .leaflet-control-scale {
-  margin-left: 175px;
-  margin-bottom: 20px;
+  margin-left: rem(130);
+  margin-bottom: rem(13);
+
+  @include mq($screen-sm) {
+    margin-left: rem(135);
+    margin-bottom: rem(18);
+  }
 }
 
 .kaarttypes {
-  left: 30px;
-  bottom:15px;
+  left: rem(10);
+  bottom: rem(10);
+
+  @include mq($screen-sm) {
+    left: rem(15);
+    bottom: rem(15);
+  }
 }
 
 .kaarttypes > .btn {
-  font-size: 0.5rem;
+  font-weight: normal;
 }
