@@ -8,6 +8,7 @@
     module.directive('tinkMap', function () {
         return {
             templateUrl: 'templates/tinkmaptemplate.html',
+            replace: true,
             scope: {
                 parlayers: '=',
                 parcenter: '='
@@ -62,7 +63,7 @@
                         }
                     }
                 });
-           
+
                 // var test = {
                 //     luchtfoto: {
                 //         name: 'luchtfoto',
