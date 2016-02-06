@@ -58,9 +58,7 @@
         };
 
     };
-
     theComponent.$inject = ['$log', 'appConfig'];
-
     angular.module('tink.gis.angular').factory(componentName, theComponent);
 
 })();
