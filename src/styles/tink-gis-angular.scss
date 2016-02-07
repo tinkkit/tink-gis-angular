@@ -11,12 +11,12 @@
 //   top: 10%;
 // }
 
-.tink-map, .leafletmap {
+.tinkmap, .leafletmap {
   height: 100%;
   width: 100%;
 }
 
-.tink-map {
+.tinkmap {
   @include mq($screen-sm) {
     padding-right: rem($nav-aside-width);
   }

@@ -150,25 +150,7 @@ var helperService = function () {
 }
 
 
-module.factory("map", helperService);;'use strict';
-
-
-(function () {
-
-    try {
-        var module = angular.module('tink.gis.angular');
-    } catch (e) {
-        var module = angular.module('tink.gis.angular', ['tink.accordion', 'tink.tinkApi']); //'leaflet-directive'
-    }
-    var baseLayersService = function () {
-        var _baseLayersService = {};
-        _baseLayersService.kaart = L.tileLayer('http://tiles.arcgis.com/tiles/1KSVSmnHT2Lw9ea6/arcgis/rest/services/basemap_stadsplan_v6/MapServer/tile/{z}/{y}/{x}', { id: 'kaart' });
-        _baseLayersService.luchtfoto = L.tileLayer("http://tile.informatievlaanderen.be/ws/raadpleegdiensten/tms/1.0.0/omwrgbmrvl@GoogleMapsVL/{z}/{x}/{y}.png", { id: 'luchtfoto', tms: 'true' });
-        return _baseLayersService;
-    };
-
-    module.factory("BaseLayersService", baseLayersService);
-})();;// Kan gebruikt worden om data door te geven tussen controllers en/of directives
+module.factory("map", helperService);;// Kan gebruikt worden om data door te geven tussen controllers en/of directives
 
 (function () {
 
@@ -281,6 +263,24 @@ module.factory("map", helperService);;'use strict';
 
 })();
 ;'use strict';
+
+
+(function () {
+
+    try {
+        var module = angular.module('tink.gis.angular');
+    } catch (e) {
+        var module = angular.module('tink.gis.angular', ['tink.accordion', 'tink.tinkApi']); //'leaflet-directive'
+    }
+    var baseLayersService = function () {
+        var _baseLayersService = {};
+        _baseLayersService.kaart = L.tileLayer('http://tiles.arcgis.com/tiles/1KSVSmnHT2Lw9ea6/arcgis/rest/services/basemap_stadsplan_v6/MapServer/tile/{z}/{y}/{x}', { id: 'kaart' });
+        _baseLayersService.luchtfoto = L.tileLayer("http://tile.informatievlaanderen.be/ws/raadpleegdiensten/tms/1.0.0/omwrgbmrvl@GoogleMapsVL/{z}/{x}/{y}.png", { id: 'luchtfoto', tms: 'true' });
+        return _baseLayersService;
+    };
+
+    module.factory("BaseLayersService", baseLayersService);
+})();;'use strict';
 
 
 (function () {
@@ -516,6 +516,11 @@ module.factory("map", helperService);;'use strict';
     "<button type=button class=btn ng-click=zoomOut() prevent-default><i class=\"fa fa-minus\"></i></button>\n" +
     "<button type=button class=btn ng-click=\"\" prevent-default><i class=\"fa fa-crosshairs\"></i></button>\n" +
     "<button type=button class=btn ng-click=fullExtent() prevent-default><i class=\"fa fa-home\"></i></button> </div> <div class=\"ll localiseerbtn\"> <button type=button class=btn prevent-default><i class=\"fa fa-male\"></i></button> </div> </leaflet> </div> </div>"
+  );
+
+
+  $templateCache.put('templates/tinkmaptemplate.html',
+    ""
   );
 
 }]);
