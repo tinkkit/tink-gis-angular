@@ -4,7 +4,7 @@
         <div class="nav-aside-section">
             <tink-accordion data-start-open="true">
                 Layers
-                <div ng-repeat="theme in layers">
+                <!--<div ng-repeat="theme in layers">-->
                     Een THEME
                     <tink-accordion-panel>
                         <data-header>
@@ -13,22 +13,22 @@
                         <data-content>
                             <!--group-->
                             <tink-accordion data-start-open="true">
-                                <div ng-repeat="group in theme.groups">
+                                <!--<div ng-repeat="group in theme.groups">-->
                                     <tink-accordion-panel>
                                         <data-header>
                                             <input style="opacity: 1;position: relative;z-index:100" ; type="checkbox" ng-model="group.visible"> {{group.name}}
                                         </data-header>
                                         <data-content>
-                                            <div ng-repeat="layerhup in group.layers">
+                                            <div ng-repeat="layerhup in layers">
                                                 <layer layer-data="layerhup"></layer>
                                             </div>
                                         </data-content>
                                     </tink-accordion-panel>
-                                </div>
+                                <!--</div>-->
                             </tink-accordion>
                         </data-content>
                     </tink-accordion-panel>
-                </div>
+                <!--</div>-->
             </tink-accordion>
         </div>
     </aside>

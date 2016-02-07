@@ -4,7 +4,7 @@
     module.directive('tinklayers', function () {
         console.log("layersDIRECTIVE CTOR");
         return {
-            restrict: "E",
+            restrict: 'E',
             templateUrl: 'templates/layerstemplate.html',
             controller: 'layersController'
         };

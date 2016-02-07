@@ -36,6 +36,19 @@
             }
             throw new Error('Unable to copy obj! Its type isn\'t supported.');
         }
+
+
+        _helperService.findNested = function (obj, key) {
+            if (_.has(obj, key)) // or just (key in obj)
+                return [obj];
+            // elegant:
+            return _.flatten(_.map(obj, function (v) {
+                return typeof v == 'object' ? _helperService.findNested(v, key) : [];
+            }), true);
+
+
+        }
+
         return _helperService;
     };
 

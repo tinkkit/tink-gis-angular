@@ -1,5 +1,11 @@
 try {
-    module = angular.module('tink.gis.angular');
+    var module = angular.module('tink.gis.angular');
 } catch (e) {
-    module = angular.module('tink.gis.angular', ['leaflet-directive', 'tink.accordion', 'tink.tinkApi']);
+    var module = angular.module('tink.gis.angular', ['leaflet-directive', 'tink.accordion', 'tink.tinkApi']);
 }
+module.constant('appConfig', {
+    templateUrl: "/digipolis.stadinkaart.webui",
+    apiUrl: "/digipolis.stadinkaart.api/",
+    enableDebug: true,
+    enableLog: true
+});
