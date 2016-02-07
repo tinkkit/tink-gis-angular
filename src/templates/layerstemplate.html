@@ -1,22 +1,19 @@
-<!--theme-->
 <div data-tink-nav-aside="" data-auto-select="true" data-toggle-id="asideNavRight" class="nav-aside nav-right" style="height: 100%; position: absolute;"> 
     <aside>
         <div class="nav-aside-section">
             <tink-accordion data-start-open="true">
-                Layers
-                <!--<div ng-repeat="theme in layers">-->
-                    Een THEME
+                <div ng-repeat="theme in layers">
                     <tink-accordion-panel>
                         <data-header>
-                            <input style="opacity: 1;position: relative;z-index:100" ; type="checkbox" ng-model="theme.visible"> {{theme.name}}
+                            <!--<input style="opacity: 1;position: relative;z-index:100" ; type="checkbox" ng-model="theme.visible"> {{theme.name}}-->
                         </data-header>
                         <data-content>
                             <!--group-->
                             <tink-accordion data-start-open="true">
-                                <!--<div ng-repeat="group in theme.groups">-->
+                                <div ng-repeat="group in theme.groups">
                                     <tink-accordion-panel>
                                         <data-header>
-                                            <input style="opacity: 1;position: relative;z-index:100" ; type="checkbox" ng-model="group.visible"> {{group.name}}
+                                            <!--<input style="opacity: 1;position: relative;z-index:100" ; type="checkbox" ng-model="group.visible"> {{group.name}}-->
                                         </data-header>
                                         <data-content>
                                             <div ng-repeat="layerhup in layers">
@@ -24,11 +21,11 @@
                                             </div>
                                         </data-content>
                                     </tink-accordion-panel>
-                                <!--</div>-->
+                                </div>
                             </tink-accordion>
                         </data-content>
                     </tink-accordion-panel>
-                <!--</div>-->
+                </div>
             </tink-accordion>
         </div>
     </aside>

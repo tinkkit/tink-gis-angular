@@ -3,7 +3,11 @@
 
 (function () {
 
+  try {
     var module = angular.module('tink.gis.angular');
+} catch (e) {
+    var module = angular.module('tink.gis.angular', [ 'tink.accordion', 'tink.tinkApi']); //'leaflet-directive'
+}
     var helperService = function () {
         console.log('Helperservice CTOR');
         var _helperService = {};

@@ -3,7 +3,11 @@
 (function () {
 
     'use strict';
-   var module = angular.module('tink.gis.angular');
+   try {
+    var module = angular.module('tink.gis.angular');
+} catch (e) {
+    var module = angular.module('tink.gis.angular', [ 'tink.accordion', 'tink.tinkApi']); //'leaflet-directive'
+}
 
 
     var gisDataService = function (HelperService) { //$http
