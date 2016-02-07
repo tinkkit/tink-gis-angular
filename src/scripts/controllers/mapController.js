@@ -4,75 +4,62 @@
 'use strict';
 (function (module) {
     module = angular.module('tink.gis.angular');
-    var theController = module.controller('mapController', function ($scope, HelperService, GisDataService) {
+    var theController = module.controller('mapController', function ($scope, HelperService, GisDataService,BaseLayersService) {
         console.log('mapController CTOR');
-        var Alllayers = HelperService.clone(GisDataService.mapData.layers.baselayers);
-        // if ($scope.layers === undefined || $scope.layers.baselayers === undefined) {
-        //     angular.extend($scope, GisDataService.mapData);
-        // }
-        angular.extend($scope, {
-            center: HelperService.clone($scope.parcenter),
-            layers: {
-                baselayers: GisDataService.mapData.layers.baselayers,
-                overlays: HelperService.clone(GisDataService.mapData.layers.overlays)
-            },       
-            // tiles: $scope.parlayers.kaart,
-            defaults: {
-                zoomControl: false
-            },
-            controls: {
-                scale: {
-                    imperial: false
-                }
-            }
-        });
 
+ 
+        var map = L.map('map', {
+            center: [51.2192159, 4.4028818],
+            zoom: 16,
+            layers: [BaseLayersService.kaart]
+        });
+        var AGeaoService = L.esri.dynamicMapLayer({
+            url: 'http://app10.a.gis.local/arcgissql/rest/services/A_GeoService/operationallayers/MapServer',
+            opacity: 0.5,
+            layers: [1],
+            useCors: false
+        }).addTo(map);
+        
+        L.control.scale( {imperial: false}).addTo(map);
+        console.log(AGeaoService);
+        AGeaoService.options.layers = [3];
+        var features = [];
+        map.on('click', function (e) {
+            console.log('click');
+            for (var x = 0; x < features.length; x++) {
+                map.removeLayer(features[x]);
+            }
+            AGeaoService.identify().on(map).at(e.latlng).layers('visible:3').run(function (error, featureCollection) {
+                for (var x = 0; x < featureCollection.features.length; x++) {
+                    console.log(featureCollection.features[x]);
+                    features.push(L.geoJson(featureCollection.features[x]).addTo(map));
+                }
+            });
+        });
+ 
         $scope.zoomIn = function () {
-            $scope.center.zoom++;
+            map.zoomIn();
         };
         $scope.zoomOut = function () {
-            $scope.center.zoom--;
+           map.zoomOut();
         };
-        $scope.changeBaseLayer = function (layerName) {
-            var baselayers = $scope.layers.baselayers;
-            var switchLayerName;
-            if (layerName == "luchtfoto") {
-                switchLayerName = "kaart"
-            }
-            else {
-                switchLayerName = "luchtfoto"
-            }
-
-            delete baselayers[switchLayerName];
-            baselayers[layerName] = Alllayers[layerName];
-        };
-
         $scope.fullExtent = function () {
-            $scope.center.zoom = $scope.parcenter.zoom;
-            $scope.center.lat = $scope.parcenter.lat;
-            $scope.center.lng = $scope.parcenter.lng;
+            map.setView(new L.LatLng(51.2192159, 4.4028818), 16);
         };
         $scope.kaartIsGetoond = true;
         $scope.toonKaart = function () {
             $scope.kaartIsGetoond = true;
-            $scope.changeBaseLayer('kaart');
+            map.removeLayer(BaseLayersService.luchtfoto);
+            map.addLayer(BaseLayersService.kaart);
         };
         $scope.toonLuchtfoto = function () {
             $scope.kaartIsGetoond = false;
-            $scope.changeBaseLayer('luchtfoto');
-        };
-        $scope.$on('leafletDirectiveMap.map.baselayerchange', function (ev, layer) {
-            console.log('base layer changed to %s', layer.leafletEvent.name);
-            var overlays = $scope.layers.overlays;
-            angular.forEach(overlays, function (overlay) {
-                if (overlay.visible) overlay.doRefresh = true;
-            });
-        });
-        
-        
+            map.removeLayer(BaseLayersService.kaart);
+            map.addLayer(BaseLayersService.luchtfoto);
 
+        };
     });
     theController.$inject = ['HelperService'];
     theController.$inject = ['GisDataService'];
-
+    theController.$inject = ['BaseLayersService'];
 })();

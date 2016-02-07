@@ -32,19 +32,31 @@
     <script src="bower_components/sprintf/src/sprintf.js"></script>
     <script src="bower_components/angular-logger/dist/angular-logger.min.js"></script>
     <script src="bower_components/leaflet/dist/leaflet-src.js"></script>
-    <script src="bower_components/angular-leaflet-directive/dist/angular-leaflet-directive.js"></script>
+    <!--<script src="bower_components/angular-leaflet-directive/dist/angular-leaflet-directive.js"></script>-->
     <script src="bower_components/tink-accordion-angular/dist/tink-accordion-angular.js"></script>
     <!-- endbower -->
+ <script src="http://cdn.leafletjs.com/leaflet/v1.0.0-beta.2/leaflet.js"></script>
+  <script src="//cdn.jsdelivr.net/leaflet.esri/2.0.0-beta.7/esri-leaflet.js"></script>
+
 
     <script src="scripts\moduleInit.js"></script>
+    
     <script src="scripts/services/gisDataService.js"></script>
     <script src="scripts/services/helperService.js"></script>
+    <script src="scripts/services/baseLayersService.js"></script>
+    <script src="scripts/services/layersService.js"></script>
+    
+            
     <script src="scripts/controllers/mapController.js"></script>
     <script src="scripts/controllers/layersController.js"></script>
     <script src="scripts/controllers/layerController.js"></script>
+    
+    
     <script src="scripts/directives/mapDirective.js"></script>
     <script src="scripts/directives/layerDirective.js"></script>
     <script src="scripts/directives/layersDirective.js"></script>
+    
+    
     <script src="scripts/shared/logger.js"></script>
     <script src="scripts/shared/errorhandler.js"></script>
     <script>
@@ -55,7 +67,7 @@
         ctrl.center = {
             lat: 51.2192159,
             lng: 4.4028818,
-            zoom: 15
+            zoom: 12
         };
         ctrl.ourlayers = {
             kaart: {

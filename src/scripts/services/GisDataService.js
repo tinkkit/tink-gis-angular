@@ -73,34 +73,9 @@
                 
     }}
         var _mapData = function() { return HelperService.clone(initData()); };
-        var _convertedMapData = {};
-        _convertedMapData.layers = {};
-         _convertedMapData.layers.overlays = HelperService.findNested(_mapData.layers ,"overlays");
-         _convertedMapData.layers.baselayers = HelperService.findNested(_mapData.layers ,"baselayers");
-//         var _layers = [];
-//         var layerDataService = {};
-// 
-//         $http.get('/layerControlData.json').then(function (res) {
-//             res.data.forEach(function (layer) {
-//                 _layers.push(layer);
-//             }, this);
-//         });
-// 
-//         function _add() {
-// 
-//             layerDataService.add = function (item) {
-//                 _layers.push(item);
-//             };
-// 
-// 
-//             return layerDataService.add;
-//         };
-// 
-//         function _list() {
-// 
-//             return _layers;
-// 
-//         }
+        var _convertedMapDatatata = {};
+    _convertedMapDatatata.layers = {};
+ _convertedMapDatatata.layers.overlays = HelperService.findNested();
 
 
 
@@ -108,37 +83,26 @@
 
         function _changeVisibility(url) {
 
-            var overlays = _mapData().layers.overlays;
+            var overlays = _mapData.layers.overlays;
 
             var res = HelperService.findNested(overlays, 'url');
 
             res.forEach(function (layer) {
                 if (layer.url == url) {
-                    // layer.visible = !layer.visible;
-                    console.log('Changed url: ' + url + ' to: ' + layer.visible);
+                    layer.visible = !layer.visible;
+        console.log('Changed url: ' + url + ' to: ' + layer.visible);
+                    
                 }
             }, this);
-           
-
-            
         }
-
-
         return {
-            // add: _add,
-            // list: _list,
-            // layers: _layers,
             changeVisibility: _changeVisibility,
             mapData: _mapData(),
-            convertMapData: _convertedMapData
-
-
+            convertedMapDatatata: _convertedMapDatatata
         };
 
     }
     gisDataService.$inject = ['HelperService'];
-
-
     module.factory('GisDataService', gisDataService);
 
 })();

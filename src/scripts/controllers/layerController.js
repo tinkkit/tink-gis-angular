@@ -9,6 +9,7 @@
         $scope.changeVisibility = function (url) {
             GisDataService.changeVisibility(url);
         };
+        
     })
     theController.$inject = ['GisDataService'];
 })();
