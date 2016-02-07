@@ -22,11 +22,9 @@ module.directive('preventDefault', function () {
 
     }
 });
-
 var helperService = function () {
     var map = {};
     return map;
 }
-
-
 module.factory("map", helperService);
+console.log('init done');

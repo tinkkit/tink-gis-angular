@@ -1,11 +1,11 @@
 'use strict';
 (function (module) {
     module = angular.module('tink.gis.angular');
-    module.directive('tinkmap', function () {
+    module.directive('tinkMap', function () {
         return {
-            restrict: 'E',
+            // restrict: 'E',
             replace: true,
-            templateUrl: 'templates/maptemplate.html',
+            templateUrl: 'templates/mapTemplate.html',
             scope: {
                 parlayers: '=',
                 parcenter: '='

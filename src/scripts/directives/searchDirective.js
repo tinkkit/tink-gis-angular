@@ -1,12 +1,12 @@
 'use strict';
 (function (module) {
     module = angular.module('tink.gis.angular');
-    module.directive('tinkLayers', function () {
+    module.directive('tinkSearch', function () {
         return {
             // restrict: 'E',
             replace: true,
-            templateUrl: 'templates/layersTemplate.html',
-            controller: 'layersController'
+            templateUrl: 'templates/searchTemplate.html',
+            controller: 'searchController'
         };
     });
 })();

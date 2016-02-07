@@ -11,14 +11,15 @@
 //   top: 10%;
 // }
 
-.tinkmap, .leafletmap {
+.tink-map, .leafletmap {
   height: 100%;
   width: 100%;
 }
 
-.tinkmap {
+.tink-map {
   @include mq($screen-sm) {
     padding-right: rem($nav-aside-width);
+    padding-left: rem($nav-aside-width);
   }
 
   .nav-aside {
@@ -72,11 +73,11 @@
   }
 }
 
-#zoekbalk1 {
-  width: rem(250);
+.zoekbalk {
+  width: rem(150);
 
   @include mq($screen-sm) {
-    width: rem(300);
+    width: rem(200);
   }
 }
 
@@ -126,5 +127,11 @@ button.btn.active {
 }
 
 .kaarttypes > .btn {
-  font-weight: normal;
+    height:30px;
+    font-size: 10px;
+//   font-weight: small;
+}
+
+.fa fa-male{
+    width: 15.775px;
 }

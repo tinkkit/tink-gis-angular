@@ -11,7 +11,9 @@
 
 
         _mapService.currentLayers = [6]
+        _mapService.IdentifiedItems = [];
         _mapService.visibleFeatures = [];
+        _mapService.jsonFeatures = [];
 
         return _mapService;
     };

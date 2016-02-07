@@ -179,7 +179,8 @@
 
 @media (min-width: 768px) {
   .tink-map {
-    padding-right: 15.7142857143rem ; } }
+    padding-right: 15.7142857143rem ;
+    padding-left: 15.7142857143rem ; } }
 
 .tink-map .nav-aside {
   top: 0; }
@@ -218,11 +219,11 @@
       left: 6.7857142857rem ;
       top: 1.0714285714rem ; } }
 
-#zoekbalk1 {
-  width: 17.8571428571rem ; }
+.zoekbalk {
+  width: 10.7142857143rem ; }
   @media (min-width: 768px) {
-    #zoekbalk1 {
-      width: 21.4285714286rem ; } }
+    .zoekbalk {
+      width: 14.2857142857rem ; } }
 
 .localiseerbtn {
   right: 0.7142857143rem ;
@@ -261,4 +262,8 @@ button.btn.active {
       bottom: 1.0714285714rem ; } }
 
 .kaarttypes > .btn {
-  font-weight: normal; }
+  height: 30px;
+  font-size: 10px; }
+
+.fa fa-male {
+  width: 15.775px; }
