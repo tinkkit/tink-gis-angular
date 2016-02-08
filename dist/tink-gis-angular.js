@@ -28,7 +28,9 @@
 (function (module) {
     module = angular.module('tink.gis.angular');
     var theController = module.controller('mapController', function ($scope, HelperService, GisDataService, BaseLayersService, map, MapService, $http) {
-        console.log('mapController ctor');
+        $scope.layerId = '';
+        $scope.activeInteractieKnop = 'identify';
+        $scope.selectedlayer = [];
 
         map = L.map('map', {
             center: [51.2192159, 4.4028818],
@@ -37,6 +39,10 @@
             zoomControl: false
         });
         map.doubleClickZoom.disable();
+        $http.get('http://app10.a.gis.local/arcgissql/rest/services/A_GeoService/operationallayers/MapServer/?f=pjson')
+            .success(function (data) {
+                $scope.Layers = data.layers;
+            });
         L.control.scale({ imperial: false }).addTo(map);
         var AGeaoService = L.esri.dynamicMapLayer({
             url: 'http://app10.a.gis.local/arcgissql/rest/services/A_GeoService/operationallayers/MapServer',
@@ -44,16 +50,10 @@
             layers: [],
             useCors: false
         }).addTo(map);
-
-
         map.on('click', function (e) {
             console.log('click op de map');
-            for (var x = 0; x < MapService.visibleFeatures.length; x++) {
-                map.removeLayer(MapService.visibleFeatures[x]);
-            }
+            cleanMapAndSearch();
             AGeaoService.identify().on(map).at(e.latlng).layers('visible:' + $scope.layerId).run(function (error, featureCollection) {
-                MapService.visibleFeatures.length = 0;
-                MapService.jsonFeatures.length = 0;
                 for (var x = 0; x < featureCollection.features.length; x++) {
                     MapService.jsonFeatures.push(featureCollection.features[x]);
                     console.log(featureCollection.features[x]);
@@ -64,17 +64,31 @@
                 $scope.$apply();
             });
         });
-        $scope.selectedlayer = [];
-        $http.get('http://app10.a.gis.local/arcgissql/rest/services/A_GeoService/operationallayers/MapServer/?f=pjson')
-            .success(function (data) {
-                $scope.Layers = data.layers;
-            });
+        var cleanMapAndSearch = function () {
+            for (var x = 0; x < MapService.visibleFeatures.length; x++) {
+                map.removeLayer(MapService.visibleFeatures[x]);
+            }
+            MapService.visibleFeatures.length = 0;
+            MapService.jsonFeatures.length = 0;
+        };
+        $scope.identify = function () {
+            cleanMapAndSearch();
+            $scope.activeInteractieKnop = 'identify';
+            $scope.layerId = '';
+            AGeaoService.options.layers = [$scope.layerId]
+        };
+        $scope.select = function () {
+            cleanMapAndSearch();
+            $scope.activeInteractieKnop = 'select';
+            $scope.layerId = '0';
+            $scope.selectedlayer.id = '0'
+            AGeaoService.options.layers = [$scope.layerId]
+
+        };
         $scope.layerChange = function () {
-            console.log($scope.selectedlayer);
             $scope.layerId = $scope.selectedlayer.id;
             AGeaoService.options.layers = [$scope.layerId]
         };
-        $scope.layerId = '';
         $scope.zoomIn = function () {
             map.zoomIn();
         };
@@ -102,7 +116,7 @@
     module = angular.module('tink.gis.angular');
     var theController = module.controller('searchController', function ($scope, MapService) {
         $scope.features = MapService.jsonFeatures;
-    })
+    });
     theController.$inject = ['MapService'];
 })();;(function (module) {
     'use strict';
@@ -454,9 +468,9 @@ console.log('init done');;'use strict';
 
   $templateCache.put('templates/mapTemplate.html',
     "<div class=tink-map> <div id=map class=leafletmap> <div class=\"btn-group ll searchbtns\"> <button type=button class=btn prevent-default><i class=\"fa fa-map-marker\"></i></button>\n" +
-    "<button type=button class=btn prevent-default><i class=\"fa fa-download\"></i></button> </div> <div class=\"btn-group btn-group-vertical ll interactiebtns\"> <button type=button class=\"btn active\" prevent-default><i class=\"fa fa-info\"></i></button>\n" +
-    "<button type=button class=btn prevent-default><i class=\"fa fa-mouse-pointer\"></i></button>\n" +
-    "<button type=button class=btn prevent-default><i class=\"fa fa-download\"></i></button> </div> <div class=\"ll zoekbalken\"> <input class=zoekbalk placeholder=\"Welke locatie of adres zoek je?\"> <select ng-options=\"layer as layer.name for layer in Layers track by layer.id\" ng-model=selectedlayer ng-change=layerChange()></select> </div> <div class=\"ll btn-group kaarttypes\"> <button class=btn ng-class=\"{active: kaartIsGetoond==true}\" ng-click=toonKaart() prevent-default>Kaart</button>\n" +
+    "<button type=button class=btn prevent-default><i class=\"fa fa-download\"></i></button> </div> <div class=\"btn-group btn-group-vertical ll interactiebtns\"> <button type=button class=btn ng-click=identify() ng-class=\"{active: activeInteractieKnop=='identify'}\" prevent-default><i class=\"fa fa-info\"></i></button>\n" +
+    "<button type=button class=btn ng-click=select() ng-class=\"{active: activeInteractieKnop=='select'}\" prevent-default><i class=\"fa fa-mouse-pointer\"></i></button>\n" +
+    "<button type=button class=btn ng-class=\"{active: activeInteractieKnop=='dunno'}\" prevent-default><i class=\"fa fa-download\"></i></button> </div> <div class=\"ll zoekbalken\"> <input class=zoekbalk placeholder=\"Welke locatie of adres zoek je?\" prevent-default> <select ng-options=\"layer as layer.name for layer in Layers track by layer.id\" ng-model=selectedlayer ng-change=layerChange() ng-class=\"{invisible: activeInteractieKnop!='select'}\" prevent-default></select> </div> <div class=\"ll btn-group kaarttypes\"> <button class=btn ng-class=\"{active: kaartIsGetoond==true}\" ng-click=toonKaart() prevent-default>Kaart</button>\n" +
     "<button class=btn ng-class=\"{active: kaartIsGetoond==false}\" ng-click=toonLuchtfoto() prevent-default>Luchtfoto</button> </div> <div class=\"btn-group btn-group-vertical ll viewbtns\"> <button type=button class=btn ng-click=zoomIn() prevent-default><i class=\"fa fa-plus\"></i></button>\n" +
     "<button type=button class=btn ng-click=zoomOut() prevent-default><i class=\"fa fa-minus\"></i></button>\n" +
     "<button type=button class=btn ng-click=\"\" prevent-default><i class=\"fa fa-crosshairs\"></i></button>\n" +

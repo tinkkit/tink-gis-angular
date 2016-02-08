@@ -173,6 +173,9 @@
 /**
  * Variables
  */
+.fa-male {
+  width: 15.775px; }
+
 .tink-map, .leafletmap {
   height: 100%;
   width: 100%; }
@@ -264,6 +267,3 @@ button.btn.active {
 .kaarttypes > .btn {
   height: 30px;
   font-size: 10px; }
-
-.fa fa-male {
-  width: 15.775px; }
