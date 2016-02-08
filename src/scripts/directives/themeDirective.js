@@ -5,7 +5,7 @@
         return {
             replace: true,
             scope: {
-                theme: '@'
+                theme: '='
             },
             templateUrl: 'templates/themeTemplate.html',
             controller: 'themeController'

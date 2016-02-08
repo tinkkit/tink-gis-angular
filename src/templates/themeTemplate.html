@@ -1,4 +1,10 @@
-
-<div ng-repeat="">
-    
+<div>{{theme.Naam}}
+    <div style="margin-left:10px;" ng-repeat="layer in theme.Layers">
+        <tink-Layer layer="layer">
+        </tink-Layer>
+    </div>
+    <div style="margin-left:10px;"" ng-repeat="group in theme.Groups">
+        <tink-Grouplayer grouplayer="group">
+        </tink-Grouplayer>
+    </div>
 </div>

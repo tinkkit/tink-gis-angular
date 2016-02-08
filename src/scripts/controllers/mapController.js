@@ -30,8 +30,6 @@
             AGeaoService.identify().on(map).at(e.latlng).layers('visible:' + $scope.layerId).run(function (error, featureCollection) {
                 for (var x = 0; x < featureCollection.features.length; x++) {
                     MapService.jsonFeatures.push(featureCollection.features[x]);
-                    console.log(featureCollection.features[x]);
-
                     var item = L.geoJson(featureCollection.features[x]).addTo(map);
                     MapService.visibleFeatures.push(item);
                 }

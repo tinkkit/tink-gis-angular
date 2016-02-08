@@ -1,13 +1,13 @@
 'use strict';
 (function (module) {
     module = angular.module('tink.gis.angular');
-    module.directive('tinkGrouplayertheme', function () {
+    module.directive('tinkGrouplayer', function () {
         return {
             replace: true,
             scope: {
-                theme: '@'
+                grouplayer: '='
             },
-            templateUrl: 'templates/groupLayeremplate.html',
+            templateUrl: 'templates/groupLayerTemplate.html',
             controller: 'groupLayerController'
         };
     });

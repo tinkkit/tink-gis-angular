@@ -1,13 +1,13 @@
+'use strict';
 (function (module) {
-    'use strict';
     module = angular.module('tink.gis.angular');
-    module.directive('layer', function () {
+    module.directive('tinkLayer', function () {
         return {
-            restrict: 'E',
+            replace: true,
             scope: {
-                layerData: '='
+                layer: '='
             },
-            templateUrl: 'templates/layer.html',
+            templateUrl: 'templates/layerTemplate.html',
             controller: 'layerController',
         }
     });

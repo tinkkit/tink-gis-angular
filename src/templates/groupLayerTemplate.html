@@ -1,1 +1,6 @@
-<input style="opacity: 1;position: relative;z-index:100;" type="checkbox" ng-model="layerData.visible" ng-change="changeVisibility(layerData.url)">{{layerData.name}}
+    <div style="margin-left:10px;">G:{{grouplayer.name}}
+    <div ng-repeat="layer in grouplayer.Layers">
+        <tink-Layer layer="layer">
+        </tink-Layer>
+    </div>
+    </div>

@@ -1,18 +1,22 @@
 angular.module('tink.gis.angular').run(['$templateCache', function($templateCache) {
   'use strict';
 
-  $templateCache.put('templates/layer.html',
-    "<input style=\"opacity: 1;position: relative;z-index:100\" type=checkbox ng-model=layerData.visible ng-change=changeVisibility(layerData.url)>\n" +
-    "{{layerData.name}}"
+  $templateCache.put('templates/groupLayerTemplate.html',
+    "<div style=margin-left:10px>G:{{grouplayer.name}} <div ng-repeat=\"layer in grouplayer.Layers\"> <tink-layer layer=layer> </tink-layer> </div> </div>"
   );
 
 
-  $templateCache.put('templates/layersTemplate.html',
-    "<div data-tink-nav-aside=\"\" data-auto-select=true data-toggle-id=asideNavRight class=\"nav-aside nav-right\"> <aside> <div class=nav-aside-section> Layers <tink-accordion data-start-open=true> <div ng-repeat=\"theme in layers\"> <tink-accordion-panel> <data-header>  </data-header> <data-content>  <tink-accordion data-start-open=true> <div ng-repeat=\"group in theme.groups\"> <tink-accordion-panel> <data-header>  </data-header> <data-content> <div ng-repeat=\"layerhup in layers\"> <layer layer-data=layerhup></layer> </div> </data-content> </tink-accordion-panel> </div> </tink-accordion> </data-content> </tink-accordion-panel> </div> </tink-accordion> </div> </aside> </div>"
+  $templateCache.put('templates/layerTemplate.html',
+    "<div style=margin-left:10px><input class=visible-box type=checkbox ng-model=layer.visible>{{layer.name}}</div>"
   );
 
 
-  $templateCache.put('templates/mapTemplate.html',
+  $templateCache.put('templates/layerstemplate.html',
+    "<div data-tink-nav-aside=\"\" data-auto-select=true data-toggle-id=asideNavRight class=\"nav-aside nav-right\"> <aside> <div class=nav-aside-section> <tink-accordion data-start-open=true> <div ng-repeat=\"theme in themes\"> <tink-theme theme=theme> </tink-theme> </div> </tink-accordion> </div> </aside> </div>"
+  );
+
+
+  $templateCache.put('templates/maptemplate.html',
     "<div class=tink-map> <div id=map class=leafletmap> <div class=\"btn-group ll searchbtns\"> <button type=button class=btn prevent-default><i class=\"fa fa-map-marker\"></i></button>\n" +
     "<button type=button class=btn prevent-default><i class=\"fa fa-download\"></i></button> </div> <div class=\"btn-group btn-group-vertical ll interactiebtns\"> <button type=button class=btn ng-click=identify() ng-class=\"{active: activeInteractieKnop=='identify'}\" prevent-default><i class=\"fa fa-info\"></i></button>\n" +
     "<button type=button class=btn ng-click=select() ng-class=\"{active: activeInteractieKnop=='select'}\" prevent-default><i class=\"fa fa-mouse-pointer\"></i></button>\n" +
@@ -26,6 +30,11 @@ angular.module('tink.gis.angular').run(['$templateCache', function($templateCach
 
   $templateCache.put('templates/searchTemplate.html',
     "<div data-tink-nav-aside=\"\" data-auto-select=true data-toggle-id=asideNavLeft class=\"nav-aside nav-left\"> <aside> <div class=nav-aside-section> Zoek <div ng-repeat=\"feature in features \"> layerid: {{feature.layerId}} <pre>{{feature.properties | json }}</pre> </div> </div> </aside> </div>"
+  );
+
+
+  $templateCache.put('templates/themeTemplate.html',
+    "<div>{{theme.Naam}} <div style=margin-left:10px ng-repeat=\"layer in theme.Layers\"> <tink-layer layer=layer> </tink-layer> </div> <div style=margin-left:10px ng-repeat=\"group in theme.Groups\"> <tink-grouplayer grouplayer=group> </tink-grouplayer> </div> </div>"
   );
 
 }]);

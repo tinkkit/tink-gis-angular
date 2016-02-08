@@ -2,19 +2,9 @@
 @import "../../bower_components/tink-core/dist/tink/mixins";
 @import "../../bower_components/tink-core/dist/tink/variables";
 
-// .demo {
-//   background-color: rgba(0, 0, 0, .2);
-//   bottom: 10%;
-//   left: 10%;
-//   position: fixed;
-//   right: 10%;
-//   top: 10%;
-// }
 .fa {
     width: 15.775px;
 }
-
-
 
 .tink-map, .leafletmap {
   height: 100%;
@@ -137,3 +127,11 @@ button.btn.active {
 //   font-weight: small;
 }
 
+// Wtf tink ???
+input[type="checkbox"], input[type="radio"] {
+     opacity: 1; 
+     position: static; 
+}
+.visible-box {
+    padding-top: 4px;
+}
