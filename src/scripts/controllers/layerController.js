@@ -6,7 +6,9 @@
         var module = angular.module('tink.gis.angular', ['tink.accordion', 'tink.tinkApi']); //'leaflet-directive'
     }
     var theController = module.controller('layerController', function ($scope, $http, GisDataService) {
-        console.log('layerController CTOR');
+        $scope.visChanged = function () {
+            $scope.$emit('visChangedEvent', $scope.layer); // stuur naar parent ofwel group ofwel theme
+        };
     });
     theController.$inject = ['GisDataService'];
 })();

@@ -3,9 +3,8 @@
     module = angular.module('tink.gis.angular');
     module.controller('groupLayerController',
         function ($scope) {
-            $scope.Locate = function () {
-                console.log("klik");
-            };
+            // $scope.$on('visChangedEvent', function (event, layer) { // stuur het door naar het thema
+            //     $scope.$emit('visChangedEvent', layer);
+            // });
         });
-    // theController.$inject = ['MapService', 'map'];
 })();
