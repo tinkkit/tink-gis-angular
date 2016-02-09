@@ -13,4 +13,4 @@
             controller: 'mapController'
         };
     });
-})();
+})();           

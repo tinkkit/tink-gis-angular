@@ -1,43 +1,28 @@
 'use strict';
 (function (module) {
     module = angular.module('tink.gis.angular');
-    var theController = module.controller('mapController', function ($scope, HelperService, GisDataService, BaseLayersService, MapService, $http) {
+    var theController = module.controller('mapController', function ($scope, HelperService, GisDataService, BaseLayersService, MapService, $http, map) {
         $scope.layerId = '';
         $scope.activeInteractieKnop = 'identify';
         $scope.selectedlayer = [];
-
-        var map = L.map('map', {
-            center: [51.2192159, 4.4028818],
-            zoom: 16,
-            layers: [BaseLayersService.kaart],
-            zoomControl: false
-        });
-        module.factory("map", map);
-        L.esri.dynamicMapLayer({
-            url: "http://app10.a.gis.local/arcgissql/rest/services/A_GeoService/operationallayers/MapServer/",
-            opacity: 0.5,
-            layers: [],
-            useCors: false
-        }).addTo(map);
-        map.doubleClickZoom.disable();
-        // $http.get('http://app10.a.gis.local/arcgissql/rest/services/A_Stedenbouw/stad/MapServer?f=pjson')
+        // map.on('click', function (e) {
+        //     console.log('click op de map');
+        //     // cleanMapAndSearch();
+        //     // AGeaoService.identify().on(map).at(e.latlng).layers('visible:' + $scope.layerId).run(function (error, featureCollection) {
+        //     //     for (var x = 0; x < featureCollection.features.length; x++) {
+        //     //         MapService.jsonFeatures.push(featureCollection.features[x]);
+        //     //         var item = L.geoJson(featureCollection.features[x]).addTo(map);
+        //     //         MapService.visibleFeatures.push(item);
+        //     //     }
+        //     //     $scope.$apply();
+        //     // });
+        // });
+        
+            // $http.get('http://app10.a.gis.local/arcgissql/rest/services/A_Stedenbouw/stad/MapServer?f=pjson')
         //     .success(function (data) {
         //         $scope.Layers = data.layers;
         //     });
-        L.control.scale({ imperial: false }).addTo(map);
-
-        map.on('click', function (e) {
-            console.log('click op de map');
-            // cleanMapAndSearch();
-            // AGeaoService.identify().on(map).at(e.latlng).layers('visible:' + $scope.layerId).run(function (error, featureCollection) {
-            //     for (var x = 0; x < featureCollection.features.length; x++) {
-            //         MapService.jsonFeatures.push(featureCollection.features[x]);
-            //         var item = L.geoJson(featureCollection.features[x]).addTo(map);
-            //         MapService.visibleFeatures.push(item);
-            //     }
-            //     $scope.$apply();
-            // });
-        });
+        
         var cleanMapAndSearch = function () {
             for (var x = 0; x < MapService.visibleFeatures.length; x++) {
                 map.removeLayer(MapService.visibleFeatures[x]);
@@ -84,5 +69,5 @@
             map.addLayer(BaseLayersService.luchtfoto);
         };
     });
-    theController.$inject = ['HelperService', 'GisDataService', 'BaseLayersService', 'MapService', '$http'];
+    theController.$inject = ['HelperService', 'GisDataService', 'BaseLayersService', 'MapService', '$http', 'map'];
 })();

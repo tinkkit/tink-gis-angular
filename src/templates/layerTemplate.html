@@ -1,1 +1,3 @@
-<div style="margin-left:10px;"><input class="visible-box" type="checkbox" ng-model="layer.visible" >{{layer.name}}</div>
+<div class="layercontroller-checkbox">
+    <input class="visible-box" type="checkbox" ng-model="layer.visible" ng-change="visChanged()">{{layer.name}}
+</div>

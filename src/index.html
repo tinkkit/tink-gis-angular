@@ -36,8 +36,6 @@
     <script src="bower_components/esri-leaflet/dist/esri-leaflet.js"></script>
     <!-- endbower -->
 
-    <!--<script src="http://cdn.leafletjs.com/leaflet/v1.0.0-beta.2/leaflet.js"></script>
-    <script src="//cdn.jsdelivr.net/<l></l>eaflet.esri/2.0.0-beta.7/esri-leaflet.js"></script>-->
 
 
     <script src="scripts\moduleInit.js"></script>
@@ -48,6 +46,7 @@
     <script src="scripts/services/helperService.js"></script>
     <script src="scripts/services/baseLayersService.js"></script>
     <script src="scripts/services/mapService.js"></script>
+    <script src="scripts/services/layersService.js"></script>
 
 
     <script src="scripts/controllers/mapController.js"></script>
@@ -67,37 +66,6 @@
 
     <script src="scripts/shared/logger.js"></script>
     <script src="scripts/shared/errorhandler.js"></script>
-    <!--<script>
-        app = angular.module('tink.gis.angular');
-        app.controller('ExampleController', [ '$scope', function($scope) {
-        console.log("Examplecontroller CTOR");
-        var ctrl = this;
-        ctrl.center = {
-            lat: 51.2192159,
-            lng: 4.4028818,
-            zoom: 12
-        };
-        ctrl.ourlayers = {
-            kaart: {
-                name: 'kaart',
-                url: 'http://tiles.arcgis.com/tiles/1KSVSmnHT2Lw9ea6/arcgis/rest/services/basemap_stadsplan_v6/MapServer/tile/{z}/{y}/{x}',
-                type: 'xyz',
-                layerOptions: {
-                    showOnSelector: false
-                }
-            },
-            luchtfoto: {
-                name: 'luchtfoto',
-                url: "http://tile.informatievlaanderen.be/ws/raadpleegdiensten/tms/1.0.0/omwrgbmrvl@GoogleMapsVL/{z}/{x}/{y}.png",
-                type: 'xyz',
-                layerOptions: {
-                    showOnSelector: false,
-                    tms: true
-                }
-            }
-        };
-       }]);
-    </script>-->
 </head>
 
 <body>
