@@ -8,17 +8,11 @@
     }
     var mapService = function () {
         var _mapService = {};
-
-        
-
         _mapService.currentLayers = [6];
         _mapService.IdentifiedItems = [];
         _mapService.visibleFeatures = [];
         _mapService.jsonFeatures = [];
-
         return _mapService;
     };
-
-
     module.factory('MapService', mapService);
 })();

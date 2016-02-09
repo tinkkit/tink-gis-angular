@@ -12,7 +12,7 @@ angular.module('tink.gis.angular').run(['$templateCache', function($templateCach
 
 
   $templateCache.put('templates/layerstemplate.html',
-    "<div data-tink-nav-aside=\"\" data-auto-select=true data-toggle-id=asideNavRight class=\"nav-aside nav-right\"> <aside> <div class=nav-aside-section> <tink-accordion data-start-open=true> <div ng-repeat=\"theme in themes\"> <tink-theme theme=theme> </tink-theme> </div> </tink-accordion> </div> </aside> </div>"
+    "<div data-tink-nav-aside=\"\" data-auto-select=true data-toggle-id=asideNavRight class=\"nav-aside nav-right\"> <aside> <div class=nav-aside-section> <button ng-click=test()>TEST</button> <div ng-repeat=\"theme in themes\"> <tink-theme theme=theme> </tink-theme> </div> </div> </aside> </div>"
   );
 
 

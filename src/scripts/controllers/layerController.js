@@ -1,6 +1,3 @@
-
-
-
 'use strict';
 (function (module) {
     try {

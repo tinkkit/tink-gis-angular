@@ -1,27 +1,38 @@
 'use strict';
 (function (module) {
     module = angular.module('tink.gis.angular');
-    var theController = module.controller('layersController', function ($scope, GisDataService, $http) {
+    var theController = module.controller('layersController', function ($scope, GisDataService, $http, map) {
         var geoService = {};
         var stedenBouw = {};
         $scope.themes = [];
-        $http.get('http://app10.a.gis.local/arcgissql/rest/services/A_GeoService/operationallayers/MapServer/?f=pjson').success(function (data) {
-            geoService = convertRawData(data);
-            $scope.themes.push(geoService);
-            console.log(geoService);
+        $scope.selectedLayers = [];
+        $scope.test = function () {
+            $http.get('http://app10.a.gis.local/arcgissql/rest/services/A_GeoService/operationallayers/MapServer/?f=pjson').success(function (data, statuscode, functie, getdata) {
+                geoService = convertRawData(data, getdata);
+                $scope.themes.push(geoService);
+                console.log(geoService);
 
-        });
-        $http.get('http://app10.a.gis.local/arcgissql/rest/services/A_Stedenbouw/stad/MapServer?f=pjson').success(function (data) {
-            stedenBouw = convertRawData(data);
-            $scope.themes.push(stedenBouw);
-            console.log(stedenBouw);
-        });
-        var convertRawData = function (rawdata) {
+            });
+            $http.get('http://app10.a.gis.local/arcgissql/rest/services/A_Stedenbouw/stad/MapServer?f=pjson').success(function (data, statuscode, functie, getdata) {
+                console.log(getdata.url);
+                stedenBouw = convertRawData(data, getdata);
+                $scope.themes.push(stedenBouw);
+                console.log(stedenBouw);
+            });
+        };
+        var convertRawData = function (rawdata, getdata) {
             var rawlayers = rawdata.layers;
+            var cleanUrl = getdata.url.substring(0, getdata.url.indexOf('?'));
             var thema = {};
             thema.Naam = rawdata.documentInfo.Title;
             thema.Layers = [];
             thema.Groups = [];
+            thema.MapData = L.esri.dynamicMapLayer({
+                url: cleanUrl,
+                opacity: 0.5,
+                layers: [],
+                useCors: false
+            }).addTo(map);
             _.each(rawlayers, function (x) {
                 x.visible = false;
                 if (x.parentLayerId === -1) {
@@ -45,5 +56,5 @@
             return thema;
         }
     });
-    theController.$inject = ['GisDataService', '$http'];
+    theController.$inject = ['GisDataService', '$http', 'map'];
 })();
