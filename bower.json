@@ -27,7 +27,8 @@
     "angular-logger": "~1.0.2",
     "leaflet": "latest",
     "tink-accordion-angular": "^1.2.6",
-    "esri-leaflet": "^1.0.2"
+    "esri-leaflet": "^1.0.2",
+    "angular-ui-sortable": "^0.13.4"
   },
   "devDependencies": {
     "angular-mocks": "~1.4.3",

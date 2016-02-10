@@ -3,8 +3,8 @@
     module = angular.module('tink.gis.angular');
     module.controller('groupLayerController',
         function ($scope) {
-            // $scope.$on('visChangedEvent', function (event, layer) { // stuur het door naar het thema
-            //     $scope.$emit('visChangedEvent', layer);
-            // });
+            $scope.visChanged = function () {
+                $scope.$emit('groupCheckboxChangedEvent', $scope.grouplayer); // stuur naar parent ofwel group ofwel theme
+            };
         });
 })();

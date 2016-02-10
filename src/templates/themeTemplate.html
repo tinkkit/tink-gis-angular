@@ -1,4 +1,4 @@
-<div>{{theme.Naam}}
+<div><input class="visible-box" type="checkbox" ng-model="theme.Visible" ng-change="visChanged()">{{theme.Naam}}
     <div class="layercontroller-checkbox" ng-repeat="layer in theme.Layers">
         <tink-Layer layer="layer">
         </tink-Layer>

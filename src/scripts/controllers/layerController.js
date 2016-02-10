@@ -7,7 +7,7 @@
     }
     var theController = module.controller('layerController', function ($scope, $http, GisDataService) {
         $scope.visChanged = function () {
-            $scope.$emit('visChangedEvent', $scope.layer); // stuur naar parent ofwel group ofwel theme
+            $scope.$emit('layerCheckboxChangedEvent', $scope.layer); // stuur naar parent ofwel group ofwel theme
         };
     });
     theController.$inject = ['GisDataService'];

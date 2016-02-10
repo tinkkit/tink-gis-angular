@@ -1,21 +1,17 @@
 'use strict';
 (function (module) {
     module = angular.module('tink.gis.angular');
-    module.controller('themeController',
-        function ($scope) {
-            $scope.$on('visChangedEvent', function (event, layer) { // stuur het door naar het thema
-                addOrRemoveVisibleLayer(layer);
+    module.controller('themeController', ['$scope', 'MapService',
+        function ($scope, MapService) {
+            $scope.$on('groupCheckboxChangedEvent', function (event, groupLayer) { // stuur het door naar het thema
+                MapService.UpdateGroupLayerStatus(groupLayer, $scope.theme);
             });
-            var addOrRemoveVisibleLayer = function (layer) {
-                if (layer.visible) {
-                    $scope.theme.VisibleLayersIds.push(layer.id)
-                }
-                else {
-                    var index = $scope.theme.VisibleLayersIds.indexOf(layer.id);
-                    if (index > -1) {
-                        $scope.theme.VisibleLayersIds.splice(index, 1);
-                    }
-                }
+            $scope.$on('layerCheckboxChangedEvent', function (event, layer) { // stuur het door naar het thema
+                MapService.UpdateLayerStatus(layer, $scope.theme);
+            });
+            $scope.visChanged = function () {
+                MapService.UpdateThemeStatus($scope.theme);
+                
             };
-        });
+        }]);
 })();

@@ -1,11 +1,15 @@
 <div data-tink-nav-aside="" data-auto-select="true" data-toggle-id="asideNavRight" class="nav-aside nav-right">
     <aside>
         <div class="nav-aside-section">
+          
             <!--<button ng-click="test()">TEST</button>-->
-            <div ng-repeat="theme in themes">
-                <tink-Theme theme="theme">
-                </tink-Theme>
-            </div>
-        </div>
+            <ul ui-sortable ng-model="themes">
+                <div ui-sortable ng-repeat="theme in themes">
+                    <tink-Theme theme="theme">
+                    </tink-Theme>
+                </div>
+            </ul>
+             
+</div>
     </aside>
 </div>

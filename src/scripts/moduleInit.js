@@ -1,9 +1,9 @@
 (function () {
-
+    var module;
     try {
-        var module = angular.module('tink.gis.angular');
+         module = angular.module('tink.gis.angular');
     } catch (e) {
-        var module = angular.module('tink.gis.angular', ['tink.accordion', 'tink.tinkApi']); //'leaflet-directive'
+        module = angular.module('tink.gis.angular', ['tink.accordion', 'tink.tinkApi', 'ui.sortable']); //'leaflet-directive'
     }
     module.constant('appConfig', {
         templateUrl: "/digipolis.stadinkaart.webui",
@@ -21,7 +21,6 @@
                 event.preventDefault();
                 event.stopPropagation();
             });
-
         }
     });
     var mapObject = function () {
@@ -36,5 +35,4 @@
         return map;
     }
     module.factory("map", mapObject);
-    console.log('init done');
 })();
