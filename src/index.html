@@ -38,7 +38,8 @@
     <script src="bower_components/angular-ui-sortable/sortable.js"></script>
     <!-- endbower -->
 
-
+    <link href='https://api.mapbox.com/mapbox.js/plugins/leaflet-draw/v0.2.3/leaflet.draw.css' rel='stylesheet' />
+    <script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-draw/v0.2.3/leaflet.draw.js'></script>
 
     <script src="scripts/moduleInit.js"></script>
 
@@ -71,9 +72,7 @@
 </head>
 
 <body>
-    <tink-map parlayers="ctrl.ourlayers" parcenter="ctrl.center"></tink-map>
-    <!--<tinklayers>
-        </tinklayers>-->
+    <tink-map></tink-map>
 </body>
 
 </html>

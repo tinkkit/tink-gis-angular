@@ -3,58 +3,112 @@
     module = angular.module('tink.gis.angular');
     var theController = module.controller('mapController', function ($scope, HelperService, GisDataService, BaseLayersService, MapService, $http, map) {
         $scope.layerId = '';
-        $scope.activeInteractieKnop = 'identify';
+        $scope.activeInteractieKnop = 'select';
         $scope.selectedLayer = {};
         $scope.VisibleLayers = MapService.VisibleLayers;
         map.on('click', function (e) {
-            MapService.VisibleFeatures.length = 0;
-            console.log('click op de map');
-            _.each(MapService.Themes, function (theme) {
-                theme.MapData.identify().on(map).at(e.latlng).layers('visible:' + theme.VisibleLayersIds).run(function (error, featureCollection) {
-                    for (var x = 0; x < featureCollection.features.length; x++) {
-                        MapService.JsonFeatures.push(featureCollection.features[x]);
-                        var item = L.geoJson(featureCollection.features[x]).addTo(map);
-                        MapService.VisibleFeatures.push(item);
-                        console.log(item);
-                    }
-                    $scope.$apply();
-                });
-            });
+            if (!IsDrawing) {
+
+
+                cleanMapAndSearch();
+                switch ($scope.activeInteractieKnop) {
+                    case 'identify':
+                        _.each(MapService.Themes, function (theme) {
+                            theme.MapData.identify().on(map).at(e.latlng).layers('visible:' + $scope.selectedLayer.id).run(function (error, featureCollection) {
+                                for (var x = 0; x < featureCollection.features.length; x++) {
+                                    MapService.JsonFeatures.push(featureCollection.features[x]);
+                                    var item = L.geoJson(featureCollection.features[x]).addTo(map);
+                                    MapService.VisibleFeatures.push(item);
+                                }
+                                $scope.$apply();
+                            });
+                        });
+                        break;
+                    case 'select':
+                        if (_.isEmpty($scope.selectedLayer)) {
+                            console.log("Geen layer selected! kan dus niet opvragen");
+                        }
+                        else {
+                            $scope.selectedLayer.theme.MapData.identify().on(map).at(e.latlng).layers('visible:' + $scope.selectedLayer.id).run(function (error, featureCollection) {
+                                for (var x = 0; x < featureCollection.features.length; x++) {
+                                    MapService.JsonFeatures.push(featureCollection.features[x]);
+                                    var item = L.geoJson(featureCollection.features[x]).addTo(map);
+                                    MapService.VisibleFeatures.push(item);
+                                }
+                                $scope.$apply();
+                            });
+                        }
+
+                        break;
+                    default:
+                        console.log("MAG NOG NIET!!!!!!!!");
+                        break;
+                }
+            }
+
         });
-        
-        // $http.get('http://app10.a.gis.local/arcgissql/rest/services/A_Stedenbouw/stad/MapServer?f=pjson')
-        //     .success(function (data) {
-        //         $scope.Layers = data.layers;
-        //     });
-        
+        var IsDrawing = false;
+        map.on('draw:drawstart', function (event) {
+            IsDrawing = true;
+            cleanMapAndSearch();
+        });
+        map.on('draw:created', function (event) {
+            console.log('draw created');
+            console.log(event);
+            switch ($scope.activeInteractieKnop) {
+                case 'identify':
+                    console.log("MAG NIET!!!!!!!!");
+                    break;
+                case 'select':
+                    if (_.isEmpty($scope.selectedLayer)) {
+                        console.log("Geen layer selected! kan dus niet opvragen");
+                    }
+                    else {
+                        $scope.selectedLayer.theme.MapData.query()
+                            .layer($scope.selectedLayer.id)
+                            .intersects(event.layer)
+                            .run(function (error, featureCollection, response) {
+                                for (var x = 0; x < featureCollection.features.length; x++) {
+                                    MapService.JsonFeatures.push(featureCollection.features[x]);
+                                    var item = L.geoJson(featureCollection.features[x]).addTo(map);
+                                    MapService.VisibleFeatures.push(item);
+                                }
+                                $scope.$apply();
+                            });
+                    }
+                    break;
+                default:
+                    console.log("MAG NOG NIET!!!!!!!!");
+                    break;
+            }
+            IsDrawing = false;
+
+        });
         var cleanMapAndSearch = function () {
-            // for (var x = 0; x < MapService.visibleFeatures.length; x++) {
-            //     map.removeLayer(MapService.visibleFeatures[x]);
-            // }
-            // MapService.visibleFeatures.length = 0;
-            // MapService.jsonFeatures.length = 0;
+            for (var x = 0; x < MapService.VisibleFeatures.length; x++) {
+                map.removeLayer(MapService.VisibleFeatures[x]); //eerst de 
+            }
+            MapService.VisibleFeatures.length = 0;
+            MapService.JsonFeatures.length = 0;
         };
         $scope.identify = function () {
             cleanMapAndSearch();
             $scope.activeInteractieKnop = 'identify';
+            $(".leaflet-draw.leaflet-control").hide();
+            
             // $scope.layerId = '';
             // AGeaoService.options.layers = [$scope.layerId]
         };
         $scope.select = function () {
             cleanMapAndSearch();
             $scope.activeInteractieKnop = 'select';
+            $(".leaflet-draw.leaflet-control").show();
             console.log($scope.VisibleLayers);
             console.log(MapService.VisibleLayers);
-            
-           
-            // $scope.layerId = '0';
-            // $scope.selectedlayer.id = '0'
-            // AGeaoService.options.layers = [$scope.layerId]
-
         };
         $scope.layerChange = function () {
-            $scope.layerId = $scope.selectedlayer.id;
-            AGeaoService.options.layers = [$scope.layerId]
+            cleanMapAndSearch();
+            console.log($scope.selectedLayer);
         };
         $scope.zoomIn = function () {
             map.zoomIn();

@@ -25,12 +25,15 @@
             if (visibleOnMap) {
                 if (indexOfLayerInVisibleLayers === -1) {
                     theme.VisibleLayersIds.push(layer.id);
+                    // theme.VisibleLayers.push(layer);
+                    
                     _mapService.VisibleLayers.push(layer);
                 }
             }
             else {
                 if (indexOfLayerInVisibleLayers > -1) {
                     theme.VisibleLayersIds.splice(indexOfLayerInVisibleLayers, 1);
+                    // theme.VisibleLayers.splice(indexOfLayerInVisibleLayers, 1);
                     var indexOfLayerInVisibleLayersOfMap = _mapService.VisibleLayers.indexOf(layer.id);
                     _mapService.VisibleLayers.splice(indexOfLayerInVisibleLayersOfMap, 1);
                 }
@@ -56,7 +59,7 @@
             thema.Naam = rawdata.documentInfo.Title;
             thema.Layers = [];
             thema.VisibleLayersIds = [-1];
-            //thema.CheckedLayersIds = [-1];
+            // thema.VisibleLayers = [-1];
             thema.Groups = [];
             thema.Visible = true;
             thema.MapData = L.esri.dynamicMapLayer({
@@ -68,6 +71,7 @@
             _.each(rawlayers, function (x) {
                 x.visible = false;
                 x.parent = null;
+                x.theme = thema;
                 if (x.parentLayerId === -1) {
                     if (x.subLayerIds === null) {
                         thema.Layers.push(x);

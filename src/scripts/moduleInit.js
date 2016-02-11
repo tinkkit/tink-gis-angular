@@ -1,7 +1,7 @@
 (function () {
     var module;
     try {
-         module = angular.module('tink.gis.angular');
+        module = angular.module('tink.gis.angular');
     } catch (e) {
         module = angular.module('tink.gis.angular', ['tink.accordion', 'tink.tinkApi', 'ui.sortable']); //'leaflet-directive'
     }
@@ -28,10 +28,23 @@
             center: [51.2192159, 4.4028818],
             zoom: 16,
             layers: L.tileLayer('http://tiles.arcgis.com/tiles/1KSVSmnHT2Lw9ea6/arcgis/rest/services/basemap_stadsplan_v6/MapServer/tile/{z}/{y}/{x}', { id: 'kaart' }),
-            zoomControl: false
+            zoomControl: false,
+            drawControl: true
         });
+        console.log(map);
         map.doubleClickZoom.disable();
         L.control.scale({ imperial: false }).addTo(map);
+        var drawnItems = L.featureGroup().addTo(map);
+        map.on('draw:created', function (event) {
+            var layer = event.layer;
+            drawnItems.addLayer(layer);
+        });
+        map.on('draw:drawstart', function (event) {
+            console.log(drawnItems);
+            drawnItems.clearLayers();
+            // drawnItems.();
+        });
+
         return map;
     }
     module.factory("map", mapObject);
