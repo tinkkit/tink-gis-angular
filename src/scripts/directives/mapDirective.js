@@ -3,7 +3,6 @@
     module = angular.module('tink.gis.angular');
     module.directive('tinkMap', function () {
         return {
-            // restrict: 'E',
             replace: true,
             templateUrl: 'templates/mapTemplate.html',
             scope: {

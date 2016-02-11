@@ -173,7 +173,7 @@
 /**
  * Variables
  */
-.fa-male {
+.fa {
   width: 15.775px; }
 
 .tink-map, .leafletmap {
@@ -267,3 +267,13 @@ button.btn.active {
 .kaarttypes > .btn {
   height: 30px;
   font-size: 10px; }
+
+input[type="checkbox"], input[type="radio"] {
+  opacity: 1;
+  position: static; }
+
+.visible-box {
+  padding-top: 4px; }
+
+.layercontroller-checkbox {
+  margin-left: 10px; }

@@ -1,6 +1,3 @@
-
-
-
 'use strict';
 (function (module) {
     try {
@@ -8,62 +5,59 @@
     } catch (e) {
         var module = angular.module('tink.gis.angular', ['tink.accordion', 'tink.tinkApi']); //'leaflet-directive'
     }
+    module = angular.module('tink.gis.angular');
+    module.controller('groupLayerController',
+        function ($scope) {
+            $scope.visChanged = function () {
+                $scope.$emit('groupCheckboxChangedEvent', $scope.grouplayer); // stuur naar parent ofwel group ofwel theme
+            };
+        });
+})();;'use strict';
+(function (module) {
+    try {
+        var module = angular.module('tink.gis.angular');
+    } catch (e) {
+        var module = angular.module('tink.gis.angular', ['tink.accordion', 'tink.tinkApi']); //'leaflet-directive'
+    }
     var theController = module.controller('layerController', function ($scope, $http, GisDataService) {
-        console.log('layerController CTOR');
-        // $scope.changeVisibility = function (url) {
-        //     GisDataService.changeVisibility(url);
-        // };
-        
-    })
+        $scope.visChanged = function () {
+            $scope.$emit('layerCheckboxChangedEvent', $scope.layer); // stuur naar parent ofwel group ofwel theme
+        };
+    });
     theController.$inject = ['GisDataService'];
 })();;'use strict';
 (function (module) {
     module = angular.module('tink.gis.angular');
-    var theController = module.controller('layersController', function ($scope, GisDataService) {
-        console.log("layersController CTOR");
- 
-    })
-    theController.$inject = ['GisDataService'];
+    var theController = module.controller('layersController', function ($scope, GisDataService, $http, map, MapService) {
+        $scope.themes = MapService.Themes;
+        $scope.selectedLayers = [];
+    });
+    theController.$inject = ['GisDataService', '$http', 'map', 'MapService'];
 })();;'use strict';
 (function (module) {
     module = angular.module('tink.gis.angular');
-    var theController = module.controller('mapController', function ($scope, HelperService, GisDataService, BaseLayersService, map, MapService, $http) {
+    var theController = module.controller('mapController', function ($scope, HelperService, GisDataService, BaseLayersService, MapService, $http, map) {
         $scope.layerId = '';
         $scope.activeInteractieKnop = 'identify';
         $scope.selectedlayer = [];
-
-        map = L.map('map', {
-            center: [51.2192159, 4.4028818],
-            zoom: 16,
-            layers: [BaseLayersService.kaart],
-            zoomControl: false
-        });
-        map.doubleClickZoom.disable();
-        $http.get('http://app10.a.gis.local/arcgissql/rest/services/A_GeoService/operationallayers/MapServer/?f=pjson')
-            .success(function (data) {
-                $scope.Layers = data.layers;
-            });
-        L.control.scale({ imperial: false }).addTo(map);
-        var AGeaoService = L.esri.dynamicMapLayer({
-            url: 'http://app10.a.gis.local/arcgissql/rest/services/A_GeoService/operationallayers/MapServer',
-            opacity: 0.5,
-            layers: [],
-            useCors: false
-        }).addTo(map);
-        map.on('click', function (e) {
-            console.log('click op de map');
-            cleanMapAndSearch();
-            AGeaoService.identify().on(map).at(e.latlng).layers('visible:' + $scope.layerId).run(function (error, featureCollection) {
-                for (var x = 0; x < featureCollection.features.length; x++) {
-                    MapService.jsonFeatures.push(featureCollection.features[x]);
-                    console.log(featureCollection.features[x]);
-
-                    var item = L.geoJson(featureCollection.features[x]).addTo(map);
-                    MapService.visibleFeatures.push(item);
-                }
-                $scope.$apply();
-            });
-        });
+        // map.on('click', function (e) {
+        //     console.log('click op de map');
+        //     // cleanMapAndSearch();
+        //     // AGeaoService.identify().on(map).at(e.latlng).layers('visible:' + $scope.layerId).run(function (error, featureCollection) {
+        //     //     for (var x = 0; x < featureCollection.features.length; x++) {
+        //     //         MapService.jsonFeatures.push(featureCollection.features[x]);
+        //     //         var item = L.geoJson(featureCollection.features[x]).addTo(map);
+        //     //         MapService.visibleFeatures.push(item);
+        //     //     }
+        //     //     $scope.$apply();
+        //     // });
+        // });
+        
+            // $http.get('http://app10.a.gis.local/arcgissql/rest/services/A_Stedenbouw/stad/MapServer?f=pjson')
+        //     .success(function (data) {
+        //         $scope.Layers = data.layers;
+        //     });
+        
         var cleanMapAndSearch = function () {
             for (var x = 0; x < MapService.visibleFeatures.length; x++) {
                 map.removeLayer(MapService.visibleFeatures[x]);
@@ -110,24 +104,57 @@
             map.addLayer(BaseLayersService.luchtfoto);
         };
     });
-    theController.$inject = ['HelperService', 'GisDataService', 'BaseLayersService', 'map', 'MapService', '$http'];
+    theController.$inject = ['HelperService', 'GisDataService', 'BaseLayersService', 'MapService', '$http', 'map'];
 })();;'use strict';
 (function (module) {
     module = angular.module('tink.gis.angular');
-    var theController = module.controller('searchController', function ($scope, MapService) {
-        $scope.features = MapService.jsonFeatures;
-    });
-    theController.$inject = ['MapService'];
-})();;(function (module) {
-    'use strict';
+    var theController = module.controller('searchController',
+        function ($scope, MapService, map) {
+            $scope.features = MapService.jsonFeatures;
+            $scope.Locate = function () {
+                console.log("klik");;
+            }
+        });
+    theController.$inject = ['MapService', 'map'];
+})();;'use strict';
+(function (module) {
     module = angular.module('tink.gis.angular');
-    module.directive('layer', function () {
+    module.controller('themeController', ['$scope', 'MapService',
+        function ($scope, MapService) {
+            $scope.$on('groupCheckboxChangedEvent', function (event, groupLayer) { // stuur het door naar het thema
+                MapService.UpdateGroupLayerStatus(groupLayer, $scope.theme);
+            });
+            $scope.$on('layerCheckboxChangedEvent', function (event, layer) { // stuur het door naar het thema
+                MapService.UpdateLayerStatus(layer, $scope.theme);
+            });
+            $scope.visChanged = function () {
+                MapService.UpdateThemeStatus($scope.theme);
+                
+            };
+        }]);
+})();;'use strict';
+(function (module) {
+    module = angular.module('tink.gis.angular');
+    module.directive('tinkGrouplayer', function () {
         return {
-            restrict: 'E',
+            replace: true,
             scope: {
-                layerData: '='
+                grouplayer: '='
             },
-            templateUrl: 'templates/layer.html',
+            templateUrl: 'templates/groupLayerTemplate.html',
+            controller: 'groupLayerController'
+        };
+    });
+})();;'use strict';
+(function (module) {
+    module = angular.module('tink.gis.angular');
+    module.directive('tinkLayer', function () {
+        return {
+            replace: true,
+            scope: {
+                layer: '='
+            },
+            templateUrl: 'templates/layerTemplate.html',
             controller: 'layerController',
         }
     });
@@ -136,7 +163,6 @@
     module = angular.module('tink.gis.angular');
     module.directive('tinkLayers', function () {
         return {
-            // restrict: 'E',
             replace: true,
             templateUrl: 'templates/layersTemplate.html',
             controller: 'layersController'
@@ -157,7 +183,7 @@
             controller: 'mapController'
         };
     });
-})();;'use strict';
+})();           ;'use strict';
 (function (module) {
     module = angular.module('tink.gis.angular');
     module.directive('tinkSearch', function () {
@@ -168,36 +194,57 @@
             controller: 'searchController'
         };
     });
-})();;try {
-    var module = angular.module('tink.gis.angular');
-} catch (e) {
-    var module = angular.module('tink.gis.angular', ['tink.accordion', 'tink.tinkApi']); //'leaflet-directive'
-}
-module.constant('appConfig', {
-    templateUrl: "/digipolis.stadinkaart.webui",
-    apiUrl: "/digipolis.stadinkaart.api/",
-    enableDebug: true,
-    enableLog: true
-});
-module.directive('preventDefault', function () {
-    return function (scope, element, attrs) {
-        angular.element(element).bind('click', function (event) {
-            event.preventDefault();
-            event.stopPropagation();
-        });
-        angular.element(element).bind('dblclick', function (event) {
-            event.preventDefault();
-            event.stopPropagation();
-        });
-
+})();;'use strict';
+(function (module) {
+    module = angular.module('tink.gis.angular');
+    module.directive('tinkTheme', function () {
+        return {
+            replace: true,
+            scope: {
+                theme: '='
+            },
+            templateUrl: 'templates/themeTemplate.html',
+            controller: 'themeController'
+        };
+    });
+})();;(function () {
+    var module;
+    try {
+         module = angular.module('tink.gis.angular');
+    } catch (e) {
+        module = angular.module('tink.gis.angular', ['tink.accordion', 'tink.tinkApi', 'ui.sortable']); //'leaflet-directive'
     }
-});
-var helperService = function () {
-    var map = {};
-    return map;
-}
-module.factory("map", helperService);
-console.log('init done');;'use strict';
+    module.constant('appConfig', {
+        templateUrl: "/digipolis.stadinkaart.webui",
+        apiUrl: "/digipolis.stadinkaart.api/",
+        enableDebug: true,
+        enableLog: true
+    });
+    module.directive('preventDefault', function () {
+        return function (scope, element, attrs) {
+            angular.element(element).bind('click', function (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            });
+            angular.element(element).bind('dblclick', function (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            });
+        }
+    });
+    var mapObject = function () {
+        var map = L.map('map', {
+            center: [51.2192159, 4.4028818],
+            zoom: 16,
+            layers: L.tileLayer('http://tiles.arcgis.com/tiles/1KSVSmnHT2Lw9ea6/arcgis/rest/services/basemap_stadsplan_v6/MapServer/tile/{z}/{y}/{x}', { id: 'kaart' }),
+            zoomControl: false
+        });
+        map.doubleClickZoom.disable();
+        L.control.scale({ imperial: false }).addTo(map);
+        return map;
+    }
+    module.factory("map", mapObject);
+})();;'use strict';
 (function () {
     try {
         var module = angular.module('tink.gis.angular');
@@ -243,11 +290,11 @@ console.log('init done');;'use strict';
 
 (function () {
 
-  try {
-    var module = angular.module('tink.gis.angular');
-} catch (e) {
-    var module = angular.module('tink.gis.angular', [ 'tink.accordion', 'tink.tinkApi']); //'leaflet-directive'
-}
+    try {
+        var module = angular.module('tink.gis.angular');
+    } catch (e) {
+        var module = angular.module('tink.gis.angular', ['tink.accordion', 'tink.tinkApi']); //'leaflet-directive'
+    }
     var helperService = function () {
         console.log('Helperservice CTOR');
         var _helperService = {};
@@ -255,7 +302,10 @@ console.log('init done');;'use strict';
         _helperService.clone = function (obj) {
             var copy;
             // Handle the 3 simple types, and null or undefined
-            if (null == obj || "object" != typeof obj) return obj;
+            if (null === obj || 'object' !== typeof obj) {
+                return obj;
+
+            }
             // Handle Date
             if (obj instanceof Date) {
                 copy = new Date();
@@ -274,53 +324,137 @@ console.log('init done');;'use strict';
             if (obj instanceof Object) {
                 copy = {};
                 for (var attr in obj) {
-                    if (obj.hasOwnProperty(attr)) copy[attr] = _helperService.clone(obj[attr]);
+                    if (obj.hasOwnProperty(attr)) {
+                        copy[attr] = _helperService.clone(obj[attr]);
+                    }
                 }
                 return copy;
             }
             throw new Error('Unable to copy obj! Its type isn\'t supported.');
-        }
+        };
 
 
         _helperService.findNested = function (obj, key) {
             if (_.has(obj, key)) // or just (key in obj)
+            {
                 return [obj];
+            }
             // elegant:
             return _.flatten(_.map(obj, function (v) {
-                return typeof v == 'object' ? _helperService.findNested(v, key) : [];
+                return typeof v === 'object' ? _helperService.findNested(v, key) : [];
             }), true);
-
-
-        }
+        };
 
         return _helperService;
     };
 
-    module.factory("HelperService", helperService);
+    module.factory('HelperService', helperService);
 })();;'use strict';
 (function () {
+    var module;
     try {
-        var module = angular.module('tink.gis.angular');
+        module = angular.module('tink.gis.angular');
     } catch (e) {
-        var module = angular.module('tink.gis.angular', ['tink.accordion', 'tink.tinkApi']); //'leaflet-directive'
+        module = angular.module('tink.gis.angular', ['tink.accordion', 'tink.tinkApi', ['ui.sortable']]); //'leaflet-directive'
     }
-    var mapService = function (map) {
+    var layersService = function ($http, map) {
+        var _layersService = {};
+        return _layersService;
+    };
+    module.$inject = ["$http", 'map'];
+    module.factory("LayersService", layersService);
+})();;'use strict';
+(function () {
+    var module;
+    try {
+        module = angular.module('tink.gis.angular');
+    } catch (e) {
+        module = angular.module('tink.gis.angular', ['tink.accordion', 'tink.tinkApi']); //'leaflet-directive'
+    }
+    var mapService = function ($http, map) {
         var _mapService = {};
-
-
-
-        _mapService.currentLayers = [6]
-        _mapService.IdentifiedItems = [];
-        _mapService.visibleFeatures = [];
         _mapService.jsonFeatures = [];
-
+        _mapService.getLayers = ['http://app10.a.gis.local/arcgissql/rest/services/A_Stedenbouw/stad/MapServer?f=pjson', 'http://app10.a.gis.local/arcgissql/rest/services/A_GeoService/operationallayers/MapServer/?f=pjson'];
+        _mapService.Themes = [];
+        _.each(_mapService.getLayers, function (layerurl) {
+            $http.get(layerurl).success(function (data, statuscode, functie, getdata) {
+                _mapService.Themes.push(convertRawData(data, getdata));
+                console.log(_mapService.Themes[0]);
+            });
+        });
+        _mapService.UpdateLayerStatus = function (layer, theme) {
+            var visibleOnMap = theme.Visible && layer.visible && ((layer.parent && layer.parent.visible) || !layer.parent);
+            var indexOfLayerInVisibleLayers = theme.VisibleLayersIds.indexOf(layer.id);
+            if (visibleOnMap) {
+                if (indexOfLayerInVisibleLayers === -1) {
+                    theme.VisibleLayersIds.push(layer.id);
+                }
+            }
+            else {
+                if (indexOfLayerInVisibleLayers > -1) {
+                    theme.VisibleLayersIds.splice(indexOfLayerInVisibleLayers, 1);
+                }
+            }
+        };
+        _mapService.UpdateGroupLayerStatus = function (groupLayer, theme) {
+            _.each(groupLayer.Layers, function (childlayer) {
+                _mapService.UpdateLayerStatus(childlayer, theme);
+            });
+        };
+        _mapService.UpdateThemeStatus = function (theme) {
+            _.each(theme.Groups, function (layerGroup) {
+                _mapService.UpdateGroupLayerStatus(layerGroup, theme);
+            });
+            _.each(theme.Layers, function (layer) {
+                _mapService.UpdateLayerStatus(layer, theme);
+            });
+        };
+        var convertRawData = function (rawdata, getdata) {
+            var thema = {};
+            var rawlayers = rawdata.layers;
+            var cleanUrl = getdata.url.substring(0, getdata.url.indexOf('?'));
+            thema.Naam = rawdata.documentInfo.Title;
+            thema.Layers = [];
+            thema.VisibleLayersIds = [-1];
+            //thema.CheckedLayersIds = [-1];
+            thema.Groups = [];
+            thema.Visible = true;
+            thema.MapData = L.esri.dynamicMapLayer({
+                url: cleanUrl,
+                opacity: 0.5,
+                layers: thema.VisibleLayersIds,
+                useCors: false
+            }).addTo(map);
+            _.each(rawlayers, function (x) {
+                x.visible = false;
+                x.parent = null;
+                if (x.parentLayerId === -1) {
+                    if (x.subLayerIds === null) {
+                        thema.Layers.push(x);
+                    } else {
+                        thema.Groups.push(x);
+                    }
+                }
+            });
+            _.each(thema.Groups, function (layerGroup) {
+                if (layerGroup.subLayerIds !== null) {
+                    layerGroup.Layers = [];
+                    _.each(rawlayers, function (rawlayer) {
+                        if (layerGroup.id === rawlayer.parentLayerId) {
+                            rawlayer.parent = layerGroup;
+                            layerGroup.Layers.push(rawlayer);
+                        }
+                    });
+                }
+            });
+            return thema;
+        };
         return _mapService;
     };
-
-    mapService.$inject = ['map'];
-
+    module.$inject = ['$http', 'map'];
     module.factory('MapService', mapService);
-})();;// (function() {
+})();
+;// (function() {
 // 
 //     'use strict';
 // 
@@ -455,18 +589,22 @@ console.log('init done');;'use strict';
 ;angular.module('tink.gis.angular').run(['$templateCache', function($templateCache) {
   'use strict';
 
-  $templateCache.put('templates/layer.html',
-    "<input style=\"opacity: 1;position: relative;z-index:100\" type=checkbox ng-model=layerData.visible ng-change=changeVisibility(layerData.url)>\n" +
-    "{{layerData.name}}"
+  $templateCache.put('templates/groupLayerTemplate.html',
+    "<div class=layercontroller-checkbox> <input class=visible-box type=checkbox ng-model=grouplayer.visible ng-change=visChanged()>{{grouplayer.name}} <div ng-repeat=\"layer in grouplayer.Layers\"> <tink-layer layer=layer> </tink-layer> </div> </div>"
   );
 
 
-  $templateCache.put('templates/layersTemplate.html',
-    "<div data-tink-nav-aside=\"\" data-auto-select=true data-toggle-id=asideNavRight class=\"nav-aside nav-right\"> <aside> <div class=nav-aside-section> Layers <tink-accordion data-start-open=true> <div ng-repeat=\"theme in layers\"> <tink-accordion-panel> <data-header>  </data-header> <data-content>  <tink-accordion data-start-open=true> <div ng-repeat=\"group in theme.groups\"> <tink-accordion-panel> <data-header>  </data-header> <data-content> <div ng-repeat=\"layerhup in layers\"> <layer layer-data=layerhup></layer> </div> </data-content> </tink-accordion-panel> </div> </tink-accordion> </data-content> </tink-accordion-panel> </div> </tink-accordion> </div> </aside> </div>"
+  $templateCache.put('templates/layerTemplate.html',
+    "<div class=layercontroller-checkbox> <input class=visible-box type=checkbox ng-model=layer.visible ng-change=visChanged()>{{layer.name | limitTo: 20}} </div>"
   );
 
 
-  $templateCache.put('templates/mapTemplate.html',
+  $templateCache.put('templates/layerstemplate.html',
+    "<div data-tink-nav-aside=\"\" data-auto-select=true data-toggle-id=asideNavRight class=\"nav-aside nav-right\"> <aside> <div class=nav-aside-section>  <ul ui-sortable ng-model=themes> <div ui-sortable ng-repeat=\"theme in themes\"> <tink-theme theme=theme> </tink-theme> </div> </ul> </div> </aside> </div>"
+  );
+
+
+  $templateCache.put('templates/maptemplate.html',
     "<div class=tink-map> <div id=map class=leafletmap> <div class=\"btn-group ll searchbtns\"> <button type=button class=btn prevent-default><i class=\"fa fa-map-marker\"></i></button>\n" +
     "<button type=button class=btn prevent-default><i class=\"fa fa-download\"></i></button> </div> <div class=\"btn-group btn-group-vertical ll interactiebtns\"> <button type=button class=btn ng-click=identify() ng-class=\"{active: activeInteractieKnop=='identify'}\" prevent-default><i class=\"fa fa-info\"></i></button>\n" +
     "<button type=button class=btn ng-click=select() ng-class=\"{active: activeInteractieKnop=='select'}\" prevent-default><i class=\"fa fa-mouse-pointer\"></i></button>\n" +
@@ -474,12 +612,17 @@ console.log('init done');;'use strict';
     "<button class=btn ng-class=\"{active: kaartIsGetoond==false}\" ng-click=toonLuchtfoto() prevent-default>Luchtfoto</button> </div> <div class=\"btn-group btn-group-vertical ll viewbtns\"> <button type=button class=btn ng-click=zoomIn() prevent-default><i class=\"fa fa-plus\"></i></button>\n" +
     "<button type=button class=btn ng-click=zoomOut() prevent-default><i class=\"fa fa-minus\"></i></button>\n" +
     "<button type=button class=btn ng-click=\"\" prevent-default><i class=\"fa fa-crosshairs\"></i></button>\n" +
-    "<button type=button class=btn ng-click=fullExtent() prevent-default><i class=\"fa fa-home\"></i></button> </div> <div class=\"btn-group btn-group-vertical ll localiseerbtn\"> <button type=button class=btn prevent-default><i class=\"fa fa-male\"></i></button> </div> </div> <tink-layers></tink-layers> <tink-search> </tink-search></div>"
+    "<button type=button class=btn ng-click=fullExtent() prevent-default><i class=\"fa fa-home\"></i></button> </div> <div class=\"btn-group btn-group-vertical ll localiseerbtn\"> <button type=button class=btn prevent-default><i class=\"fa fa-male\"></i></button> </div> </div> <tink-layers></tink-layers> <tink-search></tink-search> </div>"
   );
 
 
   $templateCache.put('templates/searchTemplate.html',
     "<div data-tink-nav-aside=\"\" data-auto-select=true data-toggle-id=asideNavLeft class=\"nav-aside nav-left\"> <aside> <div class=nav-aside-section> Zoek <div ng-repeat=\"feature in features \"> layerid: {{feature.layerId}} <pre>{{feature.properties | json }}</pre> </div> </div> </aside> </div>"
+  );
+
+
+  $templateCache.put('templates/themeTemplate.html',
+    "<div><input class=visible-box type=checkbox ng-model=theme.Visible ng-change=visChanged()>{{theme.Naam}} <div class=layercontroller-checkbox ng-repeat=\"layer in theme.Layers\"> <tink-layer layer=layer> </tink-layer> </div> <div class=layercontroller-checkbox ng-repeat=\"group in theme.Groups\"> <tink-grouplayer grouplayer=group> </tink-grouplayer> </div> </div>"
   );
 
 }]);
