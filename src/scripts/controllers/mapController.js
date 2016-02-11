@@ -8,8 +8,6 @@
         $scope.VisibleLayers = MapService.VisibleLayers;
         map.on('click', function (e) {
             if (!IsDrawing) {
-
-
                 cleanMapAndSearch();
                 switch ($scope.activeInteractieKnop) {
                     case 'identify':
@@ -45,7 +43,6 @@
                         break;
                 }
             }
-
         });
         var IsDrawing = false;
         map.on('draw:drawstart', function (event) {
@@ -95,16 +92,11 @@
             cleanMapAndSearch();
             $scope.activeInteractieKnop = 'identify';
             $(".leaflet-draw.leaflet-control").hide();
-            
-            // $scope.layerId = '';
-            // AGeaoService.options.layers = [$scope.layerId]
         };
         $scope.select = function () {
             cleanMapAndSearch();
             $scope.activeInteractieKnop = 'select';
             $(".leaflet-draw.leaflet-control").show();
-            console.log($scope.VisibleLayers);
-            console.log(MapService.VisibleLayers);
         };
         $scope.layerChange = function () {
             cleanMapAndSearch();
