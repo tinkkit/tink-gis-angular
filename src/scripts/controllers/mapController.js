@@ -5,29 +5,21 @@
         $scope.layerId = '';
         $scope.activeInteractieKnop = 'select';
         $scope.selectedLayer = {};
-        $scope.VisibleLayers = MapService.VisibleLayers;
-        map.on('click', function (e) {
+        $scope.SelectableLayers = MapService.VisibleLayers;
+        map.on('click', function (event) {
             if (!IsDrawing) {
                 cleanMapAndSearch();
                 switch ($scope.activeInteractieKnop) {
                     case 'identify':
-                        _.each(MapService.Themes, function (theme) {
-                            theme.MapData.identify().on(map).at(e.latlng).layers('visible:' + $scope.selectedLayer.id).run(function (error, featureCollection) {
-                                for (var x = 0; x < featureCollection.features.length; x++) {
-                                    MapService.JsonFeatures.push(featureCollection.features[x]);
-                                    var item = L.geoJson(featureCollection.features[x]).addTo(map);
-                                    MapService.VisibleFeatures.push(item);
-                                }
-                                $scope.$apply();
-                            });
-                        });
+                        MapService.Identify(event, null, 2);
+                        $scope.$apply();
                         break;
                     case 'select':
                         if (_.isEmpty($scope.selectedLayer)) {
                             console.log("Geen layer selected! kan dus niet opvragen");
                         }
                         else {
-                            $scope.selectedLayer.theme.MapData.identify().on(map).at(e.latlng).layers('visible:' + $scope.selectedLayer.id).run(function (error, featureCollection) {
+                            $scope.selectedLayer.theme.MapData.identify().on(map).at(event.latlng).layers('visible:' + $scope.selectedLayer.id).run(function (error, featureCollection) {
                                 for (var x = 0; x < featureCollection.features.length; x++) {
                                     MapService.JsonFeatures.push(featureCollection.features[x]);
                                     var item = L.geoJson(featureCollection.features[x]).addTo(map);
@@ -36,7 +28,6 @@
                                 $scope.$apply();
                             });
                         }
-
                         break;
                     default:
                         console.log("MAG NOG NIET!!!!!!!!");
@@ -48,6 +39,7 @@
         map.on('draw:drawstart', function (event) {
             IsDrawing = true;
             cleanMapAndSearch();
+            console.log("wtdf");
         });
         map.on('draw:created', function (event) {
             console.log('draw created');
@@ -87,6 +79,8 @@
             }
             MapService.VisibleFeatures.length = 0;
             MapService.JsonFeatures.length = 0;
+            map.clearDrawings();
+
         };
         $scope.identify = function () {
             cleanMapAndSearch();

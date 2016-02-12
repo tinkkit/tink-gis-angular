@@ -11,7 +11,7 @@
             });
             $scope.visChanged = function () {
                 MapService.UpdateThemeStatus($scope.theme);
-                
+                console.log($scope.theme.Visible);
             };
         }]);
 })();

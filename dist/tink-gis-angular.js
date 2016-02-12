@@ -38,50 +38,104 @@
     module = angular.module('tink.gis.angular');
     var theController = module.controller('mapController', function ($scope, HelperService, GisDataService, BaseLayersService, MapService, $http, map) {
         $scope.layerId = '';
-        $scope.activeInteractieKnop = 'identify';
-        $scope.selectedlayer = [];
-        // map.on('click', function (e) {
-        //     console.log('click op de map');
-        //     // cleanMapAndSearch();
-        //     // AGeaoService.identify().on(map).at(e.latlng).layers('visible:' + $scope.layerId).run(function (error, featureCollection) {
-        //     //     for (var x = 0; x < featureCollection.features.length; x++) {
-        //     //         MapService.jsonFeatures.push(featureCollection.features[x]);
-        //     //         var item = L.geoJson(featureCollection.features[x]).addTo(map);
-        //     //         MapService.visibleFeatures.push(item);
-        //     //     }
-        //     //     $scope.$apply();
-        //     // });
-        // });
-        
-            // $http.get('http://app10.a.gis.local/arcgissql/rest/services/A_Stedenbouw/stad/MapServer?f=pjson')
-        //     .success(function (data) {
-        //         $scope.Layers = data.layers;
-        //     });
-        
-        var cleanMapAndSearch = function () {
-            for (var x = 0; x < MapService.visibleFeatures.length; x++) {
-                map.removeLayer(MapService.visibleFeatures[x]);
+        $scope.activeInteractieKnop = 'select';
+        $scope.selectedLayer = {};
+        $scope.VisibleLayers = MapService.VisibleLayers;
+        map.on('click', function (e) {
+            if (!IsDrawing) {
+                cleanMapAndSearch();
+                switch ($scope.activeInteractieKnop) {
+                    case 'identify':
+                        _.each(MapService.Themes, function (theme) {
+                            theme.MapData.identify().on(map).at(e.latlng).layers('visible:' + $scope.selectedLayer.id).run(function (error, featureCollection) {
+                                for (var x = 0; x < featureCollection.features.length; x++) {
+                                    MapService.JsonFeatures.push(featureCollection.features[x]);
+                                    var item = L.geoJson(featureCollection.features[x]).addTo(map);
+                                    MapService.VisibleFeatures.push(item);
+                                }
+                                $scope.$apply();
+                            });
+                        });
+                        break;
+                    case 'select':
+                        if (_.isEmpty($scope.selectedLayer)) {
+                            console.log("Geen layer selected! kan dus niet opvragen");
+                        }
+                        else {
+                            $scope.selectedLayer.theme.MapData.identify().on(map).at(e.latlng).layers('visible:' + $scope.selectedLayer.id).run(function (error, featureCollection) {
+                                for (var x = 0; x < featureCollection.features.length; x++) {
+                                    MapService.JsonFeatures.push(featureCollection.features[x]);
+                                    var item = L.geoJson(featureCollection.features[x]).addTo(map);
+                                    MapService.VisibleFeatures.push(item);
+                                }
+                                $scope.$apply();
+                            });
+                        }
+
+                        break;
+                    default:
+                        console.log("MAG NOG NIET!!!!!!!!");
+                        break;
+                }
             }
-            MapService.visibleFeatures.length = 0;
-            MapService.jsonFeatures.length = 0;
+        });
+        var IsDrawing = false;
+        map.on('draw:drawstart', function (event) {
+            IsDrawing = true;
+            cleanMapAndSearch();
+        });
+        map.on('draw:created', function (event) {
+            console.log('draw created');
+            console.log(event);
+            switch ($scope.activeInteractieKnop) {
+                case 'identify':
+                    console.log("MAG NIET!!!!!!!!");
+                    break;
+                case 'select':
+                    if (_.isEmpty($scope.selectedLayer)) {
+                        console.log("Geen layer selected! kan dus niet opvragen");
+                    }
+                    else {
+                        $scope.selectedLayer.theme.MapData.query()
+                            .layer($scope.selectedLayer.id)
+                            .intersects(event.layer)
+                            .run(function (error, featureCollection, response) {
+                                for (var x = 0; x < featureCollection.features.length; x++) {
+                                    MapService.JsonFeatures.push(featureCollection.features[x]);
+                                    var item = L.geoJson(featureCollection.features[x]).addTo(map);
+                                    MapService.VisibleFeatures.push(item);
+                                }
+                                $scope.$apply();
+                            });
+                    }
+                    break;
+                default:
+                    console.log("MAG NOG NIET!!!!!!!!");
+                    break;
+            }
+            IsDrawing = false;
+
+        });
+        var cleanMapAndSearch = function () {
+            for (var x = 0; x < MapService.VisibleFeatures.length; x++) {
+                map.removeLayer(MapService.VisibleFeatures[x]); //eerst de 
+            }
+            MapService.VisibleFeatures.length = 0;
+            MapService.JsonFeatures.length = 0;
         };
         $scope.identify = function () {
             cleanMapAndSearch();
             $scope.activeInteractieKnop = 'identify';
-            $scope.layerId = '';
-            AGeaoService.options.layers = [$scope.layerId]
+            $(".leaflet-draw.leaflet-control").hide();
         };
         $scope.select = function () {
             cleanMapAndSearch();
             $scope.activeInteractieKnop = 'select';
-            $scope.layerId = '0';
-            $scope.selectedlayer.id = '0'
-            AGeaoService.options.layers = [$scope.layerId]
-
+            $(".leaflet-draw.leaflet-control").show();
         };
         $scope.layerChange = function () {
-            $scope.layerId = $scope.selectedlayer.id;
-            AGeaoService.options.layers = [$scope.layerId]
+            cleanMapAndSearch();
+            console.log($scope.selectedLayer);
         };
         $scope.zoomIn = function () {
             map.zoomIn();
@@ -110,7 +164,7 @@
     module = angular.module('tink.gis.angular');
     var theController = module.controller('searchController',
         function ($scope, MapService, map) {
-            $scope.features = MapService.jsonFeatures;
+            $scope.features = MapService.JsonFeatures;
             $scope.Locate = function () {
                 console.log("klik");;
             }
@@ -173,7 +227,6 @@
     module = angular.module('tink.gis.angular');
     module.directive('tinkMap', function () {
         return {
-            // restrict: 'E',
             replace: true,
             templateUrl: 'templates/mapTemplate.html',
             scope: {
@@ -210,7 +263,7 @@
 })();;(function () {
     var module;
     try {
-         module = angular.module('tink.gis.angular');
+        module = angular.module('tink.gis.angular');
     } catch (e) {
         module = angular.module('tink.gis.angular', ['tink.accordion', 'tink.tinkApi', 'ui.sortable']); //'leaflet-directive'
     }
@@ -237,10 +290,23 @@
             center: [51.2192159, 4.4028818],
             zoom: 16,
             layers: L.tileLayer('http://tiles.arcgis.com/tiles/1KSVSmnHT2Lw9ea6/arcgis/rest/services/basemap_stadsplan_v6/MapServer/tile/{z}/{y}/{x}', { id: 'kaart' }),
-            zoomControl: false
+            zoomControl: false,
+            drawControl: true
         });
+        console.log(map);
         map.doubleClickZoom.disable();
         L.control.scale({ imperial: false }).addTo(map);
+        var drawnItems = L.featureGroup().addTo(map);
+        map.on('draw:created', function (event) {
+            var layer = event.layer;
+            drawnItems.addLayer(layer);
+        });
+        map.on('draw:drawstart', function (event) {
+            console.log(drawnItems);
+            drawnItems.clearLayers();
+            // drawnItems.();
+        });
+
         return map;
     }
     module.factory("map", mapObject);
@@ -371,15 +437,17 @@
     } catch (e) {
         module = angular.module('tink.gis.angular', ['tink.accordion', 'tink.tinkApi']); //'leaflet-directive'
     }
-    var mapService = function ($http, map) {
+    var mapService = function ($http, map, ThemeHelper) {
         var _mapService = {};
+        _mapService.VisibleLayers = [];
         _mapService.jsonFeatures = [];
-        _mapService.getLayers = ['http://app10.a.gis.local/arcgissql/rest/services/A_Stedenbouw/stad/MapServer?f=pjson', 'http://app10.a.gis.local/arcgissql/rest/services/A_GeoService/operationallayers/MapServer/?f=pjson'];
+        _mapService.VisibleFeatures = [];
+        _mapService.JsonFeatures = [];
+        _mapService.getLayers = ['http://geodata.antwerpen.be/ArcGISSql/rest/services/P_Stad/Mobiliteit/MapServer?f=pjson', 'http://app10.a.gis.local/arcgissql/rest/services/A_Stedenbouw/stad/MapServer?f=pjson', 'http://app10.a.gis.local/arcgissql/rest/services/A_GeoService/operationallayers/MapServer/?f=pjson'];
         _mapService.Themes = [];
         _.each(_mapService.getLayers, function (layerurl) {
             $http.get(layerurl).success(function (data, statuscode, functie, getdata) {
-                _mapService.Themes.push(convertRawData(data, getdata));
-                console.log(_mapService.Themes[0]);
+                _mapService.Themes.push(ThemeHelper.createThemeFromJson(data, getdata));
             });
         });
         _mapService.UpdateLayerStatus = function (layer, theme) {
@@ -388,11 +456,14 @@
             if (visibleOnMap) {
                 if (indexOfLayerInVisibleLayers === -1) {
                     theme.VisibleLayersIds.push(layer.id);
+                    _mapService.VisibleLayers.push(layer);
                 }
             }
             else {
                 if (indexOfLayerInVisibleLayers > -1) {
                     theme.VisibleLayersIds.splice(indexOfLayerInVisibleLayers, 1);
+                    var indexOfLayerInVisibleLayersOfMap = _mapService.VisibleLayers.indexOf(layer.id);
+                    _mapService.VisibleLayers.splice(indexOfLayerInVisibleLayersOfMap, 1);
                 }
             }
         };
@@ -409,14 +480,28 @@
                 _mapService.UpdateLayerStatus(layer, theme);
             });
         };
-        var convertRawData = function (rawdata, getdata) {
+        return _mapService;
+    };
+    module.$inject = ['$http', 'map', 'ThemeHelper'];
+    module.factory('MapService', mapService);
+})();
+;'use strict';
+(function () {
+    var module;
+    try {
+        module = angular.module('tink.gis.angular');
+    } catch (e) {
+        module = angular.module('tink.gis.angular', ['tink.accordion', 'tink.tinkApi']); //'leaflet-directive'
+    }
+    var service = function (map) {
+        var themeHelper = {};
+        themeHelper.createThemeFromJson = function (rawdata, getdata) {
             var thema = {};
             var rawlayers = rawdata.layers;
             var cleanUrl = getdata.url.substring(0, getdata.url.indexOf('?'));
             thema.Naam = rawdata.documentInfo.Title;
             thema.Layers = [];
             thema.VisibleLayersIds = [-1];
-            //thema.CheckedLayersIds = [-1];
             thema.Groups = [];
             thema.Visible = true;
             thema.MapData = L.esri.dynamicMapLayer({
@@ -428,6 +513,7 @@
             _.each(rawlayers, function (x) {
                 x.visible = false;
                 x.parent = null;
+                x.theme = thema;
                 if (x.parentLayerId === -1) {
                     if (x.subLayerIds === null) {
                         thema.Layers.push(x);
@@ -449,10 +535,10 @@
             });
             return thema;
         };
-        return _mapService;
+        return themeHelper;
     };
     module.$inject = ['$http', 'map'];
-    module.factory('MapService', mapService);
+    module.factory('ThemeHelper', service);
 })();
 ;// (function() {
 // 
@@ -600,7 +686,7 @@
 
 
   $templateCache.put('templates/layerstemplate.html',
-    "<div data-tink-nav-aside=\"\" data-auto-select=true data-toggle-id=asideNavRight class=\"nav-aside nav-right\"> <aside> <div class=nav-aside-section>  <ul ui-sortable ng-model=themes> <div ui-sortable ng-repeat=\"theme in themes\"> <tink-theme theme=theme> </tink-theme> </div> </ul> </div> </aside> </div>"
+    "<div data-tink-nav-aside=\"\" data-auto-select=true data-toggle-id=asideNavRight class=\"nav-aside nav-right\"> <aside> <div class=nav-aside-section> <ul ui-sortable ng-model=themes> <div ng-repeat=\"theme in themes\"> <tink-theme theme=theme> </tink-theme> </div> </ul> </div> </aside> </div>"
   );
 
 
@@ -608,7 +694,7 @@
     "<div class=tink-map> <div id=map class=leafletmap> <div class=\"btn-group ll searchbtns\"> <button type=button class=btn prevent-default><i class=\"fa fa-map-marker\"></i></button>\n" +
     "<button type=button class=btn prevent-default><i class=\"fa fa-download\"></i></button> </div> <div class=\"btn-group btn-group-vertical ll interactiebtns\"> <button type=button class=btn ng-click=identify() ng-class=\"{active: activeInteractieKnop=='identify'}\" prevent-default><i class=\"fa fa-info\"></i></button>\n" +
     "<button type=button class=btn ng-click=select() ng-class=\"{active: activeInteractieKnop=='select'}\" prevent-default><i class=\"fa fa-mouse-pointer\"></i></button>\n" +
-    "<button type=button class=btn ng-class=\"{active: activeInteractieKnop=='dunno'}\" prevent-default><i class=\"fa fa-download\"></i></button> </div> <div class=\"ll zoekbalken\"> <input class=zoekbalk placeholder=\"Welke locatie of adres zoek je?\" prevent-default> <select ng-options=\"layer as layer.name for layer in Layers track by layer.id\" ng-model=selectedlayer ng-change=layerChange() ng-class=\"{invisible: activeInteractieKnop!='select'}\" prevent-default></select> </div> <div class=\"ll btn-group kaarttypes\"> <button class=btn ng-class=\"{active: kaartIsGetoond==true}\" ng-click=toonKaart() prevent-default>Kaart</button>\n" +
+    "<button type=button class=btn ng-class=\"{active: activeInteractieKnop=='dunno'}\" prevent-default><i class=\"fa fa-download\"></i></button> </div> <div class=\"ll zoekbalken\"> <input class=zoekbalk placeholder=\"Welke locatie of adres zoek je?\" prevent-default> <select ng-options=\"layer as layer.name for layer in VisibleLayers track by layer.id\" ng-model=selectedLayer ng-change=layerChange() ng-class=\"{invisible: activeInteractieKnop!='select'}\" prevent-default></select> </div> <div class=\"ll btn-group kaarttypes\"> <button class=btn ng-class=\"{active: kaartIsGetoond==true}\" ng-click=toonKaart() prevent-default>Kaart</button>\n" +
     "<button class=btn ng-class=\"{active: kaartIsGetoond==false}\" ng-click=toonLuchtfoto() prevent-default>Luchtfoto</button> </div> <div class=\"btn-group btn-group-vertical ll viewbtns\"> <button type=button class=btn ng-click=zoomIn() prevent-default><i class=\"fa fa-plus\"></i></button>\n" +
     "<button type=button class=btn ng-click=zoomOut() prevent-default><i class=\"fa fa-minus\"></i></button>\n" +
     "<button type=button class=btn ng-click=\"\" prevent-default><i class=\"fa fa-crosshairs\"></i></button>\n" +

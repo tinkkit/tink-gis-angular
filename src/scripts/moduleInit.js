@@ -21,7 +21,7 @@
                 event.preventDefault();
                 event.stopPropagation();
             });
-        }
+        };
     });
     var mapObject = function () {
         var map = L.map('map', {
@@ -41,9 +41,11 @@
         });
         map.on('draw:drawstart', function (event) {
             console.log(drawnItems);
-            drawnItems.clearLayers();
-            // drawnItems.();
+            map.clearDrawings();
         });
+        map.clearDrawings = function () {
+            drawnItems.clearLayers();
+        }
 
         return map;
     }

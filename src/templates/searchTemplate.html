@@ -2,7 +2,9 @@
     <aside>
         <div class="nav-aside-section">
             Zoek
+            <button ng-click="test()">test</button>
             <div ng-repeat="feature in features ">
+                test
                 layerid: {{feature.layerId}}
                 <pre>{{feature.properties | json }}</pre>
             </div>
