@@ -9,7 +9,8 @@
     var mapService = function ($http, map, ThemeHelper, $q) {
         var _mapService = {};
         _mapService.VisibleLayers = [];
-        _mapService.VisibleLayers.push({ id: -1, name: 'Alle Layers' });
+        _mapService.VisibleLayers.push({ id: '', name: 'Alle Layers' });
+        console.log("visLayerAdded");
         _mapService.SelectableLayers = [];
         _mapService.VisibleFeatures = [];
         _mapService.JsonFeatures = [];
@@ -33,7 +34,6 @@
             });
             $q.all(promises).then((values) => {
                 console.log(values); // value gamma
-                // console.log(_mapService.SelectableLayers); // value gamma
                 console.log("Alle mappen geladen");
             });
 
@@ -55,7 +55,7 @@
                         layersVoorIdentify = 'visible: ' + theme.VisibleLayerIds;
                     }
                     else {
-                        if (selectedLayer.theme == theme) {
+                        if (selectedLayer.theme.Naam === theme.Naam) { // is het deze theme?
                             layersVoorIdentify = 'visible: ' + selectedLayer.id;
                         } else {
                             identifOnThisTheme = false; //overslaan het is een select van maar 1 laag en de laag is niet op deze theme
@@ -78,6 +78,18 @@
                 }
 
             });
+        };
+        _mapService.Query = function (event, selectedLayer) {
+            selectedLayer.theme.MapData.query()
+                .layer(selectedLayer.id)
+                .intersects(event.layer)
+                .run(function (error, featureCollection, response) {
+                    for (var x = 0; x < featureCollection.features.length; x++) {
+                        _mapService.JsonFeatures.push(featureCollection.features[x]);
+                        var item = L.geoJson(featureCollection.features[x]).addTo(map);
+                        _mapService.VisibleFeatures.push(item);
+                    }
+                });
         };
 
 

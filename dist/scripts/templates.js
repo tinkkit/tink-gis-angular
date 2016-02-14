@@ -30,7 +30,7 @@ angular.module('tink.gis.angular').run(['$templateCache', function($templateCach
 
   $templateCache.put('templates/searchTemplate.html',
     "<div data-tink-nav-aside=\"\" data-auto-select=true data-toggle-id=asideNavLeft class=\"nav-aside nav-left\"> <aside> <div class=nav-aside-section> Zoek\n" +
-    "<button ng-click=test()>test</button> <div ng-repeat=\"feature in features \"> test layerid: {{feature.layerId}} <pre>{{feature.properties | json }}</pre> </div> </div> </aside> </div>"
+    "<button ng-click=vm.test()>test</button> <div ng-repeat=\"feature in vm.features \"> test layerid: {{feature.layerId}} <pre>{{feature.properties | json }}</pre> </div> </div> </aside> </div>"
   );
 
 

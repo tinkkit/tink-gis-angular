@@ -6,7 +6,8 @@
             // restrict: 'E',
             replace: true,
             templateUrl: 'templates/searchTemplate.html',
-            controller: 'searchController'
+            controller: 'searchController',
+            controllerAs: 'vm'
         };
     });
 })();

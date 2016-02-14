@@ -1,38 +1,33 @@
 'use strict';
 (function (module) {
     module = angular.module('tink.gis.angular');
-    var theController = module.controller('mapController', function ($scope, HelperService, GisDataService, BaseLayersService, MapService, $http, map) {
+    var theController = module.controller('mapController', function ($scope, BaseLayersService, MapService, $http, map) {
         $scope.layerId = '';
         $scope.activeInteractieKnop = 'select';
         $scope.selectedLayer = {};
         $scope.SelectableLayers = MapService.VisibleLayers;
         map.on('click', function (event) {
             if (!IsDrawing) {
+                console.log("click op map!");
                 cleanMapAndSearch();
                 switch ($scope.activeInteractieKnop) {
                     case 'identify':
                         MapService.Identify(event, null, 2);
-                        $scope.$apply();
                         break;
                     case 'select':
                         if (_.isEmpty($scope.selectedLayer)) {
                             console.log("Geen layer selected! kan dus niet opvragen");
                         }
                         else {
-                            $scope.selectedLayer.theme.MapData.identify().on(map).at(event.latlng).layers('visible:' + $scope.selectedLayer.id).run(function (error, featureCollection) {
-                                for (var x = 0; x < featureCollection.features.length; x++) {
-                                    MapService.JsonFeatures.push(featureCollection.features[x]);
-                                    var item = L.geoJson(featureCollection.features[x]).addTo(map);
-                                    MapService.VisibleFeatures.push(item);
-                                }
-                                $scope.$apply();
-                            });
+                            MapService.Identify(event, $scope.selectedLayer, 1); // click is gewoon een identify maar dan op selectedlayer.
                         }
                         break;
                     default:
                         console.log("MAG NOG NIET!!!!!!!!");
                         break;
                 }
+                $scope.$apply();
+
             }
         });
         var IsDrawing = false;
@@ -44,34 +39,14 @@
         map.on('draw:created', function (event) {
             console.log('draw created');
             console.log(event);
-            switch ($scope.activeInteractieKnop) {
-                case 'identify':
-                    console.log("MAG NIET!!!!!!!!");
-                    break;
-                case 'select':
-                    if (_.isEmpty($scope.selectedLayer)) {
-                        console.log("Geen layer selected! kan dus niet opvragen");
-                    }
-                    else {
-                        $scope.selectedLayer.theme.MapData.query()
-                            .layer($scope.selectedLayer.id)
-                            .intersects(event.layer)
-                            .run(function (error, featureCollection, response) {
-                                for (var x = 0; x < featureCollection.features.length; x++) {
-                                    MapService.JsonFeatures.push(featureCollection.features[x]);
-                                    var item = L.geoJson(featureCollection.features[x]).addTo(map);
-                                    MapService.VisibleFeatures.push(item);
-                                }
-                                $scope.$apply();
-                            });
-                    }
-                    break;
-                default:
-                    console.log("MAG NOG NIET!!!!!!!!");
-                    break;
+            if (_.isEmpty($scope.selectedLayer)) {
+                console.log("Geen layer selected! kan dus niet opvragen");
+            }
+            else {
+                MapService.Query(event, $scope.selectedLayer);
+                $scope.$apply();
             }
             IsDrawing = false;
-
         });
         var cleanMapAndSearch = function () {
             for (var x = 0; x < MapService.VisibleFeatures.length; x++) {
@@ -117,5 +92,5 @@
             map.addLayer(BaseLayersService.luchtfoto);
         };
     });
-    theController.$inject = ['HelperService', 'GisDataService', 'BaseLayersService', 'MapService', '$http', 'map'];
+    theController.$inject = ['BaseLayersService', 'MapService', '$http', 'map'];
 })();
