@@ -6,7 +6,7 @@
     } catch (e) {
         module = angular.module('tink.gis.angular', ['tink.accordion', 'tink.tinkApi']); //'leaflet-directive'
     }
-    var mapService = function ($http, map, ThemeHelper, $q) {
+    var mapService = function ($rootScope, $http, map, ThemeHelper, $q) {
         var _mapService = {};
         _mapService.VisibleLayers = [];
         _mapService.VisibleLayers.push({ id: '', name: 'Alle Layers' });
@@ -70,10 +70,11 @@
                                 "fillOpacity": 0
                             };
                             _mapService.JsonFeatures.push(featureItem);
-                            console.log(_mapService.JsonFeatures);
                             var mapItem = L.geoJson(featureItem, { style: myStyle }).addTo(map);
                             _mapService.VisibleFeatures.push(mapItem);
                         }
+                        $rootScope.$apply();
+
                     });
                 }
 
@@ -125,8 +126,9 @@
                 _mapService.UpdateLayerStatus(layer, theme);
             });
         };
+        
         return _mapService;
     };
-    module.$inject = ['$http', 'map', 'ThemeHelper', '$q'];
+    module.$inject = ['$rootScope', '$http', 'map', 'ThemeHelper', '$q'];
     module.factory('MapService', mapService);
 })();
