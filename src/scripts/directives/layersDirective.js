@@ -5,7 +5,8 @@
         return {
             replace: true,
             templateUrl: 'templates/layersTemplate.html',
-            controller: 'layersController'
+            controller: 'layersController',
+            controllerAs: 'lyrsctrl'
         };
     });
 })();

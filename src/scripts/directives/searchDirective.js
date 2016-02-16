@@ -7,7 +7,7 @@
             replace: true,
             templateUrl: 'templates/searchTemplate.html',
             controller: 'searchController',
-            controllerAs: 'vm'
+            controllerAs: 'srchctrl'
         };
     });
 })();

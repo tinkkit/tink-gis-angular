@@ -5,11 +5,8 @@
         return {
             replace: true,
             templateUrl: 'templates/mapTemplate.html',
-            scope: {
-                parlayers: '=',
-                parcenter: '='
-            },
-            controller: 'mapController'
+            controller: 'mapController',
+            controllerAs: 'mapctrl'
         };
     });
 })();           

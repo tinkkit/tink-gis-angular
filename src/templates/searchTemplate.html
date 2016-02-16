@@ -2,8 +2,8 @@
     <aside>
         <div class="nav-aside-section">
             Zoek
-            <div ng-repeat="feature in vm.features ">
-                layerid: {{feature.theme.Naam}}
+            <div ng-repeat="feature in searchctrl.features ">
+                    layerid: {{feature.theme.Naam}}
                 <pre>{{feature.properties | json }}</pre>
             </div>
 

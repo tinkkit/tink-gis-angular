@@ -8,7 +8,8 @@
                 grouplayer: '='
             },
             templateUrl: 'templates/groupLayerTemplate.html',
-            controller: 'groupLayerController'
+            controller: 'groupLayerController',
+            controllerAs: 'grplyrctrl'
         };
     });
 })();

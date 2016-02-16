@@ -19,7 +19,7 @@
             thema.VisibleLayerIds = []; // -1 is een truckje wnnr er geen ids zijn dat hij niet ALLEs queryt maar niks
             
             thema.GetAllLayers = function () {
-                let alllayers = [];
+                var alllayers = [];
                 _.each(thema.Layers, function (layer) {
                     alllayers.push(layer);
                 });
@@ -39,15 +39,12 @@
             }).addTo(map);
             thema.RecalculateVisibleLayerIds = function () {
                 thema.VisibleLayerIds.length = 0;
-
                 _.forEach(thema.VisibleLayers, function (visLayer) {
                     thema.VisibleLayerIds.push(visLayer.id);
                 });
-                if(thema.VisibleLayerIds.length === 0)
-                {
+                if (thema.VisibleLayerIds.length === 0) {
                     thema.VisibleLayerIds.push(-1); //als we niet doen dan zoekt hij op alle lagen!
                 }
-                console.log(thema.VisibleLayerIds);
             };
             _.each(rawlayers, function (x) {
                 x.visible = true;

@@ -1,29 +1,35 @@
+/// <reference path="../services/mapService.js" />
+
 'use strict';
 (function (module) {
     module = angular.module('tink.gis.angular');
     var theController = module.controller('mapController', function ($scope, BaseLayersService, MapService, $http, map) {
-        $scope.layerId = '';
-        $scope.activeInteractieKnop = 'select';
-        $scope.selectedLayer = {};
-        $scope.SelectableLayers = MapService.VisibleLayers;
+        var vm = this;
+        vm.layerId = '';
+        vm.activeInteractieKnop = 'select';
+        vm.Data = {};
+        vm.SelectableLayers = MapService.VisibleLayers;
+    
+        // vm.Data.selectedLayer = MapService.SelectedLayer;
+        MapService.SelectedLayer = vm.Data.selectedLayer;
         map.on('click', function (event) {
+            console.log('click op map!');
             if (!IsDrawing) {
-                console.log("click op map!");
                 cleanMapAndSearch();
-                switch ($scope.activeInteractieKnop) {
+                switch (vm.activeInteractieKnop) {
                     case 'identify':
                         MapService.Identify(event, null, 2);
                         break;
                     case 'select':
-                        if (_.isEmpty($scope.selectedLayer)) {
-                            console.log("Geen layer selected! kan dus niet opvragen");
+                        if (_.isEmpty(vm.selectedLayer)) {
+                            console.log('Geen layer selected! kan dus niet opvragen');
                         }
                         else {
-                            MapService.Identify(event, $scope.selectedLayer, 1); // click is gewoon een identify maar dan op selectedlayer.
+                            MapService.Identify(event, vm.selectedLayer, 1); // click is gewoon een identify maar dan op selectedlayer.
                         }
                         break;
                     default:
-                        console.log("MAG NOG NIET!!!!!!!!");
+                        console.log('MAG NOG NIET!!!!!!!!');
                         break;
                 }
                 $scope.$apply();
@@ -32,18 +38,18 @@
         });
         var IsDrawing = false;
         map.on('draw:drawstart', function (event) {
+            console.log('draw started');
             IsDrawing = true;
             cleanMapAndSearch();
-            console.log("wtdf");
         });
         map.on('draw:created', function (event) {
             console.log('draw created');
             console.log(event);
-            if (_.isEmpty($scope.selectedLayer)) {
-                console.log("Geen layer selected! kan dus niet opvragen");
+            if (_.isEmpty(vm.selectedLayer)) {
+                console.log('Geen layer selected! kan dus niet opvragen');
             }
             else {
-                MapService.Query(event, $scope.selectedLayer);
+                MapService.Query(event, vm.selectedLayer);
                 $scope.$apply();
             }
             IsDrawing = false;
@@ -57,37 +63,40 @@
             map.clearDrawings();
 
         };
-        $scope.identify = function () {
+        vm.identify = function () {
             cleanMapAndSearch();
-            $scope.activeInteractieKnop = 'identify';
-            $(".leaflet-draw.leaflet-control").hide();
+            vm.activeInteractieKnop = 'identify';
+            $('.leaflet-draw.leaflet-control').hide();
         };
-        $scope.select = function () {
+        vm.select = function () {
             cleanMapAndSearch();
-            $scope.activeInteractieKnop = 'select';
-            $(".leaflet-draw.leaflet-control").show();
+            vm.activeInteractieKnop = 'select';
+            $('.leaflet-draw.leaflet-control').show();
         };
-        $scope.layerChange = function () {
+        vm.layerChange = function () {
             cleanMapAndSearch();
-            console.log($scope.selectedLayer);
+            console.log("SELECTEDLAYER:");
+            console.log(vm.Data.selectedLayer);
+            console.log(MapService.SelectedLayer);
+
         };
-        $scope.zoomIn = function () {
+        vm.zoomIn = function () {
             map.zoomIn();
         };
-        $scope.zoomOut = function () {
+        vm.zoomOut = function () {
             map.zoomOut();
         };
-        $scope.fullExtent = function () {
+        vm.fullExtent = function () {
             map.setView(new L.LatLng(51.2192159, 4.4028818), 16);
         };
-        $scope.kaartIsGetoond = true;
-        $scope.toonKaart = function () {
-            $scope.kaartIsGetoond = true;
+        vm.kaartIsGetoond = true;
+        vm.toonKaart = function () {
+            vm.kaartIsGetoond = true;
             map.removeLayer(BaseLayersService.luchtfoto);
             map.addLayer(BaseLayersService.kaart);
         };
-        $scope.toonLuchtfoto = function () {
-            $scope.kaartIsGetoond = false;
+        vm.toonLuchtfoto = function () {
+            vm.kaartIsGetoond = false;
             map.removeLayer(BaseLayersService.kaart);
             map.addLayer(BaseLayersService.luchtfoto);
         };

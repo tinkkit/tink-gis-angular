@@ -8,7 +8,8 @@
                 theme: '='
             },
             templateUrl: 'templates/themeTemplate.html',
-            controller: 'themeController'
+            controller: 'themeController',
+            controllerAs: 'thmctrl'
         };
     });
 })();

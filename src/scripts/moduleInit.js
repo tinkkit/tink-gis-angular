@@ -1,3 +1,4 @@
+'use strict';
 (function () {
     var module;
     try {
@@ -31,7 +32,6 @@
             zoomControl: false,
             drawControl: true
         });
-        console.log(map);
         map.doubleClickZoom.disable();
         L.control.scale({ imperial: false }).addTo(map);
         var drawnItems = L.featureGroup().addTo(map);

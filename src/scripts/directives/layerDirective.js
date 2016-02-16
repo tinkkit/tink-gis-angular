@@ -9,6 +9,7 @@
             },
             templateUrl: 'templates/layerTemplate.html',
             controller: 'layerController',
-        }
+            controllerAs: 'lyrctrl'
+        };
     });
 })();

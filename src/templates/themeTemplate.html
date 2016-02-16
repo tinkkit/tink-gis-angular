@@ -1,9 +1,10 @@
-<div><input class="visible-box" type="checkbox" ng-model="theme.Visible" ng-change="visChanged()">{{theme.Naam}}
-    <div class="layercontroller-checkbox" ng-repeat="layer in theme.Layers">
+<div><input class="visible-box" type="checkbox" ng-model="thmctrl.theme.Visible" ng-change="thmctrl.chkChanged()">{{thmctrl.theme.Naam}}
+    <div class="layercontroller-checkbox" ng-repeat="layer in thmctrl.theme.Layers">
+        sqdfqdsf
         <tink-Layer layer="layer">
         </tink-Layer>
     </div>
-    <div class="layercontroller-checkbox" ng-repeat="group in theme.Groups">
+    <div class="layercontroller-checkbox" ng-repeat="group in thmctrl.theme.Groups">
         <tink-Grouplayer grouplayer="group">
         </tink-Grouplayer>
     </div>
