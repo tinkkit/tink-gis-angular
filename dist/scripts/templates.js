@@ -1,6 +1,11 @@
 angular.module('tink.gis.angular').run(['$templateCache', function($templateCache) {
   'use strict';
 
+  $templateCache.put('templates/addLayerTemplate.html',
+    "<div style=\"width: 600px; height:600px\"> <div class=modal-header> <button type=button style=float:right data-ng-click=cancel()><i class=\"fa fa-times\"></i></button> <h4 class=model-title>Laag toevoegen </h4></div> <div class=modal-content> <input class=searchbox ng-model=searchTerm ng-change=searchChanged() placeholder=\"Geef een trefwoord of een url in\"> <div ng-repeat=\"theme in urls\"> <div> {{theme.Naam}} </div> </div> </div> <div class=modal-footer> <button data-ng-click=ok()>Klaar</button> </div> </div>"
+  );
+
+
   $templateCache.put('templates/groupLayerTemplate.html',
     "<div class=layercontroller-checkbox> <input class=visible-box type=checkbox ng-model=grplyrctrl.grouplayer.visible ng-change=chkChanged()>{{grplyrctrl.grouplayer.name}} <div ng-repeat=\"layer in grplyrctrl.grouplayer.Layers\"> <tink-layer layer=layer> </tink-layer> </div> </div>"
   );
@@ -12,7 +17,7 @@ angular.module('tink.gis.angular').run(['$templateCache', function($templateCach
 
 
   $templateCache.put('templates/layerstemplate.html',
-    "<div data-tink-nav-aside=\"\" data-auto-select=true data-toggle-id=asideNavRight class=\"nav-aside nav-right\"> <aside> <div class=nav-aside-section> <ul ui-sortable ng-model=lyrsctrl.themes> <div ng-repeat=\"theme in lyrsctrl.themes\"> <tink-theme theme=theme> </tink-theme> </div> </ul> </div> </aside> </div>"
+    "<div data-tink-nav-aside=\"\" data-auto-select=true data-toggle-id=asideNavRight class=\"nav-aside nav-right\"> <aside> <div class=nav-aside-section> <ul ui-sortable ng-model=lyrsctrl.themes> <div ng-repeat=\"theme in lyrsctrl.themes\"> <tink-theme theme=theme> </tink-theme> </div> </ul> <button class=\"btn btn-primary addlayerbtn\" ng-click=lyrsctrl.AddLayers()>Voeg laag toe</button> </div> </aside> </div>"
   );
 
 
@@ -34,7 +39,7 @@ angular.module('tink.gis.angular').run(['$templateCache', function($templateCach
 
 
   $templateCache.put('templates/themeTemplate.html',
-    "<div><input class=visible-box type=checkbox ng-model=thmctrl.theme.Visible ng-change=thmctrl.chkChanged()>{{thmctrl.theme.Naam}} <div class=layercontroller-checkbox ng-repeat=\"layer in thmctrl.theme.Layers\"> sqdfqdsf <tink-layer layer=layer> </tink-layer> </div> <div class=layercontroller-checkbox ng-repeat=\"group in thmctrl.theme.Groups\"> <tink-grouplayer grouplayer=group> </tink-grouplayer> </div> </div>"
+    "<div><input class=visible-box type=checkbox ng-model=thmctrl.theme.Visible ng-change=thmctrl.chkChanged()>{{thmctrl.theme.Naam}} <div class=layercontroller-checkbox ng-repeat=\"layer in thmctrl.theme.Layers\"> <tink-layer layer=layer> </tink-layer> </div> <div class=layercontroller-checkbox ng-repeat=\"group in thmctrl.theme.Groups\"> <tink-grouplayer grouplayer=group> </tink-grouplayer> </div> </div>"
   );
 
 }]);

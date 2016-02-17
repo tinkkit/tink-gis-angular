@@ -139,3 +139,37 @@ input[type="checkbox"], input[type="radio"] {
 {
     margin-left:10px;
 }
+
+.addlayerbtn {
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 5px;
+    margin-bottom: 5px;
+     display: block;
+}
+
+.modal-dialog{
+    background-color: white;
+}
+
+.modal-header {
+    padding: 15px;
+    border-bottom: 1px solid gray;
+    text-align: left;   
+}
+.modal-title {
+    margin: 0;
+    line-height: 1.42857143;
+}
+.modal-content {
+    padding: 15px;
+    text-align: left;       
+}
+.modal-footer {
+    padding: 15px;
+    border-top: 1px solid gray;
+    text-align: left;   
+}
+input.searchbox {
+    width: 250px;
+}

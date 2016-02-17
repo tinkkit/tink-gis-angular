@@ -4,7 +4,7 @@
     try {
         module = angular.module('tink.gis.angular');
     } catch (e) {
-        module = angular.module('tink.gis.angular', ['tink.accordion', 'tink.tinkApi']); //'leaflet-directive'
+        module = angular.module('tink.gis.angular', ['tink.accordion', 'tink.tinkApi', 'tink.modal']); //'leaflet-directive'
     }
     var mapService = function ($rootScope, $http, map, ThemeHelper, $q) {
         var _mapService = {};
@@ -13,16 +13,16 @@
         _mapService.SelectableLayers = [];
         _mapService.VisibleFeatures = [];
         _mapService.JsonFeatures = [];
-        _mapService.getLayerUrls = ['http://app10.a.gis.local/arcgissql/rest/services/A_Stedenbouw/stad/MapServer/?f=pjson'];  //'http://app10.p.gis.local/arcgissql/rest/services/P_Stedenbouw/stad/MapServer?f=pjson',
+        _mapService.CurrentThemes = ['http://app10.a.gis.local/arcgissql/rest/services/A_Stedenbouw/stad/MapServer/?f=pjson'];  //'http://app10.p.gis.local/arcgissql/rest/services/P_Stedenbouw/stad/MapServer?f=pjson',
         _mapService.Themes = [];
         var defaultlayer = { id: '', name: 'Alle Layers' };
         _mapService.VisibleLayers.unshift(defaultlayer);
         _mapService.SelectedLayer = defaultlayer;
-        var loadAllLayers = function () { // dit moet met HTTP en ergens op een andere service ofzo vervangen worden later wnnr dit geimplementeerd moet worden.
+        _mapService.LoadAllLayers = function () { // dit moet met HTTP en ergens op een andere service ofzo vervangen worden later wnnr dit geimplementeerd moet worden.
             var promises = [];
             _mapService.VisibleLayers.length = 0;
-
-            _.each(_mapService.getLayerUrls, function (layerurl) {
+            _mapService.Themes.length = 0;
+            _.each(_mapService.CurrentThemes, function (layerurl) {
                 var prom = $http.get(layerurl).success(function (data, statuscode, functie, getdata) {
                     var convertedTheme = ThemeHelper.createThemeFromJson(data, getdata)
                     _mapService.Themes.push(convertedTheme);
@@ -37,7 +37,7 @@
                 console.log("Alle layers geladen");
             });
         };
-        loadAllLayers();
+        // loadAllLayers();
         _mapService.Identify = function (event, selectedLayer, tolerance) {
             if (typeof tolerance === 'undefined') { tolerance = 2; }
             _.each(_mapService.Themes, function (theme) {
@@ -72,7 +72,6 @@
         _mapService.Select = function (event) {
             _.each(_mapService.Themes, function (theme) {
                 theme.RecalculateVisibleLayerIds();
-                var layersVoorIdentify = "";
                 var identifOnThisTheme = _mapService.SelectedLayer.theme == theme;
                 if (identifOnThisTheme) {
                     theme.MapData.identify().on(map).at(event.latlng).layers('visible: ' + _mapService.SelectedLayer.id).tolerance(tolerance).run(function (error, featureCollection) {
@@ -144,3 +143,5 @@
     module.$inject = ['$rootScope', '$http', 'map', 'ThemeHelper', '$q'];
     module.factory('MapService', mapService);
 })();
+
+
