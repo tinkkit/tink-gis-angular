@@ -6,10 +6,8 @@
     <div class="modal-content">
         <input class="searchbox" type="text" ng-model="searchTerm" ng-change="searchChanged()" placeholder="Geef een trefwoord of een url in" />
         <div ng-repeat="theme in themes | filter: { Naam: searchTerm }"">
-            <input ng-model="theme.selected" type="checkbox" />
-            <div>
-                {{theme.Naam}} 
-            </div>
+            <input ng-model="theme.selected" type="checkbox" id="test{{$index}}" />
+                <label for="test{{$index}}">{{theme.Naam}} </label>
             <small>{{theme.Description}} </small><br/>
             <a ng-href="{{theme.CleanUrl}}">Link</a>
         </div> 
