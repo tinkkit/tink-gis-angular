@@ -10,7 +10,6 @@
                     var prom = $http.get(url).success(function (data, statuscode, functie, getdata) {
                         var convertedTheme = ThemeHelper.createThemeFromJson(data, getdata)
                         $scope.themes.push(convertedTheme);
-                        // _mapService.Themes.push(convertedTheme);
                     });
                     promises.push(prom);
                 });

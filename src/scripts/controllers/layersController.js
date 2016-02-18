@@ -7,7 +7,7 @@
         vm.selectedLayers = [];
         vm.AddLayers = function () {
             var addLayerInstance = $modal.open({
-                templateUrl: 'templates/addLayerTemplate.html',
+                templateUrl: 'templates/addLayerModalTemplate.html',
                 controller: 'addLayerController',
                 resolve: {
                     backdrop: false,
@@ -17,15 +17,12 @@
                     }
                 }
             });
-
             addLayerInstance.result.then(function (selectedThemes) {
                 MapService.AddNewThemes(selectedThemes);
             }, function (obj) {
                 console.log('Modal dismissed at: ' + new Date()); // The contoller is closed by the use of the $dismiss call
             });
         };
-
-
     });
     theController.$inject = ['$http', 'map', 'MapService', '$modal'];
 })();

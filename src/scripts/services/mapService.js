@@ -29,12 +29,19 @@
                 theme.MapData = L.esri.dynamicMapLayer({
                     url: theme.CleanUrl,
                     opacity: 0.5,
-                    layers: theme.VisibleLayerIds,
+                    // layers: theme.VisibleLayerIds,
                     useCors: false
                 }).addTo(map);
+                theme.MapData.on('requeststart', function (obj) {
+                    console.log('requeststart');
+                });
+                theme.MapData.on('requestsuccess', function (obj) {
+                    console.log('requestsuccess');
+                });
                 _.each(theme.GetAllLayers(), function (layer) {
                     _mapService.VisibleLayers.push(layer);
                 });
+
             });
         };
         // _mapService.AddNewThemes = function (selectedThemes) { // dit moet met HTTP en ergens op een andere service ofzo vervangen worden later wnnr dit geimplementeerd moet worden.
@@ -114,7 +121,6 @@
 
         _mapService.UpdateLayerStatus = function (layer, theme) {
             var visibleOnMap = theme.Visible && layer.visible && ((layer.parent && layer.parent.visible) || !layer.parent);
-            console.log(!layer.parent);
             var indexOfLayerInVisibleLayers = theme.VisibleLayers.indexOf(layer);
             if (visibleOnMap) {
                 if (indexOfLayerInVisibleLayers === -1) {
@@ -129,8 +135,15 @@
                     _mapService.VisibleLayers.splice(indexOfLayerInVisibleLayersOfMap, 1);
                 }
             }
-            theme.RecalculateVisibleLayerIds();
+
+
+
         };
+        _mapService.UpdateThemeVisibleLayers = function (theme) {
+            console.log(theme.VisibleLayerIds);
+            theme.RecalculateVisibleLayerIds();
+            theme.MapData.setLayers(theme.VisibleLayerIds);
+        }
         _mapService.UpdateGroupLayerStatus = function (groupLayer, theme) {
             _.each(groupLayer.Layers, function (childlayer) {
                 _mapService.UpdateLayerStatus(childlayer, theme);
@@ -143,6 +156,7 @@
             _.each(theme.Layers, function (layer) {
                 _mapService.UpdateLayerStatus(layer, theme);
             });
+
         };
 
         return _mapService;
