@@ -5,10 +5,13 @@
     </div>
     <div class="modal-content">
         <input class="searchbox" type="text" ng-model="searchTerm" ng-change="searchChanged()" placeholder="Geef een trefwoord of een url in" />
-        <div ng-repeat="theme in urls">
+        <div ng-repeat="theme in themes | filter: { Naam: searchTerm }"">
+            <input ng-model="theme.selected" type="checkbox" />
             <div>
                 {{theme.Naam}} 
             </div>
+            <small>{{theme.Description}} </small><br/>
+            <a ng-href="{{theme.CleanUrl}}">Link</a>
         </div> 
     </div>
     <div class="modal-footer">

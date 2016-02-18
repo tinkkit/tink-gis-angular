@@ -2,7 +2,7 @@ angular.module('tink.gis.angular').run(['$templateCache', function($templateCach
   'use strict';
 
   $templateCache.put('templates/addLayerTemplate.html',
-    "<div style=\"width: 600px; height:600px\"> <div class=modal-header> <button type=button style=float:right data-ng-click=cancel()><i class=\"fa fa-times\"></i></button> <h4 class=model-title>Laag toevoegen </h4></div> <div class=modal-content> <input class=searchbox ng-model=searchTerm ng-change=searchChanged() placeholder=\"Geef een trefwoord of een url in\"> <div ng-repeat=\"theme in urls\"> <div> {{theme.Naam}} </div> </div> </div> <div class=modal-footer> <button data-ng-click=ok()>Klaar</button> </div> </div>"
+    "<div style=\"width: 600px; height:600px\"> <div class=modal-header> <button type=button style=float:right data-ng-click=cancel()><i class=\"fa fa-times\"></i></button> <h4 class=model-title>Laag toevoegen </h4></div> <div class=modal-content> <input class=searchbox ng-model=searchTerm ng-change=searchChanged() placeholder=\"Geef een trefwoord of een url in\"> <div ng-repeat=\"theme in themes\"> <input ng-model=theme.selected type=\"checkbox\"> <div> {{theme.Naam}} </div> </div> </div> <div class=modal-footer> <button data-ng-click=ok()>Klaar</button> </div> </div>"
   );
 
 

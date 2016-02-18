@@ -7,25 +7,23 @@
         var vm = this;
         vm.layerId = '';
         vm.activeInteractieKnop = 'select';
-        vm.Data = {};
         vm.SelectableLayers = MapService.VisibleLayers;
-    
-        // vm.Data.selectedLayer = MapService.SelectedLayer;
-        MapService.SelectedLayer = vm.Data.selectedLayer;
+
+        vm.selectedLayer = {};
         map.on('click', function (event) {
             console.log('click op map!');
             if (!IsDrawing) {
                 cleanMapAndSearch();
                 switch (vm.activeInteractieKnop) {
                     case 'identify':
-                        MapService.Identify(event, null, 2);
+                        MapService.Identify(event, 2);
                         break;
                     case 'select':
                         if (_.isEmpty(vm.selectedLayer)) {
                             console.log('Geen layer selected! kan dus niet opvragen');
                         }
                         else {
-                            MapService.Identify(event, vm.selectedLayer, 1); // click is gewoon een identify maar dan op selectedlayer.
+                            MapService.Select(event); // click is gewoon een identify maar dan op selectedlayer.
                         }
                         break;
                     default:
@@ -75,10 +73,7 @@
         };
         vm.layerChange = function () {
             cleanMapAndSearch();
-            console.log("SELECTEDLAYER:");
-            console.log(vm.Data.selectedLayer);
-            console.log(MapService.SelectedLayer);
-
+            MapService.SelectedLayer = vm.selectedLayer;
         };
         vm.zoomIn = function () {
             map.zoomIn();

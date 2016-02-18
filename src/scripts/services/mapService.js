@@ -13,53 +13,60 @@
         _mapService.SelectableLayers = [];
         _mapService.VisibleFeatures = [];
         _mapService.JsonFeatures = [];
-        _mapService.CurrentThemes = ['http://app10.a.gis.local/arcgissql/rest/services/A_Stedenbouw/stad/MapServer/?f=pjson'];  //'http://app10.p.gis.local/arcgissql/rest/services/P_Stedenbouw/stad/MapServer?f=pjson',
+        _mapService.ThemeUrls = ['http://app10.p.gis.local/arcgissql/rest/services/P_Stad/Afval/MapServer?f=pjson',
+            'http://app10.p.gis.local/arcgissql/rest/services/P_Stad/Cultuur/MapServer?f=pjson',
+            'http://app10.p.gis.local/arcgissql/rest/services/P_Stad/Jeugd/MapServer?f=pjson',
+            'http://app10.p.gis.local/arcgissql/rest/services/P_Stad/Onderwijs/MapServer?f=pjson',
+            'http://app10.p.gis.local/arcgissql/rest/services/P_Stad/stad/MapServer?f=pjson'
+        ];
         _mapService.Themes = [];
         var defaultlayer = { id: '', name: 'Alle Layers' };
         _mapService.VisibleLayers.unshift(defaultlayer);
         _mapService.SelectedLayer = defaultlayer;
-        _mapService.LoadAllLayers = function () { // dit moet met HTTP en ergens op een andere service ofzo vervangen worden later wnnr dit geimplementeerd moet worden.
-            var promises = [];
-            _mapService.VisibleLayers.length = 0;
-            _mapService.Themes.length = 0;
-            _.each(_mapService.CurrentThemes, function (layerurl) {
-                var prom = $http.get(layerurl).success(function (data, statuscode, functie, getdata) {
-                    var convertedTheme = ThemeHelper.createThemeFromJson(data, getdata)
-                    _mapService.Themes.push(convertedTheme);
-                    _.each(convertedTheme.GetAllLayers(), function (layer) {
-                        _mapService.VisibleLayers.push(layer);
-                    });
+        _mapService.AddNewThemes = function (selectedThemes) { // dit moet met HTTP en ergens op een andere service ofzo vervangen worden later wnnr dit geimplementeerd moet worden.
+            _.each(selectedThemes, function (theme) {
+                _mapService.Themes.push(theme);
+                theme.MapData = L.esri.dynamicMapLayer({
+                    url: theme.CleanUrl,
+                    opacity: 0.5,
+                    layers: theme.VisibleLayerIds,
+                    useCors: false
+                }).addTo(map);
+                _.each(theme.GetAllLayers(), function (layer) {
+                    _mapService.VisibleLayers.push(layer);
                 });
-                promises.push(prom);
-            });
-            $q.all(promises).then(function (lagen) {
-                // console.log(lagen); // value gamma
-                console.log("Alle layers geladen");
             });
         };
+        // _mapService.AddNewThemes = function (selectedThemes) { // dit moet met HTTP en ergens op een andere service ofzo vervangen worden later wnnr dit geimplementeerd moet worden.
+        //     var promises = [];
+        //     // _mapService.VisibleLayers.length = 0;
+        //     // _mapService.Themes.length = 0;
+        //     _.each(selectedThemes, function (layerurl) {
+        //         var prom = $http.get(layerurl).success(function (data, statuscode, functie, getdata) {
+        //             var convertedTheme = ThemeHelper.createThemeFromJson(data, getdata)
+        //             _mapService.Themes.push(convertedTheme);
+        //             _.each(convertedTheme.GetAllLayers(), function (layer) {
+        //                 _mapService.VisibleLayers.push(layer);
+        //             });
+        //         });
+        //         promises.push(prom);
+        //     });
+        //     $q.all(promises).then(function (lagen) {
+        //         // console.log(lagen); // value gamma
+        //         console.log("Alle layers geladen");
+        //     });
+        // };
         // loadAllLayers();
-        _mapService.Identify = function (event, selectedLayer, tolerance) {
+        _mapService.Identify = function (event, tolerance) {
             if (typeof tolerance === 'undefined') { tolerance = 2; }
             _.each(_mapService.Themes, function (theme) {
                 theme.RecalculateVisibleLayerIds();
-                var layersVoorIdentify = "";
                 var identifOnThisTheme = true;
-                if (typeof selectedLayer === 'undefined' || selectedLayer == null) {
-                    // geen selected layer oke dan qryen we voor alle vis layers
-                    layersVoorIdentify = 'visible: ' + theme.VisibleLayerIds;
+                if (theme.VisibleLayerIds.length === 1 && theme.VisibleLayerIds[0] === -1) {
+                    identifOnThisTheme = false; // we moeten de layer niet qryen wnnr er geen vis layers zijn
                 }
                 else {
-                    // well selected layer, eerst zeker zijn dat deze hierbij hoort.
-                    if (selectedLayer.id === -1) {
-                        layersVoorIdentify = 'visible: ' + theme.VisibleLayerIds;
-                    }
-                    else {
-                        if (selectedLayer.theme.Naam === theme.Naam) { // is het deze theme?
-                            layersVoorIdentify = 'visible: ' + selectedLayer.id;
-                        } else {
-                            identifOnThisTheme = false; //overslaan het is een select van maar 1 laag en de laag is niet op deze theme
-                        }
-                    }
+                    var layersVoorIdentify = 'visible: ' + theme.VisibleLayerIds;
                 }
                 if (identifOnThisTheme) {
                     theme.MapData.identify().on(map).at(event.latlng).layers(layersVoorIdentify).tolerance(tolerance).run(function (error, featureCollection) {
@@ -74,7 +81,7 @@
                 theme.RecalculateVisibleLayerIds();
                 var identifOnThisTheme = _mapService.SelectedLayer.theme == theme;
                 if (identifOnThisTheme) {
-                    theme.MapData.identify().on(map).at(event.latlng).layers('visible: ' + _mapService.SelectedLayer.id).tolerance(tolerance).run(function (error, featureCollection) {
+                    theme.MapData.identify().on(map).at(event.latlng).layers('visible: ' + _mapService.SelectedLayer.id).run(function (error, featureCollection) {
                         AddFeatures(featureCollection);
                     });
                 }
@@ -91,7 +98,7 @@
                 var mapItem = L.geoJson(featureItem, { style: myStyle }).addTo(map);
                 _mapService.VisibleFeatures.push(mapItem);
             }
-            console.log(_mapService.SelectedLayer);
+            console.log(_mapService.JsonFeatures);
             $rootScope.$apply();
         };
         _mapService.Query = function (event, selectedLayer) {

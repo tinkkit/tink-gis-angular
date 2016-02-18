@@ -13,11 +13,12 @@
             var rawlayers = rawdata.layers;
             var cleanUrl = getData.url.substring(0, getData.url.indexOf('?'));
             thema.Naam = rawdata.documentInfo.Title;
+            thema.Description = rawdata.documentInfo.Subject;
             thema.Layers = [];
             thema.Groups = [];
+            thema.CleanUrl = cleanUrl;
             thema.VisibleLayers = []; // -1 is een truckje wnnr er geen ids zijn dat hij niet ALLEs queryt maar niks
             thema.VisibleLayerIds = []; // -1 is een truckje wnnr er geen ids zijn dat hij niet ALLEs queryt maar niks
-            
             thema.GetAllLayers = function () {
                 var alllayers = [];
                 _.each(thema.Layers, function (layer) {
@@ -31,12 +32,13 @@
                 return alllayers;
             };
             thema.Visible = true;
-            thema.MapData = L.esri.dynamicMapLayer({
-                url: cleanUrl,
-                opacity: 0.5,
-                layers: thema.VisibleLayerIds,
-                useCors: false
-            }).addTo(map);
+            thema.MapData = {};
+            // thema.MapData = L.esri.dynamicMapLayer({
+            //     url: cleanUrl,
+            //     opacity: 0.5,
+            //     layers: thema.VisibleLayerIds,
+            //     useCors: false
+            // }).addTo(map);
             thema.RecalculateVisibleLayerIds = function () {
                 thema.VisibleLayerIds.length = 0;
                 _.forEach(thema.VisibleLayers, function (visLayer) {

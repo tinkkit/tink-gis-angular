@@ -1,5 +1,5 @@
 <div class="layercontroller-checkbox">
-    <input class="visible-box" type="checkbox" ng-model="grplyrctrl.grouplayer.visible" ng-change="chkChanged()">{{grplyrctrl.grouplayer.name}}
+    <input class="visible-box" type="checkbox" ng-model="grplyrctrl.grouplayer.visible" ng-change="grplyrctrl.chkChanged()">{{grplyrctrl.grouplayer.name}}
     <div ng-repeat="layer in grplyrctrl.grouplayer.Layers">
         <tink-Layer layer="layer">
         </tink-Layer>
