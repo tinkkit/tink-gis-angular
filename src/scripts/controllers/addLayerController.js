@@ -21,6 +21,15 @@
                 });
             };
             processUrls(urls);
+            $scope.selectedTheme = null;
+            $scope.themeChanged = function (theme) {
+                $scope.selectedTheme = theme;
+                console.log(theme);
+            };
+            $scope.AddTheme = function (theme) {
+
+            }
+
             $scope.ok = function () {
                 var selectedThemes = []
                 _.each($scope.themes, function (theme) {

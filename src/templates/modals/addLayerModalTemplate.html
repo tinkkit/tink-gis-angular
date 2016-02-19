@@ -1,0 +1,27 @@
+<div style="">
+    <div class="modal-header">
+        <button type="button" style="float:right" data-ng-click="cancel()"><i class="fa fa-times"></i></button>
+        <h4 style="" class="model-title">Laag toevoegen</h5>
+    </div>
+    <div class="modal-content">
+        <div class="row">
+            <div class="col-md-4">
+                <input class="searchbox" type="text" ng-model="searchTerm" ng-change="searchChanged()" placeholder="Geef een trefwoord of een url in" />
+                <div ng-repeat="theme in themes | filter: { Naam: searchTerm }"">
+                        <div ng-click="themeChanged(theme)">{{theme.Naam}} </div>
+                </div> 
+            </div>
+            <div class="col-md-8">
+                <div ng-hide="selectedTheme == null">
+                    <p>{{selectedTheme.Description}}</p>
+                    <p><small><a ng-href="{{selectedTheme.CleanUrl}}" target="_blank">Details</a></small></p>
+                    <div tink-checkbox-list="" data-checked="selectedIds" ng-model="selectedTheme"></div>
+                    <button data-ng-click="AddTheme(selectedTheme)">Voeg toe</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button data-ng-click="ok()">Klaar</button>
+    </div>
+</div>

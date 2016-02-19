@@ -1,4 +1,6 @@
-<div><input class="visible-box" type="checkbox" ng-model="thmctrl.theme.Visible" ng-change="thmctrl.chkChanged()">{{thmctrl.theme.Naam}}
+<div>
+    <input class="visible-box" type="checkbox" id="chk{{thmctrl.theme.Naam}}" ng-model="thmctrl.theme.Visible" ng-change="thmctrl.chkChanged()">
+    <label for="chk{{thmctrl.theme.Naam}}"> {{thmctrl.theme.Naam}}</label>
     <div class="layercontroller-checkbox" ng-repeat="layer in thmctrl.theme.Layers">
         <tink-Layer layer="layer">
         </tink-Layer>

@@ -7,7 +7,7 @@
         vm.selectedLayers = [];
         vm.AddLayers = function () {
             var addLayerInstance = $modal.open({
-                templateUrl: 'templates/addLayerModalTemplate.html',
+                templateUrl: 'templates/modals/addLayerModalTemplate.html',
                 controller: 'addLayerController',
                 resolve: {
                     backdrop: false,

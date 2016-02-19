@@ -13,6 +13,7 @@
             var rawlayers = rawdata.layers;
             var cleanUrl = getData.url.substring(0, getData.url.indexOf('?'));
             thema.Naam = rawdata.documentInfo.Title;
+            thema.name = rawdata.documentInfo.Title;
             thema.Description = rawdata.documentInfo.Subject;
             thema.Layers = [];
             thema.Groups = [];
@@ -32,7 +33,9 @@
                 return alllayers;
             };
             thema.Visible = true;
+            thema.selected = true;
             thema.MapData = {};
+            thema.id = 99999;
             // thema.MapData = L.esri.dynamicMapLayer({
             //     url: cleanUrl,
             //     opacity: 0.5,
@@ -50,9 +53,10 @@
             };
             _.each(rawlayers, function (x) {
                 x.visible = true;
+                x.selected = true;
 
-                x.parent = null;
-                x.theme = thema;
+                // x.parent = null;
+                // x.theme = thema;
                 if (x.parentLayerId === -1) {
                     if (x.subLayerIds === null) {
                         thema.Layers.push(x);
@@ -67,7 +71,7 @@
                     layerGroup.Layers = [];
                     _.each(rawlayers, function (rawlayer) {
                         if (layerGroup.id === rawlayer.parentLayerId) {
-                            rawlayer.parent = layerGroup;
+                            // rawlayer.parent = layerGroup;
                             thema.VisibleLayers.push(rawlayer);
                             layerGroup.Layers.push(rawlayer);
                         }

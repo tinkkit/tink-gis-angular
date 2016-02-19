@@ -128,10 +128,10 @@ button.btn.active {
 }
 
 // Wtf tink ???
-input[type="checkbox"], input[type="radio"] {
-     opacity: 1; 
-     position: static; 
-}
+// input[type="checkbox"], input[type="radio"] {
+//      opacity: 1; 
+//      position: static; 
+// }
 .visible-box {
     padding-top: 4px;
 }
@@ -145,10 +145,11 @@ input[type="checkbox"], input[type="radio"] {
     margin-right: auto;
     margin-top: 5px;
     margin-bottom: 5px;
-     display: block;
+    display: block;
 }
 
 .modal-dialog{
+    min-width: 800px;
     background-color: white;
     text-align: left;
 }
@@ -170,7 +171,4 @@ input[type="checkbox"], input[type="radio"] {
     padding: 15px;
     border-top: 1px solid gray;
     // text-align: left;   
-}
-input.searchbox {
-    width: 250px;
 }
