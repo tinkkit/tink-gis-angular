@@ -31,13 +31,13 @@
             }
 
             $scope.ok = function () {
-                var selectedThemes = []
-                _.each($scope.themes, function (theme) {
-                    if (theme.selected === true) {
-                        selectedThemes.push(theme);
-                    }
-                });
-                $modalInstance.$close(selectedThemes);
+                // var selectedThemes = []
+                // _.each($scope.themes, function (theme) {
+                //     if (theme.selected === true) {
+                //         selectedThemes.push(theme);
+                //     }
+                // });
+                $modalInstance.$close([$scope.selectedTheme]);
             }
             $scope.cancel = function () {
                 $modalInstance.$dismiss('cancel is pressed'); // To close the controller with a dismiss message

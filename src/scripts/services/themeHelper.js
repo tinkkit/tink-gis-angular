@@ -33,15 +33,7 @@
                 return alllayers;
             };
             thema.Visible = true;
-            thema.selected = true;
             thema.MapData = {};
-            thema.id = 99999;
-            // thema.MapData = L.esri.dynamicMapLayer({
-            //     url: cleanUrl,
-            //     opacity: 0.5,
-            //     layers: thema.VisibleLayerIds,
-            //     useCors: false
-            // }).addTo(map);
             thema.RecalculateVisibleLayerIds = function () {
                 thema.VisibleLayerIds.length = 0;
                 _.forEach(thema.VisibleLayers, function (visLayer) {
@@ -54,9 +46,8 @@
             _.each(rawlayers, function (x) {
                 x.visible = true;
                 x.selected = true;
-
-                // x.parent = null;
-                // x.theme = thema;
+                x.parent = null;
+                x.theme = thema;
                 if (x.parentLayerId === -1) {
                     if (x.subLayerIds === null) {
                         thema.Layers.push(x);
@@ -71,7 +62,7 @@
                     layerGroup.Layers = [];
                     _.each(rawlayers, function (rawlayer) {
                         if (layerGroup.id === rawlayer.parentLayerId) {
-                            // rawlayer.parent = layerGroup;
+                            rawlayer.parent = layerGroup;
                             thema.VisibleLayers.push(rawlayer);
                             layerGroup.Layers.push(rawlayer);
                         }
