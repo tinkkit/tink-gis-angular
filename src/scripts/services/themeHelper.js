@@ -10,65 +10,73 @@
         var themeHelper = {};
         themeHelper.createThemeFromJson = function (rawdata, getData) {
             var thema = {};
-            var rawlayers = rawdata.layers;
-            var cleanUrl = getData.url.substring(0, getData.url.indexOf('?'));
-            thema.Naam = rawdata.documentInfo.Title;
-            thema.name = rawdata.documentInfo.Title;
-            thema.Description = rawdata.documentInfo.Subject;
-            thema.Layers = [];
-            thema.Groups = [];
-            thema.CleanUrl = cleanUrl;
-            thema.VisibleLayers = []; // -1 is een truckje wnnr er geen ids zijn dat hij niet ALLEs queryt maar niks
-            thema.VisibleLayerIds = []; // -1 is een truckje wnnr er geen ids zijn dat hij niet ALLEs queryt maar niks
-            thema.GetAllLayers = function () {
-                var alllayers = [];
-                _.each(thema.Layers, function (layer) {
-                    alllayers.push(layer);
+            try {
+                var rawlayers = rawdata.layers;
+                var cleanUrl = getData.url.substring(0, getData.url.indexOf('?'));
+                thema.Naam = rawdata.documentInfo.Title;
+                thema.name = rawdata.documentInfo.Title;
+                thema.Description = rawdata.documentInfo.Subject;
+                thema.Layers = []; // de layers direct onder het theme zonder sublayers
+                thema.AllLayers = []; // alle Layers die hij heeft including subgrouplayers
+                thema.Groups = []; // layergroups die nog eens layers zelf hebben
+                thema.CleanUrl = cleanUrl; // url van theme
+                thema.VisibleLayers = [];
+                thema.VisibleLayerIds = [];
+                thema.Visible = true;
+                thema.enabled = true;
+                thema.MapData = {};
+                _.each(rawlayers, function (x) {
+                    x.visible = true;
+                    x.enabled = true;
+                    x.parent = null;
+                    x.theme = thema;
+                    thema.AllLayers.push(x);
+                    if (x.parentLayerId === -1) {
+                        if (x.subLayerIds === null) {
+                            thema.Layers.push(x);
+                        } else {
+                            thema.Groups.push(x);
+                        }
+                    }
                 });
-                _.each(thema.Groups, function (group) {
-                    _.each(group.Layers, function (layer) {
+                _.each(thema.Groups, function (layerGroup) {
+                    if (layerGroup.subLayerIds !== null) {
+                        layerGroup.Layers = [];
+                        _.each(rawlayers, function (rawlayer) {
+                            if (layerGroup.id === rawlayer.parentLayerId) {
+                                rawlayer.parent = layerGroup;
+                                layerGroup.Layers.push(rawlayer);
+                            }
+                        });
+                    }
+                });
+                thema.RecalculateVisibleLayerIds = function () {
+                    thema.VisibleLayerIds.length = 0;
+                    _.forEach(thema.VisibleLayers, function (visLayer) {
+                        thema.VisibleLayerIds.push(visLayer.id);
+                    });
+                    if (thema.VisibleLayerIds.length === 0) {
+                        thema.VisibleLayerIds.push(-1); //als we niet doen dan zoekt hij op alle lagen!
+                    }
+                };
+                thema.GetAllLayers = function () {
+                    var alllayers = [];
+                    _.each(thema.Layers, function (layer) {
                         alllayers.push(layer);
                     });
-                });
-                return alllayers;
-            };
-            thema.Visible = true;
-            thema.MapData = {};
-            thema.RecalculateVisibleLayerIds = function () {
-                thema.VisibleLayerIds.length = 0;
-                _.forEach(thema.VisibleLayers, function (visLayer) {
-                    thema.VisibleLayerIds.push(visLayer.id);
-                });
-                if (thema.VisibleLayerIds.length === 0) {
-                    thema.VisibleLayerIds.push(-1); //als we niet doen dan zoekt hij op alle lagen!
-                }
-            };
-            _.each(rawlayers, function (x) {
-                x.visible = true;
-                x.selected = true;
-                x.parent = null;
-                x.theme = thema;
-                if (x.parentLayerId === -1) {
-                    if (x.subLayerIds === null) {
-                        thema.Layers.push(x);
-                        thema.VisibleLayers.push(x);
-                    } else {
-                        thema.Groups.push(x);
-                    }
-                }
-            });
-            _.each(thema.Groups, function (layerGroup) {
-                if (layerGroup.subLayerIds !== null) {
-                    layerGroup.Layers = [];
-                    _.each(rawlayers, function (rawlayer) {
-                        if (layerGroup.id === rawlayer.parentLayerId) {
-                            rawlayer.parent = layerGroup;
-                            thema.VisibleLayers.push(rawlayer);
-                            layerGroup.Layers.push(rawlayer);
-                        }
+                    _.each(thema.Groups, function (group) {
+                        _.each(group.Layers, function (layer) {
+                            alllayers.push(layer);
+                        });
                     });
-                }
-            });
+                    return alllayers;
+                };
+                thema.RecalculateVisibleLayerIds();
+            }
+            catch (ex) {
+                console.log("Error when creating theme from url: " + getData.url + " Exeption: " + ex + " Data: ")
+                console.log(rawdata);
+            }
             return thema;
         };
         return themeHelper;

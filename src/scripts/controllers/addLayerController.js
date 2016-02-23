@@ -1,7 +1,8 @@
 'use strict';
 (function (module) {
     module = angular.module('tink.gis.angular')
-        .controller('addLayerController', ['$scope', '$modalInstance', 'ThemeHelper', '$http', '$q', 'urls', function ($scope, $modalInstance, ThemeHelper, $http, $q, urls) {
+        .controller('addLayerController', ['$scope', '$modalInstance', 'ThemeHelper', '$http', '$q', 'urls', '$compile', function ($scope, $modalInstance, ThemeHelper, $http, $q, urls, $compile) {
+            $compile(this);
             $scope.themes = [];
             var processUrls = function (urls) {
                 var promises = [];
@@ -15,9 +16,9 @@
                 });
                 $q.all(promises).then(function (lagen) {
                     $scope.searchTerm = '';
-                    _.each($scope.themes, function (theme) {
-                        theme.selected = false;
-                    });
+                    // _.each($scope.themes, function (theme) {
+                    //     theme.selected = true;
+                    // });
                 });
             };
             processUrls(urls);
@@ -26,8 +27,10 @@
                 $scope.selectedTheme = theme;
                 console.log(theme);
             };
-            $scope.AddTheme = function (theme) {
-
+            var selectedThemes = [];
+            $scope.AddTheme = function () {
+                console.log($scope.selectedTheme);
+                selectedThemes.push($scope.selectedTheme);
             }
 
             $scope.ok = function () {
@@ -37,7 +40,7 @@
                 //         selectedThemes.push(theme);
                 //     }
                 // });
-                $modalInstance.$close([$scope.selectedTheme]);
+                $modalInstance.$close(selectedThemes);
             }
             $scope.cancel = function () {
                 $modalInstance.$dismiss('cancel is pressed'); // To close the controller with a dismiss message

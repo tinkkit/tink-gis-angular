@@ -9,7 +9,6 @@
     var mapService = function ($rootScope, $http, map, ThemeHelper, $q) {
         var _mapService = {};
         _mapService.VisibleLayers = [];
-
         _mapService.SelectableLayers = [];
         _mapService.VisibleFeatures = [];
         _mapService.JsonFeatures = [];
@@ -26,10 +25,19 @@
         _mapService.AddNewThemes = function (selectedThemes) { // dit moet met HTTP en ergens op een andere service ofzo vervangen worden later wnnr dit geimplementeerd moet worden.
             _.each(selectedThemes, function (theme) {
                 _mapService.Themes.push(theme);
+                _.each(theme.GetAllLayers(), function (layer) {
+                    if (layer.enabled) {
+                        _mapService.VisibleLayers.push(layer);
+                        theme.VisibleLayers.push(layer);
+                    }
+
+                });
+                theme.RecalculateVisibleLayerIds();
+                console.log(theme.VisibleLayerIds);
                 theme.MapData = L.esri.dynamicMapLayer({
                     url: theme.CleanUrl,
                     opacity: 0.5,
-                    // layers: theme.VisibleLayerIds,
+                    layers: theme.VisibleLayerIds,
                     useCors: false
                 }).addTo(map);
                 theme.MapData.on('requeststart', function (obj) {
@@ -38,32 +46,9 @@
                 theme.MapData.on('requestsuccess', function (obj) {
                     console.log('requestsuccess');
                 });
-                _.each(theme.GetAllLayers(), function (layer) {
-                    _mapService.VisibleLayers.push(layer);
-                });
 
             });
         };
-        // _mapService.AddNewThemes = function (selectedThemes) { // dit moet met HTTP en ergens op een andere service ofzo vervangen worden later wnnr dit geimplementeerd moet worden.
-        //     var promises = [];
-        //     // _mapService.VisibleLayers.length = 0;
-        //     // _mapService.Themes.length = 0;
-        //     _.each(selectedThemes, function (layerurl) {
-        //         var prom = $http.get(layerurl).success(function (data, statuscode, functie, getdata) {
-        //             var convertedTheme = ThemeHelper.createThemeFromJson(data, getdata)
-        //             _mapService.Themes.push(convertedTheme);
-        //             _.each(convertedTheme.GetAllLayers(), function (layer) {
-        //                 _mapService.VisibleLayers.push(layer);
-        //             });
-        //         });
-        //         promises.push(prom);
-        //     });
-        //     $q.all(promises).then(function (lagen) {
-        //         // console.log(lagen); // value gamma
-        //         console.log("Alle layers geladen");
-        //     });
-        // };
-        // loadAllLayers();
         _mapService.Identify = function (event, tolerance) {
             if (typeof tolerance === 'undefined') { tolerance = 2; }
             _.each(_mapService.Themes, function (theme) {
@@ -123,7 +108,7 @@
             var visibleOnMap = theme.Visible && layer.visible && ((layer.parent && layer.parent.visible) || !layer.parent);
             var indexOfLayerInVisibleLayers = theme.VisibleLayers.indexOf(layer);
             if (visibleOnMap) {
-                if (indexOfLayerInVisibleLayers === -1) {
+                if (indexOfLayerInVisibleLayers === -1 && layer.enabled) { // alleen maar toevoegen wnnr layer enabled en niet aanwezig al in de array!
                     theme.VisibleLayers.push(layer);
                     _mapService.VisibleLayers.push(layer);
                 }
@@ -138,9 +123,9 @@
 
 
 
+
         };
         _mapService.UpdateThemeVisibleLayers = function (theme) {
-            console.log(theme.VisibleLayerIds);
             theme.RecalculateVisibleLayerIds();
             theme.MapData.setLayers(theme.VisibleLayerIds);
         }

@@ -3,7 +3,7 @@
     module = angular.module('tink.gis.angular');
     var theController = module.controller('layersController', function ($http, map, MapService, $modal) {
         var vm = this;
-        vm.themes = MapService.Themes; 
+        vm.themes = MapService.Themes;
         vm.selectedLayers = [];
         vm.AddLayers = function () {
             var addLayerInstance = $modal.open({
@@ -18,10 +18,7 @@
                 }
             });
             addLayerInstance.result.then(function (selectedThemes) {
-                console.log(1);
                 MapService.AddNewThemes(selectedThemes);
-                console.log(2);
-                
             }, function (obj) {
                 console.log('Modal dismissed at: ' + new Date()); // The contoller is closed by the use of the $dismiss call
             });
