@@ -1,24 +1,22 @@
 'use strict';
 (function (module) {
     module = angular.module('tink.gis.angular')
-        .controller('addLayerController', ['$scope', '$modalInstance', 'ThemeHelper', '$http', '$q', 'urls', '$compile', function ($scope, $modalInstance, ThemeHelper, $http, $q, urls, $compile) {
-            $compile(this);
-            $scope.themes = [];
+        .controller('addLayerController', ['$scope', '$modalInstance', 'ThemeHelper', '$http', '$q', 'urls', 'MapService', function ($scope, $modalInstance, ThemeHelper, $http, $q, urls, MapService) {
+            var AddedThemes = [];
+            $scope.availableThemes = [];
             var processUrls = function (urls) {
                 var promises = [];
                 $scope.searchTerm = 'Laden...';
                 _.each(urls, function (url) {
                     var prom = $http.get(url).success(function (data, statuscode, functie, getdata) {
                         var convertedTheme = ThemeHelper.createThemeFromJson(data, getdata)
-                        $scope.themes.push(convertedTheme);
+                        $scope.availableThemes.push(convertedTheme);
                     });
                     promises.push(prom);
                 });
                 $q.all(promises).then(function (lagen) {
                     $scope.searchTerm = '';
-                    // _.each($scope.themes, function (theme) {
-                    //     theme.selected = true;
-                    // });
+
                 });
             };
             processUrls(urls);
@@ -27,11 +25,22 @@
                 $scope.selectedTheme = theme;
                 console.log(theme);
             };
-            var selectedThemes = [];
             $scope.AddTheme = function () {
-                console.log($scope.selectedTheme);
-                selectedThemes.push($scope.selectedTheme);
-            }
+                var allChecked = true;
+                $scope.selectedTheme.AllLayers.forEach(x=> {
+                    if (x.enabled === false) { // check or all the checkboxes are checked
+                        allChecked = false;
+                    }
+                });
+                if (allChecked) { 
+                    $scope.selectedTheme.Added = true; // here we can set the Added to true when they are all added 
+                }
+                else {
+                    $scope.selectedTheme.Added = null; // if not all added then we put it to null
+
+                }
+                AddedThemes.push($scope.selectedTheme);
+            };
 
             $scope.ok = function () {
                 // var selectedThemes = []
@@ -40,11 +49,11 @@
                 //         selectedThemes.push(theme);
                 //     }
                 // });
-                $modalInstance.$close(selectedThemes);
-            }
+                $modalInstance.$close(AddedThemes);
+            };
             $scope.cancel = function () {
                 $modalInstance.$dismiss('cancel is pressed'); // To close the controller with a dismiss message
-            }
+            };
 
         }]);
 })();

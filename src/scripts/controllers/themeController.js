@@ -17,5 +17,8 @@
                 MapService.UpdateThemeStatus(vm.theme);
                 MapService.UpdateThemeVisibleLayers(vm.theme);
             };
+            vm.deleteTheme = function () {
+                MapService.DeleteTheme(vm.theme);
+            }
         }]);
 })();

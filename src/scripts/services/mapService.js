@@ -25,7 +25,7 @@
         _mapService.AddNewThemes = function (selectedThemes) { // dit moet met HTTP en ergens op een andere service ofzo vervangen worden later wnnr dit geimplementeerd moet worden.
             _.each(selectedThemes, function (theme) {
                 _mapService.Themes.push(theme);
-                _.each(theme.GetAllLayers(), function (layer) {
+                _.each(theme.AllLayers, function (layer) {
                     if (layer.enabled) {
                         _mapService.VisibleLayers.push(layer);
                         theme.VisibleLayers.push(layer);
@@ -47,6 +47,19 @@
                     console.log('requestsuccess');
                 });
 
+            });
+        };
+        _mapService.DeleteTheme = function (theme) {
+            theme.MapData.removeFrom(map);
+            var themeIndex = _mapService.Themes.indexOf(theme);
+            if (themeIndex > -1) {
+                _mapService.Themes.splice(themeIndex, 1);
+            }
+            theme.VisibleLayers.forEach(visLayer => {
+                var visLayerIndex = _mapService.VisibleLayers.indexOf(visLayer);
+                if (visLayerIndex > -1) {
+                    _mapService.VisibleLayers.splice(visLayerIndex, 1);
+                }
             });
         };
         _mapService.Identify = function (event, tolerance) {

@@ -23,6 +23,7 @@
                 thema.VisibleLayers = [];
                 thema.VisibleLayerIds = [];
                 thema.Visible = true;
+                thema.Added = false;
                 thema.enabled = true;
                 thema.MapData = {};
                 _.each(rawlayers, function (x) {
@@ -59,18 +60,18 @@
                         thema.VisibleLayerIds.push(-1); //als we niet doen dan zoekt hij op alle lagen!
                     }
                 };
-                thema.GetAllLayers = function () {
-                    var alllayers = [];
-                    _.each(thema.Layers, function (layer) {
-                        alllayers.push(layer);
-                    });
-                    _.each(thema.Groups, function (group) {
-                        _.each(group.Layers, function (layer) {
-                            alllayers.push(layer);
-                        });
-                    });
-                    return alllayers;
-                };
+                // thema.GetAllLayers = function () {
+                //     var alllayers = [];
+                //     _.each(thema.Layers, function (layer) {
+                //         alllayers.push(layer);
+                //     });
+                //     _.each(thema.Groups, function (group) {
+                //         _.each(group.Layers, function (layer) {
+                //             alllayers.push(layer);
+                //         });
+                //     });
+                //     return alllayers;
+                // };
                 thema.RecalculateVisibleLayerIds();
             }
             catch (ex) {
