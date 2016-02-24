@@ -30,10 +30,10 @@
                         _mapService.AddNewTheme(theme);
                         break;
                     case ThemeStatus.DELETED:
-                        // TODO DELETE VANUIT MODAL HMMM
+                        _mapService.DeleteTheme(theme);
                         break;
                     case ThemeStatus.UNMODIFIED:
-                        // niets doen niet veranderd!
+                        // niets doen niets veranderd!
                         break;
                     case ThemeStatus.UPDATED:
                         _mapService.UpdateTheme(theme);
@@ -49,24 +49,36 @@
             });
         };
 
-        _mapService.UpdateTheme = function (theme) {
-            console.log("TODO DIT FIXE");
-            var existingTheme = _mapService.Themes.find(x=> x.url == theme.url);
-            console.log(theme);
-            console.log(existingTheme);
-
-
-            _mapService.Themes.push(theme);
-            _.each(theme.AllLayers, function (layer) {
-                if (layer.enabled) {
-                    _mapService.VisibleLayers.push(layer);
-                    theme.VisibleLayers.push(layer);
+        _mapService.UpdateTheme = function (updatedTheme) {
+            //lets update the existingTheme
+            var existingTheme = _mapService.Themes.find(x=> x.url == updatedTheme.url);
+            for (var x = 0; x < updatedTheme.AllLayers.length; x++) {
+                var updatedLayer = updatedTheme.AllLayers[x];
+                var existingLayer = existingTheme.AllLayers[x];
+              
+                //laten we alle Visible Layers nu terug toevoegen meteen juiste ref etc uit de geupdate theme.
+                if (updatedLayer.enabled && updatedLayer.visible) {
+                    //eerst checken dat ze nog niet bestaan!.
+                    if (_mapService.VisibleLayers.indexOf(existingLayer) == -1) {
+                        _mapService.VisibleLayers.push(existingLayer);
+                    }
+                    if (existingTheme.VisibleLayers.indexOf(existingLayer) == -1) {
+                        existingTheme.VisibleLayers.push(existingLayer);
+                    }
                 }
-            });
-            theme.RecalculateVisibleLayerIds();
-            console.log(theme.VisibleLayerIds);
-
-
+                else {
+                    //Anders halen we hem ook moest hij bij VisLayers aanwezig zijn er van af!
+                    if (_mapService.VisibleLayers.indexOf(existingLayer) != -1) {
+                        _mapService.VisibleLayers.splice(_mapService.VisibleLayers.indexOf(existingLayer), 1);
+                    }
+                    if (existingTheme.VisibleLayers.indexOf(existingLayer) != -1) {
+                        existingTheme.VisibleLayers.splice(existingTheme.VisibleLayers.indexOf(existingLayer), 1);
+                    }
+                }
+                existingLayer.enabled = updatedLayer.enabled;
+                existingLayer.visible = updatedLayer.visible;
+            };
+            existingTheme.RecalculateVisibleLayerIds();
         };
         _mapService.AddNewTheme = function (theme) {
             _mapService.Themes.push(theme);

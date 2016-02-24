@@ -67,21 +67,21 @@
                 if (alreadyAdded == false) { // it is a new theme!
                     EnabledThemes.push($scope.selectedTheme);
                 } else { // already exist! It is an update!
-                    $scope.selectedTheme.status = ThemeStatus.UPDATED;
-                    console.log("changed naar updated");
+                    if ($scope.selectedTheme.status != ThemeStatus.NEW) {
+                        $scope.selectedTheme.status = ThemeStatus.UPDATED;
+                        console.log("changed naar updated");
+                    }
+                    else {
+                        console.log("Hij is al new, dus moet hij niet naar updated changen.");
+                    }
+
                 }
                 $scope.selectedTheme = null;
                 $scope.copySelectedTheme = null;
             };
 
             $scope.ok = function () {
-                // var selectedThemes = []
-                // _.each($scope.themes, function (theme) {
-                //     if (theme.selected === true) {
-                //         selectedThemes.push(theme);
-                //     }
-                // });
-                $modalInstance.$close(EnabledThemes);
+                $modalInstance.$close(EnabledThemes); // return the themes.
             };
             $scope.cancel = function () {
                 $modalInstance.$dismiss('cancel is pressed'); // To close the controller with a dismiss message

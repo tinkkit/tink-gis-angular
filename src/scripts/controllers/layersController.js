@@ -19,7 +19,6 @@
             });
             addLayerInstance.result.then(function (selectedThemes) {
                 MapService.AddAndUpdateThemes(selectedThemes);
-                console.log(selectedThemes);
             }, function (obj) {
                 console.log('Modal dismissed at: ' + new Date()); // The contoller is closed by the use of the $dismiss call
             });

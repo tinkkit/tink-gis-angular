@@ -7,7 +7,7 @@
         <div class="row">
             <div class="col-md-4">
                 <input class="searchbox" type="text" ng-model="searchTerm" ng-change="searchChanged()" placeholder="Geef een trefwoord of een url in" />
-                <div ng-repeat="theme in availableThemes | filter: { Naam: searchTerm }"">
+                <div ng-repeat="theme in availableThemes | filter: { Naam: searchTerm } | orderBy: 'Naam'">
                         <div ng-click="themeChanged(theme)">
                             {{theme.Naam}}  
                             <i ng-if="theme.Added == true" class="fa fa-check-circle"></i>
