@@ -22,32 +22,76 @@
         var defaultlayer = { id: '', name: 'Alle Layers' };
         _mapService.VisibleLayers.unshift(defaultlayer);
         _mapService.SelectedLayer = defaultlayer;
-        _mapService.AddNewThemes = function (selectedThemes) { // dit moet met HTTP en ergens op een andere service ofzo vervangen worden later wnnr dit geimplementeerd moet worden.
-            _.each(selectedThemes, function (theme) {
-                _mapService.Themes.push(theme);
-                _.each(theme.AllLayers, function (layer) {
-                    if (layer.enabled) {
-                        _mapService.VisibleLayers.push(layer);
-                        theme.VisibleLayers.push(layer);
-                    }
+        _mapService.AddAndUpdateThemes = function (themesBatch) {
+            themesBatch.forEach(theme => {
+                console.log(theme.status);
+                switch (theme.status) {
+                    case ThemeStatus.NEW:
+                        _mapService.AddNewTheme(theme);
+                        break;
+                    case ThemeStatus.DELETED:
+                        // TODO DELETE VANUIT MODAL HMMM
+                        break;
+                    case ThemeStatus.UNMODIFIED:
+                        // niets doen niet veranderd!
+                        break;
+                    case ThemeStatus.UPDATED:
+                        _mapService.UpdateTheme(theme);
 
-                });
-                theme.RecalculateVisibleLayerIds();
-                console.log(theme.VisibleLayerIds);
-                theme.MapData = L.esri.dynamicMapLayer({
-                    url: theme.CleanUrl,
-                    opacity: 0.5,
-                    layers: theme.VisibleLayerIds,
-                    useCors: false
-                }).addTo(map);
-                theme.MapData.on('requeststart', function (obj) {
-                    console.log('requeststart');
-                });
-                theme.MapData.on('requestsuccess', function (obj) {
-                    console.log('requestsuccess');
-                });
+                        break;
+                    default:
+                        console.log("Er is iets fout, status niet bekend" + theme.status);
+
+                        break;
+
+
+                }
+            });
+        };
+
+        _mapService.UpdateTheme = function (theme) {
+            console.log("TODO DIT FIXE");
+            var existingTheme = _mapService.Themes.find(x=> x.url == theme.url);
+            console.log(theme);
+            console.log(existingTheme);
+
+
+            _mapService.Themes.push(theme);
+            _.each(theme.AllLayers, function (layer) {
+                if (layer.enabled) {
+                    _mapService.VisibleLayers.push(layer);
+                    theme.VisibleLayers.push(layer);
+                }
+            });
+            theme.RecalculateVisibleLayerIds();
+            console.log(theme.VisibleLayerIds);
+
+
+        };
+        _mapService.AddNewTheme = function (theme) {
+            _mapService.Themes.push(theme);
+            _.each(theme.AllLayers, function (layer) {
+                if (layer.enabled) {
+                    _mapService.VisibleLayers.push(layer);
+                    theme.VisibleLayers.push(layer);
+                }
 
             });
+            theme.RecalculateVisibleLayerIds();
+            console.log(theme.VisibleLayerIds);
+            theme.MapData = L.esri.dynamicMapLayer({
+                url: theme.CleanUrl,
+                opacity: 0.5,
+                layers: theme.VisibleLayerIds,
+                useCors: false
+            }).addTo(map);
+            theme.MapData.on('requeststart', function (obj) {
+                console.log('requeststart');
+            });
+            theme.MapData.on('requestsuccess', function (obj) {
+                console.log('requestsuccess');
+            });
+
         };
         _mapService.DeleteTheme = function (theme) {
             theme.MapData.removeFrom(map);
@@ -90,6 +134,7 @@
                         AddFeatures(featureCollection);
                     });
                 }
+
 
             });
         };

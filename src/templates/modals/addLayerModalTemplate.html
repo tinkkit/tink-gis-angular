@@ -17,19 +17,19 @@
                 </div> 
             </div>
             <div class="col-md-8">
-                <div ng-if="selectedTheme !== null">
-                    <p>{{selectedTheme.Description}}</p>
-                    <p><small><a ng-href="{{selectedTheme.CleanUrl}}" target="_blank">Details</a></small></p>
+                <div ng-if="copySelectedTheme !== null">
+                    <p>{{copySelectedTheme.Description}}</p>
+                    <p><small><a ng-href="{{copySelectedTheme.CleanUrl}}" target="_blank">Details</a></small></p>
                         <div class="layercontroller-checkbox">
-                       <input indeterminate-checkbox child-list="selectedTheme.AllLayers" property="enabled" type="checkbox" ng-model="selectedTheme.enabled" id="{{selectedTheme.name}}">
-                            <label for="{{selectedTheme.name}}"> {{selectedTheme.name | limitTo: 20}} {{selectedTheme.enabled}}</label>
-                    <div ng-repeat="mainlayer in selectedTheme.Layers">
+                       <input indeterminate-checkbox child-list="copySelectedTheme.AllLayers" property="enabled" type="checkbox" ng-model="copySelectedTheme.enabled" id="{{copySelectedTheme.name}}">
+                            <label for="{{copySelectedTheme.name}}"> {{copySelectedTheme.name | limitTo: 20}} {{copySelectedTheme.enabled}}</label>
+                    <div ng-repeat="mainlayer in copySelectedTheme.Layers">
                         <div class="layercontroller-checkbox">
                             <input  type="checkbox" ng-model="mainlayer.enabled" id="{{mainlayer.name}}{{mainlayer.id}}">
                             <label for="{{mainlayer.name}}{{mainlayer.id}}"> {{mainlayer.name | limitTo: 20}} {{mainlayer.enabled}}</label>
                     </div>
                     </div>
-                    <div ng-repeat="groupLayer in selectedTheme.Groups">
+                    <div ng-repeat="groupLayer in copySelectedTheme.Groups">
                         <div class="layercontroller-checkbox">
                             <input indeterminate-checkbox child-list="groupLayer.Layers" property="enabled" type="checkbox" ng-model="groupLayer.enabled"  
                             id="{{groupLayer.name}}{{groupLayer.id}}">
@@ -45,7 +45,8 @@
                         </div>
                     </div>
                     </div>
-                    <button data-ng-click="AddTheme()">Voeg toe</button>
+                    <button ng-if="copySelectedTheme.Added == false" data-ng-click="AddOrUpdateTheme()">Voeg toe</button>
+                    <button ng-if="copySelectedTheme.Added != false" data-ng-click="AddOrUpdateTheme()">Update</button>
                 </div>
             </div>
         </div>

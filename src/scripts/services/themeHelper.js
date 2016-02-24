@@ -19,7 +19,8 @@
                 thema.Layers = []; // de layers direct onder het theme zonder sublayers
                 thema.AllLayers = []; // alle Layers die hij heeft including subgrouplayers
                 thema.Groups = []; // layergroups die nog eens layers zelf hebben
-                thema.CleanUrl = cleanUrl; // url van theme
+                thema.CleanUrl = cleanUrl; 
+                thema.Url = getData.url; 
                 thema.VisibleLayers = [];
                 thema.VisibleLayerIds = [];
                 thema.Visible = true;
