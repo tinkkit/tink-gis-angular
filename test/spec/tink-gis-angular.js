@@ -19,6 +19,13 @@ describe('tink-gis-angular', function() {
     sandboxEl.remove();
   });
 
+  var templates = {
+    'default': {
+      scope: {},
+      element: ''
+    }
+  };
+
   function compileDirective(template, locals) {
     template = templates[template];
     angular.extend(scope, angular.copy(template.scope || templates['default'].scope), locals);
@@ -27,14 +34,6 @@ describe('tink-gis-angular', function() {
     scope.$digest();
     return jQuery(element[0]);
   }
-
-  var templates = {
-    'default': {
-      scope: {},
-      element: ''
-    }
-  };
-
 
   describe('default', function() {
     it('should run this basic setup',function(){
