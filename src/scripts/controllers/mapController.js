@@ -27,11 +27,10 @@
                         }
                         break;
                     default:
-                        console.log('MAG NOG NIET!!!!!!!!');
+                        console.log('MAG NIET!!!!!!!!');
                         break;
                 }
-                $scope.$apply();
-
+                // $scope.$apply();
             }
         });
         var IsDrawing = false;
@@ -59,7 +58,6 @@
             MapService.VisibleFeatures.length = 0;
             MapService.JsonFeatures.length = 0;
             map.clearDrawings();
-
         };
         vm.identify = function () {
             cleanMapAndSearch();

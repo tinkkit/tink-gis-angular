@@ -31,7 +31,6 @@
     "it": false,
     "jasmine": false,
     "spyOn": false,
-    "angular": false,
     "$": false,
     "jQuery": false
   }

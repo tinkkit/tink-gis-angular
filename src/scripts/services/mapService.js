@@ -24,34 +24,29 @@
         _mapService.SelectedLayer = defaultlayer;
         _mapService.AddAndUpdateThemes = function (themesBatch) {
             themesBatch.forEach(theme => {
-                console.log(theme.status);
+                var existingTheme = _mapService.Themes.find(x=> x.Url = theme.Url);
                 switch (theme.status) {
                     case ThemeStatus.NEW:
                         _mapService.AddNewTheme(theme);
                         break;
                     case ThemeStatus.DELETED:
-                        _mapService.DeleteTheme(theme);
+                        _mapService.DeleteTheme(existingTheme);
                         break;
                     case ThemeStatus.UNMODIFIED:
                         // niets doen niets veranderd!
                         break;
                     case ThemeStatus.UPDATED:
-                        _mapService.UpdateTheme(theme);
-
+                        _mapService.UpdateTheme(theme, existingTheme);
+                        _mapService.UpdateThemeVisibleLayers(existingTheme);
                         break;
                     default:
                         console.log("Er is iets fout, status niet bekend" + theme.status);
-
                         break;
-
-
                 }
             });
         };
-
-        _mapService.UpdateTheme = function (updatedTheme) {
+        _mapService.UpdateTheme = function (updatedTheme, existingTheme) {
             //lets update the existingTheme
-            var existingTheme = _mapService.Themes.find(x=> x.url == updatedTheme.url);
             for (var x = 0; x < updatedTheme.AllLayers.length; x++) {
                 var updatedLayer = updatedTheme.AllLayers[x];
                 var existingLayer = existingTheme.AllLayers[x];
@@ -95,6 +90,8 @@
                 url: theme.CleanUrl,
                 opacity: 0.5,
                 layers: theme.VisibleLayerIds,
+                maxZoom: 21,
+                minZoom: 10,
                 useCors: false
             }).addTo(map);
             theme.MapData.on('requeststart', function (obj) {
@@ -190,10 +187,6 @@
                     _mapService.VisibleLayers.splice(indexOfLayerInVisibleLayersOfMap, 1);
                 }
             }
-
-
-
-
         };
         _mapService.UpdateThemeVisibleLayers = function (theme) {
             theme.RecalculateVisibleLayerIds();

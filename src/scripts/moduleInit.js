@@ -28,6 +28,8 @@
         var map = L.map('map', {
             center: [51.2192159, 4.4028818],
             zoom: 16,
+            maxZoom: 21,
+            minZoom: 10,
             layers: L.tileLayer('http://tiles.arcgis.com/tiles/1KSVSmnHT2Lw9ea6/arcgis/rest/services/basemap_stadsplan_v6/MapServer/tile/{z}/{y}/{x}', { id: 'kaart' }),
             zoomControl: false,
             drawControl: true

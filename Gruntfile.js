@@ -410,7 +410,7 @@ module.exports = function (grunt) {
     'uglify:dist',
     'concurrent:dist',
     'autoprefixer',
-    // 'cssUrlEmbed',
+    'cssUrlEmbed',
     'usemin',
     'copy:styles',
     'cssmin',
