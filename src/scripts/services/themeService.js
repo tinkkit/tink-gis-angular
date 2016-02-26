@@ -1,11 +1,11 @@
 'use strict';
 (function () {
     var module = angular.module('tink.gis.angular');
-    var service = function (map, ThemeHelper) {
+    var service = function (map, ThemeHelper, MapData) {
         var _service = {};
         _service.AddAndUpdateThemes = function (themesBatch) {
             themesBatch.forEach(theme => {
-                var existingTheme = _mapService.Themes.find(x=> x.Url == theme.Url);
+                var existingTheme = MapData.Themes.find(x=> x.Url == theme.Url);
                 switch (theme.status) {
                     case ThemeStatus.NEW:
                         _service.AddNewTheme(theme);
@@ -40,8 +40,8 @@
                 //laten we alle Visible Layers nu terug toevoegen meteen juiste ref etc uit de geupdate theme.
                 if (updatedLayer.enabled && updatedLayer.visible) {
                     //eerst checken dat ze nog niet bestaan!.
-                    if (_mapService.VisibleLayers.indexOf(existingLayer) == -1) {
-                        _mapService.VisibleLayers.push(existingLayer);
+                    if (MapData.VisibleLayers.indexOf(existingLayer) == -1) {
+                        MapData.VisibleLayers.push(existingLayer);
                     }
                     if (existingTheme.VisibleLayers.indexOf(existingLayer) == -1) {
                         existingTheme.VisibleLayers.push(existingLayer);
@@ -49,8 +49,8 @@
                 }
                 else {
                     //Anders halen we hem ook moest hij bij VisLayers aanwezig zijn er van af!
-                    if (_mapService.VisibleLayers.indexOf(existingLayer) != -1) {
-                        _mapService.VisibleLayers.splice(_mapService.VisibleLayers.indexOf(existingLayer), 1);
+                    if (MapData.VisibleLayers.indexOf(existingLayer) != -1) {
+                        MapData.VisibleLayers.splice(MapData.VisibleLayers.indexOf(existingLayer), 1);
                     }
                     if (existingTheme.VisibleLayers.indexOf(existingLayer) != -1) {
                         existingTheme.VisibleLayers.splice(existingTheme.VisibleLayers.indexOf(existingLayer), 1);
@@ -62,11 +62,11 @@
             existingTheme.RecalculateVisibleLayerIds();
         };
         _service.AddNewTheme = function (theme) {
-            _mapService.Themes.push(theme);
+            MapData.Themes.push(theme);
             _.each(theme.AllLayers, function (layer) {
                 if (layer.enabled && layer.visible && layer.type === LayerType.LAYER) {
                     console.log(layer.id);
-                    _mapService.VisibleLayers.push(layer);
+                    MapData.VisibleLayers.push(layer);
                     theme.VisibleLayers.push(layer);
                 }
 
@@ -91,14 +91,14 @@
         };
         _service.DeleteTheme = function (theme) {
             theme.MapData.removeFrom(map);
-            var themeIndex = _mapService.Themes.indexOf(theme);
+            var themeIndex = MapData.Themes.indexOf(theme);
             if (themeIndex > -1) {
-                _mapService.Themes.splice(themeIndex, 1);
+                MapData.Themes.splice(themeIndex, 1);
             }
             theme.VisibleLayers.forEach(visLayer => {
-                var visLayerIndex = _mapService.VisibleLayers.indexOf(visLayer);
+                var visLayerIndex = MapData.VisibleLayers.indexOf(visLayer);
                 if (visLayerIndex > -1) {
-                    _mapService.VisibleLayers.splice(visLayerIndex, 1);
+                    MapData.VisibleLayers.splice(visLayerIndex, 1);
                 }
             });
         };
@@ -107,6 +107,6 @@
 
         return _service;
     };
-    module.$inject = ['map', 'ThemeHelper'];
+    module.$inject = ['map', 'ThemeHelper','MapData'];
     module.factory('ThemeService', service);
 })();
