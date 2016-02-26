@@ -24,7 +24,7 @@
         _mapService.SelectedLayer = defaultlayer;
         _mapService.AddAndUpdateThemes = function (themesBatch) {
             themesBatch.forEach(theme => {
-                var existingTheme = _mapService.Themes.find(x=> x.Url = theme.Url);
+                var existingTheme = _mapService.Themes.find(x=> x.Url == theme.Url);
                 switch (theme.status) {
                     case ThemeStatus.NEW:
                         _mapService.AddNewTheme(theme);
@@ -78,14 +78,14 @@
         _mapService.AddNewTheme = function (theme) {
             _mapService.Themes.push(theme);
             _.each(theme.AllLayers, function (layer) {
-                if (layer.enabled) {
+                if (layer.enabled && layer.visible && layer.type === LayerType.LAYER) {
+                    console.log(layer.id);
                     _mapService.VisibleLayers.push(layer);
                     theme.VisibleLayers.push(layer);
                 }
 
             });
             theme.RecalculateVisibleLayerIds();
-            console.log(theme.VisibleLayerIds);
             theme.MapData = L.esri.dynamicMapLayer({
                 url: theme.CleanUrl,
                 opacity: 0.5,
@@ -94,6 +94,7 @@
                 minZoom: 10,
                 useCors: false
             }).addTo(map);
+            // _mapService.UpdateThemeVisibleLayers(theme);
             theme.MapData.on('requeststart', function (obj) {
                 console.log('requeststart');
             });
@@ -171,6 +172,27 @@
         };
 
 
+
+        _mapService.UpdateThemeVisibleLayers = function (theme) {
+            theme.RecalculateVisibleLayerIds();
+            console.log(theme.VisibleLayerIds);
+            theme.MapData.setLayers(theme.VisibleLayerIds);
+        }
+        _mapService.UpdateThemeStatus = function (theme) {
+            _.each(theme.Groups, function (layerGroup) {
+                _mapService.UpdateGroupLayerStatus(layerGroup, theme);
+            });
+            _.each(theme.Layers, function (layer) {
+                _mapService.UpdateLayerStatus(layer, theme);
+            });
+
+        };
+        _mapService.UpdateGroupLayerStatus = function (groupLayer, theme) {
+            _.each(groupLayer.Layers, function (childlayer) {
+                _mapService.UpdateLayerStatus(childlayer, theme);
+            });
+        };
+
         _mapService.UpdateLayerStatus = function (layer, theme) {
             var visibleOnMap = theme.Visible && layer.visible && ((layer.parent && layer.parent.visible) || !layer.parent);
             var indexOfLayerInVisibleLayers = theme.VisibleLayers.indexOf(layer);
@@ -188,25 +210,6 @@
                 }
             }
         };
-        _mapService.UpdateThemeVisibleLayers = function (theme) {
-            theme.RecalculateVisibleLayerIds();
-            theme.MapData.setLayers(theme.VisibleLayerIds);
-        }
-        _mapService.UpdateGroupLayerStatus = function (groupLayer, theme) {
-            _.each(groupLayer.Layers, function (childlayer) {
-                _mapService.UpdateLayerStatus(childlayer, theme);
-            });
-        };
-        _mapService.UpdateThemeStatus = function (theme) {
-            _.each(theme.Groups, function (layerGroup) {
-                _mapService.UpdateGroupLayerStatus(layerGroup, theme);
-            });
-            _.each(theme.Layers, function (layer) {
-                _mapService.UpdateLayerStatus(layer, theme);
-            });
-
-        };
-
         return _mapService;
     };
     module.$inject = ['$rootScope', '$http', 'map', 'ThemeHelper', '$q'];

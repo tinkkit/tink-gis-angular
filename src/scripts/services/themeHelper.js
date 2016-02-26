@@ -19,8 +19,8 @@
                 thema.Layers = []; // de layers direct onder het theme zonder sublayers
                 thema.AllLayers = []; // alle Layers die hij heeft including subgrouplayers
                 thema.Groups = []; // layergroups die nog eens layers zelf hebben
-                thema.CleanUrl = cleanUrl; 
-                thema.Url = getData.url; 
+                thema.CleanUrl = cleanUrl;
+                thema.Url = getData.url;
                 thema.VisibleLayers = [];
                 thema.VisibleLayerIds = [];
                 thema.Visible = true;
@@ -32,12 +32,15 @@
                     x.enabled = true;
                     x.parent = null;
                     x.theme = thema;
+                    x.type = LayerType.LAYER;
                     thema.AllLayers.push(x);
                     if (x.parentLayerId === -1) {
                         if (x.subLayerIds === null) {
                             thema.Layers.push(x);
                         } else {
                             thema.Groups.push(x);
+                            x.type = LayerType.GROUP;
+
                         }
                     }
                 });

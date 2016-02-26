@@ -60,9 +60,8 @@ var ThemeStatus = { // http://stijndewitt.com/2014/01/26/enums-in-javascript/
     NEW: 1,
     UPDATED: 2,
     DELETED: 3
-    // properties: {
-    //     1: { name: "small", value: 1, code: "S" },
-    //     2: { name: "medium", value: 2, code: "M" },
-    //     3: { name: "large", value: 3, code: "L" }
-    // }
+};
+var LayerType = {
+    LAYER: 0,
+    GROUP: 1
 };
