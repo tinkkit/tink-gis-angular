@@ -78,7 +78,7 @@
                 layers: theme.VisibleLayerIds,
                 maxZoom: 21,
                 minZoom: 10,
-                useCors: false
+                useCors: true
             }).addTo(map);
             // _mapService.UpdateThemeVisibleLayers(theme);
             theme.MapData.on('requeststart', function (obj) {

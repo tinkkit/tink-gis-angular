@@ -2,9 +2,9 @@
 (function (module) {
     module = angular.module('tink.gis.angular');
     var theController = module.controller('searchController',
-        function ($scope, MapService, map) {
+        function ($scope, MapData, map) {
             var vm = this;
-            vm.features = MapService.JsonFeatures;
+            vm.features = MapData.JsonFeatures;
         });
-    theController.$inject = ['$scope', 'MapService', 'map'];
+    theController.$inject = ['$scope', 'MapData', 'map'];
 })();

@@ -6,26 +6,11 @@
     } catch (e) {
         module = angular.module('tink.gis.angular', ['tink.accordion', 'tink.tinkApi', 'tink.modal']); //'leaflet-directive'
     }
-    var mapService = function ($rootScope, $http, map, ThemeHelper, $q) {
+    var mapService = function ($rootScope, MapData, map, ThemeHelper, $q) {
         var _mapService = {};
-        _mapService.VisibleLayers = [];
-        _mapService.SelectableLayers = [];
-        _mapService.VisibleFeatures = [];
-        _mapService.JsonFeatures = [];
-        _mapService.ThemeUrls = ['http://app10.p.gis.local/arcgissql/rest/services/P_Stad/Afval/MapServer?f=pjson',
-            'http://app10.p.gis.local/arcgissql/rest/services/P_Stad/Cultuur/MapServer?f=pjson',
-            'http://app10.p.gis.local/arcgissql/rest/services/P_Stad/Jeugd/MapServer?f=pjson',
-            'http://app10.p.gis.local/arcgissql/rest/services/P_Stad/Onderwijs/MapServer?f=pjson',
-            'http://app10.p.gis.local/arcgissql/rest/services/P_Stad/stad/MapServer?f=pjson'
-        ];
-        _mapService.Themes = [];
-        var defaultlayer = { id: '', name: 'Alle Layers' };
-        _mapService.VisibleLayers.unshift(defaultlayer);
-        _mapService.SelectedLayer = defaultlayer;
-
         _mapService.Identify = function (event, tolerance) {
             if (typeof tolerance === 'undefined') { tolerance = 2; }
-            _.each(_mapService.Themes, function (theme) {
+            _.each(MapData.Themes, function (theme) {
                 theme.RecalculateVisibleLayerIds();
                 var identifOnThisTheme = true;
                 if (theme.VisibleLayerIds.length === 1 && theme.VisibleLayerIds[0] === -1) {
@@ -43,9 +28,9 @@
             });
         };
         _mapService.Select = function (event) {
-            _.each(_mapService.Themes, function (theme) {
+            _.each(MapData.Themes, function (theme) {
                 theme.RecalculateVisibleLayerIds();
-                var identifOnThisTheme = _mapService.SelectedLayer.theme == theme;
+                var identifOnThisTheme = MapData.SelectedLayer.theme == theme;
                 if (identifOnThisTheme) {
                     theme.MapData.identify().on(map).at(event.latlng).layers('visible: ' + _mapService.SelectedLayer.id).run(function (error, featureCollection) {
                         AddFeatures(featureCollection);
@@ -61,11 +46,11 @@
                 var myStyle = {
                     "fillOpacity": 0
                 };
-                _mapService.JsonFeatures.push(featureItem);
+                MapData.JsonFeatures.push(featureItem);
                 var mapItem = L.geoJson(featureItem, { style: myStyle }).addTo(map);
-                _mapService.VisibleFeatures.push(mapItem);
+                MapData.VisibleFeatures.push(mapItem);
             }
-            console.log(_mapService.JsonFeatures);
+            console.log(MapData.JsonFeatures);
             $rootScope.$apply();
         };
         _mapService.Query = function (event, selectedLayer) {
@@ -102,20 +87,20 @@
             if (visibleOnMap) {
                 if (indexOfLayerInVisibleLayers === -1 && layer.enabled) { // alleen maar toevoegen wnnr layer enabled en niet aanwezig al in de array!
                     theme.VisibleLayers.push(layer);
-                    _mapService.VisibleLayers.push(layer);
+                    MapData.VisibleLayers.push(layer);
                 }
             }
             else {
                 if (indexOfLayerInVisibleLayers > -1) {
                     theme.VisibleLayers.splice(indexOfLayerInVisibleLayers, 1);
-                    var indexOfLayerInVisibleLayersOfMap = _mapService.VisibleLayers.indexOf(layer);
-                    _mapService.VisibleLayers.splice(indexOfLayerInVisibleLayersOfMap, 1);
+                    var indexOfLayerInVisibleLayersOfMap = MapData.VisibleLayers.indexOf(layer);
+                    MapData.VisibleLayers.splice(indexOfLayerInVisibleLayersOfMap, 1);
                 }
             }
         };
         return _mapService;
     };
-    module.$inject = ['$rootScope', '$http', 'map', 'ThemeHelper', '$q'];
+    module.$inject = ['$rootScope', 'MapData', 'map', 'ThemeHelper', '$q'];
     module.factory('MapService', mapService);
 })();
 

@@ -1,9 +1,9 @@
 'use strict';
 (function (module) {
     module = angular.module('tink.gis.angular');
-    var theController = module.controller('layersController', function ($http, map, MapService, $modal) {
+    var theController = module.controller('layersController', function (MapData, map, ThemeService, $modal) {
         var vm = this;
-        vm.themes = MapService.Themes;
+        vm.themes = MapData.Themes;
         vm.selectedLayers = [];
         vm.AddLayers = function () {
             var addLayerInstance = $modal.open({
@@ -13,16 +13,16 @@
                     backdrop: false,
                     keyboard: true,
                     urls: function () {
-                        return MapService.ThemeUrls;
+                        return MapData.ThemeUrls;
                     }
                 }
             });
             addLayerInstance.result.then(function (selectedThemes) {
-                MapService.AddAndUpdateThemes(selectedThemes);
+                ThemeService.AddAndUpdateThemes(selectedThemes);
             }, function (obj) {
                 console.log('Modal dismissed at: ' + new Date()); // The contoller is closed by the use of the $dismiss call
             });
         };
     });
-    theController.$inject = ['$http', 'map', 'MapService', '$modal'];
+    theController.$inject = ['MapData', 'map', 'ThemeService', '$modal'];
 })();

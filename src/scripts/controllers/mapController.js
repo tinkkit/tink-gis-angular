@@ -3,11 +3,11 @@
 'use strict';
 (function (module) {
     module = angular.module('tink.gis.angular');
-    var theController = module.controller('mapController', function ($scope, BaseLayersService, MapService, $http, map) {
+    var theController = module.controller('mapController', function ($scope, BaseLayersService, MapService, MapData, map) {
         var vm = this;
         vm.layerId = '';
         vm.activeInteractieKnop = 'select';
-        vm.SelectableLayers = MapService.VisibleLayers;
+        vm.SelectableLayers = MapData.VisibleLayers;
 
         vm.selectedLayer = {};
         map.on('click', function (event) {
@@ -52,11 +52,11 @@
             IsDrawing = false;
         });
         var cleanMapAndSearch = function () {
-            for (var x = 0; x < MapService.VisibleFeatures.length; x++) {
-                map.removeLayer(MapService.VisibleFeatures[x]); //eerst de 
+            for (var x = 0; x < MapData.VisibleFeatures.length; x++) {
+                map.removeLayer(MapData.VisibleFeatures[x]); //eerst de 
             }
-            MapService.VisibleFeatures.length = 0;
-            MapService.JsonFeatures.length = 0;
+            MapData.VisibleFeatures.length = 0;
+            MapData.JsonFeatures.length = 0;
             map.clearDrawings();
         };
         vm.identify = function () {
@@ -94,5 +94,5 @@
             map.addLayer(BaseLayersService.luchtfoto);
         };
     });
-    theController.$inject = ['BaseLayersService', 'MapService', '$http', 'map'];
+    theController.$inject = ['BaseLayersService', 'MapService', 'MapData', 'map'];
 })();
