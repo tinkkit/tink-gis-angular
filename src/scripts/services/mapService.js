@@ -28,16 +28,9 @@
             });
         };
         _mapService.Select = function (event) {
-            _.each(MapData.Themes, function (theme) {
-                theme.RecalculateVisibleLayerIds();
-                var identifOnThisTheme = MapData.SelectedLayer.theme == theme;
-                if (identifOnThisTheme) {
-                    theme.MapData.identify().on(map).at(event.latlng).layers('visible: ' + _mapService.SelectedLayer.id).run(function (error, featureCollection) {
-                        AddFeatures(featureCollection);
-                    });
-                }
-
-
+            console.log(MapData.SelectedLayer);
+            MapData.SelectedLayer.theme.MapData.identify().on(map).at(event.latlng).layers('visible: ' + MapData.SelectedLayer.id).run(function (error, featureCollection) {
+                AddFeatures(featureCollection);
             });
         };
         var AddFeatures = function (features) {
@@ -53,10 +46,9 @@
             console.log(MapData.JsonFeatures);
             $rootScope.$apply();
         };
-        _mapService.Query = function (event, selectedLayer) {
-            console.log(selectedLayer.id);
-            selectedLayer.theme.MapData.query()
-                .layer('visible: ' + selectedLayer.id)
+        _mapService.Query = function (event) {
+            MapData.SelectedLayer.theme.MapData.query()
+                .layer('visible: ' + MapData.SelectedLayer.id)
                 .intersects(event.layer)
                 .run(function (error, featureCollection, response) {
                     AddFeatures(featureCollection);

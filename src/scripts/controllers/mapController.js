@@ -9,9 +9,10 @@
         vm.activeInteractieKnop = 'select';
         vm.SelectableLayers = MapData.VisibleLayers;
 
-        vm.selectedLayer = {};
+        vm.selectedLayer = MapData.SelectedLayer;
         map.on('click', function (event) {
             console.log('click op map!');
+            console.log(vm.selectedLayer);
             if (!IsDrawing) {
                 cleanMapAndSearch();
                 switch (vm.activeInteractieKnop) {
@@ -19,7 +20,7 @@
                         MapService.Identify(event, 2);
                         break;
                     case 'select':
-                        if (_.isEmpty(vm.selectedLayer)) {
+                        if (_.isEmpty(MapData.SelectedLayer)) {
                             console.log('Geen layer selected! kan dus niet opvragen');
                         }
                         else {
@@ -42,12 +43,11 @@
         map.on('draw:created', function (event) {
             console.log('draw created');
             console.log(event);
-            if (_.isEmpty(vm.selectedLayer)) {
+            if (_.isEmpty(MapData.SelectedLayer)) {
                 console.log('Geen layer selected! kan dus niet opvragen');
             }
             else {
-                MapService.Query(event, vm.selectedLayer);
-                $scope.$apply();
+                MapService.Query(event);
             }
             IsDrawing = false;
         });
@@ -69,9 +69,13 @@
             vm.activeInteractieKnop = 'select';
             $('.leaflet-draw.leaflet-control').show();
         };
+        vm.watIsHier = function () {
+            cleanMapAndSearch();
+            vm.activeInteractieKnop = 'watIsHier';
+        };
         vm.layerChange = function () {
             cleanMapAndSearch();
-            MapService.SelectedLayer = vm.selectedLayer;
+            MapData.SelectedLayer = vm.selectedLayer;
         };
         vm.zoomIn = function () {
             map.zoomIn();
