@@ -6,7 +6,7 @@
     } catch (e) {
         module = angular.module('tink.gis.angular', ['tink.accordion', 'tink.tinkApi', 'tink.modal']); //'leaflet-directive'
     }
-    var mapService = function ($rootScope, MapData, map, ThemeHelper, $q) {
+    var mapService = function ($rootScope, MapData, map, ThemeHelper, $q, GISService) {
         var _mapService = {};
         _mapService.Identify = function (event, tolerance) {
             if (typeof tolerance === 'undefined') { tolerance = 2; }
@@ -27,11 +27,15 @@
 
             });
         };
+        
         _mapService.Select = function (event) {
             console.log(MapData.SelectedLayer);
             MapData.SelectedLayer.theme.MapData.identify().on(map).at(event.latlng).layers('visible: ' + MapData.SelectedLayer.id).run(function (error, featureCollection) {
                 AddFeatures(featureCollection);
             });
+        };
+        _mapService.WatIsHier = function (event) {
+          GISService.ReverseGeocode(event);
         };
         var AddFeatures = function (features) {
             for (var x = 0; x < features.features.length; x++) {
@@ -43,7 +47,6 @@
                 var mapItem = L.geoJson(featureItem, { style: myStyle }).addTo(map);
                 MapData.VisibleFeatures.push(mapItem);
             }
-            console.log(MapData.JsonFeatures);
             $rootScope.$apply();
         };
         _mapService.Query = function (event) {

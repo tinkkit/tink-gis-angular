@@ -9,7 +9,10 @@
             prevent-default><i class="fa fa-info"></i></button>
             <button type="button" class="btn" ng-click="mapctrl.select()" ng-class="{active: mapctrl.activeInteractieKnop=='select'}"
             prevent-default><i class="fa fa-mouse-pointer"></i></button>
-            <button type="button" class="btn" ng-class="{active: mapctrl.activeInteractieKnop=='dunno'}" prevent-default><i class="fa fa-download"></i></button>
+            <button type="button" class="btn" ng-click="mapctrl.meten()" ng-class="{active: mapctrl.activeInteractieKnop=='meten'}" 
+            prevent-default><i class="fa fa-expand"></i></button>
+            <button type="button" class="btn" ng-click="mapctrl.watIsHier()" ng-class="{active: mapctrl.activeInteractieKnop=='watishier'}" 
+            prevent-default><i class="fa  fa-thumb-tack"></i></button> <!-- fa-map-pin -->
         </div>
 
         <div class="ll zoekbalken">

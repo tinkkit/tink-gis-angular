@@ -12,7 +12,6 @@
         vm.selectedLayer = MapData.SelectedLayer;
         map.on('click', function (event) {
             console.log('click op map!');
-            console.log(vm.selectedLayer);
             if (!IsDrawing) {
                 cleanMapAndSearch();
                 switch (vm.activeInteractieKnop) {
@@ -20,12 +19,15 @@
                         MapService.Identify(event, 2);
                         break;
                     case 'select':
-                        if (_.isEmpty(MapData.SelectedLayer)) {
+                        if (MapData.SelectedLayer.id === '') {
                             console.log('Geen layer selected! kan dus niet opvragen');
                         }
                         else {
                             MapService.Select(event); // click is gewoon een identify maar dan op selectedlayer.
                         }
+                        break;
+                    case 'watishier':
+                        MapService.WatIsHier(event);
                         break;
                     default:
                         console.log('MAG NIET!!!!!!!!');
@@ -61,17 +63,23 @@
         };
         vm.identify = function () {
             cleanMapAndSearch();
-            vm.activeInteractieKnop = 'identify';
+            vm.activeInteractieKnop = ActiveInteractieButton.IDENTIFY;
             $('.leaflet-draw.leaflet-control').hide();
         };
         vm.select = function () {
             cleanMapAndSearch();
-            vm.activeInteractieKnop = 'select';
+            vm.activeInteractieKnop = ActiveInteractieButton.SELECT;
             $('.leaflet-draw.leaflet-control').show();
         };
         vm.watIsHier = function () {
             cleanMapAndSearch();
-            vm.activeInteractieKnop = 'watIsHier';
+            vm.activeInteractieKnop = ActiveInteractieButton.WATISHIER;
+            $('.leaflet-draw.leaflet-control').hide();
+        };
+        vm.meten = function () {
+            cleanMapAndSearch();
+            vm.activeInteractieKnop = ActiveInteractieButton.METEN;
+            $('.leaflet-draw.leaflet-control').hide();
         };
         vm.layerChange = function () {
             cleanMapAndSearch();

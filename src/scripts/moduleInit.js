@@ -65,3 +65,9 @@ var LayerType = {
     LAYER: 0,
     GROUP: 1
 };
+var ActiveInteractieButton  = {
+    IDENTIFY: "identify",
+    SELECT: "select",
+    METEN: "meten",
+    WATISHIER: "watishier"
+};
