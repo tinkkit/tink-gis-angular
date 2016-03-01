@@ -76,8 +76,8 @@
                 url: theme.CleanUrl,
                 opacity: 0.5,
                 layers: theme.VisibleLayerIds,
-                maxZoom: 21,
-                minZoom: 10,
+                // maxZoom: 21,
+                // minZoom: 10,
                 useCors: true
             }).addTo(map);
             // _mapService.UpdateThemeVisibleLayers(theme);

@@ -21,40 +21,29 @@
                 }
                 if (identifOnThisTheme) {
                     theme.MapData.identify().on(map).at(event.latlng).layers(layersVoorIdentify).tolerance(tolerance).run(function (error, featureCollection) {
-                        AddFeatures(featureCollection);
+                        MapData.AddFeatures(featureCollection);
                     });
                 }
 
             });
         };
-        
+
         _mapService.Select = function (event) {
             console.log(MapData.SelectedLayer);
             MapData.SelectedLayer.theme.MapData.identify().on(map).at(event.latlng).layers('visible: ' + MapData.SelectedLayer.id).run(function (error, featureCollection) {
-                AddFeatures(featureCollection);
+                MapData.AddFeatures(featureCollection);
             });
         };
         _mapService.WatIsHier = function (event) {
-          GISService.ReverseGeocode(event);
+            GISService.ReverseGeocode(event);
         };
-        var AddFeatures = function (features) {
-            for (var x = 0; x < features.features.length; x++) {
-                var featureItem = features.features[x];
-                var myStyle = {
-                    "fillOpacity": 0
-                };
-                MapData.JsonFeatures.push(featureItem);
-                var mapItem = L.geoJson(featureItem, { style: myStyle }).addTo(map);
-                MapData.VisibleFeatures.push(mapItem);
-            }
-            $rootScope.$apply();
-        };
+
         _mapService.Query = function (event) {
             MapData.SelectedLayer.theme.MapData.query()
                 .layer('visible: ' + MapData.SelectedLayer.id)
                 .intersects(event.layer)
                 .run(function (error, featureCollection, response) {
-                    AddFeatures(featureCollection);
+                    MapData.AddFeatures(featureCollection);
                 });
         };
 

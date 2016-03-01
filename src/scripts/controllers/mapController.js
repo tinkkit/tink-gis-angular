@@ -6,41 +6,40 @@
     var theController = module.controller('mapController', function ($scope, BaseLayersService, MapService, MapData, map) {
         var vm = this;
         vm.layerId = '';
-        vm.activeInteractieKnop = 'select';
+        vm.activeInteractieKnop = ActiveInteractieButton.SELECT;
         vm.SelectableLayers = MapData.VisibleLayers;
 
         vm.selectedLayer = MapData.SelectedLayer;
         map.on('click', function (event) {
             console.log('click op map!');
             if (!IsDrawing) {
-                cleanMapAndSearch();
+                MapData.CleanMap();
                 switch (vm.activeInteractieKnop) {
-                    case 'identify':
+                    case ActiveInteractieButton.IDENTIFY:
                         MapService.Identify(event, 2);
                         break;
-                    case 'select':
+                    case ActiveInteractieButton.SELECT:
                         if (MapData.SelectedLayer.id === '') {
                             console.log('Geen layer selected! kan dus niet opvragen');
                         }
                         else {
-                            MapService.Select(event); // click is gewoon een identify maar dan op selectedlayer.
+                            MapService.Select(event);
                         }
                         break;
-                    case 'watishier':
+                    case ActiveInteractieButton.WATISHIER:
                         MapService.WatIsHier(event);
                         break;
                     default:
                         console.log('MAG NIET!!!!!!!!');
                         break;
                 }
-                // $scope.$apply();
             }
         });
         var IsDrawing = false;
         map.on('draw:drawstart', function (event) {
             console.log('draw started');
             IsDrawing = true;
-            cleanMapAndSearch();
+            MapData.CleanMap();
         });
         map.on('draw:created', function (event) {
             console.log('draw created');
@@ -53,36 +52,29 @@
             }
             IsDrawing = false;
         });
-        var cleanMapAndSearch = function () {
-            for (var x = 0; x < MapData.VisibleFeatures.length; x++) {
-                map.removeLayer(MapData.VisibleFeatures[x]); //eerst de 
-            }
-            MapData.VisibleFeatures.length = 0;
-            MapData.JsonFeatures.length = 0;
-            map.clearDrawings();
-        };
+
         vm.identify = function () {
-            cleanMapAndSearch();
+            MapData.CleanMap();
             vm.activeInteractieKnop = ActiveInteractieButton.IDENTIFY;
             $('.leaflet-draw.leaflet-control').hide();
         };
         vm.select = function () {
-            cleanMapAndSearch();
+            MapData.CleanMap();
             vm.activeInteractieKnop = ActiveInteractieButton.SELECT;
             $('.leaflet-draw.leaflet-control').show();
         };
         vm.watIsHier = function () {
-            cleanMapAndSearch();
+            MapData.CleanMap();
             vm.activeInteractieKnop = ActiveInteractieButton.WATISHIER;
             $('.leaflet-draw.leaflet-control').hide();
         };
         vm.meten = function () {
-            cleanMapAndSearch();
+            MapData.CleanMap();
             vm.activeInteractieKnop = ActiveInteractieButton.METEN;
             $('.leaflet-draw.leaflet-control').hide();
         };
         vm.layerChange = function () {
-            cleanMapAndSearch();
+            MapData.CleanMap();
             MapData.SelectedLayer = vm.selectedLayer;
         };
         vm.zoomIn = function () {

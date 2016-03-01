@@ -24,12 +24,13 @@
             });
         };
     });
+
     var mapObject = function () {
         var map = L.map('map', {
             center: [51.2192159, 4.4028818],
             zoom: 16,
-            maxZoom: 21,
-            minZoom: 10,
+            // maxZoom: 21,
+            // minZoom: 10,
             layers: L.tileLayer('http://tiles.arcgis.com/tiles/1KSVSmnHT2Lw9ea6/arcgis/rest/services/basemap_stadsplan_v6/MapServer/tile/{z}/{y}/{x}', { id: 'kaart' }),
             zoomControl: false,
             drawControl: true
@@ -54,6 +55,8 @@
 
     module.factory("map", mapObject);
 })();
+proj4.defs('LAMBERT72', "+proj=lcc +lat_1=51.16666723333333 +lat_2=49.8333339 +lat_0=90 +lon_0=4.367486666666666 +x_0=150000.013 +y_0=5400088.438 +ellps=intl +towgs84=106.869,-52.2978,103.724,-0.33657,0.456955,-1.84218,1 +units=m +no_defs");
+
 //Moet plaats voor zoeken!!! Enums in Angular hmm
 var ThemeStatus = { // http://stijndewitt.com/2014/01/26/enums-in-javascript/
     UNMODIFIED: 0,
@@ -65,7 +68,7 @@ var LayerType = {
     LAYER: 0,
     GROUP: 1
 };
-var ActiveInteractieButton  = {
+var ActiveInteractieButton = {
     IDENTIFY: "identify",
     SELECT: "select",
     METEN: "meten",
