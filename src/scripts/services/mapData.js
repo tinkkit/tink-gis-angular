@@ -28,6 +28,7 @@
         };
         _data.CleanWatIsHierMarker = function () {
             if (_data.WatIsHierMarker !== null) {
+                _data.WatIsHierMarker.clearAllEventListeners();
                 map.removeLayer(_data.WatIsHierMarker);
                 _data.WatIsHierMarker = null;
             }
@@ -38,18 +39,38 @@
         };
         _data.CreateOrigineleMarker = function (latlng, addressFound) {
             if (addressFound) {
-                _data.WatIsHierOriginalMarker = L.marker([latlng.lat, latlng.lng]).addTo(map);
+                var foundMarker = L.AwesomeMarkers.icon({
+                    icon: 'fa-map-marker',
+                    markerColor: 'orange'
+
+                });
+                _data.WatIsHierOriginalMarker = L.marker([latlng.lat, latlng.lng], { icon: foundMarker, opacity: 0.5 }).addTo(map);
             }
             else {
-                _data.WatIsHierOriginalMarker = L.marker([latlng.lat, latlng.lng]).addTo(map);
+                var notFoundMarker = L.AwesomeMarkers.icon({
+                    // icon: 'fa-frown-o',
+                    icon: 'fa-question',
+                    markerColor: 'red',
+                    spin: true
+                });
+                _data.WatIsHierOriginalMarker = L.marker([latlng.lat, latlng.lng], { icon: notFoundMarker }).addTo(map);
             }
         };
         _data.CreateWatIsHierMarker = function (data) {
             var convertedBackToWSG84 = HelperService.ConvertLambert72ToWSG84(data.location)
-            _data.WatIsHierMarker = L.marker([convertedBackToWSG84.x, convertedBackToWSG84.y]).addTo(map);
+
+            var addressMarker = L.AwesomeMarkers.icon({
+                icon: 'fa-dot-circle-o',
+                markerColor: 'green'
+            });
+
+            _data.WatIsHierMarker = L.marker([convertedBackToWSG84.x, convertedBackToWSG84.y], { icon: addressMarker }).addTo(map);
             _data.WatIsHierMarker.bindPopup("<h4>" + data.address.Street + "</h4>" +
-                "<br>WGS84 x:" + convertedBackToWSG84.x + " y: " + convertedBackToWSG84.y +
-                "<br>Lambert x:" + data.location.x + " y: " + data.location.y).openPopup();
+                "<br>WGS84 x:" + convertedBackToWSG84.x.toFixed(6) + " y: " + convertedBackToWSG84.y.toFixed(6) +
+                "<br>Lambert x:" + data.location.x.toFixed(1) + " y: " + data.location.y.toFixed(1)).openPopup();
+            _data.WatIsHierMarker.on('popupclose', function (event) {
+                 _data.CleanWatIsHier();
+            });
         };
         _data.CleanMap = function () {
             for (var x = 0; x < _data.VisibleFeatures.length; x++) {

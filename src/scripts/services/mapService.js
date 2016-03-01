@@ -46,10 +46,6 @@
                     MapData.AddFeatures(featureCollection);
                 });
         };
-
-
-
-
         _mapService.UpdateThemeStatus = function (theme) {
             _.each(theme.Groups, function (layerGroup) {
                 _mapService.UpdateGroupLayerStatus(layerGroup, theme);

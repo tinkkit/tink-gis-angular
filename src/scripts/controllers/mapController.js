@@ -44,7 +44,7 @@
         map.on('draw:created', function (event) {
             console.log('draw created');
             console.log(event);
-            if (_.isEmpty(MapData.SelectedLayer)) {
+            if (MapData.SelectedLayer.id == '') {
                 console.log('Geen layer selected! kan dus niet opvragen');
             }
             else {
@@ -53,25 +53,25 @@
             IsDrawing = false;
         });
 
-        vm.identify = function () {
-            MapData.CleanMap();
-            vm.activeInteractieKnop = ActiveInteractieButton.IDENTIFY;
-            $('.leaflet-draw.leaflet-control').hide();
-        };
         vm.select = function () {
-            MapData.CleanMap();
-            vm.activeInteractieKnop = ActiveInteractieButton.SELECT;
-            $('.leaflet-draw.leaflet-control').show();
+            vm.interactieButtonChanged(ActiveInteractieButton.SELECT)
         };
-        vm.watIsHier = function () {
+        vm.interactieButtonChanged = function (ActiveButton) {
             MapData.CleanMap();
-            vm.activeInteractieKnop = ActiveInteractieButton.WATISHIER;
-            $('.leaflet-draw.leaflet-control').hide();
+            MapData.CleanWatIsHier();
+            vm.activeInteractieKnop = ActiveButton;
+            switch (ActiveButton) {
+                case ActiveInteractieButton.SELECT:
+                    $('.leaflet-draw.leaflet-control').show();
+                    break;
+                default:
+                    $('.leaflet-draw.leaflet-control').hide();
+                    break;
+            }
         };
+   
         vm.meten = function () {
-            MapData.CleanMap();
-            vm.activeInteractieKnop = ActiveInteractieButton.METEN;
-            $('.leaflet-draw.leaflet-control').hide();
+            vm.interactieButtonChanged(ActiveInteractieButton.METEN)
         };
         vm.layerChange = function () {
             MapData.CleanMap();
