@@ -3,10 +3,12 @@
     var module = angular.module('tink.gis.angular');
     var mapData = function (map, $rootScope, HelperService) {
         var _data = {};
+
         _data.VisibleLayers = [];
         _data.SelectableLayers = [];
         _data.VisibleFeatures = [];
         _data.JsonFeatures = [];
+        _data.IsDrawing = false;
         _data.ThemeUrls = ['http://app10.p.gis.local/arcgissql/rest/services/P_Stad/Afval/MapServer?f=pjson',
             'http://app10.p.gis.local/arcgissql/rest/services/P_Stad/Cultuur/MapServer?f=pjson',
             'http://app10.p.gis.local/arcgissql/rest/services/P_Stad/Jeugd/MapServer?f=pjson',
@@ -17,20 +19,30 @@
         var defaultlayer = { id: '', name: 'Alle Layers' };
         _data.VisibleLayers.unshift(defaultlayer);
         _data.SelectedLayer = defaultlayer;
-        _data.WatIsHierMarker = null;
-        _data.WatIsHierOriginalMarker = null;
-        _data.CleanWatIsHierOriginalMarker = function () {
-            if (_data.WatIsHierOriginalMarker !== null) {
-                map.removeLayer(_data.WatIsHierOriginalMarker);
-                _data.WatIsHierOriginalMarker = null;
+        _data.ActiveInteractieKnop = ActiveInteractieButton.SELECT;
+        _data.DrawingType = DrawingOption.NIETS;
+        _data.DrawingObject = null;
+        _data.RemoveDrawings = function () {
+            if (_data.DrawingObject) {
+                map.removeLayer(_data.DrawingObject.layer);
+                _data.DrawingObject = null;
             }
-
+        };
+        var WatIsHierMarker = null;
+        var WatIsHierOriginalMarker = null;
+        _data.CleanWatIsHierOriginalMarker = function () {
+            if (WatIsHierOriginalMarker) {
+                map.removeLayer(WatIsHierOriginalMarker);
+                WatIsHierOriginalMarker = null;
+            }
         };
         _data.CleanWatIsHierMarker = function () {
-            if (_data.WatIsHierMarker !== null) {
-                _data.WatIsHierMarker.clearAllEventListeners();
-                map.removeLayer(_data.WatIsHierMarker);
-                _data.WatIsHierMarker = null;
+            console.log(WatIsHierMarker);
+            if (WatIsHierMarker) {
+                WatIsHierMarker.clearAllEventListeners();
+                WatIsHierMarker.closePopup();
+                map.removeLayer(WatIsHierMarker);
+                WatIsHierMarker = null;
             }
         };
         _data.CleanWatIsHier = function () {
@@ -69,7 +81,7 @@
                 "<br>WGS84 x:" + convertedBackToWSG84.x.toFixed(6) + " y: " + convertedBackToWSG84.y.toFixed(6) +
                 "<br>Lambert x:" + data.location.x.toFixed(1) + " y: " + data.location.y.toFixed(1)).openPopup();
             _data.WatIsHierMarker.on('popupclose', function (event) {
-                 _data.CleanWatIsHier();
+                _data.CleanWatIsHier();
             });
         };
         _data.CleanMap = function () {

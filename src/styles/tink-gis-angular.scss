@@ -58,6 +58,16 @@
   }
 }
 
+.metenbtns {
+  left: rem(55);
+  top: rem(165);
+
+  @include mq($screen-sm) {
+    left: rem(60);
+    top: rem(170);
+  }
+}
+
 .zoekbalken {
   left: rem(90);
   top: rem(10);

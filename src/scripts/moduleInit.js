@@ -74,3 +74,8 @@ var ActiveInteractieButton = {
     METEN: "meten",
     WATISHIER: "watishier"
 };
+var DrawingOption = {
+    NIETS: '',
+    AFSTAND: 'afstand',
+    OPPERVLAKTE: 'oppervlakte'
+};

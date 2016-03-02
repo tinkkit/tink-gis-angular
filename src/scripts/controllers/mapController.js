@@ -3,75 +3,55 @@
 'use strict';
 (function (module) {
     module = angular.module('tink.gis.angular');
-    var theController = module.controller('mapController', function ($scope, BaseLayersService, MapService, MapData, map) {
+    var theController = module.controller('mapController', function ($scope, BaseLayersService, MapService, MapData, map, MapEvents) {
+        //We need to include MapEvents, even tho we don t call it just to make sure it gets loaded! 
         var vm = this;
         vm.layerId = '';
-        vm.activeInteractieKnop = ActiveInteractieButton.SELECT;
+        vm.activeInteractieKnop = MapData.ActiveInteractieKnop;
         vm.SelectableLayers = MapData.VisibleLayers;
-
         vm.selectedLayer = MapData.SelectedLayer;
-        map.on('click', function (event) {
-            console.log('click op map!');
-            if (!IsDrawing) {
-                MapData.CleanMap();
-                switch (vm.activeInteractieKnop) {
-                    case ActiveInteractieButton.IDENTIFY:
-                        MapService.Identify(event, 2);
-                        break;
-                    case ActiveInteractieButton.SELECT:
-                        if (MapData.SelectedLayer.id === '') {
-                            console.log('Geen layer selected! kan dus niet opvragen');
-                        }
-                        else {
-                            MapService.Select(event);
-                        }
-                        break;
-                    case ActiveInteractieButton.WATISHIER:
-                        MapService.WatIsHier(event);
-                        break;
-                    default:
-                        console.log('MAG NIET!!!!!!!!');
-                        break;
-                }
-            }
-        });
-        var IsDrawing = false;
-        map.on('draw:drawstart', function (event) {
-            console.log('draw started');
-            IsDrawing = true;
-            MapData.CleanMap();
-        });
-        map.on('draw:created', function (event) {
-            console.log('draw created');
-            console.log(event);
-            if (MapData.SelectedLayer.id == '') {
-                console.log('Geen layer selected! kan dus niet opvragen');
-            }
-            else {
-                MapService.Query(event);
-            }
-            IsDrawing = false;
-        });
-
-        vm.select = function () {
-            vm.interactieButtonChanged(ActiveInteractieButton.SELECT)
-        };
+        vm.drawingType = MapData.DrawingType
+        vm.showMetenControls = false;
         vm.interactieButtonChanged = function (ActiveButton) {
             MapData.CleanMap();
             MapData.CleanWatIsHier();
+            MapData.ActiveInteractieKnop = ActiveButton; // If we only could keep the vmactiveInteractieKnop in sync with the one from MapData
             vm.activeInteractieKnop = ActiveButton;
+            //make controls invis 
+            toggleDrawControls(false);
+            vm.showMetenControls = false;
             switch (ActiveButton) {
                 case ActiveInteractieButton.SELECT:
-                    $('.leaflet-draw.leaflet-control').show();
+                    toggleDrawControls(true);
                     break;
-                default:
-                    $('.leaflet-draw.leaflet-control').hide();
+                case ActiveInteractieButton.METEN:
+                    vm.showMetenControls = true;
                     break;
             }
         };
-   
-        vm.meten = function () {
-            vm.interactieButtonChanged(ActiveInteractieButton.METEN)
+        var toggleDrawControls = function (showControls) {
+            if (showControls) {
+                $('.leaflet-draw.leaflet-control').show();
+            }
+            else {
+                $('.leaflet-draw.leaflet-control').hide();
+            }
+        };
+        vm.drawingButtonChanged = function (drawOption) {
+            MapData.DrawingType = drawOption; // pff must be possible to be able to sync them...
+            vm.drawingType = drawOption;
+            switch (MapData.DrawingType) {
+                case DrawingOption.AFSTAND:
+                    MapData.DrawingObject = new L.Draw.Polyline(map);
+                    MapData.DrawingObject.enable();
+                    break;
+                case DrawingOption.OPPERVLAKTE:
+                    MapData.DrawingObject = new L.Draw.Polygon(map);
+                    MapData.DrawingObject.enable();
+                    break;
+                default:
+                    break;
+            }
         };
         vm.layerChange = function () {
             MapData.CleanMap();
@@ -98,5 +78,5 @@
             map.addLayer(BaseLayersService.luchtfoto);
         };
     });
-    theController.$inject = ['BaseLayersService', 'MapService', 'MapData', 'map'];
+    theController.$inject = ['BaseLayersService', 'MapService', 'MapData', 'map', 'MapEvents'];
 })();
