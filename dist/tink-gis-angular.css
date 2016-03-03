@@ -1,0 +1,307 @@
+/**
+ * Functions
+ * ----------------------------------------------------------------
+ */
+/**
+ * Strip units from any number
+ */
+/**
+ *  Convert pixels to em
+ */
+/**
+ *  Convert pixels to rem
+ */
+/**
+ * Return a space separated list as rem values
+ * e.g. padding: rem(10 20 10 15);
+ */
+/**
+ * image-url function (cfr. Compass)
+ */
+/**
+ * All functions needed for handling z-index
+ * - check for nested keys
+ * - get a nested list item
+ * - return a z-index list property
+ */
+/**
+ * Mixins
+ * --------------------------------------------------
+ */
+/**
+ * Arrow mixin
+ * --------------------------------------------------
+ * Arrow
+ * :before is the arrow border
+ * :after is the arrow background
+ */
+/**
+ * Form mixins
+ *
+ */
+/**
+ * Variables
+ * ----------------------------------------------------------------
+ */
+/**
+ * Grid
+ */
+/**
+ * Scaffolding
+ */
+/**
+ * Type
+ */
+/**
+ * Code
+ */
+/**
+ * Animation
+ */
+/**
+ * Form states and alerts
+ */
+/**
+ * Tables
+ */
+/**
+ * Components - global settings
+ */
+/**
+ * Buttons
+ *
+ * For each of Bootstrap's buttons, define text, background and border color.
+ */
+/**
+ * Forms
+ */
+/**
+ * Z-index, a better implementation
+ * http://www.sitepoint.com/better-solution-managing-z-index-sass/
+ *
+ * Use like this:
+ *   z-index: layer("popover");
+ *     where popover is a list item of the default list "$layers" (see below)
+ *
+ * The list is also upgradeable in that nesting is permitted, e.g.:
+ * $z-layers: (
+ *   'modal': (
+ *     'back': 50,
+ *     'front': 60
+ *   ),
+ *   'nav-top': 49,
+ *   ...
+ * )
+ *
+ * Complete layer list (for reference, add these to $layers only if needed)
+ * $layers: base, navbar, dropdown, tooltip, navbar-sticky, navbar-fixed, modal-background, modal, popover;
+ * Old layer list
+ * $layers: base, pseudo, above-pseudo, nav-aside, popover, sticky, nav-top, modal !default;
+ */
+/**
+ * Bar component
+ *
+ * Settings for a standard bar
+ */
+/**
+ * Logo
+ */
+/**
+ * Navigation
+ *
+ * Settings for the top navigation and the off-canvas navigation
+ */
+/**
+ * Datepicker
+ *
+ * Settings for both the single as the range datepicker
+ */
+/**
+ * Callout
+ */
+/**
+ * Hit-area-box
+ */
+/**
+ * Navs
+ */
+/**
+ * Tabs
+ */
+/**
+ * Tooltips
+ */
+/**
+ * Popovers
+ */
+/**
+ * Upload
+ */
+/**
+ * Labels
+ */
+/**
+ * Modals
+ */
+/**
+ * Cards
+ */
+/**
+ * Interactive table
+ */
+/**
+ * Table alternative heading
+ */
+/**
+ * Thumbnails
+ */
+/**
+ * Pagination
+ */
+/**
+ * Badges
+ */
+/**
+ * Breadcrumbs
+ */
+/**
+ * Filter bar
+ */
+/**
+ * Loader
+ */
+/**
+ * Variables
+ */
+.fa {
+  width: 15.775px; }
+
+.tink-map, .leafletmap {
+  height: 100%;
+  width: 100%; }
+
+@media (min-width: 768px) {
+  .tink-map {
+    padding-right: 15.7142857143rem ;
+    padding-left: 15.7142857143rem ; } }
+
+.tink-map .nav-aside {
+  top: 0; }
+
+.tink-map .fa-fw {
+  width: 0.7142857143rem ; }
+
+.leafletmap {
+  position: relative; }
+
+.ll {
+  position: absolute;
+  z-index: 1; }
+
+.interactiebtns {
+  left: 0.7142857143rem ;
+  top: 7.1428571429rem ; }
+  @media (min-width: 768px) {
+    .interactiebtns {
+      left: 1.0714285714rem ;
+      top: 7.5rem ; } }
+
+.searchbtns {
+  left: 0.7142857143rem ;
+  top: 0.7142857143rem ; }
+  @media (min-width: 768px) {
+    .searchbtns {
+      left: 1.0714285714rem ;
+      top: 1.0714285714rem ; } }
+
+.metenbtns {
+  left: 3.9285714286rem ;
+  top: 11.7857142857rem ; }
+  @media (min-width: 768px) {
+    .metenbtns {
+      left: 4.2857142857rem ;
+      top: 12.1428571429rem ; } }
+
+.zoekbalken {
+  left: 6.4285714286rem ;
+  top: 0.7142857143rem ; }
+  @media (min-width: 768px) {
+    .zoekbalken {
+      left: 6.7857142857rem ;
+      top: 1.0714285714rem ; } }
+
+.zoekbalk {
+  width: 10.7142857143rem ; }
+  @media (min-width: 768px) {
+    .zoekbalk {
+      width: 14.2857142857rem ; } }
+
+.localiseerbtn {
+  right: 0.7142857143rem ;
+  bottom: 1.4285714286rem ; }
+  @media (min-width: 768px) {
+    .localiseerbtn {
+      right: 1.0714285714rem ;
+      bottom: 1.4285714286rem ; } }
+
+.viewbtns {
+  right: 0.7142857143rem ;
+  bottom: 4.5714285714rem ; }
+  @media (min-width: 768px) {
+    .viewbtns {
+      right: 1.0714285714rem ;
+      bottom: 4.9285714286rem ; } }
+
+button.btn.active {
+  background-color: dodgerblue;
+  color: white; }
+
+.leaflet-left .leaflet-control-scale {
+  margin-left: 9.2857142857rem ;
+  margin-bottom: 0.9285714286rem ; }
+  @media (min-width: 768px) {
+    .leaflet-left .leaflet-control-scale {
+      margin-left: 9.6428571429rem ;
+      margin-bottom: 1.2857142857rem ; } }
+
+.kaarttypes {
+  left: 0.7142857143rem ;
+  bottom: 0.7142857143rem ; }
+  @media (min-width: 768px) {
+    .kaarttypes {
+      left: 1.0714285714rem ;
+      bottom: 1.0714285714rem ; } }
+
+.kaarttypes > .btn {
+  height: 30px;
+  font-size: 10px; }
+
+.layercontroller-checkbox {
+  margin-left: 10px; }
+
+.addlayerbtn {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  display: block; }
+
+.modal-dialog {
+  min-width: 800px;
+  background-color: white;
+  text-align: left; }
+
+.modal-header {
+  padding: 15px;
+  border-bottom: 1px solid gray; }
+
+.modal-title {
+  margin: 0;
+  line-height: 1.42857143; }
+
+.modal-content {
+  padding: 15px; }
+
+.modal-footer {
+  padding: 15px;
+  border-top: 1px solid gray; }

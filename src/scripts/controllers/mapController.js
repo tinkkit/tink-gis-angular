@@ -13,8 +13,7 @@
         vm.drawingType = MapData.DrawingType
         vm.showMetenControls = false;
         vm.interactieButtonChanged = function (ActiveButton) {
-            MapData.CleanMap();
-            MapData.CleanWatIsHier();
+            MapData.CleanAll();
             MapData.ActiveInteractieKnop = ActiveButton; // If we only could keep the vmactiveInteractieKnop in sync with the one from MapData
             vm.activeInteractieKnop = ActiveButton;
             //make controls invis 
@@ -38,6 +37,8 @@
             }
         };
         vm.drawingButtonChanged = function (drawOption) {
+            MapData.CleanAll();
+            MapData.RemoveDrawings();
             MapData.DrawingType = drawOption; // pff must be possible to be able to sync them...
             vm.drawingType = drawOption;
             switch (MapData.DrawingType) {

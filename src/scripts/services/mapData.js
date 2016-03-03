@@ -24,7 +24,8 @@
         _data.DrawingObject = null;
         _data.RemoveDrawings = function () {
             if (_data.DrawingObject) {
-                map.removeLayer(_data.DrawingObject.layer);
+                _data.DrawingObject.disable();
+                // map.removeLayer(_data.DrawingObject);
                 _data.DrawingObject = null;
             }
         };
@@ -45,6 +46,11 @@
                 WatIsHierMarker = null;
             }
         };
+        _data.CleanAll = function () {
+            _data.RemoveDrawings();
+            _data.CleanMap();
+            _data.CleanWatIsHier();
+        };
         _data.CleanWatIsHier = function () {
             _data.CleanWatIsHierMarker();
             _data.CleanWatIsHierOriginalMarker();
@@ -56,7 +62,7 @@
                     markerColor: 'orange'
 
                 });
-                _data.WatIsHierOriginalMarker = L.marker([latlng.lat, latlng.lng], { icon: foundMarker, opacity: 0.5 }).addTo(map);
+                WatIsHierOriginalMarker = L.marker([latlng.lat, latlng.lng], { icon: foundMarker, opacity: 0.5 }).addTo(map);
             }
             else {
                 var notFoundMarker = L.AwesomeMarkers.icon({
@@ -65,7 +71,7 @@
                     markerColor: 'red',
                     spin: true
                 });
-                _data.WatIsHierOriginalMarker = L.marker([latlng.lat, latlng.lng], { icon: notFoundMarker }).addTo(map);
+                WatIsHierOriginalMarker = L.marker([latlng.lat, latlng.lng], { icon: notFoundMarker }).addTo(map);
             }
         };
         _data.CreateWatIsHierMarker = function (data) {
@@ -76,11 +82,11 @@
                 markerColor: 'green'
             });
 
-            _data.WatIsHierMarker = L.marker([convertedBackToWSG84.x, convertedBackToWSG84.y], { icon: addressMarker }).addTo(map);
-            _data.WatIsHierMarker.bindPopup("<h4>" + data.address.Street + "</h4>" +
+            WatIsHierMarker = L.marker([convertedBackToWSG84.x, convertedBackToWSG84.y], { icon: addressMarker }).addTo(map);
+            WatIsHierMarker.bindPopup("<h4>" + data.address.Street + "</h4>" +
                 "<br>WGS84 x:" + convertedBackToWSG84.x.toFixed(6) + " y: " + convertedBackToWSG84.y.toFixed(6) +
                 "<br>Lambert x:" + data.location.x.toFixed(1) + " y: " + data.location.y.toFixed(1)).openPopup();
-            _data.WatIsHierMarker.on('popupclose', function (event) {
+            WatIsHierMarker.on('popupclose', function (event) {
                 _data.CleanWatIsHier();
             });
         };
