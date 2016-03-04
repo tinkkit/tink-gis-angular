@@ -13,8 +13,8 @@
             $http.get('http://app10.p.gis.local/arcgissql/rest/services/COMLOC_CRAB_NAVTEQ/GeocodeServer/reverseGeocode?location=' + urlloc + '&distance=50&outSR=&f=json').
                 success(function (data, status, headers, config) {
                     if (!data.error) {
-                        MapData.CreateOrigineleMarker(event.latlng, true);
                         MapData.CreateWatIsHierMarker(data);
+                        MapData.CreateOrigineleMarker(event.latlng, true);
                     }
                     else {
                         MapData.CreateOrigineleMarker(event.latlng, false);

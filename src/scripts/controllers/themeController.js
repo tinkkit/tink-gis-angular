@@ -4,6 +4,7 @@
     module.controller('themeController', ['$scope', 'MapService', 'ThemeService',
         function ($scope, MapService, ThemeService) {
             var vm = this;
+            console.log("Theme geladen");
             vm.theme = $scope.theme;
             $scope.$on('groupCheckboxChangedEvent', function (event, groupLayer) { // stuur het door naar het thema
                 MapService.UpdateGroupLayerStatus(groupLayer, vm.theme);
