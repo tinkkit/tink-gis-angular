@@ -31,29 +31,24 @@
         };
         var WatIsHierMarker = null;
         var WatIsHierOriginalMarker = null;
-        _data.CleanWatIsHierOriginalMarker = function () {
-            if (WatIsHierOriginalMarker) {
-                WatIsHierOriginalMarker.clearAllEventListeners();
-                WatIsHierOriginalMarker.closePopup();
-                map.removeLayer(WatIsHierOriginalMarker);
-                WatIsHierOriginalMarker = null;
-            }
-        };
-        _data.CleanWatIsHierMarker = function () {
-            console.log(WatIsHierMarker);
-            if (WatIsHierMarker) {
-                map.removeLayer(WatIsHierMarker);
-                WatIsHierMarker = null;
-            }
-        };
+  
         _data.CleanAll = function () {
             _data.RemoveDrawings();
             _data.CleanMap();
             _data.CleanWatIsHier();
         };
         _data.CleanWatIsHier = function () {
-            _data.CleanWatIsHierMarker();
-            _data.CleanWatIsHierOriginalMarker();
+            if (WatIsHierOriginalMarker) {
+                WatIsHierOriginalMarker.clearAllEventListeners();
+                WatIsHierOriginalMarker.closePopup();
+                map.removeLayer(WatIsHierOriginalMarker);
+                WatIsHierOriginalMarker = null;
+            }
+            if (WatIsHierMarker) {
+                map.removeLayer(WatIsHierMarker);
+                WatIsHierMarker = null;
+            }
+            straatNaam = null;
         };
         _data.CreateOrigineleMarker = function (latlng, addressFound) {
             if (addressFound) {
@@ -66,10 +61,10 @@
             }
             else {
                 var notFoundMarker = L.AwesomeMarkers.icon({
-                    icon: 'fa-frown-o',
-                    // icon: 'fa-question',
+                    // icon: 'fa-frown-o',
+                    icon: 'fa-question',
                     markerColor: 'red',
-                    // spin: true
+                    spin: true
                 });
                 WatIsHierOriginalMarker = L.marker([latlng.lat, latlng.lng], { icon: notFoundMarker }).addTo(map);
             }
@@ -82,13 +77,14 @@
                     '<img src="https://placehold.it/100x50" />' +
                     '</div>' +
                     '<div class="col-sm-8">' +
-                    '<div class="col-sm-12">' + straatNaam + '</div>' +
+                    '<div class="col-sm-12"><b>' + straatNaam + '</b></div>' +
                     // '<div class="row">' +
-                    '<div class="col-sm-3">WGS84</div><div class="col-sm-8" style="text-align: center;">' + latlng.lat.toFixed(6) + ',' + latlng.lng.toFixed(6) + '</div><div class="col-sm-1"><i class="fa fa-clipboard"></i></div>' +
-                    '<div class="col-sm-3">Lambert</div><div class="col-sm-8" style="text-align: center;">' + convertedxy.x.toFixed(1) + ',' + convertedxy.y.toFixed(1) + '</div><div class="col-sm-1"><i class="fa fa-clipboard"></i></div>' +
+                    '<div class="col-sm-3">WGS84:</div><div class="col-sm-8" style="text-align: left;">' + latlng.lat.toFixed(6) + ', ' + latlng.lng.toFixed(6) + '</div><div class="col-sm-1"><i class="fa fa-files-o"></i></div>' +
+                    '<div class="col-sm-3">Lambert:</div><div class="col-sm-8" style="text-align: left;">' + convertedxy.x.toFixed(1) + ', ' + convertedxy.y.toFixed(1) + '</div><div class="col-sm-1"><i class="fa fa-files-o"></i></div>' +
                     // '<div class="row">Lambert (x,y):' + convertedxy.x.toFixed(1) + ',' + convertedxy.y.toFixed(1) + '</div>' +
                     '</div>' +
                     '</div>' +
+
                     '</div>';
                 // var html = '<tink-Theme></tink-Theme>'
                 WatIsHierOriginalMarker.bindPopup(html, { minWidth: 300 }).openPopup();
