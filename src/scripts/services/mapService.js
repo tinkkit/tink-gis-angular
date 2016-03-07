@@ -24,7 +24,6 @@
                         MapData.AddFeatures(featureCollection);
                     });
                 }
-
             });
         };
 

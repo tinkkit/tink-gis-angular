@@ -16,7 +16,8 @@
                             }
                         });
                         if (AlreadyAddedTheme == null) { // if we didn t get an alreadyadderdtheme we get the data
-                            var prom = $http.get(url).success(function (data, statuscode, functie, getdata) {
+                            var prom = $http.get(url);
+                            prom.success(function (data, statuscode, functie, getdata) {
                                 var convertedTheme = ThemeHelper.createThemeFromJson(data, getdata)
                                 $scope.availableThemes.push(convertedTheme);
                                 convertedTheme.status = ThemeStatus.NEW;
@@ -76,13 +77,6 @@
                         else {
                             $scope.selectedTheme.Added = null; // if not all added then we put it to null
                         }
-
-                        // var alreadyAdded = false;
-                        // EnabledThemes.forEach(theme=> { // OPTI kan paar loops minder door betere zoek in array te doen
-                        //     if (theme.Url == $scope.selectedTheme.Url) {
-                        //         alreadyAdded = true;
-                        //     }
-                        // });
                         if (alreadyAdded == false) { // it is a new theme!
                             EnabledThemes.push($scope.selectedTheme);
                         } else { // already exist! It is an update!

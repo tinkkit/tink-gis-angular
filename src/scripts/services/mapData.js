@@ -129,8 +129,11 @@
                     'fillOpacity': 0
                 };
                 _data.JsonFeatures.push(featureItem);
+                // console.log(featureItem);
                 var mapItem = L.geoJson(featureItem, { style: myStyle }).addTo(map);
                 _data.VisibleFeatures.push(mapItem);
+                console.log(mapItem);
+                
             }
             $rootScope.$apply();
         };
