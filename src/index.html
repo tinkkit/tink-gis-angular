@@ -64,12 +64,12 @@
     <script src="scripts/services/GISService.js"></script>
     <script src="scripts/services/helperService.js"></script>
     <script src="scripts/services/mapEvents.js"></script>
-
+    <script src="scripts/services/layerManagementService.js"></script>
+    
 
     <script src="scripts/controllers/mapController.js"></script>
     <script src="scripts/controllers/layersController.js"></script>
     <script src="scripts/controllers/layerController.js"></script>
-    <script src="scripts/controllers/searchController.js"></script>
     <script src="scripts/controllers/groupLayerController.js"></script>
     <script src="scripts/controllers/themeController.js"></script>
     <script src="scripts/controllers/addLayerController.js"></script>
@@ -77,19 +77,28 @@
 
     <script src="scripts/directives/layerDirective.js"></script>
     <script src="scripts/directives/layersDirective.js"></script>
-    <script src="scripts/directives/searchDirective.js"></script>
     <script src="scripts/directives/groupLayerDirective.js"></script>
     <script src="scripts/directives/themeDirective.js"></script>
     <script src="scripts/directives/indeterminateCheckbox.js"></script>
+
+    <!-- search -->
+    <script src="scripts/search/controllers/searchController.js"></script>
+    <script src="scripts/search/controllers/searchSelectedController.js"></script>
+    <script src="scripts/search/controllers/searchResultsController.js"></script>
+    <script src="scripts/search/directives/searchDirective.js"></script>
+    <script src="scripts/search/directives/searchResultsDirective.js"></script>
+    <script src="scripts/search/directives/searchSelectedDirective.js"></script>
+    <!-- endsearch -->
+
 
     <script src="scripts/shared/logger.js"></script>
     <script src="scripts/shared/errorhandler.js"></script>
 </head>
 
 <body>
-    <tink-map></tink-map>
-    <!--<tink-Layers></tink-Layers>
-    <tink-Search></tink-Seadrch>-->
+    <tink-map>
+
+    </tink-map>
 </body>
 
 </html>

@@ -1,0 +1,42 @@
+'use strict';
+(function() {
+    var module = angular.module('tink.gis.angular');
+    var service = function(MapData, $http, $q, GISService, ThemeHelper) {
+        var _service = {};
+        _service.EnabledThemes = [];
+        _service.AvailableThemes = [];
+        _service.ProcessUrls = function(urls) {
+            console.log("ProcesUrls");
+            var promises = [];
+            console.log(_service.AvailableThemes);
+            _.each(urls, function(url) {
+                var AlreadyAddedTheme = null
+                _service.EnabledThemes.forEach(theme => { // OPTI kan paar loops minder door betere zoek in array te doen
+                    if (theme.Url == url) {
+                        AlreadyAddedTheme = theme;
+                    }
+                });
+                if (AlreadyAddedTheme == null) { // if we didn t get an alreadyadderdtheme we get the data
+                    var prom = GISService.GetThemeData(url);
+                    prom.success(function(data, statuscode, functie, getdata) {
+                        var convertedTheme = ThemeHelper.createThemeFromJson(data, getdata)
+                        _service.AvailableThemes.push(convertedTheme);
+                        convertedTheme.status = ThemeStatus.NEW;
+                    });
+                    promises.push(prom);
+                }
+                else { // ah we already got it then just push it.
+                    AlreadyAddedTheme.status = ThemeStatus.UNMODIFIED;
+                    _service.AvailableThemes.push(AlreadyAddedTheme);
+                }
+            });
+            // $q.all(promises).then(function(lagen) {
+            //     console.log(lagen);
+            // });
+            return $q.all(promises);
+        };
+        return _service;
+    };
+    module.$inject = ['MapData', '$http', '$q', 'GISService', 'ThemeHelper'];
+    module.factory("LayerManagementService", service);
+})();

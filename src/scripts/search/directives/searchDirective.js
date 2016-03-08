@@ -5,7 +5,7 @@
         return {
             // restrict: 'E',
             replace: true,
-            templateUrl: 'templates/searchTemplate.html',
+            templateUrl: 'templates/search/searchTemplate.html',
             controller: 'searchController',
             controllerAs: 'srchctrl'
         };

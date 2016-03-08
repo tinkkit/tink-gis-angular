@@ -2,10 +2,8 @@
     <aside>
         <div class="nav-aside-section">
             Zoek
-            <div ng-repeat="feature in srchctrl.features ">
-                    layerid: {{feature.layerId}}
-                <pre>{{feature.properties | json }}</pre>
-            </div>
+            <tink-search-results></tink-search-results>
+            <tink-search-selected></tink-search-selected>
         </div>
     </aside>
 </div>

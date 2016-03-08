@@ -1,46 +1,28 @@
 'use strict';
-(function (module) {
+(function(module) {
     module = angular.module('tink.gis.angular')
-        .controller('addLayerController', ['$scope', '$modalInstance', 'ThemeHelper', '$http', '$q', 'urls', 'MapService', 'MapData',
-            function ($scope, $modalInstance, ThemeHelper, $http, $q, urls, MapService, MapData) {
-                var EnabledThemes = angular.copy(MapData.Themes);
-                $scope.availableThemes = [];
-                var processUrls = function (urls) {
-                    var promises = [];
+        .controller('addLayerController', ['$scope', '$modalInstance', 'ThemeHelper', '$q', 'urls', 'MapService', 'MapData', 'GISService', 'LayerManagementService',
+            function($scope, $modalInstance, ThemeHelper, $q, urls, MapService, MapData, GISService, LayerManagementService) {
+                LayerManagementService.EnabledThemes.length = 0;
+                console.log(MapData.Themes);
+                LayerManagementService.EnabledThemes = angular.copy(MapData.Themes);
+                $scope.availableThemes = LayerManagementService.AvailableThemes;
+                var init = function() {
                     $scope.searchTerm = 'Laden...';
-                    _.each(urls, function (url) {
-                        var AlreadyAddedTheme = null
-                        EnabledThemes.forEach(theme=> { // OPTI kan paar loops minder door betere zoek in array te doen
-                            if (theme.Url == url) {
-                                AlreadyAddedTheme = theme;
-                            }
-                        });
-                        if (AlreadyAddedTheme == null) { // if we didn t get an alreadyadderdtheme we get the data
-                            var prom = $http.get(url);
-                            prom.success(function (data, statuscode, functie, getdata) {
-                                var convertedTheme = ThemeHelper.createThemeFromJson(data, getdata)
-                                $scope.availableThemes.push(convertedTheme);
-                                convertedTheme.status = ThemeStatus.NEW;
-                            });
-                            promises.push(prom);
-                        }
-                        else { // ah we already got it then just push it.
-                            AlreadyAddedTheme.status = ThemeStatus.UNMODIFIED;
-                            $scope.availableThemes.push(AlreadyAddedTheme);
-                        }
-                    });
-                    $q.all(promises).then(function (lagen) {
+                    var qwhenready = LayerManagementService.ProcessUrls(urls);
+                    console.log("ja");
+                    qwhenready.then(function(allelagen) {
+                        console.log("jaaaaa");
                         $scope.searchTerm = '';
                     });
-                };
-                processUrls(urls);
+                } ();
                 $scope.selectedTheme = null;
                 $scope.copySelectedTheme = null;
-                $scope.themeChanged = function (theme) {
+                $scope.themeChanged = function(theme) {
                     $scope.selectedTheme = theme;
                     $scope.copySelectedTheme = angular.copy(theme);
                 };
-                $scope.AddOrUpdateTheme = function () {
+                $scope.AddOrUpdateTheme = function() {
                     var allChecked = true;
                     var noneChecked = true;
                     for (var x = 0; x < $scope.copySelectedTheme.AllLayers.length; x++) { // aha dus update gebeurt, we gaan deze toevoegen.
@@ -54,7 +36,7 @@
                             noneChecked = false;
                         }
                     };
-                    var alreadyAdded = EnabledThemes.find(x=> x.Url === $scope.selectedTheme.Url) != undefined;
+                    var alreadyAdded = LayerManagementService.EnabledThemes.find(x => x.Url === $scope.selectedTheme.Url) != undefined;
                     if (noneChecked) {
                         //Niks is checked, dus we moeten deze 'deleten'.
                         $scope.selectedTheme.Added = false;
@@ -65,7 +47,7 @@
                             if (alreadyAdded) {
                                 var index = EnabledThemes.indexOf($scope.selectedTheme);
                                 if (index > -1) {
-                                    EnabledThemes.splice(index, 1);
+                                    LayerManagementService.EnabledThemes.splice(index, 1);
                                 }
                             }
                         }
@@ -78,7 +60,7 @@
                             $scope.selectedTheme.Added = null; // if not all added then we put it to null
                         }
                         if (alreadyAdded == false) { // it is a new theme!
-                            EnabledThemes.push($scope.selectedTheme);
+                            LayerManagementService.EnabledThemes.push($scope.selectedTheme);
                         } else { // already exist! It is an update!
                             if ($scope.selectedTheme.status != ThemeStatus.NEW) {
                                 $scope.selectedTheme.status = ThemeStatus.UPDATED;
@@ -94,10 +76,10 @@
                     $scope.copySelectedTheme = null;
                 };
 
-                $scope.ok = function () {
-                    $modalInstance.$close(EnabledThemes); // return the themes.
+                $scope.ok = function() {
+                    $modalInstance.$close(LayerManagementService.EnabledThemes); // return the themes.
                 };
-                $scope.cancel = function () {
+                $scope.cancel = function() {
                     $modalInstance.$dismiss('cancel is pressed'); // To close the controller with a dismiss message
                 };
 

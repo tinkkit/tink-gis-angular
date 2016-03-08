@@ -1,7 +1,7 @@
 'use strict';
-(function () {
+(function() {
     var module = angular.module('tink.gis.angular');
-    var mapData = function (map, $rootScope, HelperService) {
+    var mapData = function(map, $rootScope, HelperService) {
         var _data = {};
 
         _data.VisibleLayers = [];
@@ -17,12 +17,12 @@
         ];
         _data.Themes = [];
         var defaultlayer = { id: '', name: 'Alle Layers' };
-        _data.VisibleLayers.unshift(defaultlayer);
         _data.SelectedLayer = defaultlayer;
+        _data.VisibleLayers.unshift(defaultlayer);
         _data.ActiveInteractieKnop = ActiveInteractieButton.SELECT;
         _data.DrawingType = DrawingOption.NIETS;
         _data.DrawingObject = null;
-        _data.RemoveDrawings = function () {
+        _data.RemoveDrawings = function() {
             if (_data.DrawingObject) {
                 _data.DrawingObject.disable();
                 // map.removeLayer(_data.DrawingObject);
@@ -31,13 +31,13 @@
         };
         var WatIsHierMarker = null;
         var WatIsHierOriginalMarker = null;
-  
-        _data.CleanAll = function () {
+
+        _data.CleanAll = function() {
             _data.RemoveDrawings();
             _data.CleanMap();
             _data.CleanWatIsHier();
         };
-        _data.CleanWatIsHier = function () {
+        _data.CleanWatIsHier = function() {
             if (WatIsHierOriginalMarker) {
                 WatIsHierOriginalMarker.clearAllEventListeners();
                 WatIsHierOriginalMarker.closePopup();
@@ -50,7 +50,7 @@
             }
             straatNaam = null;
         };
-        _data.CreateOrigineleMarker = function (latlng, addressFound) {
+        _data.CreateOrigineleMarker = function(latlng, addressFound) {
             if (addressFound) {
                 var foundMarker = L.AwesomeMarkers.icon({
                     icon: 'fa-map-marker',
@@ -96,17 +96,17 @@
             }
 
 
-            WatIsHierOriginalMarker.on('popupclose', function (event) {
+            WatIsHierOriginalMarker.on('popupclose', function(event) {
                 _data.CleanWatIsHier();
             });
         };
         var straatNaam = null;
-        _data.CreateWatIsHierMarker = function (data) {
+        _data.CreateWatIsHierMarker = function(data) {
             var convertedBackToWSG84 = HelperService.ConvertLambert72ToWSG84(data.location)
             straatNaam = data.address.Street;
             var greenIcon = L.icon({
                 iconUrl: 'styles/fa-dot-circle-o_24_0_000000_none.png',
-                iconSize: [24, 24], 
+                iconSize: [24, 24],
                 // iconAnchor: [0, 0]
             });
 
@@ -114,7 +114,7 @@
             WatIsHierMarker = L.marker([convertedBackToWSG84.x, convertedBackToWSG84.y], { icon: greenIcon }).addTo(map);
 
         };
-        _data.CleanMap = function () {
+        _data.CleanMap = function() {
             for (var x = 0; x < _data.VisibleFeatures.length; x++) {
                 map.removeLayer(_data.VisibleFeatures[x]); //eerst de 
             }
@@ -122,7 +122,7 @@
             _data.JsonFeatures.length = 0;
             map.clearDrawings();
         };
-        _data.AddFeatures = function (features) {
+        _data.AddFeatures = function(features) {
             for (var x = 0; x < features.features.length; x++) {
                 var featureItem = features.features[x];
                 var myStyle = {
@@ -133,7 +133,7 @@
                 var mapItem = L.geoJson(featureItem, { style: myStyle }).addTo(map);
                 _data.VisibleFeatures.push(mapItem);
                 console.log(mapItem);
-                
+
             }
             $rootScope.$apply();
         };
