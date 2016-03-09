@@ -1,13 +1,15 @@
 'use strict';
-(function () {
+(function() {
     var module = angular.module('tink.gis.angular');
-    var service = function (map, ThemeHelper, MapData) {
+    var service = function(map, ThemeHelper, MapData, LayerManagementService) {
         var _service = {};
-        _service.AddAndUpdateThemes = function (themesBatch) {
+        _service.AddAndUpdateThemes = function(themesBatch) {
             themesBatch.forEach(theme => {
-                var existingTheme = MapData.Themes.find(x=> x.Url == theme.Url);
+                var existingTheme = MapData.Themes.find(x => x.Url == theme.Url);
                 switch (theme.status) {
                     case ThemeStatus.NEW:
+                        LayerManagementService.SetAditionalLayerInfo(theme);
+                        console.log(theme.CleanUrl);
                         _service.AddNewTheme(theme);
                         break;
                     case ThemeStatus.DELETED:
@@ -26,17 +28,17 @@
                 }
             });
         };
-        _service.UpdateThemeVisibleLayers = function (theme) {
+        _service.UpdateThemeVisibleLayers = function(theme) {
             theme.RecalculateVisibleLayerIds();
             console.log(theme.VisibleLayerIds);
             theme.MapData.setLayers(theme.VisibleLayerIds);
         }
-        _service.UpdateTheme = function (updatedTheme, existingTheme) {
+        _service.UpdateTheme = function(updatedTheme, existingTheme) {
             //lets update the existingTheme
             for (var x = 0; x < updatedTheme.AllLayers.length; x++) {
                 var updatedLayer = updatedTheme.AllLayers[x];
                 var existingLayer = existingTheme.AllLayers[x];
-              
+
                 //laten we alle Visible Layers nu terug toevoegen meteen juiste ref etc uit de geupdate theme.
                 if (updatedLayer.enabled && updatedLayer.visible) {
                     //eerst checken dat ze nog niet bestaan!.
@@ -61,9 +63,9 @@
             };
             existingTheme.RecalculateVisibleLayerIds();
         };
-        _service.AddNewTheme = function (theme) {
+        _service.AddNewTheme = function(theme) {
             MapData.Themes.push(theme);
-            _.each(theme.AllLayers, function (layer) {
+            _.each(theme.AllLayers, function(layer) {
                 if (layer.enabled && layer.visible && layer.type === LayerType.LAYER) {
                     console.log(layer.id);
                     MapData.VisibleLayers.push(layer);
@@ -81,15 +83,15 @@
                 useCors: true
             }).addTo(map);
             // _mapService.UpdateThemeVisibleLayers(theme);
-            theme.MapData.on('requeststart', function (obj) {
+            theme.MapData.on('requeststart', function(obj) {
                 console.log('requeststart');
             });
-            theme.MapData.on('requestsuccess', function (obj) {
+            theme.MapData.on('requestsuccess', function(obj) {
                 console.log('requestsuccess');
             });
 
         };
-        _service.DeleteTheme = function (theme) {
+        _service.DeleteTheme = function(theme) {
             theme.MapData.removeFrom(map);
             var themeIndex = MapData.Themes.indexOf(theme);
             if (themeIndex > -1) {
@@ -107,6 +109,6 @@
 
         return _service;
     };
-    module.$inject = ['map', 'ThemeHelper','MapData'];
+    module.$inject = ['map', 'ThemeHelper', 'MapData', 'LayerManagementService'];
     module.factory('ThemeService', service);
 })();

@@ -32,7 +32,8 @@
     "lodash": "^4.3.0",
     "tink-modal-angular": "^1.1.1",
     "proj4": "^2.3.12",
-    "Leaflet.awesome-markers": "^2.0.2"
+    "Leaflet.awesome-markers": "^2.0.2",
+    "angular-filter": "^0.5.8"
   },
   "devDependencies": {
     "angular-mocks": "~1.5.0",

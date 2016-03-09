@@ -4,15 +4,14 @@
         .controller('addLayerController', ['$scope', '$modalInstance', 'ThemeHelper', '$q', 'urls', 'MapService', 'MapData', 'GISService', 'LayerManagementService',
             function($scope, $modalInstance, ThemeHelper, $q, urls, MapService, MapData, GISService, LayerManagementService) {
                 LayerManagementService.EnabledThemes.length = 0;
+                LayerManagementService.AvailableThemes.length = 0;
                 console.log(MapData.Themes);
                 LayerManagementService.EnabledThemes = angular.copy(MapData.Themes);
                 $scope.availableThemes = LayerManagementService.AvailableThemes;
                 var init = function() {
                     $scope.searchTerm = 'Laden...';
                     var qwhenready = LayerManagementService.ProcessUrls(urls);
-                    console.log("ja");
                     qwhenready.then(function(allelagen) {
-                        console.log("jaaaaa");
                         $scope.searchTerm = '';
                     });
                 } ();

@@ -1,18 +1,18 @@
 'use strict';
-(function () {
+(function() {
     var module = angular.module('tink.gis.angular');
-    var mapEvents = function (map, MapService, MapData) {
+    var mapEvents = function(map, MapService, MapData) {
         var _mapEvents = {};
-        map.on('draw:drawstart', function (event) {
+        map.on('draw:drawstart', function(event) {
             console.log('draw started');
             MapData.IsDrawing = true;
             MapData.CleanMap();
         });
-        var berkenOmtrek = function (layer) {
+        var berkenOmtrek = function(layer) {
             // Calculating the distance of the polyline
             var tempLatLng = null;
             var totalDistance = 0.00000;
-            _.each(layer._latlngs, function (latlng) {
+            _.each(layer._latlngs, function(latlng) {
                 if (tempLatLng == null) {
                     tempLatLng = latlng;
                     return;
@@ -23,10 +23,10 @@
             });
             return totalDistance.toFixed(2);
         };
-        map.on('click', function (event) {
+        map.on('click', function(event) {
             console.log('click op map! Is drawing: ' + MapData.IsDrawing);
             if (!MapData.IsDrawing) {
-                MapData.CleanMap();
+                MapData.CleanAll();
                 switch (MapData.ActiveInteractieKnop) {
                     case ActiveInteractieButton.IDENTIFY:
                         MapService.Identify(event, 2);
@@ -67,7 +67,7 @@
         });
 
 
-        map.on('draw:created', function (e) {
+        map.on('draw:created', function(e) {
             console.log('draw created');
             console.log(e)
             switch (MapData.ActiveInteractieKnop) {

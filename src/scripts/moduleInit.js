@@ -1,10 +1,10 @@
 'use strict';
-(function () {
+(function() {
     var module;
     try {
         module = angular.module('tink.gis.angular');
     } catch (e) {
-        module = angular.module('tink.gis.angular', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal']); //'leaflet-directive'
+        module = angular.module('tink.gis.angular', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
     }
     module.constant('appConfig', {
         templateUrl: "/digipolis.stadinkaart.webui",
@@ -12,20 +12,20 @@
         enableDebug: true,
         enableLog: true
     });
-    module.directive('preventDefault', function () {
-        return function (scope, element, attrs) {
-            angular.element(element).bind('click', function (event) {
+    module.directive('preventDefault', function() {
+        return function(scope, element, attrs) {
+            angular.element(element).bind('click', function(event) {
                 event.preventDefault();
                 event.stopPropagation();
             });
-            angular.element(element).bind('dblclick', function (event) {
+            angular.element(element).bind('dblclick', function(event) {
                 event.preventDefault();
                 event.stopPropagation();
             });
         };
     });
 
-    var mapObject = function () {
+    var mapObject = function() {
         var map = L.map('map', {
             center: [51.2192159, 4.4028818],
             zoom: 16,
@@ -39,15 +39,15 @@
         map.doubleClickZoom.disable();
         L.control.scale({ imperial: false }).addTo(map);
         var drawnItems = L.featureGroup().addTo(map);
-        map.on('draw:created', function (event) {
+        map.on('draw:created', function(event) {
             var layer = event.layer;
             drawnItems.addLayer(layer);
         });
-        map.on('draw:drawstart', function (event) {
+        map.on('draw:drawstart', function(event) {
             console.log(drawnItems);
             map.clearDrawings();
         });
-        map.clearDrawings = function () {
+        map.clearDrawings = function() {
             drawnItems.clearLayers();
         }
 

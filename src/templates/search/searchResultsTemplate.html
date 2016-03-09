@@ -1,4 +1,6 @@
-<div ng-repeat="feature in srchrsltsctrl.features">
-    layerid: {{feature.layerId}}
-    <pre>{{feature.properties | json }}</pre>
-</div>
+<ul ng-if="!srchrsltsctrl.selectedResult" ng-repeat="layerGroupName in srchrsltsctrl.featureLayers">
+    <p class="nav-aside-title">{{layerGroupName}}</p>
+    <li ng-repeat="feature in srchrsltsctrl.features | filter: { layerName: layerGroupName }">
+        <a ng-click="srchrsltsctrl.showDetails(feature)">{{ feature.displayValue | limitTo : 23}}<br/>DETAILS</a>
+    </li>
+</ul>

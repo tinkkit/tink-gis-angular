@@ -17,7 +17,7 @@
                     }
                 });
                 if (AlreadyAddedTheme == null) { // if we didn t get an alreadyadderdtheme we get the data
-                    var prom = GISService.GetThemeData(url);
+                    var prom = GISService.GetThemeData(url + '?f=pjson');
                     prom.success(function(data, statuscode, functie, getdata) {
                         var convertedTheme = ThemeHelper.createThemeFromJson(data, getdata)
                         _service.AvailableThemes.push(convertedTheme);
@@ -34,6 +34,18 @@
             //     console.log(lagen);
             // });
             return $q.all(promises);
+        };
+        _service.SetAditionalLayerInfo = function(theme) {
+            console.log(theme.CleanUrl);
+            var prom = GISService.GetThemeLayerData(theme.CleanUrl);
+            prom.success(function(data, statuscode, functie, getdata) {
+                theme.AllLayers.forEach(layer => {
+                    var layerid = layer.id;
+                    var layerInfo = data.layers[layerid];
+                    var displayField = layerInfo.displayField;
+                    layer.displayField = layerInfo.displayField;
+                });
+            });
         };
         return _service;
     };

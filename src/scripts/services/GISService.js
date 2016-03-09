@@ -31,7 +31,10 @@
             var prom = $http.get(url);
             return prom;
         };
-
+        _service.GetThemeLayerData = function(mapServiceUrl) {
+            var prom = $http.get(mapServiceUrl + 'layers?f=pjson');
+            return prom;
+        };
         return _service;
     };
     module.$inject = ["$http", 'map', 'MapData', 'HelperService', '$rootScope'];

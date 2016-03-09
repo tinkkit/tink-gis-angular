@@ -1,10 +1,10 @@
 'use strict';
-(function (module) {
+(function(module) {
     module = angular.module('tink.gis.angular');
     var theController = module.controller('searchController',
-        function ($scope, MapData, map) {
+        function($scope, ResultsData, map) {
             var vm = this;
-            vm.features = MapData.JsonFeatures;
+            vm.features = ResultsData.JsonFeatures;
         });
-    theController.$inject = ['$scope', 'MapData', 'map'];
+    theController.$inject = ['$scope', 'ResultsData', 'map'];
 })();

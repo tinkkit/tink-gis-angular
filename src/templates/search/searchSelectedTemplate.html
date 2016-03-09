@@ -1,1 +1,3 @@
-<div>SELECTED TEMPLATE</div>
+<div ng-if="srchslctdctrl.selectedResult"><pre>{{srchslctdctrl.selectedResult.properties | json }}</pre>
+    <a ng-click="srchslctdctrl.close(srchslctdctrl.selectedResult)">Sluiten</a>
+</div>

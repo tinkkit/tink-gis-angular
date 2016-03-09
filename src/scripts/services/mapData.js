@@ -1,19 +1,18 @@
 'use strict';
 (function() {
     var module = angular.module('tink.gis.angular');
-    var mapData = function(map, $rootScope, HelperService) {
+    var mapData = function(map, $rootScope, HelperService, ResultsData) {
         var _data = {};
 
         _data.VisibleLayers = [];
         _data.SelectableLayers = [];
         _data.VisibleFeatures = [];
-        _data.JsonFeatures = [];
         _data.IsDrawing = false;
-        _data.ThemeUrls = ['http://app10.p.gis.local/arcgissql/rest/services/P_Stad/Afval/MapServer?f=pjson',
-            'http://app10.p.gis.local/arcgissql/rest/services/P_Stad/Cultuur/MapServer?f=pjson',
-            'http://app10.p.gis.local/arcgissql/rest/services/P_Stad/Jeugd/MapServer?f=pjson',
-            'http://app10.p.gis.local/arcgissql/rest/services/P_Stad/Onderwijs/MapServer?f=pjson',
-            'http://app10.p.gis.local/arcgissql/rest/services/P_Stad/stad/MapServer?f=pjson'
+        _data.ThemeUrls = ['http://app11.p.gis.local/arcgissql/rest/services/P_Stad/Afval/MapServer/',
+            'http://app11.p.gis.local/arcgissql/rest/services/P_Stad/Cultuur/MapServer/',
+            'http://app11.p.gis.local/arcgissql/rest/services/P_Stad/Jeugd/MapServer/',
+            'http://app11.p.gis.local/arcgissql/rest/services/P_Stad/Onderwijs/MapServer/',
+            'http://app11.p.gis.local/arcgissql/rest/services/P_Stad/stad/MapServer/'
         ];
         _data.Themes = [];
         var defaultlayer = { id: '', name: 'Alle Layers' };
@@ -36,6 +35,7 @@
             _data.RemoveDrawings();
             _data.CleanMap();
             _data.CleanWatIsHier();
+            ResultsData.CleanSearch();
         };
         _data.CleanWatIsHier = function() {
             if (WatIsHierOriginalMarker) {
@@ -119,27 +119,35 @@
                 map.removeLayer(_data.VisibleFeatures[x]); //eerst de 
             }
             _data.VisibleFeatures.length = 0;
-            _data.JsonFeatures.length = 0;
             map.clearDrawings();
         };
-        _data.AddFeatures = function(features) {
+        _data.AddFeatures = function(features, theme) {
             for (var x = 0; x < features.features.length; x++) {
                 var featureItem = features.features[x];
+                // console.log(theme);
+                // console.log(featureItem);
+                var layer = theme.AllLayers[featureItem.layerId];
+                if (layer.id != featureItem.layerId) {
+                    console.log("ERROR!! moet zelfde layer zijn!!!!!!");
+                }
+                // featureItem.layer = layer;
+                // featureItem.theme = theme;
+                featureItem.layerName = layer.name;
+                featureItem.displayValue = featureItem.properties[layer.displayField];
+                ResultsData.JsonFeatures.push(featureItem);
                 var myStyle = {
                     'fillOpacity': 0
                 };
-                _data.JsonFeatures.push(featureItem);
-                // console.log(featureItem);
                 var mapItem = L.geoJson(featureItem, { style: myStyle }).addTo(map);
                 _data.VisibleFeatures.push(mapItem);
-                console.log(mapItem);
+
 
             }
             $rootScope.$apply();
         };
         return _data;
     };
-    // module.$inject = ['map'];
+    module.$inject = ['ResultsData'];
     module.factory('MapData', mapData);
 })();
 
