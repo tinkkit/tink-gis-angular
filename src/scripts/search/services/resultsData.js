@@ -1,6 +1,6 @@
 'use strict';
 (function() {
-    var module = angular.module('tink.gis.angular');
+    var module = angular.module('tink.gis');
     var data = function() {
         var _data = {};
         _data.SelectedFeature = null;

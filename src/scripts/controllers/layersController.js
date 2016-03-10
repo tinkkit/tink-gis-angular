@@ -1,6 +1,6 @@
 'use strict';
 (function (module) {
-    module = angular.module('tink.gis.angular');
+    module = angular.module('tink.gis');
     var theController = module.controller('layersController', function (MapData, map, ThemeService, $modal) {
         var vm = this;
         vm.themes = MapData.Themes;

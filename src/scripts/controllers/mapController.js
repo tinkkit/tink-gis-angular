@@ -2,9 +2,9 @@
 
 'use strict';
 (function(module) {
-    module = angular.module('tink.gis.angular');
+    module = angular.module('tink.gis');
     var theController = module.controller('mapController', function($scope, BaseLayersService, MapService, MapData, map, MapEvents) {
-        //We need to include MapEvents, even tho we don t call it just to make sure it gets loaded! 
+        //We need to include MapEvents, even tho we don t call it just to make sure it gets loaded!
         var vm = this;
         vm.layerId = '';
         vm.activeInteractieKnop = MapData.ActiveInteractieKnop;
@@ -16,7 +16,7 @@
             MapData.CleanAll();
             MapData.ActiveInteractieKnop = ActiveButton; // If we only could keep the vmactiveInteractieKnop in sync with the one from MapData
             vm.activeInteractieKnop = ActiveButton;
-            //make controls invis 
+            //make controls invis
             toggleDrawControls(false);
             vm.showMetenControls = false;
             switch (ActiveButton) {

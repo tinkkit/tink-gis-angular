@@ -1,6 +1,6 @@
 'use strict';
 (function (module) {
-    module = angular.module('tink.gis.angular');
+    module = angular.module('tink.gis');
     module.directive('tinkSearch', function () {
         return {
             // restrict: 'E',

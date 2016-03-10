@@ -2,7 +2,7 @@
 //http://proj4js.org/
 'use strict';
 (function() {
-    var module = angular.module('tink.gis.angular');
+    var module = angular.module('tink.gis');
     var service = function($http, map, MapData, HelperService, $rootScope) {
         var _service = {};
         _service.ReverseGeocode = function(event) {

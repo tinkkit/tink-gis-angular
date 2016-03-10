@@ -1,6 +1,6 @@
 'use strict';
 (function() {
-    var module = angular.module('tink.gis.angular');
+    var module = angular.module('tink.gis');
     var service = function() {
         var _service = {};
         proj4.defs('LAMBERT72', '+proj=lcc +lat_1=51.16666723333334 +lat_2=49.83333389999999 +lat_0=90 +lon_0=4.367486666666666 +x_0=150000.013 +y_0=5400088.438'

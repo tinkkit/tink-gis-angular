@@ -24,7 +24,7 @@ module.exports = function (grunt) {
     dist: 'dist',
     version: currentversion,
     module: require('./package.json').name,
-    domain: 'tink.gis.angular'
+    domain: 'tink.gis'
   };
 
   // Define the configuration for all the tasks

@@ -1,6 +1,6 @@
 'use strict';
 (function() {
-    var module = angular.module('tink.gis.angular');
+    var module = angular.module('tink.gis');
     var mapEvents = function(map, MapService, MapData) {
         var _mapEvents = {};
         map.on('draw:drawstart', function(event) {

@@ -1,6 +1,6 @@
 'use strict';
 (function(module) {
-    module = angular.module('tink.gis.angular')
+    module = angular.module('tink.gis')
         .controller('addLayerController', ['$scope', '$modalInstance', 'ThemeHelper', '$q', 'urls', 'MapService', 'MapData', 'GISService', 'LayerManagementService',
             function($scope, $modalInstance, ThemeHelper, $q, urls, MapService, MapData, GISService, LayerManagementService) {
                 LayerManagementService.EnabledThemes.length = 0;
@@ -53,7 +53,7 @@
                     }
                     else { // het is dus geen delete
                         if (allChecked) {
-                            $scope.selectedTheme.Added = true; // here we can set the Added to true when they are all added 
+                            $scope.selectedTheme.Added = true; // here we can set the Added to true when they are all added
                         }
                         else {
                             $scope.selectedTheme.Added = null; // if not all added then we put it to null

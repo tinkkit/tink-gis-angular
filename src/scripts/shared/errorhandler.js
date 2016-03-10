@@ -1,14 +1,14 @@
 // (function() {
-// 
+//
 //     'use strict';
-// 
+//
 //     var componentName = "ErrorHandler";
 //     var theComponent = function(appService) {
-// 
+//
 //         function _handle(errorResponse) {
-// 
+//
 //             // ToDo : vervang onderstaande door eigen error handling, indien gewenst
-// 
+//
 //             var message = "fout bij call naar " + errorResponse.config.url + " (" + errorResponse.config.method + ") - " + errorResponse.status + " ";
 //             if (errorResponse.data) {
 //                 if (errorResponse.data.message)
@@ -20,7 +20,7 @@
 //             }
 //             appService.logger.error(message);
 //         }
-// 
+//
 //         function _getErrorMessage(errorResponse, defaultMessage) {
 //             defaultMessage = defaultMessage || "unknown error";
 //             if (errorResponse.data) {
@@ -50,20 +50,20 @@
 //                     return defaultMessage;
 //             }
 //         }
-// 
+//
 //         /* +++++ public interface +++++ */
-// 
+//
 //         appService.logger.creation(componentName);
-// 
+//
 //         return {
 //             handle: _handle,
 //             getErrorMessage: _getErrorMessage,
 //         };
-// 
+//
 //     };
-// 
+//
 //     theComponent.$inject = ['AppService'];
-// 
-//     angular.module('tink.gis.angular').factory(componentName, theComponent);
-// 
+//
+//     angular.module('tink.gis').factory(componentName, theComponent);
+//
 // })();

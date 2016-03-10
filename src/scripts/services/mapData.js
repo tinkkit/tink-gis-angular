@@ -1,6 +1,6 @@
 'use strict';
 (function() {
-    var module = angular.module('tink.gis.angular');
+    var module = angular.module('tink.gis');
     var mapData = function(map, $rootScope, HelperService, ResultsData) {
         var _data = {};
 
@@ -116,7 +116,7 @@
         };
         _data.CleanMap = function() {
             for (var x = 0; x < _data.VisibleFeatures.length; x++) {
-                map.removeLayer(_data.VisibleFeatures[x]); //eerst de 
+                map.removeLayer(_data.VisibleFeatures[x]); //eerst de
             }
             _data.VisibleFeatures.length = 0;
             map.clearDrawings();

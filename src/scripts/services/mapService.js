@@ -2,9 +2,9 @@
 (function() {
     var module;
     try {
-        module = angular.module('tink.gis.angular');
+        module = angular.module('tink.gis');
     } catch (e) {
-        module = angular.module('tink.gis.angular', ['tink.accordion', 'tink.tinkApi', 'tink.modal']); //'leaflet-directive'
+        module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'tink.modal']); //'leaflet-directive'
     }
     var mapService = function($rootScope, MapData, map, ThemeHelper, $q, GISService) {
         var _mapService = {};

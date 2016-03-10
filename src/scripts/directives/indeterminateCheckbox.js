@@ -1,7 +1,7 @@
 'use strict';
 (function (module) {
 
-    angular.module('tink.gis.angular').directive('indeterminateCheckbox', [function () {
+    angular.module('tink.gis').directive('indeterminateCheckbox', [function () {
         return {
             scope: true,
             require: '?ngModel',

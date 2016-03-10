@@ -4,9 +4,9 @@
 (function () {
 
     try {
-        var module = angular.module('tink.gis.angular');
+        var module = angular.module('tink.gis');
     } catch (e) {
-        var module = angular.module('tink.gis.angular', ['tink.accordion', 'tink.tinkApi']); //'leaflet-directive'
+        var module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi']); //'leaflet-directive'
     }
     var baseLayersService = function () {
         var _baseLayersService = {};

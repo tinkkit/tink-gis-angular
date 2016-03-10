@@ -1,6 +1,6 @@
 'use strict';
 (function (module) {
-    module = angular.module('tink.gis.angular');
+    module = angular.module('tink.gis');
     module.controller('themeController', ['$scope', 'MapService', 'ThemeService',
         function ($scope, MapService, ThemeService) {
             var vm = this;

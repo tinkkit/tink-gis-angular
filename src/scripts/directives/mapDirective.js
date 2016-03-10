@@ -1,6 +1,6 @@
 'use strict';
 (function (module) {
-    module = angular.module('tink.gis.angular');
+    module = angular.module('tink.gis');
     module.directive('tinkMap', function () {
         return {
             replace: true,
@@ -9,4 +9,4 @@
             controllerAs: 'mapctrl'
         };
     });
-})();           
+})();

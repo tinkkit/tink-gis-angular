@@ -1,6 +1,6 @@
 'use strict';
 (function() {
-    var module = angular.module('tink.gis.angular');
+    var module = angular.module('tink.gis');
     var service = function(MapData, $http, $q, GISService, ThemeHelper) {
         var _service = {};
         _service.EnabledThemes = [];
