@@ -14,6 +14,7 @@
                 success(function(data, status, headers, config) {
                     if (!data.error) {
                         MapData.CreateWatIsHierMarker(data);
+                        console.log(data);
                         MapData.CreateOrigineleMarker(event.latlng, true);
                     }
                     else {

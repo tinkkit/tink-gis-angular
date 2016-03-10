@@ -7,8 +7,7 @@
         _data.JsonFeatures = [];
         _data.CleanSearch = function() {
             _data.JsonFeatures.length = 0;
-            console.log("clearing");
-            console.log(_data.JsonFeatures);
+            _data.SelectedFeature = null;
         };
         return _data;
     };

@@ -103,7 +103,7 @@
         var straatNaam = null;
         _data.CreateWatIsHierMarker = function(data) {
             var convertedBackToWSG84 = HelperService.ConvertLambert72ToWSG84(data.location)
-            straatNaam = data.address.Street;
+            straatNaam = data.address.Street + " (" + data.address.Postal + ")";
             var greenIcon = L.icon({
                 iconUrl: 'styles/fa-dot-circle-o_24_0_000000_none.png',
                 iconSize: [24, 24],
@@ -124,8 +124,6 @@
         _data.AddFeatures = function(features, theme) {
             for (var x = 0; x < features.features.length; x++) {
                 var featureItem = features.features[x];
-                // console.log(theme);
-                // console.log(featureItem);
                 var layer = theme.AllLayers[featureItem.layerId];
                 if (layer.id != featureItem.layerId) {
                     console.log("ERROR!! moet zelfde layer zijn!!!!!!");
@@ -134,12 +132,14 @@
                 // featureItem.theme = theme;
                 featureItem.layerName = layer.name;
                 featureItem.displayValue = featureItem.properties[layer.displayField];
-                ResultsData.JsonFeatures.push(featureItem);
                 var myStyle = {
                     'fillOpacity': 0
                 };
                 var mapItem = L.geoJson(featureItem, { style: myStyle }).addTo(map);
                 _data.VisibleFeatures.push(mapItem);
+                featureItem.mapItem = mapItem;
+                ResultsData.JsonFeatures.push(featureItem);
+
 
 
             }
