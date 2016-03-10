@@ -1,6 +1,6 @@
 <ul ng-if="!srchrsltsctrl.selectedResult" ng-repeat="layerGroupName in srchrsltsctrl.featureLayers">
     <p class="nav-aside-title">{{layerGroupName}}</p>
-    <li ng-repeat="feature in srchrsltsctrl.features | filter: { layerName: layerGroupName }" ng-mouseover="feature.hoverEdit = true"
+    <li ng-repeat="feature in srchrsltsctrl.features | filter: { layerName:layerGroupName } :true" ng-mouseover="feature.hoverEdit = true"
     ng-mouseleave="feature.hoverEdit = false">
         <a ng-if="!feature.hoverEdit" ng-click="srchrsltsctrl.showDetails(feature)">{{ feature.displayValue | limitTo : 23}}<br/>DETAILS</a>
         <div ng-if="feature.hoverEdit">

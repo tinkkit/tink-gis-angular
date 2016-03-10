@@ -139,6 +139,8 @@
                 _data.VisibleFeatures.push(mapItem);
                 featureItem.mapItem = mapItem;
                 ResultsData.JsonFeatures.push(featureItem);
+                console.log(featureItem.id);
+                console.log(featureItem);
 
 
 
