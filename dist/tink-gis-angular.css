@@ -305,3 +305,24 @@ button.btn.active {
 .modal-footer {
   padding: 15px;
   border-top: 1px solid gray; }
+
+.row-no-padding [class*="col-"] {
+  padding-left: 0 !important;
+  padding-right: 0 !important; }
+
+.container.container-low-padding {
+  padding-left: 0.46875rem;
+  padding-right: 0.46875rem; }
+
+.leaflet-popup-content-wrapper {
+  border-radius: 6px; }
+
+.makeblock {
+  display: block !important; }
+
+.nav-aside {
+  width: 25rem !important; }
+
+.tink-map {
+  padding-right: 25rem !important;
+  padding-left: 25rem !important; }

@@ -1,37 +1,25 @@
 'use strict';
 (function(module) {
-    module = angular.module('tink.gis.angular')
-        .controller('addLayerController', ['$scope', '$modalInstance', 'ThemeHelper', '$http', '$q', 'urls', 'MapService', function($scope, $modalInstance, ThemeHelper, $http, $q, urls, MapService) {
-            var EnabledThemes = angular.copy(MapService.Themes);
-            $scope.availableThemes = [];
-            var processUrls = function(urls) {
-                var promises = [];
+    var module;
+    try {
+        module = angular.module('tink.gis');
+    } catch (e) {
+        module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
+    }
+    module.controller('addLayerController', ['$scope', '$modalInstance', 'ThemeHelper', '$q', 'urls', 'MapService', 'MapData', 'GISService', 'LayerManagementService',
+        function($scope, $modalInstance, ThemeHelper, $q, urls, MapService, MapData, GISService, LayerManagementService) {
+            LayerManagementService.EnabledThemes.length = 0;
+            LayerManagementService.AvailableThemes.length = 0;
+            console.log(MapData.Themes);
+            LayerManagementService.EnabledThemes = angular.copy(MapData.Themes);
+            $scope.availableThemes = LayerManagementService.AvailableThemes;
+            var init = function() {
                 $scope.searchTerm = 'Laden...';
-                _.each(urls, function(url) {
-                    var AlreadyAddedTheme = null
-                    EnabledThemes.forEach(function(theme) { // OPTI kan paar loops minder door betere zoek in array te doen
-                        if (theme.Url == url) {
-                            AlreadyAddedTheme = theme;
-                        }
-                    });
-                    if (AlreadyAddedTheme == null) { // if we didn t get an alreadyadderdtheme we get the data
-                        var prom = $http.get(url).success(function(data, statuscode, functie, getdata) {
-                            var convertedTheme = ThemeHelper.createThemeFromJson(data, getdata)
-                            $scope.availableThemes.push(convertedTheme);
-                            convertedTheme.status = ThemeStatus.NEW;
-                        });
-                        promises.push(prom);
-                    }
-                    else { // ah we already got it then just push it.
-                        AlreadyAddedTheme.status = ThemeStatus.UNMODIFIED;
-                        $scope.availableThemes.push(AlreadyAddedTheme);
-                    }
-                });
-                $q.all(promises).then(function(lagen) {
+                var qwhenready = LayerManagementService.ProcessUrls(urls);
+                qwhenready.then(function(allelagen) {
                     $scope.searchTerm = '';
                 });
-            };
-            processUrls(urls);
+            } ();
             $scope.selectedTheme = null;
             $scope.copySelectedTheme = null;
             $scope.themeChanged = function(theme) {
@@ -52,7 +40,7 @@
                         noneChecked = false;
                     }
                 };
-                var alreadyAdded = EnabledThemes.find(function(x) { x.Url === $scope.selectedTheme.Url }) != undefined;
+                var alreadyAdded = LayerManagementService.EnabledThemes.find(function(x) { x.Url === $scope.selectedTheme.Url }) != undefined;
                 if (noneChecked) {
                     //Niks is checked, dus we moeten deze 'deleten'.
                     $scope.selectedTheme.Added = false;
@@ -63,27 +51,20 @@
                         if (alreadyAdded) {
                             var index = EnabledThemes.indexOf($scope.selectedTheme);
                             if (index > -1) {
-                                EnabledThemes.splice(index, 1);
+                                LayerManagementService.EnabledThemes.splice(index, 1);
                             }
                         }
                     }
                 }
                 else { // het is dus geen delete
                     if (allChecked) {
-                        $scope.selectedTheme.Added = true; // here we can set the Added to true when they are all added 
+                        $scope.selectedTheme.Added = true; // here we can set the Added to true when they are all added
                     }
                     else {
                         $scope.selectedTheme.Added = null; // if not all added then we put it to null
                     }
-
-                    // var alreadyAdded = false;
-                    // EnabledThemes.forEach(theme=> { // OPTI kan paar loops minder door betere zoek in array te doen
-                    //     if (theme.Url == $scope.selectedTheme.Url) {
-                    //         alreadyAdded = true;
-                    //     }
-                    // });
                     if (alreadyAdded == false) { // it is a new theme!
-                        EnabledThemes.push($scope.selectedTheme);
+                        LayerManagementService.EnabledThemes.push($scope.selectedTheme);
                     } else { // already exist! It is an update!
                         if ($scope.selectedTheme.status != ThemeStatus.NEW) {
                             $scope.selectedTheme.status = ThemeStatus.UPDATED;
@@ -100,145 +81,144 @@
             };
 
             $scope.ok = function() {
-                $modalInstance.$close(EnabledThemes); // return the themes.
+                $modalInstance.$close(LayerManagementService.EnabledThemes); // return the themes.
             };
             $scope.cancel = function() {
                 $modalInstance.$dismiss('cancel is pressed'); // To close the controller with a dismiss message
             };
 
         }]);
-})();; 'use strict';
-(function(module) {
+})();;'use strict';
+(function (module) {
     try {
-        var module = angular.module('tink.gis.angular');
+        var module = angular.module('tink.gis');
     } catch (e) {
-        var module = angular.module('tink.gis.angular', ['tink.accordion', 'tink.tinkApi']); //'leaflet-directive'
+        var module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi']); //'leaflet-directive'
     }
-    module = angular.module('tink.gis.angular');
+    module = angular.module('tink.gis');
     module.controller('groupLayerController',
-        function($scope) {
+        function ($scope) {
             var vm = this;
             vm.grouplayer = $scope.grouplayer;
-            vm.chkChanged = function() {
+            vm.chkChanged = function () {
                 $scope.$emit('groupCheckboxChangedEvent', $scope.grouplayer); // stuur naar parent ofwel group ofwel theme
             };
         });
-})();; 'use strict';
-(function(module) {
+})();;'use strict';
+(function (module) {
     try {
-        var module = angular.module('tink.gis.angular');
+        var module = angular.module('tink.gis');
     } catch (e) {
-        var module = angular.module('tink.gis.angular', ['tink.accordion', 'tink.tinkApi']); //'leaflet-directive'
+        var module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi']); //'leaflet-directive'
     }
-    var theController = module.controller('layerController', function($scope) {
+    var theController = module.controller('layerController', function ($scope) {
         var vm = this;
         vm.layer = $scope.layer;
-        vm.chkChanged = function() {
+        vm.chkChanged = function () {
             $scope.$emit('layerCheckboxChangedEvent', $scope.layer); // stuur naar parent ofwel group ofwel theme
         };
     });
     theController.$inject = [];
-})();; 'use strict';
-(function(module) {
-    module = angular.module('tink.gis.angular');
-    var theController = module.controller('layersController', function($http, map, MapService, $modal) {
+})();;'use strict';
+(function (module) {
+    module = angular.module('tink.gis');
+    var theController = module.controller('layersController', function (MapData, map, ThemeService, $modal) {
         var vm = this;
-        vm.themes = MapService.Themes;
+        vm.themes = MapData.Themes;
         vm.selectedLayers = [];
-        vm.AddLayers = function() {
+        vm.AddLayers = function () {
             var addLayerInstance = $modal.open({
                 templateUrl: 'templates/modals/addLayerModalTemplate.html',
                 controller: 'addLayerController',
                 resolve: {
                     backdrop: false,
                     keyboard: true,
-                    urls: function() {
-                        return MapService.ThemeUrls;
+                    urls: function () {
+                        return MapData.ThemeUrls;
                     }
                 }
             });
-            addLayerInstance.result.then(function(selectedThemes) {
-                MapService.AddAndUpdateThemes(selectedThemes);
-            }, function(obj) {
+            addLayerInstance.result.then(function (selectedThemes) {
+                ThemeService.AddAndUpdateThemes(selectedThemes);
+            }, function (obj) {
                 console.log('Modal dismissed at: ' + new Date()); // The contoller is closed by the use of the $dismiss call
             });
         };
     });
-    theController.$inject = ['$http', 'map', 'MapService', '$modal'];
+    theController.$inject = ['MapData', 'map', 'ThemeService', '$modal'];
 })();;/// <reference path="../services/mapService.js" />
 
 'use strict';
 (function(module) {
-    module = angular.module('tink.gis.angular');
-    var theController = module.controller('mapController', function($scope, BaseLayersService, MapService, $http, map) {
+    module = angular.module('tink.gis');
+    var theController = module.controller('mapController', function($scope, BaseLayersService, MapService, MapData, map, MapEvents) {
+        //We need to include MapEvents, even tho we don t call it just to make sure it gets loaded!
         var vm = this;
         vm.layerId = '';
-        vm.activeInteractieKnop = 'select';
-        vm.SelectableLayers = MapService.VisibleLayers;
-
-        vm.selectedLayer = {};
-        map.on('click', function(event) {
-            console.log('click op map!');
-            if (!IsDrawing) {
-                cleanMapAndSearch();
-                switch (vm.activeInteractieKnop) {
-                    case 'identify':
-                        MapService.Identify(event, 2);
-                        break;
-                    case 'select':
-                        if (_.isEmpty(vm.selectedLayer)) {
-                            console.log('Geen layer selected! kan dus niet opvragen');
-                        }
-                        else {
-                            MapService.Select(event); // click is gewoon een identify maar dan op selectedlayer.
-                        }
-                        break;
-                    default:
-                        console.log('MAG NIET!!!!!!!!');
-                        break;
-                }
-                // $scope.$apply();
+        vm.activeInteractieKnop = MapData.ActiveInteractieKnop;
+        vm.SelectableLayers = MapData.VisibleLayers;
+        vm.selectedLayer = MapData.SelectedLayer;
+        vm.drawingType = MapData.DrawingType
+        vm.showMetenControls = false;
+        vm.interactieButtonChanged = function(ActiveButton) {
+            MapData.CleanAll();
+            MapData.ActiveInteractieKnop = ActiveButton; // If we only could keep the vmactiveInteractieKnop in sync with the one from MapData
+            vm.activeInteractieKnop = ActiveButton;
+            //make controls invis
+            toggleDrawControls(false);
+            vm.showMetenControls = false;
+            switch (ActiveButton) {
+                case ActiveInteractieButton.SELECT:
+                    toggleDrawControls(true);
+                    break;
+                case ActiveInteractieButton.METEN:
+                    vm.showMetenControls = true;
+                    break;
             }
-        });
-        var IsDrawing = false;
-        map.on('draw:drawstart', function(event) {
-            console.log('draw started');
-            IsDrawing = true;
-            cleanMapAndSearch();
-        });
-        map.on('draw:created', function(event) {
-            console.log('draw created');
-            console.log(event);
-            if (_.isEmpty(vm.selectedLayer)) {
-                console.log('Geen layer selected! kan dus niet opvragen');
+        };
+        var toggleDrawControls = function(showControls) {
+            if (showControls) {
+                $('.leaflet-draw.leaflet-control').show();
             }
             else {
-                MapService.Query(event, vm.selectedLayer);
-                $scope.$apply();
+                $('.leaflet-draw.leaflet-control').hide();
             }
-            IsDrawing = false;
-        });
-        var cleanMapAndSearch = function() {
-            for (var x = 0; x < MapService.VisibleFeatures.length; x++) {
-                map.removeLayer(MapService.VisibleFeatures[x]); //eerst de 
+        };
+        vm.drawingButtonChanged = function(drawOption) {
+            MapData.CleanAll();
+            MapData.RemoveDrawings();
+            MapData.DrawingType = drawOption; // pff must be possible to be able to sync them...
+            vm.drawingType = drawOption;
+            switch (MapData.DrawingType) {
+                case DrawingOption.AFSTAND:
+                    MapData.DrawingObject = new L.Draw.Polyline(map);
+                    MapData.DrawingObject.enable();
+                    break;
+                case DrawingOption.OPPERVLAKTE:
+                    var polygon_options = {
+                        showArea: true,
+                        shapeOptions: {
+                            stroke: true,
+                            color: '#22528b',
+                            weight: 4,
+                            opacity: 0.5,
+                            fill: true,
+                            fillColor: null, //same as color by default
+                            fillOpacity: 0.6,
+                            clickable: true
+                        }
+                    }
+                    MapData.DrawingObject = new L.Draw.Polygon(map, polygon_options);
+                    MapData.DrawingObject.enable();
+                    break;
+                default:
+                    break;
             }
-            MapService.VisibleFeatures.length = 0;
-            MapService.JsonFeatures.length = 0;
-            map.clearDrawings();
-        };
-        vm.identify = function() {
-            cleanMapAndSearch();
-            vm.activeInteractieKnop = 'identify';
-            $('.leaflet-draw.leaflet-control').hide();
-        };
-        vm.select = function() {
-            cleanMapAndSearch();
-            vm.activeInteractieKnop = 'select';
-            $('.leaflet-draw.leaflet-control').show();
         };
         vm.layerChange = function() {
-            cleanMapAndSearch();
-            MapService.SelectedLayer = vm.selectedLayer;
+            MapData.CleanMap();
+            // console.log("vm.sel: " + vm.selectedLayer.id + "/ MapData.SelectedLayer: " + MapData.Layer.SelectedLayer.id);
+            MapData.SelectedLayer = vm.selectedLayer;
         };
         vm.zoomIn = function() {
             map.zoomIn();
@@ -261,43 +241,35 @@
             map.addLayer(BaseLayersService.luchtfoto);
         };
     });
-    theController.$inject = ['BaseLayersService', 'MapService', '$http', 'map'];
-})();; 'use strict';
-(function(module) {
-    module = angular.module('tink.gis.angular');
-    var theController = module.controller('searchController',
-        function($scope, MapService, map) {
+    theController.$inject = ['BaseLayersService', 'MapService', 'MapData', 'map', 'MapEvents'];
+})();;'use strict';
+(function (module) {
+    module = angular.module('tink.gis');
+    module.controller('themeController', ['$scope', 'MapService', 'ThemeService',
+        function ($scope, MapService, ThemeService) {
             var vm = this;
-            vm.features = MapService.JsonFeatures;
-        });
-    theController.$inject = ['$scope', 'MapService', 'map'];
-})();; 'use strict';
-(function(module) {
-    module = angular.module('tink.gis.angular');
-    module.controller('themeController', ['$scope', 'MapService',
-        function($scope, MapService) {
-            var vm = this;
+            console.log("Theme geladen");
             vm.theme = $scope.theme;
-            $scope.$on('groupCheckboxChangedEvent', function(event, groupLayer) { // stuur het door naar het thema
+            $scope.$on('groupCheckboxChangedEvent', function (event, groupLayer) { // stuur het door naar het thema
                 MapService.UpdateGroupLayerStatus(groupLayer, vm.theme);
-                MapService.UpdateThemeVisibleLayers(vm.theme);
+                ThemeService.UpdateThemeVisibleLayers(vm.theme);
             });
-            $scope.$on('layerCheckboxChangedEvent', function(event, layer) { // stuur het door naar het thema
+            $scope.$on('layerCheckboxChangedEvent', function (event, layer) { // stuur het door naar het thema
                 MapService.UpdateLayerStatus(layer, vm.theme);
-                MapService.UpdateThemeVisibleLayers(vm.theme);
+                ThemeService.UpdateThemeVisibleLayers(vm.theme);
             });
-            vm.chkChanged = function() {
+            vm.chkChanged = function () {
                 MapService.UpdateThemeStatus(vm.theme);
-                MapService.UpdateThemeVisibleLayers(vm.theme);
+                ThemeService.UpdateThemeVisibleLayers(vm.theme);
             };
-            vm.deleteTheme = function() {
-                MapService.DeleteTheme(vm.theme);
+            vm.deleteTheme = function () {
+                ThemeService.DeleteTheme(vm.theme);
             }
         }]);
-})();; 'use strict';
-(function(module) {
-    module = angular.module('tink.gis.angular');
-    module.directive('tinkGrouplayer', function() {
+})();;'use strict';
+(function (module) {
+    module = angular.module('tink.gis');
+    module.directive('tinkGrouplayer', function () {
         return {
             replace: true,
             scope: {
@@ -308,10 +280,10 @@
             controllerAs: 'grplyrctrl'
         };
     });
-})();; 'use strict';
+})();;'use strict';
 (function(module) {
 
-    angular.module('tink.gis.angular').directive('indeterminateCheckbox', [function() {
+    angular.module('tink.gis').directive('indeterminateCheckbox', [function() {
         return {
             scope: true,
             require: '?ngModel',
@@ -330,7 +302,7 @@
                 });
                 //https://tech.small-improvements.com/2014/06/11/deep-watching-circular-data-structures-in-angular/
                 function watchChildrenListWithProperty() {
-                    return scope.$eval(childList).map(x => x[property]);
+                    return scope.$eval(childList).map(function(x) { x[property] });
                 }
                 // Watch the children for changes
                 scope.$watch(watchChildrenListWithProperty, function(newValue, oldValue) {
@@ -364,10 +336,10 @@
             }
         };
     }]);
-})();; 'use strict';
-(function(module) {
-    module = angular.module('tink.gis.angular');
-    module.directive('tinkLayer', function() {
+})();;'use strict';
+(function (module) {
+    module = angular.module('tink.gis');
+    module.directive('tinkLayer', function () {
         return {
             replace: true,
             scope: {
@@ -378,10 +350,10 @@
             controllerAs: 'lyrctrl'
         };
     });
-})();; 'use strict';
-(function(module) {
-    module = angular.module('tink.gis.angular');
-    module.directive('tinkLayers', function() {
+})();;'use strict';
+(function (module) {
+    module = angular.module('tink.gis');
+    module.directive('tinkLayers', function () {
         return {
             replace: true,
             templateUrl: 'templates/layersTemplate.html',
@@ -389,10 +361,10 @@
             controllerAs: 'lyrsctrl'
         };
     });
-})();; 'use strict';
-(function(module) {
-    module = angular.module('tink.gis.angular');
-    module.directive('tinkMap', function() {
+})();;'use strict';
+(function (module) {
+    module = angular.module('tink.gis');
+    module.directive('tinkMap', function () {
         return {
             replace: true,
             templateUrl: 'templates/mapTemplate.html',
@@ -400,22 +372,10 @@
             controllerAs: 'mapctrl'
         };
     });
-})();; 'use strict';
-(function(module) {
-    module = angular.module('tink.gis.angular');
-    module.directive('tinkSearch', function() {
-        return {
-            // restrict: 'E',
-            replace: true,
-            templateUrl: 'templates/searchTemplate.html',
-            controller: 'searchController',
-            controllerAs: 'srchctrl'
-        };
-    });
-})();; 'use strict';
-(function(module) {
-    module = angular.module('tink.gis.angular');
-    module.directive('tinkTheme', function() {
+})();;'use strict';
+(function (module) {
+    module = angular.module('tink.gis');
+    module.directive('tinkTheme', function () {
         return {
             replace: true,
             scope: {
@@ -426,13 +386,13 @@
             controllerAs: 'thmctrl'
         };
     });
-})();; 'use strict';
+})();;'use strict';
 (function() {
     var module;
     try {
-        module = angular.module('tink.gis.angular');
+        module = angular.module('tink.gis');
     } catch (e) {
-        module = angular.module('tink.gis.angular', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal']); //'leaflet-directive'
+        module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
     }
     module.constant('appConfig', {
         templateUrl: "/digipolis.stadinkaart.webui",
@@ -452,11 +412,15 @@
             });
         };
     });
+
     var mapObject = function() {
         var map = L.map('map', {
             center: [51.2192159, 4.4028818],
             zoom: 16,
+            // maxZoom: 21,
+            // minZoom: 10,
             layers: L.tileLayer('http://tiles.arcgis.com/tiles/1KSVSmnHT2Lw9ea6/arcgis/rest/services/basemap_stadsplan_v6/MapServer/tile/{z}/{y}/{x}', { id: 'kaart' }),
+            // layers: L.tileLayer('http://app10.p.gis.local/arcgissql/rest/services/P_Publiek/P_basemap_wgs84/MapServer', { id: 'kaart' }),
             zoomControl: false,
             drawControl: true
         });
@@ -480,167 +444,469 @@
 
     module.factory("map", mapObject);
 })();
+// L.AwesomeMarkers.Icon.prototype.options.prefix = 'fa';
+
 //Moet plaats voor zoeken!!! Enums in Angular hmm
 var ThemeStatus = { // http://stijndewitt.com/2014/01/26/enums-in-javascript/
     UNMODIFIED: 0,
     NEW: 1,
     UPDATED: 2,
     DELETED: 3
-    // properties: {
-    //     1: { name: "small", value: 1, code: "S" },
-    //     2: { name: "medium", value: 2, code: "M" },
-    //     3: { name: "large", value: 3, code: "L" }
-    // }
-};; 'use strict';
-
-
+};
+var LayerType = {
+    LAYER: 0,
+    GROUP: 1
+};
+var ActiveInteractieButton = {
+    IDENTIFY: "identify",
+    SELECT: "select",
+    METEN: "meten",
+    WATISHIER: "watishier"
+};
+var DrawingOption = {
+    NIETS: '',
+    AFSTAND: 'afstand',
+    OPPERVLAKTE: 'oppervlakte'
+};;//http://app10.p.gis.local/arcgissql/rest/services/COMLOC_CRAB_NAVTEQ/GeocodeServer/reverseGeocode
+//http://proj4js.org/
+'use strict';
 (function() {
+    var module = angular.module('tink.gis');
+    var service = function($http, map, MapData, HelperService, $rootScope) {
+        var _service = {};
+        _service.ReverseGeocode = function(event) {
+            var lambert72Cords = HelperService.ConvertWSG84ToLambert72(event.latlng);
+            var loc = lambert72Cords.x + "," + lambert72Cords.y;
+            var urlloc = encodeURIComponent(loc);
+            MapData.CleanWatIsHier();
+            $http.get('http://app10.p.gis.local/arcgissql/rest/services/COMLOC_CRAB_NAVTEQ/GeocodeServer/reverseGeocode?location=' + urlloc + '&distance=50&outSR=&f=json').
+                success(function(data, status, headers, config) {
+                    if (!data.error) {
+                        MapData.CreateWatIsHierMarker(data);
+                        console.log(data);
+                        MapData.CreateOrigineleMarker(event.latlng, true);
+                    }
+                    else {
+                        MapData.CreateOrigineleMarker(event.latlng, false);
+                    }
+                }).
+                error(function(data, status, headers, config) {
+                    console.log("ERROR!");
+                    console.log(status);
+                    console.log(headers);
+                    console.log(data);
+                });
+        };
+        _service.GetThemeData = function(url) {
+            var prom = $http.get(url);
+            return prom;
+        };
+        _service.GetThemeLayerData = function(mapServiceUrl) {
+            var prom = $http.get(mapServiceUrl + 'layers?f=pjson');
+            return prom;
+        };
+        return _service;
+    };
+    module.$inject = ["$http", 'map', 'MapData', 'HelperService', '$rootScope'];
+    module.factory("GISService", service);
+})();;'use strict';
+
+
+(function () {
 
     try {
-        var module = angular.module('tink.gis.angular');
+        var module = angular.module('tink.gis');
     } catch (e) {
-        var module = angular.module('tink.gis.angular', ['tink.accordion', 'tink.tinkApi']); //'leaflet-directive'
+        var module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi']); //'leaflet-directive'
     }
-    var baseLayersService = function() {
+    var baseLayersService = function () {
         var _baseLayersService = {};
-        _baseLayersService.kaart = L.tileLayer('http://tiles.arcgis.com/tiles/1KSVSmnHT2Lw9ea6/arcgis/rest/services/basemap_stadsplan_v6/MapServer/tile/{z}/{y}/{x}', { id: 'kaart' });
+        // _baseLayersService.kaart = L.tileLayer('http://tiles.arcgis.com/tiles/1KSVSmnHT2Lw9ea6/arcgis/rest/services/basemap_stadsplan_v6/MapServer/tile/{z}/{y}/{x}', { id: 'kaart' });
+        _baseLayersService.kaart = L.tileLayer('http://app10.p.gis.local/arcgissql/rest/services/P_Publiek/P_basemap/MapServer', { id: 'kaart' });
         _baseLayersService.luchtfoto = L.tileLayer("http://tile.informatievlaanderen.be/ws/raadpleegdiensten/tms/1.0.0/omwrgbmrvl@GoogleMapsVL/{z}/{x}/{y}.png", { id: 'luchtfoto', tms: 'true' });
         return _baseLayersService;
     };
 
     module.factory("BaseLayersService", baseLayersService);
-})();; 'use strict';
+})();;'use strict';
 (function() {
+    var module = angular.module('tink.gis');
+    var service = function() {
+        var _service = {};
+        proj4.defs('LAMBERT72', '+proj=lcc +lat_1=51.16666723333334 +lat_2=49.83333389999999 +lat_0=90 +lon_0=4.367486666666666 +x_0=150000.013 +y_0=5400088.438'
+            + ' +ellps=intl +towgs84=-99.1,53.3,-112.5,0.419,-0.83,1.885,-1.0 +units=m +no_defs');
+
+        _service.ConvertWSG84ToLambert72 = function(coordinates) {
+            var result = proj4('LAMBERT72', [(coordinates.lng || coordinates.x), (coordinates.lat || coordinates.y)]);
+            return {
+                x: result[0],
+                y: result[1]
+            };
+        };
+        _service.ConvertLambert72ToWSG84 = function(coordinates) {
+            var x = (coordinates.lng || coordinates.x || coordinates[0]);
+            var y = (coordinates.lat || coordinates.y || coordinates[1]);
+            var result = proj4('LAMBERT72', 'WGS84', [x, y]);
+            console.log(result);
+            return {
+                y: result[0],
+                x: result[1]
+            };
+        };
+
+        return _service;
+    };
+    // module.$inject = ["$http", 'map'];
+    module.factory("HelperService", service);
+})();;'use strict';
+(function() {
+    var module = angular.module('tink.gis');
+    var service = function(MapData, $http, $q, GISService, ThemeHelper) {
+        var _service = {};
+        _service.EnabledThemes = [];
+        _service.AvailableThemes = [];
+        _service.ProcessUrls = function(urls) {
+            console.log("ProcesUrls");
+            var promises = [];
+            console.log(_service.AvailableThemes);
+            _.each(urls, function(url) {
+                var AlreadyAddedTheme = null
+                _service.EnabledThemes.forEach(function(theme) { // OPTI kan paar loops minder door betere zoek in array te doen
+                    if (theme.Url == url) {
+                        AlreadyAddedTheme = theme;
+                    }
+                });
+                if (AlreadyAddedTheme == null) { // if we didn t get an alreadyadderdtheme we get the data
+                    var prom = GISService.GetThemeData(url + '?f=pjson');
+                    prom.success(function(data, statuscode, functie, getdata) {
+                        var convertedTheme = ThemeHelper.createThemeFromJson(data, getdata)
+                        _service.AvailableThemes.push(convertedTheme);
+                        convertedTheme.status = ThemeStatus.NEW;
+                    });
+                    promises.push(prom);
+                }
+                else { // ah we already got it then just push it.
+                    AlreadyAddedTheme.status = ThemeStatus.UNMODIFIED;
+                    _service.AvailableThemes.push(AlreadyAddedTheme);
+                }
+            });
+            // $q.all(promises).then(function(lagen) {
+            //     console.log(lagen);
+            // });
+            return $q.all(promises);
+        };
+        _service.SetAditionalLayerInfo = function(theme) {
+            console.log(theme.CleanUrl);
+            var prom = GISService.GetThemeLayerData(theme.CleanUrl);
+            prom.success(function(data, statuscode, functie, getdata) {
+                theme.AllLayers.forEach(function (layer) { {
+                    var layerid = layer.id;
+                    var layerInfo = data.layers[layerid];
+                    var displayField = layerInfo.displayField;
+                    layer.displayField = layerInfo.displayField;
+                }                });
+            });
+        };
+        return _service;
+    };
+    module.$inject = ['MapData', '$http', '$q', 'GISService', 'ThemeHelper'];
+    module.factory("LayerManagementService", service);
+})();;'use strict';
+(function () {
     var module;
     try {
-        module = angular.module('tink.gis.angular');
+        module = angular.module('tink.gis');
     } catch (e) {
-        module = angular.module('tink.gis.angular', ['tink.accordion', 'tink.tinkApi', ['ui.sortable']]); //'leaflet-directive'
+        module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', ['ui.sortable']]); //'leaflet-directive'
     }
-    var layersService = function($http, map) {
+    var layersService = function ($http, map) {
         var _layersService = {};
         return _layersService;
     };
     module.$inject = ["$http", 'map'];
     module.factory("LayersService", layersService);
-})();; 'use strict';
+})();;'use strict';
+(function() {
+    var module = angular.module('tink.gis');
+    var mapData = function(map, $rootScope, HelperService, ResultsData) {
+        var _data = {};
+
+        _data.VisibleLayers = [];
+        _data.SelectableLayers = [];
+        _data.VisibleFeatures = [];
+        _data.IsDrawing = false;
+        _data.ThemeUrls = ['http://app11.p.gis.local/arcgissql/rest/services/P_Stad/Afval/MapServer/',
+            'http://app11.p.gis.local/arcgissql/rest/services/P_Stad/Cultuur/MapServer/',
+            'http://app11.p.gis.local/arcgissql/rest/services/P_Stad/Jeugd/MapServer/',
+            'http://app11.p.gis.local/arcgissql/rest/services/P_Stad/Onderwijs/MapServer/',
+            'http://app11.p.gis.local/arcgissql/rest/services/P_Stad/stad/MapServer/'
+        ];
+        _data.Themes = [];
+        var defaultlayer = { id: '', name: 'Alle Layers' };
+        _data.SelectedLayer = defaultlayer;
+        _data.VisibleLayers.unshift(defaultlayer);
+        _data.ActiveInteractieKnop = ActiveInteractieButton.SELECT;
+        _data.DrawingType = DrawingOption.NIETS;
+        _data.DrawingObject = null;
+        _data.RemoveDrawings = function() {
+            if (_data.DrawingObject) {
+                _data.DrawingObject.disable();
+                // map.removeLayer(_data.DrawingObject);
+                _data.DrawingObject = null;
+            }
+        };
+        var WatIsHierMarker = null;
+        var WatIsHierOriginalMarker = null;
+
+        _data.CleanAll = function() {
+            _data.RemoveDrawings();
+            _data.CleanMap();
+            _data.CleanWatIsHier();
+            ResultsData.CleanSearch();
+        };
+        _data.CleanWatIsHier = function() {
+            if (WatIsHierOriginalMarker) {
+                WatIsHierOriginalMarker.clearAllEventListeners();
+                WatIsHierOriginalMarker.closePopup();
+                map.removeLayer(WatIsHierOriginalMarker);
+                WatIsHierOriginalMarker = null;
+            }
+            if (WatIsHierMarker) {
+                map.removeLayer(WatIsHierMarker);
+                WatIsHierMarker = null;
+            }
+            straatNaam = null;
+        };
+        _data.CreateOrigineleMarker = function(latlng, addressFound) {
+            if (addressFound) {
+                var foundMarker = L.AwesomeMarkers.icon({
+                    icon: 'fa-map-marker',
+                    markerColor: 'orange'
+
+                });
+                WatIsHierOriginalMarker = L.marker([latlng.lat, latlng.lng], { icon: foundMarker, opacity: 0.5 }).addTo(map);
+            }
+            else {
+                var notFoundMarker = L.AwesomeMarkers.icon({
+                    // icon: 'fa-frown-o',
+                    icon: 'fa-question',
+                    markerColor: 'red',
+                    spin: true
+                });
+                WatIsHierOriginalMarker = L.marker([latlng.lat, latlng.lng], { icon: notFoundMarker }).addTo(map);
+            }
+            var convertedxy = HelperService.ConvertWSG84ToLambert72(latlng);
+            if (straatNaam) {
+                var html =
+                    '<div class="container container-low-padding">' +
+                    '<div class="row row-no-padding">' +
+                    '<div class="col-sm-4">' +
+                    '<img src="https://placehold.it/100x50" />' +
+                    '</div>' +
+                    '<div class="col-sm-8">' +
+                    '<div class="col-sm-12"><b>' + straatNaam + '</b></div>' +
+                    // '<div class="row">' +
+                    '<div class="col-sm-3">WGS84:</div><div class="col-sm-8" style="text-align: left;">' + latlng.lat.toFixed(6) + ', ' + latlng.lng.toFixed(6) + '</div><div class="col-sm-1"><i class="fa fa-files-o"></i></div>' +
+                    '<div class="col-sm-3">Lambert:</div><div class="col-sm-8" style="text-align: left;">' + convertedxy.x.toFixed(1) + ', ' + convertedxy.y.toFixed(1) + '</div><div class="col-sm-1"><i class="fa fa-files-o"></i></div>' +
+                    // '<div class="row">Lambert (x,y):' + convertedxy.x.toFixed(1) + ',' + convertedxy.y.toFixed(1) + '</div>' +
+                    '</div>' +
+                    '</div>' +
+
+                    '</div>';
+                // var html = '<tink-Theme></tink-Theme>'
+                WatIsHierOriginalMarker.bindPopup(html, { minWidth: 300 }).openPopup();
+            }
+            else {
+                WatIsHierOriginalMarker.bindPopup(
+                    'WGS84 (x,y):' + latlng.lat.toFixed(6) + ',' + latlng.lng.toFixed(6) +
+                    '<br>Lambert (x,y):' + convertedxy.x.toFixed(1) + ',' + convertedxy.y.toFixed(1)).openPopup();
+            }
+
+
+            WatIsHierOriginalMarker.on('popupclose', function(event) {
+                _data.CleanWatIsHier();
+            });
+        };
+        var straatNaam = null;
+        _data.CreateWatIsHierMarker = function(data) {
+            var convertedBackToWSG84 = HelperService.ConvertLambert72ToWSG84(data.location)
+            straatNaam = data.address.Street + " (" + data.address.Postal + ")";
+            var greenIcon = L.icon({
+                iconUrl: 'styles/fa-dot-circle-o_24_0_000000_none.png',
+                iconSize: [24, 24],
+                // iconAnchor: [0, 0]
+            });
+
+
+            WatIsHierMarker = L.marker([convertedBackToWSG84.x, convertedBackToWSG84.y], { icon: greenIcon }).addTo(map);
+
+        };
+        _data.CleanMap = function() {
+            for (var x = 0; x < _data.VisibleFeatures.length; x++) {
+                map.removeLayer(_data.VisibleFeatures[x]); //eerst de
+            }
+            _data.VisibleFeatures.length = 0;
+            map.clearDrawings();
+        };
+        _data.AddFeatures = function(features, theme) {
+            for (var x = 0; x < features.features.length; x++) {
+                var featureItem = features.features[x];
+                var layer = theme.AllLayers[featureItem.layerId];
+                if (layer.id != featureItem.layerId) {
+                    console.log("ERROR!! moet zelfde layer zijn!!!!!!");
+                }
+                // featureItem.layer = layer;
+                // featureItem.theme = theme;
+                featureItem.layerName = layer.name;
+                featureItem.displayValue = featureItem.properties[layer.displayField];
+                var myStyle = {
+                    'fillOpacity': 0
+                };
+                var mapItem = L.geoJson(featureItem, { style: myStyle }).addTo(map);
+                _data.VisibleFeatures.push(mapItem);
+                featureItem.mapItem = mapItem;
+                ResultsData.JsonFeatures.push(featureItem);
+                console.log(featureItem.id);
+                console.log(featureItem);
+
+
+
+            }
+            $rootScope.$apply();
+        };
+        return _data;
+    };
+    module.$inject = ['ResultsData'];
+    module.factory('MapData', mapData);
+})();
+
+
+;'use strict';
+(function() {
+    var module = angular.module('tink.gis');
+    var mapEvents = function(map, MapService, MapData) {
+        var _mapEvents = {};
+        map.on('draw:drawstart', function(event) {
+            console.log('draw started');
+            MapData.IsDrawing = true;
+            MapData.CleanMap();
+        });
+        var berkenOmtrek = function(layer) {
+            // Calculating the distance of the polyline
+            var tempLatLng = null;
+            var totalDistance = 0.00000;
+            _.each(layer._latlngs, function(latlng) {
+                if (tempLatLng == null) {
+                    tempLatLng = latlng;
+                    return;
+                }
+                console.log(tempLatLng.distanceTo(latlng) + " m");
+                totalDistance += tempLatLng.distanceTo(latlng);
+                tempLatLng = latlng;
+            });
+            return totalDistance.toFixed(2);
+        };
+        map.on('click', function(event) {
+            console.log('click op map! Is drawing: ' + MapData.IsDrawing);
+            if (!MapData.IsDrawing) {
+                MapData.CleanAll();
+                switch (MapData.ActiveInteractieKnop) {
+                    case ActiveInteractieButton.IDENTIFY:
+                        MapService.Identify(event, 2);
+                        break;
+                    case ActiveInteractieButton.SELECT:
+                        if (MapData.SelectedLayer.id === '') {
+                            console.log('Geen layer selected! kan dus niet opvragen');
+                        }
+                        else {
+                            MapService.Select(event);
+                        }
+                        break;
+                    case ActiveInteractieButton.WATISHIER:
+                        MapService.WatIsHier(event);
+                        break;
+                    case ActiveInteractieButton.METEN:
+
+                        break;
+                    default:
+                        console.log('MAG NIET!!!!!!!!');
+                        break;
+                }
+            }
+            else {
+                // MapData.DrawingObject = event;
+                console.log("DrawingObject: ");
+                console.log(MapData.DrawingObject);
+                switch (MapData.DrawingType) {
+                    case DrawingOption.AFSTAND:
+                        break;
+                    case DrawingOption.OPPERVLAKTE:
+                        break;
+                    default:
+                        console.log("Aant drawen zonder een gekent type!!!!!!");
+                        break;
+                }
+            }
+        });
+
+
+        map.on('draw:created', function(e) {
+            console.log('draw created');
+            console.log(e)
+            switch (MapData.ActiveInteractieKnop) {
+                case ActiveInteractieButton.SELECT:
+                    if (MapData.SelectedLayer.id == '') {
+                        console.log('Geen layer selected! kan dus niet opvragen');
+                    }
+                    else {
+                        MapService.Query(event);
+                    }
+                    break;
+                case ActiveInteractieButton.METEN:
+                    switch (MapData.DrawingType) {
+                        case DrawingOption.AFSTAND:
+                            var omtrek = berkenOmtrek(e.layer);
+                            e.layer.bindPopup('Afstand (m): ' + omtrek + ' ');
+                            e.layer.openPopup();
+                            break;
+                        case DrawingOption.OPPERVLAKTE:
+                            var omtrek = berkenOmtrek(e.layer);
+                            var popuptekst = '<p>Opp  (km<sup>2</sup>): ' + (LGeo.area(e.layer) / 1000000).toFixed(2) + '</p>'
+                                + '<p>Omtrek (m): ' + omtrek + ' </p>';
+                            e.layer.bindPopup(popuptekst);
+                            e.layer.openPopup();
+                            break;
+                        default:
+                            break;
+                    }
+                    break;
+                default:
+                    console.log('MAG NIET!!!!!!!!');
+                    break;
+            }
+            MapData.IsDrawing = false;
+        });
+
+
+        return _mapEvents;
+    };
+    module.factory('MapEvents', mapEvents);
+})();
+
+
+;'use strict';
 (function() {
     var module;
     try {
-        module = angular.module('tink.gis.angular');
+        module = angular.module('tink.gis');
     } catch (e) {
-        module = angular.module('tink.gis.angular', ['tink.accordion', 'tink.tinkApi', 'tink.modal']); //'leaflet-directive'
+        module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'tink.modal']); //'leaflet-directive'
     }
-    var mapService = function($rootScope, $http, map, ThemeHelper, $q) {
+    var mapService = function($rootScope, MapData, map, ThemeHelper, $q, GISService) {
         var _mapService = {};
-        _mapService.VisibleLayers = [];
-        _mapService.SelectableLayers = [];
-        _mapService.VisibleFeatures = [];
-        _mapService.JsonFeatures = [];
-        _mapService.ThemeUrls = ['http://app10.p.gis.local/arcgissql/rest/services/P_Stad/Afval/MapServer?f=pjson',
-            'http://app10.p.gis.local/arcgissql/rest/services/P_Stad/Cultuur/MapServer?f=pjson',
-            'http://app10.p.gis.local/arcgissql/rest/services/P_Stad/Jeugd/MapServer?f=pjson',
-            'http://app10.p.gis.local/arcgissql/rest/services/P_Stad/Onderwijs/MapServer?f=pjson',
-            'http://app10.p.gis.local/arcgissql/rest/services/P_Stad/stad/MapServer?f=pjson'
-        ];
-        _mapService.Themes = [];
-        var defaultlayer = { id: '', name: 'Alle Layers' };
-        _mapService.VisibleLayers.unshift(defaultlayer);
-        _mapService.SelectedLayer = defaultlayer;
-        _mapService.AddAndUpdateThemes = function(themesBatch) {
-            themesBatch.forEach(theme => {
-                var existingTheme = _mapService.Themes.find(x => x.Url = theme.Url);
-                switch (theme.status) {
-                    case ThemeStatus.NEW:
-                        _mapService.AddNewTheme(theme);
-                        break;
-                    case ThemeStatus.DELETED:
-                        _mapService.DeleteTheme(existingTheme);
-                        break;
-                    case ThemeStatus.UNMODIFIED:
-                        // niets doen niets veranderd!
-                        break;
-                    case ThemeStatus.UPDATED:
-                        _mapService.UpdateTheme(theme, existingTheme);
-                        _mapService.UpdateThemeVisibleLayers(existingTheme);
-                        break;
-                    default:
-                        console.log("Er is iets fout, status niet bekend" + theme.status);
-                        break;
-                }
-            });
-        };
-        _mapService.UpdateTheme = function(updatedTheme, existingTheme) {
-            //lets update the existingTheme
-            for (var x = 0; x < updatedTheme.AllLayers.length; x++) {
-                var updatedLayer = updatedTheme.AllLayers[x];
-                var existingLayer = existingTheme.AllLayers[x];
-
-                //laten we alle Visible Layers nu terug toevoegen meteen juiste ref etc uit de geupdate theme.
-                if (updatedLayer.enabled && updatedLayer.visible) {
-                    //eerst checken dat ze nog niet bestaan!.
-                    if (_mapService.VisibleLayers.indexOf(existingLayer) == -1) {
-                        _mapService.VisibleLayers.push(existingLayer);
-                    }
-                    if (existingTheme.VisibleLayers.indexOf(existingLayer) == -1) {
-                        existingTheme.VisibleLayers.push(existingLayer);
-                    }
-                }
-                else {
-                    //Anders halen we hem ook moest hij bij VisLayers aanwezig zijn er van af!
-                    if (_mapService.VisibleLayers.indexOf(existingLayer) != -1) {
-                        _mapService.VisibleLayers.splice(_mapService.VisibleLayers.indexOf(existingLayer), 1);
-                    }
-                    if (existingTheme.VisibleLayers.indexOf(existingLayer) != -1) {
-                        existingTheme.VisibleLayers.splice(existingTheme.VisibleLayers.indexOf(existingLayer), 1);
-                    }
-                }
-                existingLayer.enabled = updatedLayer.enabled;
-                existingLayer.visible = updatedLayer.visible;
-            };
-            existingTheme.RecalculateVisibleLayerIds();
-        };
-        _mapService.AddNewTheme = function(theme) {
-            _mapService.Themes.push(theme);
-            _.each(theme.AllLayers, function(layer) {
-                if (layer.enabled) {
-                    _mapService.VisibleLayers.push(layer);
-                    theme.VisibleLayers.push(layer);
-                }
-
-            });
-            theme.RecalculateVisibleLayerIds();
-            console.log(theme.VisibleLayerIds);
-            theme.MapData = L.esri.dynamicMapLayer({
-                url: theme.CleanUrl,
-                opacity: 0.5,
-                layers: theme.VisibleLayerIds,
-                useCors: false
-            }).addTo(map);
-            theme.MapData.on('requeststart', function(obj) {
-                console.log('requeststart');
-            });
-            theme.MapData.on('requestsuccess', function(obj) {
-                console.log('requestsuccess');
-            });
-
-        };
-        _mapService.DeleteTheme = function(theme) {
-            theme.MapData.removeFrom(map);
-            var themeIndex = _mapService.Themes.indexOf(theme);
-            if (themeIndex > -1) {
-                _mapService.Themes.splice(themeIndex, 1);
-            }
-            theme.VisibleLayers.forEach(visLayer => {
-                var visLayerIndex = _mapService.VisibleLayers.indexOf(visLayer);
-                if (visLayerIndex > -1) {
-                    _mapService.VisibleLayers.splice(visLayerIndex, 1);
-                }
-            });
-        };
         _mapService.Identify = function(event, tolerance) {
             if (typeof tolerance === 'undefined') { tolerance = 2; }
-            _.each(_mapService.Themes, function(theme) {
+            _.each(MapData.Themes, function(theme) {
                 theme.RecalculateVisibleLayerIds();
                 var identifOnThisTheme = true;
                 if (theme.VisibleLayerIds.length === 1 && theme.VisibleLayerIds[0] === -1) {
@@ -651,74 +917,29 @@ var ThemeStatus = { // http://stijndewitt.com/2014/01/26/enums-in-javascript/
                 }
                 if (identifOnThisTheme) {
                     theme.MapData.identify().on(map).at(event.latlng).layers(layersVoorIdentify).tolerance(tolerance).run(function(error, featureCollection) {
-                        AddFeatures(featureCollection);
+                        MapData.AddFeatures(featureCollection, theme);
                     });
                 }
-
             });
         };
+
         _mapService.Select = function(event) {
-            _.each(_mapService.Themes, function(theme) {
-                theme.RecalculateVisibleLayerIds();
-                var identifOnThisTheme = _mapService.SelectedLayer.theme == theme;
-                if (identifOnThisTheme) {
-                    theme.MapData.identify().on(map).at(event.latlng).layers('visible: ' + _mapService.SelectedLayer.id).run(function(error, featureCollection) {
-                        AddFeatures(featureCollection);
-                    });
-                }
-
-
+            console.log(MapData.SelectedLayer);
+            MapData.SelectedLayer.theme.MapData.identify().on(map).at(event.latlng).layers('visible: ' + MapData.SelectedLayer.id).run(function(error, featureCollection) {
+                MapData.AddFeatures(featureCollection);
             });
         };
-        var AddFeatures = function(features) {
-            for (var x = 0; x < features.features.length; x++) {
-                var featureItem = features.features[x];
-                var myStyle = {
-                    "fillOpacity": 0
-                };
-                _mapService.JsonFeatures.push(featureItem);
-                var mapItem = L.geoJson(featureItem, { style: myStyle }).addTo(map);
-                _mapService.VisibleFeatures.push(mapItem);
-            }
-            console.log(_mapService.JsonFeatures);
-            $rootScope.$apply();
+        _mapService.WatIsHier = function(event) {
+            GISService.ReverseGeocode(event);
         };
-        _mapService.Query = function(event, selectedLayer) {
-            console.log(selectedLayer.id);
-            selectedLayer.theme.MapData.query()
-                .layer('visible: ' + selectedLayer.id)
+
+        _mapService.Query = function(event) {
+            MapData.SelectedLayer.theme.MapData.query()
+                .layer('visible: ' + MapData.SelectedLayer.id)
                 .intersects(event.layer)
                 .run(function(error, featureCollection, response) {
-                    AddFeatures(featureCollection);
+                    MapData.AddFeatures(featureCollection);
                 });
-        };
-
-
-        _mapService.UpdateLayerStatus = function(layer, theme) {
-            var visibleOnMap = theme.Visible && layer.visible && ((layer.parent && layer.parent.visible) || !layer.parent);
-            var indexOfLayerInVisibleLayers = theme.VisibleLayers.indexOf(layer);
-            if (visibleOnMap) {
-                if (indexOfLayerInVisibleLayers === -1 && layer.enabled) { // alleen maar toevoegen wnnr layer enabled en niet aanwezig al in de array!
-                    theme.VisibleLayers.push(layer);
-                    _mapService.VisibleLayers.push(layer);
-                }
-            }
-            else {
-                if (indexOfLayerInVisibleLayers > -1) {
-                    theme.VisibleLayers.splice(indexOfLayerInVisibleLayers, 1);
-                    var indexOfLayerInVisibleLayersOfMap = _mapService.VisibleLayers.indexOf(layer);
-                    _mapService.VisibleLayers.splice(indexOfLayerInVisibleLayersOfMap, 1);
-                }
-            }
-        };
-        _mapService.UpdateThemeVisibleLayers = function(theme) {
-            theme.RecalculateVisibleLayerIds();
-            theme.MapData.setLayers(theme.VisibleLayerIds);
-        }
-        _mapService.UpdateGroupLayerStatus = function(groupLayer, theme) {
-            _.each(groupLayer.Layers, function(childlayer) {
-                _mapService.UpdateLayerStatus(childlayer, theme);
-            });
         };
         _mapService.UpdateThemeStatus = function(theme) {
             _.each(theme.Groups, function(layerGroup) {
@@ -729,40 +950,47 @@ var ThemeStatus = { // http://stijndewitt.com/2014/01/26/enums-in-javascript/
             });
 
         };
+        _mapService.UpdateGroupLayerStatus = function(groupLayer, theme) {
+            _.each(groupLayer.Layers, function(childlayer) {
+                _mapService.UpdateLayerStatus(childlayer, theme);
+            });
+        };
 
+        _mapService.UpdateLayerStatus = function(layer, theme) {
+            var visibleOnMap = theme.Visible && layer.visible && ((layer.parent && layer.parent.visible) || !layer.parent);
+            var indexOfLayerInVisibleLayers = theme.VisibleLayers.indexOf(layer);
+            if (visibleOnMap) {
+                if (indexOfLayerInVisibleLayers === -1 && layer.enabled) { // alleen maar toevoegen wnnr layer enabled en niet aanwezig al in de array!
+                    theme.VisibleLayers.push(layer);
+                    MapData.VisibleLayers.push(layer);
+                }
+            }
+            else {
+                if (indexOfLayerInVisibleLayers > -1) {
+                    theme.VisibleLayers.splice(indexOfLayerInVisibleLayers, 1);
+                    var indexOfLayerInVisibleLayersOfMap = MapData.VisibleLayers.indexOf(layer);
+                    MapData.VisibleLayers.splice(indexOfLayerInVisibleLayersOfMap, 1);
+                }
+            }
+        };
         return _mapService;
     };
-    module.$inject = ['$rootScope', '$http', 'map', 'ThemeHelper', '$q'];
+    module.$inject = ['$rootScope', 'MapData', 'map', 'ThemeHelper', '$q'];
     module.factory('MapService', mapService);
 })();
 
 
-; 'use strict';
-(function() {
+;'use strict';
+(function () {
     var module;
     try {
-        module = angular.module('tink.gis.angular');
+        module = angular.module('tink.gis');
     } catch (e) {
-        module = angular.module('tink.gis.angular', ['tink.accordion', 'tink.tinkApi']); //'leaflet-directive'
+        module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi']); //'leaflet-directive'
     }
-    var service = function(map, ThemeHelper) {
-        var _service = {};
-        return _service;
-    };
-    module.$inject = ['map', 'ThemeHelper'];
-    module.factory('ThemeService', service);
-})();
-; 'use strict';
-(function() {
-    var module;
-    try {
-        module = angular.module('tink.gis.angular');
-    } catch (e) {
-        module = angular.module('tink.gis.angular', ['tink.accordion', 'tink.tinkApi']); //'leaflet-directive'
-    }
-    var service = function(map) {
+    var service = function (map) {
         var themeHelper = {};
-        themeHelper.createThemeFromJson = function(rawdata, getData) {
+        themeHelper.createThemeFromJson = function (rawdata, getData) {
             var thema = {};
             try {
                 var rawlayers = rawdata.layers;
@@ -781,24 +1009,27 @@ var ThemeStatus = { // http://stijndewitt.com/2014/01/26/enums-in-javascript/
                 thema.Added = false;
                 thema.enabled = true;
                 thema.MapData = {};
-                _.each(rawlayers, function(x) {
+                _.each(rawlayers, function (x) {
                     x.visible = true;
                     x.enabled = true;
                     x.parent = null;
                     x.theme = thema;
+                    x.type = LayerType.LAYER;
                     thema.AllLayers.push(x);
                     if (x.parentLayerId === -1) {
                         if (x.subLayerIds === null) {
                             thema.Layers.push(x);
                         } else {
                             thema.Groups.push(x);
+                            x.type = LayerType.GROUP;
+
                         }
                     }
                 });
-                _.each(thema.Groups, function(layerGroup) {
+                _.each(thema.Groups, function (layerGroup) {
                     if (layerGroup.subLayerIds !== null) {
                         layerGroup.Layers = [];
-                        _.each(rawlayers, function(rawlayer) {
+                        _.each(rawlayers, function (rawlayer) {
                             if (layerGroup.id === rawlayer.parentLayerId) {
                                 rawlayer.parent = layerGroup;
                                 layerGroup.Layers.push(rawlayer);
@@ -806,9 +1037,9 @@ var ThemeStatus = { // http://stijndewitt.com/2014/01/26/enums-in-javascript/
                         });
                     }
                 });
-                thema.RecalculateVisibleLayerIds = function() {
+                thema.RecalculateVisibleLayerIds = function () {
                     thema.VisibleLayerIds.length = 0;
-                    _.forEach(thema.VisibleLayers, function(visLayer) {
+                    _.forEach(thema.VisibleLayers, function (visLayer) {
                         thema.VisibleLayerIds.push(visLayer.id);
                     });
                     if (thema.VisibleLayerIds.length === 0) {
@@ -840,17 +1071,131 @@ var ThemeStatus = { // http://stijndewitt.com/2014/01/26/enums-in-javascript/
     module.$inject = ['map'];
     module.factory('ThemeHelper', service);
 })();
+;'use strict';
+(function() {
+    var module = angular.module('tink.gis');
+    var service = function(map, ThemeHelper, MapData, LayerManagementService) {
+        var _service = {};
+        _service.AddAndUpdateThemes = function(themesBatch) {
+            themesBatch.forEach(function(theme) {
+                var existingTheme = MapData.Themes.find(function(x) { x.Url == theme.Url });
+                switch (theme.status) {
+                    case ThemeStatus.NEW:
+                        LayerManagementService.SetAditionalLayerInfo(theme);
+                        console.log(theme.CleanUrl);
+                        _service.AddNewTheme(theme);
+                        break;
+                    case ThemeStatus.DELETED:
+                        _service.DeleteTheme(existingTheme);
+                        break;
+                    case ThemeStatus.UNMODIFIED:
+                        // niets doen niets veranderd!
+                        break;
+                    case ThemeStatus.UPDATED:
+                        _service.UpdateTheme(theme, existingTheme);
+                        _service.UpdateThemeVisibleLayers(existingTheme);
+                        break;
+                    default:
+                        console.log("Er is iets fout, status niet bekend" + theme.status);
+                        break;
+                }
+            });
+        };
+        _service.UpdateThemeVisibleLayers = function(theme) {
+            theme.RecalculateVisibleLayerIds();
+            console.log(theme.VisibleLayerIds);
+            theme.MapData.setLayers(theme.VisibleLayerIds);
+        }
+        _service.UpdateTheme = function(updatedTheme, existingTheme) {
+            //lets update the existingTheme
+            for (var x = 0; x < updatedTheme.AllLayers.length; x++) {
+                var updatedLayer = updatedTheme.AllLayers[x];
+                var existingLayer = existingTheme.AllLayers[x];
+
+                //laten we alle Visible Layers nu terug toevoegen meteen juiste ref etc uit de geupdate theme.
+                if (updatedLayer.enabled && updatedLayer.visible) {
+                    //eerst checken dat ze nog niet bestaan!.
+                    if (MapData.VisibleLayers.indexOf(existingLayer) == -1) {
+                        MapData.VisibleLayers.push(existingLayer);
+                    }
+                    if (existingTheme.VisibleLayers.indexOf(existingLayer) == -1) {
+                        existingTheme.VisibleLayers.push(existingLayer);
+                    }
+                }
+                else {
+                    //Anders halen we hem ook moest hij bij VisLayers aanwezig zijn er van af!
+                    if (MapData.VisibleLayers.indexOf(existingLayer) != -1) {
+                        MapData.VisibleLayers.splice(MapData.VisibleLayers.indexOf(existingLayer), 1);
+                    }
+                    if (existingTheme.VisibleLayers.indexOf(existingLayer) != -1) {
+                        existingTheme.VisibleLayers.splice(existingTheme.VisibleLayers.indexOf(existingLayer), 1);
+                    }
+                }
+                existingLayer.enabled = updatedLayer.enabled;
+                existingLayer.visible = updatedLayer.visible;
+            };
+            existingTheme.RecalculateVisibleLayerIds();
+        };
+        _service.AddNewTheme = function(theme) {
+            MapData.Themes.push(theme);
+            _.each(theme.AllLayers, function(layer) {
+                if (layer.enabled && layer.visible && layer.type === LayerType.LAYER) {
+                    console.log(layer.id);
+                    MapData.VisibleLayers.push(layer);
+                    theme.VisibleLayers.push(layer);
+                }
+
+            });
+            theme.RecalculateVisibleLayerIds();
+            theme.MapData = L.esri.dynamicMapLayer({
+                url: theme.CleanUrl,
+                opacity: 0.5,
+                layers: theme.VisibleLayerIds,
+                // maxZoom: 21,
+                // minZoom: 10,
+                useCors: true
+            }).addTo(map);
+            // _mapService.UpdateThemeVisibleLayers(theme);
+            theme.MapData.on('requeststart', function(obj) {
+                console.log('requeststart');
+            });
+            theme.MapData.on('requestsuccess', function(obj) {
+                console.log('requestsuccess');
+            });
+
+        };
+        _service.DeleteTheme = function(theme) {
+            theme.MapData.removeFrom(map);
+            var themeIndex = MapData.Themes.indexOf(theme);
+            if (themeIndex > -1) {
+                MapData.Themes.splice(themeIndex, 1);
+            }
+            theme.VisibleLayers.forEach(function(visLayer) {
+                var visLayerIndex = MapData.VisibleLayers.indexOf(visLayer);
+                if (visLayerIndex > -1) {
+                    MapData.VisibleLayers.splice(visLayerIndex, 1);
+                }
+            });
+        };
+
+
+
+        return _service;
+    };
+    module.$inject = ['map', 'ThemeHelper', 'MapData', 'LayerManagementService'];
+    module.factory('ThemeService', service);
+})();
 ;// (function() {
-// 
+//
 //     'use strict';
-// 
+//
 //     var componentName = "ErrorHandler";
 //     var theComponent = function(appService) {
-// 
+//
 //         function _handle(errorResponse) {
-// 
+//
 //             // ToDo : vervang onderstaande door eigen error handling, indien gewenst
-// 
+//
 //             var message = "fout bij call naar " + errorResponse.config.url + " (" + errorResponse.config.method + ") - " + errorResponse.status + " ";
 //             if (errorResponse.data) {
 //                 if (errorResponse.data.message)
@@ -862,7 +1207,7 @@ var ThemeStatus = { // http://stijndewitt.com/2014/01/26/enums-in-javascript/
 //             }
 //             appService.logger.error(message);
 //         }
-// 
+//
 //         function _getErrorMessage(errorResponse, defaultMessage) {
 //             defaultMessage = defaultMessage || "unknown error";
 //             if (errorResponse.data) {
@@ -892,35 +1237,35 @@ var ThemeStatus = { // http://stijndewitt.com/2014/01/26/enums-in-javascript/
 //                     return defaultMessage;
 //             }
 //         }
-// 
+//
 //         /* +++++ public interface +++++ */
-// 
+//
 //         appService.logger.creation(componentName);
-// 
+//
 //         return {
 //             handle: _handle,
 //             getErrorMessage: _getErrorMessage,
 //         };
-// 
+//
 //     };
-// 
+//
 //     theComponent.$inject = ['AppService'];
-// 
-//     angular.module('tink.gis.angular').factory(componentName, theComponent);
-// 
+//
+//     angular.module('tink.gis').factory(componentName, theComponent);
+//
 // })();;// (function() {
-// 
+//
 //     'use strict';
-// 
+//
 //     var componentName = "Logger";
 //     var theComponent = function($log, appConfig) {
-// 
+//
 //         function _success(message) {
 //             if (appConfig.enableLog) {
 //                 $log.log(message);
 //             }
 //         }
-// 
+//
 //         function _debug(message) {
 //             if (appConfig.enableLog) {
 //                 if (appConfig.enableDebug) {
@@ -928,35 +1273,35 @@ var ThemeStatus = { // http://stijndewitt.com/2014/01/26/enums-in-javascript/
 //                 }
 //             }
 //         }
-// 
+//
 //         function _info(message) {
 //             if (appConfig.enableLog) {
 //                 $log.info(message);
 //             }
 //         }
-// 
+//
 //         function _warn(message) {
 //             if (appConfig.enableLog) {
 //                 $log.warn(message);
 //             }
 //         }
-// 
+//
 //         function _error(message) {
 //             if (appConfig.enableLog) {
 //                 $log.error(message);
 //             }
 //         }
-// 
+//
 //         function _creation(name) {
 //             _debug(name + " : gecreëerd.");
 //         }
-// 
+//
 //         function _initialization(name) {
 //             _debug(name + " : geïnitialiseerd.");
 //         }
-// 
+//
 //         /* +++++ public interface +++++ */
-// 
+//
 //         return {
 //             success: _success,
 //             debug: _debug,
@@ -966,49 +1311,46 @@ var ThemeStatus = { // http://stijndewitt.com/2014/01/26/enums-in-javascript/
 //             creation: _creation,
 //             init: _initialization
 //         };
-// 
+//
 //     };
 //     theComponent.$inject = ['$log', 'appConfig'];
-//     angular.module('tink.gis.angular').factory(componentName, theComponent);
-// 
+//     angular.module('tink.gis').factory(componentName, theComponent);
+//
 // })()
-; angular.module('tink.gis.angular').run(['$templateCache', function($templateCache) {
-    'use strict';
+;angular.module('tink.gis').run(['$templateCache', function($templateCache) {
+  'use strict';
 
-    $templateCache.put('templates/groupLayerTemplate.html',
-        "<div class=layercontroller-checkbox> <input class=visible-box type=checkbox id={{grplyrctrl.grouplayer.name}}{{grplyrctrl.grouplayer.id}} ng-model=grplyrctrl.grouplayer.visible ng-change=grplyrctrl.chkChanged()> <label for={{grplyrctrl.grouplayer.name}}{{grplyrctrl.grouplayer.id}}>{{grplyrctrl.grouplayer.name}}</label> <div ng-repeat=\"layer in grplyrctrl.grouplayer.Layers | filter :  { enabled: true }\"> <tink-layer layer=layer> </tink-layer> </div> </div>"
-    );
-
-
-    $templateCache.put('templates/layerTemplate.html',
-        "<div class=layercontroller-checkbox> <input class=visible-box type=checkbox ng-model=lyrctrl.layer.visible ng-change=lyrctrl.chkChanged() id={{layer.name}}{{layer.id}}> <label for={{layer.name}}{{layer.id}}> {{layer.name | limitTo: 20}}</label> </div>"
-    );
+  $templateCache.put('templates/groupLayerTemplate.html',
+    "<div class=layercontroller-checkbox> <input class=visible-box type=checkbox id={{grplyrctrl.grouplayer.name}}{{grplyrctrl.grouplayer.id}} ng-model=grplyrctrl.grouplayer.visible ng-change=grplyrctrl.chkChanged()> <label for={{grplyrctrl.grouplayer.name}}{{grplyrctrl.grouplayer.id}}>{{grplyrctrl.grouplayer.name}}</label> <div ng-repeat=\"layer in grplyrctrl.grouplayer.Layers | filter :  { enabled: true }\"> <tink-layer layer=layer> </tink-layer> </div> </div>"
+  );
 
 
-    $templateCache.put('templates/layerstemplate.html',
-        "<div data-tink-nav-aside=\"\" data-auto-select=true data-toggle-id=asideNavRight class=\"nav-aside nav-right\"> <aside> <div class=nav-aside-section> <ul ui-sortable ng-model=lyrsctrl.themes> <div ng-repeat=\"theme in lyrsctrl.themes\"> <tink-theme theme=theme> </tink-theme> </div> </ul> <button class=\"btn btn-primary addlayerbtn\" ng-click=lyrsctrl.AddLayers()>Voeg laag toe</button> </div> </aside> </div>"
-    );
+  $templateCache.put('templates/layerTemplate.html',
+    "<div class=layercontroller-checkbox> <input class=visible-box type=checkbox ng-model=lyrctrl.layer.visible ng-change=lyrctrl.chkChanged() id={{layer.name}}{{layer.id}}> <label for={{layer.name}}{{layer.id}}> {{layer.name | limitTo: 20}}</label> </div>"
+  );
 
 
-    $templateCache.put('templates/maptemplate.html',
-        "<div class=tink-map> <div id=map class=leafletmap> <div class=\"btn-group ll searchbtns\"> <button type=button class=btn prevent-default><i class=\"fa fa-map-marker\"></i></button>\n" +
-        "<button type=button class=btn prevent-default><i class=\"fa fa-download\"></i></button> </div> <div class=\"btn-group btn-group-vertical ll interactiebtns\"> <button type=button class=btn ng-click=mapctrl.identify() ng-class=\"{active: mapctrl.activeInteractieKnop=='identify'}\" prevent-default><i class=\"fa fa-info\"></i></button>\n" +
-        "<button type=button class=btn ng-click=mapctrl.select() ng-class=\"{active: mapctrl.activeInteractieKnop=='select'}\" prevent-default><i class=\"fa fa-mouse-pointer\"></i></button>\n" +
-        "<button type=button class=btn ng-class=\"{active: mapctrl.activeInteractieKnop=='dunno'}\" prevent-default><i class=\"fa fa-download\"></i></button> </div> <div class=\"ll zoekbalken\"> <input class=zoekbalk placeholder=\"Welke locatie of adres zoek je?\" prevent-default> <select ng-options=\"layer as layer.name for layer in mapctrl.SelectableLayers\" ng-model=mapctrl.selectedLayer ng-change=mapctrl.layerChange() ng-class=\"{invisible: mapctrl.activeInteractieKnop!='select'}\" prevent-default></select> </div> <div class=\"ll btn-group kaarttypes\"> <button class=btn ng-class=\"{active: mapctrl.kaartIsGetoond==true}\" ng-click=mapctrl.toonKaart() prevent-default>Kaart</button>\n" +
-        "<button class=btn ng-class=\"{active: mapctrl.kaartIsGetoond==false}\" ng-click=mapctrl.toonLuchtfoto() prevent-default>Luchtfoto</button> </div> <div class=\"btn-group btn-group-vertical ll viewbtns\"> <button type=button class=btn ng-click=mapctrl.zoomIn() prevent-default><i class=\"fa fa-plus\"></i></button>\n" +
-        "<button type=button class=btn ng-click=mapctrl.zoomOut() prevent-default><i class=\"fa fa-minus\"></i></button>\n" +
-        "<button type=button class=btn ng-click=\"\" prevent-default><i class=\"fa fa-crosshairs\"></i></button>\n" +
-        "<button type=button class=btn ng-click=mapctrl.fullExtent() prevent-default><i class=\"fa fa-home\"></i></button> </div> <div class=\"btn-group btn-group-vertical ll localiseerbtn\"> <button type=button class=btn prevent-default><i class=\"fa fa-male\"></i></button> </div> </div> <tink-layers></tink-layers> <tink-search> </tink-search></div>"
-    );
+  $templateCache.put('templates/layerstemplate.html',
+    "<div data-tink-nav-aside=\"\" data-auto-select=true data-toggle-id=asideNavRight class=\"nav-aside nav-right\"> <aside> <div class=nav-aside-section> <ul ui-sortable ng-model=lyrsctrl.themes> <div ng-repeat=\"theme in lyrsctrl.themes\"> <tink-theme theme=theme> </tink-theme> </div> </ul> <button class=\"btn btn-primary addlayerbtn\" ng-click=lyrsctrl.AddLayers()>Voeg laag toe</button> </div> </aside> </div>"
+  );
 
 
-    $templateCache.put('templates/searchTemplate.html',
-        "<div data-tink-nav-aside=\"\" data-auto-select=true data-toggle-id=asideNavLeft class=\"nav-aside nav-left\"> <aside> <div class=nav-aside-section> Zoek <div ng-repeat=\"feature in srchctrl.features \"> layerid: {{feature.theme.Naam}} <pre>{{feature.properties | json }}</pre> </div> </div> </aside> </div>"
-    );
+  $templateCache.put('templates/maptemplate.html',
+    "<div class=tink-map> <div id=map class=leafletmap> <div class=\"btn-group ll searchbtns\"> <button type=button class=btn prevent-default><i class=\"fa fa-map-marker\"></i></button>\n" +
+    "<button type=button class=btn prevent-default><i class=\"fa fa-download\"></i></button> </div> <div class=\"btn-group btn-group-vertical ll interactiebtns\"> <button type=button class=btn ng-click=\"mapctrl.interactieButtonChanged('identify')\" ng-class=\"{active: mapctrl.activeInteractieKnop=='identify'}\" prevent-default><i class=\"fa fa-info\"></i></button>\n" +
+    "<button type=button class=btn ng-click=\"mapctrl.interactieButtonChanged('select')\" ng-class=\"{active: mapctrl.activeInteractieKnop=='select'}\" prevent-default><i class=\"fa fa-mouse-pointer\"></i></button>\n" +
+    "<button type=button class=btn ng-click=\"mapctrl.interactieButtonChanged('meten')\" ng-class=\"{active: mapctrl.activeInteractieKnop=='meten'}\" prevent-default><i class=\"fa fa-expand\"></i></button>\n" +
+    "<button type=button class=btn ng-click=\"mapctrl.interactieButtonChanged('watishier')\" ng-class=\"{active: mapctrl.activeInteractieKnop=='watishier'}\" prevent-default><i class=\"fa fa-thumb-tack\"></i></button>  </div> <div class=\"btn-group ll metenbtns\" ng-show=mapctrl.showMetenControls> <button ng-click=\"mapctrl.drawingButtonChanged('afstand')\" ng-class=\"{active: mapctrl.drawingType=='afstand'}\" type=button class=btn prevent-default><i class=\"fa fa-arrows-h\"></i></button>\n" +
+    "<button ng-click=\"mapctrl.drawingButtonChanged('oppervlakte')\" ng-class=\"{active: mapctrl.drawingType=='oppervlakte'}\" type=button class=btn prevent-default><i class=\"fa fa-star-o\"></i></button> </div> <div class=\"ll zoekbalken\"> <input class=zoekbalk placeholder=\"Welke locatie of adres zoek je?\" prevent-default> <select ng-options=\"layer as layer.name for layer in mapctrl.SelectableLayers\" ng-model=mapctrl.selectedLayer ng-change=mapctrl.layerChange() ng-class=\"{invisible: mapctrl.activeInteractieKnop!='select' && mapctrl.SelectableLayers.length<=1}\" prevent-default></select> </div> <div class=\"ll btn-group kaarttypes\"> <button class=btn ng-class=\"{active: mapctrl.kaartIsGetoond==true}\" ng-click=mapctrl.toonKaart() prevent-default>Kaart</button>\n" +
+    "<button class=btn ng-class=\"{active: mapctrl.kaartIsGetoond==false}\" ng-click=mapctrl.toonLuchtfoto() prevent-default>Luchtfoto</button> </div> <div class=\"btn-group btn-group-vertical ll viewbtns\"> <button type=button class=btn ng-click=mapctrl.zoomIn() prevent-default><i class=\"fa fa-plus\"></i></button>\n" +
+    "<button type=button class=btn ng-click=mapctrl.zoomOut() prevent-default><i class=\"fa fa-minus\"></i></button>\n" +
+    "<button type=button class=btn ng-click=\"\" prevent-default><i class=\"fa fa-crosshairs\"></i></button>\n" +
+    "<button type=button class=btn ng-click=mapctrl.fullExtent() prevent-default><i class=\"fa fa-home\"></i></button> </div> <div class=\"btn-group btn-group-vertical ll localiseerbtn\"> <button type=button class=btn prevent-default><i class=\"fa fa-male\"></i></button> </div> </div> <tink-search></tink-search> <tink-layers></tink-layers> </div>"
+  );
 
 
-    $templateCache.put('templates/themeTemplate.html',
-        "<div> <input class=visible-box type=checkbox id=chk{{thmctrl.theme.Naam}} ng-model=thmctrl.theme.Visible ng-change=thmctrl.chkChanged()> <label for=chk{{thmctrl.theme.Naam}}> {{thmctrl.theme.Naam}} </label><button ng-click=thmctrl.deleteTheme()><i class=\"fa fa-trash\"></i></button> <div class=layercontroller-checkbox ng-repeat=\"layer in thmctrl.theme.Layers | filter: { enabled: true }\"> <tink-layer layer=layer> </tink-layer> </div> <div class=layercontroller-checkbox ng-repeat=\"group in thmctrl.theme.Groups | filter: { enabled: true }\"> <tink-grouplayer grouplayer=group> </tink-grouplayer> </div> </div>"
-    );
+  $templateCache.put('templates/themeTemplate.html',
+    "<div> <input class=visible-box type=checkbox id=chk{{thmctrl.theme.Naam}} ng-model=thmctrl.theme.Visible ng-change=thmctrl.chkChanged()> <label for=chk{{thmctrl.theme.Naam}}> {{thmctrl.theme.Naam}} </label><button ng-click=thmctrl.deleteTheme()><i class=\"fa fa-trash\"></i></button> <div class=layercontroller-checkbox ng-repeat=\"layer in thmctrl.theme.Layers | filter: { enabled: true }\"> <tink-layer layer=layer> </tink-layer> </div> <div class=layercontroller-checkbox ng-repeat=\"group in thmctrl.theme.Groups | filter: { enabled: true }\"> <tink-grouplayer grouplayer=group> </tink-grouplayer> </div> </div>"
+  );
 
 }]);

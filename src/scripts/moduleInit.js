@@ -56,7 +56,7 @@
 
     module.factory("map", mapObject);
 })();
-L.AwesomeMarkers.Icon.prototype.options.prefix = 'fa';
+// L.AwesomeMarkers.Icon.prototype.options.prefix = 'fa';
 
 //Moet plaats voor zoeken!!! Enums in Angular hmm
 var ThemeStatus = { // http://stijndewitt.com/2014/01/26/enums-in-javascript/
