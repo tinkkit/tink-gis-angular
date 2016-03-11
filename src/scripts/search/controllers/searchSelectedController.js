@@ -11,7 +11,7 @@
             $scope.$watch(function() { return ResultsData.SelectedFeature; }, function(newVal, oldVal) {
                 if (newVal) {
                     vm.selectedResult = newVal;
-                    var item = Object.getOwnPropertyNames(newVal.properties).map(k => ({ key: k, value: newVal.properties[k] }));
+                    var item = Object.getOwnPropertyNames(newVal.properties).map(function(k) { ({ key: k, value: newVal.properties[k] }) });
                     vm.props = item;
                     vm.prevResult = null;
                     vm.nextResult = null;

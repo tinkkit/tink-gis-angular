@@ -4,8 +4,8 @@
     var service = function(map, ThemeHelper, MapData, LayerManagementService) {
         var _service = {};
         _service.AddAndUpdateThemes = function(themesBatch) {
-            themesBatch.forEach(theme => {
-                var existingTheme = MapData.Themes.find(x => x.Url == theme.Url);
+            themesBatch.forEach(function(theme) {
+                var existingTheme = MapData.Themes.find(function(x) { x.Url == theme.Url });
                 switch (theme.status) {
                     case ThemeStatus.NEW:
                         LayerManagementService.SetAditionalLayerInfo(theme);
@@ -97,7 +97,7 @@
             if (themeIndex > -1) {
                 MapData.Themes.splice(themeIndex, 1);
             }
-            theme.VisibleLayers.forEach(visLayer => {
+            theme.VisibleLayers.forEach(function(visLayer) {
                 var visLayerIndex = MapData.VisibleLayers.indexOf(visLayer);
                 if (visLayerIndex > -1) {
                     MapData.VisibleLayers.splice(visLayerIndex, 1);
