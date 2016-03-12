@@ -90,7 +90,7 @@ module.exports = function (grunt) {
           }
         },
         cwd: 'src',
-        src: 'templates/**.html',
+        src: 'templates/{,**/}*.html',
         dest: '<%= yeoman.dist %>/scripts/templates.js'
       }
     },
@@ -253,7 +253,7 @@ module.exports = function (grunt) {
             cwd: '<%= yeoman.app %>/scripts/',
             dest: '<%= yeoman.dist %>/scripts/',
             src: [
-              '{,*/}*'
+              '{,**/}*'
             ]
           }
         ]
@@ -278,7 +278,7 @@ module.exports = function (grunt) {
       },
       dist: {
         src: [
-          '<%= yeoman.dist %>/scripts/{,*/}*.js'
+          '<%= yeoman.dist %>/scripts/{,**/}*.js'
         ],
         dest: '<%= yeoman.dist %>/<%= yeoman.module %>.js'
       }

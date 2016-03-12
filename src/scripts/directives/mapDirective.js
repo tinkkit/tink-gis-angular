@@ -4,7 +4,7 @@
     module.directive('tinkMap', function () {
         return {
             replace: true,
-            templateUrl: 'templates/mapTemplate.html',
+            templateUrl: 'templates/maptemplate.html',
             controller: 'mapController',
             controllerAs: 'mapctrl'
         };
