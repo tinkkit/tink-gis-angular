@@ -367,7 +367,7 @@
     module.directive('tinkMap', function () {
         return {
             replace: true,
-            templateUrl: 'templates/mapTemplate.html',
+            templateUrl: 'templates/maptemplate.html',
             controller: 'mapController',
             controllerAs: 'mapctrl'
         };
@@ -419,7 +419,7 @@
             zoom: 16,
             // maxZoom: 21,
             // minZoom: 10,
-            layers: L.tileLayer('http://tiles.arcgis.com/tiles/1KSVSmnHT2Lw9ea6/arcgis/rest/services/basemap_stadsplan_v6/MapServer/tile/{z}/{y}/{x}', { id: 'kaart' }),
+            layers: L.tileLayer('https://tiles.arcgis.com/tiles/1KSVSmnHT2Lw9ea6/arcgis/rest/services/basemap_stadsplan_v6/MapServer/tile/{z}/{y}/{x}', { id: 'kaart' }),
             // layers: L.tileLayer('http://app10.p.gis.local/arcgissql/rest/services/P_Publiek/P_basemap_wgs84/MapServer', { id: 'kaart' }),
             zoomControl: false,
             drawControl: true
@@ -467,7 +467,206 @@ var DrawingOption = {
     NIETS: '',
     AFSTAND: 'afstand',
     OPPERVLAKTE: 'oppervlakte'
-};;//http://app10.p.gis.local/arcgissql/rest/services/COMLOC_CRAB_NAVTEQ/GeocodeServer/reverseGeocode
+};;'use strict';
+(function(module) {
+    module = angular.module('tink.gis');
+    var theController = module.controller('searchController',
+        function($scope, ResultsData, map) {
+            var vm = this;
+            vm.features = ResultsData.JsonFeatures;
+        });
+    theController.$inject = ['$scope', 'ResultsData', 'map'];
+})();;'use strict';
+(function(module) {
+    module = angular.module('tink.gis');
+    var theController = module.controller('searchResultsController',
+        function($scope, ResultsData) {
+            var vm = this;
+            vm.features = ResultsData.JsonFeatures;
+            vm.featureLayers = null;
+            vm.selectedResult = null;
+            vm.layerGroupFilter = "geenFilter";
+            $scope.$watchCollection(function() { return ResultsData.JsonFeatures }, function(newValue, oldValue) {
+                console.log("CHANGES");
+                vm.featureLayers = _.uniq(_.map(vm.features, 'layerName'));
+                console.log(vm.features);
+            });
+
+            $scope.$watch(function() { return ResultsData.SelectedFeature; }, function(newVal, oldVal) {
+                vm.selectedResult = newVal;
+            });
+            vm.deleteFeature = function(feature) {
+                var featureIndex = ResultsData.JsonFeatures.indexOf(feature);
+                if (featureIndex > -1) {
+                    ResultsData.JsonFeatures.splice(featureIndex, 1);
+                }
+            };
+            vm.deleteFeatureGroup = function(featureGroupName) {
+                ResultsData.JsonFeatures.forEach(function(feature) {
+                    if (feature.layerName === featureGroupName) {
+                        vm.deleteFeature(feature);
+                    }
+                });
+            };
+
+            vm.showDetails = function(feature) {
+                ResultsData.SelectedFeature = feature;
+            }
+            vm.test = function(test) {
+                console.log("jaaaa");
+            };
+            vm.exportToCSV = function() {
+                var csvContent = "data:text/csv;charset=utf-8,";
+                var dataString = "";
+                var layName = "";
+
+                ResultsData.JsonFeatures.forEach(function(feature, index) {
+                    if (layName !== feature.layerName) {
+                        layName = feature.layerName;
+                        var tmparr = [];
+                        for (var name in feature.properties) {
+                            tmparr.push(name);
+                        }
+                        var layfirstline = tmparr.join(",");
+
+                        csvContent += layName + "\n" + layfirstline + "\n";
+                    }
+                    var infoArray = _.values(feature.properties)
+                    dataString = infoArray.join(",");
+                    console.log(dataString);
+                    // csvContent += dataString + "\n";
+                    csvContent += index < ResultsData.JsonFeatures.length ? dataString + "\n" : dataString;
+
+                });
+                var encodedUri = encodeURI(csvContent);
+                window.open(encodedUri);
+            };
+
+            // vm.fullyVis = function(feat) {
+            //     console.log("JA");
+            //     console.log(feat);
+            // };
+            // vm.hoverIn = function() {
+            //     console.log("JA");
+            //     vm.hoverEdit = true;
+            // };
+
+            // vm.hoverOut = function() {
+            //     console.log("JA");
+            //     vm.hoverEdit = false;
+            // };
+        });
+    theController.$inject = ['$scope', 'ResultsData'];
+})();;'use strict';
+(function(module) {
+    module = angular.module('tink.gis');
+    var theController = module.controller('searchSelectedController',
+        function($scope, ResultsData) {
+            var vm = this;
+            vm.selectedResult = null;
+            vm.prevResult = null;
+            vm.nextResult = null;
+            vm.props = [];
+            $scope.$watch(function() { return ResultsData.SelectedFeature; }, function(newVal, oldVal) {
+                if (newVal) {
+                    vm.selectedResult = newVal;
+                    var item = Object.getOwnPropertyNames(newVal.properties).map(function(k) { return ({ key: k, value: newVal.properties[k] }) });
+                    vm.props = item;
+                    vm.prevResult = null;
+                    vm.nextResult = null;
+                    var index = ResultsData.JsonFeatures.indexOf(newVal);
+                    var layerName = newVal.layerName;
+                    if (index > 0) { // check or prevResult exists
+                        var prevItem = ResultsData.JsonFeatures[index - 1];
+                        if (prevItem.layerName === layerName) {
+                            vm.prevResult = prevItem;
+                        }
+                    }
+                    if (index < ResultsData.JsonFeatures.length - 1) { // check for nextResult exists
+                        var nextItem = ResultsData.JsonFeatures[index + 1];
+                        if (nextItem.layerName === layerName) {
+                            vm.nextResult = nextItem;
+                        }
+                    }
+                }
+            });
+            vm.toonFeatureOpKaart = function() {
+                console.log(vm.selectedResult);
+                // var bounds = L.latLngBounds(vm.selectedResult.mapItem);
+                // map.fitBounds(bounds);//works!
+                // map.setView(new L.LatLng(51.2192159, 4.4028818));
+
+            };
+            vm.volgende = function() {
+                ResultsData.SelectedFeature = vm.nextResult;
+            };
+            vm.vorige = function() {
+                ResultsData.SelectedFeature = vm.prevResult;
+
+            };
+            vm.close = function(feature) {
+                vm.selectedResult = null;
+                vm.prevResult = null;
+                vm.nextResult = null;
+                ResultsData.SelectedFeature = null;
+            };
+
+        });
+    theController.$inject = ['$scope', 'ResultsData',];
+})();;'use strict';
+(function (module) {
+    module = angular.module('tink.gis');
+    module.directive('tinkSearch', function () {
+        return {
+            // restrict: 'E',
+            replace: true,
+            templateUrl: 'templates/search/searchTemplate.html',
+            controller: 'searchController',
+            controllerAs: 'srchctrl'
+        };
+    });
+})();;'use strict';
+(function(module) {
+    module = angular.module('tink.gis');
+    module.directive('tinkSearchResults', function() {
+        return {
+            // restrict: 'E',
+            replace: true,
+            templateUrl: 'templates/search/searchResultsTemplate.html',
+            controller: 'searchResultsController',
+            controllerAs: 'srchrsltsctrl'
+        };
+    });
+})();;'use strict';
+(function(module) {
+    module = angular.module('tink.gis');
+    module.directive('tinkSearchSelected', function() {
+        return {
+            // restrict: 'E',
+            replace: true,
+            templateUrl: 'templates/search/searchSelectedTemplate.html',
+            controller: 'searchSelectedController',
+            controllerAs: 'srchslctdctrl'
+        };
+    });
+})();;'use strict';
+(function() {
+    var module = angular.module('tink.gis');
+    var data = function() {
+        var _data = {};
+        _data.SelectedFeature = null;
+        _data.JsonFeatures = [];
+        _data.CleanSearch = function() {
+            _data.JsonFeatures.length = 0;
+            _data.SelectedFeature = null;
+        };
+        return _data;
+    };
+    module.factory('ResultsData', data);
+})();
+
+
+;//http://app10.p.gis.local/arcgissql/rest/services/COMLOC_CRAB_NAVTEQ/GeocodeServer/reverseGeocode
 //http://proj4js.org/
 'use strict';
 (function() {
@@ -866,14 +1065,20 @@ var DrawingOption = {
                     switch (MapData.DrawingType) {
                         case DrawingOption.AFSTAND:
                             var omtrek = berkenOmtrek(e.layer);
-                            e.layer.bindPopup('Afstand (m): ' + omtrek + ' ');
+                            var popup = e.layer.bindPopup('Afstand (m): ' + omtrek + ' ');
+                            popup.on('popupclose', function(event) {
+                                MapData.CleanAll();
+                            });
                             e.layer.openPopup();
                             break;
                         case DrawingOption.OPPERVLAKTE:
                             var omtrek = berkenOmtrek(e.layer);
                             var popuptekst = '<p>Opp  (km<sup>2</sup>): ' + (LGeo.area(e.layer) / 1000000).toFixed(2) + '</p>'
                                 + '<p>Omtrek (m): ' + omtrek + ' </p>';
-                            e.layer.bindPopup(popuptekst);
+                            var popup = e.layer.bindPopup(popuptekst);
+                            popup.on('popupclose', function(event) {
+                                MapData.CleanAll();
+                            });
                             e.layer.openPopup();
                             break;
                         default:
@@ -1330,7 +1535,7 @@ var DrawingOption = {
   );
 
 
-  $templateCache.put('templates/layerstemplate.html',
+  $templateCache.put('templates/layersTemplate.html',
     "<div data-tink-nav-aside=\"\" data-auto-select=true data-toggle-id=asideNavRight class=\"nav-aside nav-right\"> <aside> <div class=nav-aside-section> <ul ui-sortable ng-model=lyrsctrl.themes> <div ng-repeat=\"theme in lyrsctrl.themes\"> <tink-theme theme=theme> </tink-theme> </div> </ul> <button class=\"btn btn-primary addlayerbtn\" ng-click=lyrsctrl.AddLayers()>Voeg laag toe</button> </div> </aside> </div>"
   );
 
@@ -1346,6 +1551,30 @@ var DrawingOption = {
     "<button type=button class=btn ng-click=mapctrl.zoomOut() prevent-default><i class=\"fa fa-minus\"></i></button>\n" +
     "<button type=button class=btn ng-click=\"\" prevent-default><i class=\"fa fa-crosshairs\"></i></button>\n" +
     "<button type=button class=btn ng-click=mapctrl.fullExtent() prevent-default><i class=\"fa fa-home\"></i></button> </div> <div class=\"btn-group btn-group-vertical ll localiseerbtn\"> <button type=button class=btn prevent-default><i class=\"fa fa-male\"></i></button> </div> </div> <tink-search></tink-search> <tink-layers></tink-layers> </div>"
+  );
+
+
+  $templateCache.put('templates/modals/addLayerModalTemplate.html',
+    "<div> <div class=modal-header> <button type=button style=float:right data-ng-click=cancel()><i class=\"fa fa-times\"></i></button> <h4 class=model-title>Laag toevoegen </h4></div> <div class=modal-content> <div class=row> <div class=col-md-4> <input class=searchbox ng-model=searchTerm ng-change=searchChanged() placeholder=\"Geef een trefwoord of een url in\"> <div ng-repeat=\"theme in availableThemes | filter: { Naam: searchTerm } | orderBy: 'Naam'\"> <div ng-click=themeChanged(theme)> {{theme.Naam}}\n" +
+    "<i ng-if=\"theme.Added == true\" class=\"fa fa-check-circle\"></i>\n" +
+    "<i ng-if=\"theme.Added == null\" class=\"fa fa-check-circle-o\"></i> </div> </div> </div> <div class=col-md-8> <div ng-if=\"copySelectedTheme !== null\"> <button ng-if=\"copySelectedTheme.Added != false\" data-ng-click=AddOrUpdateTheme()>Update</button> <p>{{copySelectedTheme.Description}}</p> <p><small><a ng-href={{copySelectedTheme.CleanUrl}} target=_blank>Details</a></small></p> <div class=layercontroller-checkbox> <input indeterminate-checkbox child-list=copySelectedTheme.AllLayers property=enabled type=checkbox ng-model=copySelectedTheme.enabled id={{copySelectedTheme.name}}> <label for={{copySelectedTheme.name}}> {{copySelectedTheme.name | limitTo: 20}}</label> <div ng-repeat=\"mainlayer in copySelectedTheme.Layers\"> <div class=layercontroller-checkbox> <input type=checkbox ng-model=mainlayer.enabled id={{mainlayer.name}}{{mainlayer.id}}> <label for={{mainlayer.name}}{{mainlayer.id}}> {{mainlayer.name | limitTo: 20}}</label> </div> </div> <div ng-repeat=\"groupLayer in copySelectedTheme.Groups\"> <div class=layercontroller-checkbox> <input indeterminate-checkbox child-list=groupLayer.Layers property=enabled type=checkbox ng-model=groupLayer.enabled id={{groupLayer.name}}{{groupLayer.id}}> <label for={{groupLayer.name}}{{groupLayer.id}}> {{groupLayer.name | limitTo: 20}}</label> <div ng-repeat=\"layer in groupLayer.Layers\"> <div class=layercontroller-checkbox> <input type=checkbox ng-model=layer.enabled ng-change=layer.chkChanged() id={{layer.name}}{{layer.id}}> <label for={{layer.name}}{{layer.id}}> {{layer.name | limitTo: 20}}</label> </div> </div> </div> </div> </div> <button ng-if=\"copySelectedTheme.Added == false\" data-ng-click=AddOrUpdateTheme()>Toevoegen</button> </div> </div> </div> </div> <div class=modal-footer> <button data-ng-click=ok()>Klaar</button> </div> </div>"
+  );
+
+
+  $templateCache.put('templates/search/searchResultsTemplate.html',
+    "<div ng-if=!srchrsltsctrl.selectedResult> <select ng-if=\"srchrsltsctrl.featureLayers.length > 0\" ng-model=srchrsltsctrl.layerGroupFilter> <option value=geenfilter>Geen filter</option> <option ng-repeat=\"feat in srchrsltsctrl.featureLayers\" value={{feat}}>{{feat}}</option> </select> <ul ng-repeat=\"layerGroupName in srchrsltsctrl.featureLayers\"> <tink-accordion ng-if=\"srchrsltsctrl.layerGroupFilter=='geenfilter'\" data-start-open=true data-one-at-a-time=false> <tink-accordion-panel> <data-header> <p class=nav-aside-title>{{layerGroupName}}\n" +
+    "<a ng-click=srchrsltsctrl.deleteFeatureGroup(layerGroupName) class=pull-right><i class=\"fa fa-trash\"></i></a> </p>  </data-header> <data-content> <li ng-repeat=\"feature in srchrsltsctrl.features | filter: { layerName:layerGroupName } :true\" ng-mouseover=\"feature.hoverEdit = true\" ng-mouseleave=\"feature.hoverEdit = false\"> <a ng-if=!feature.hoverEdit ng-click=srchrsltsctrl.showDetails(feature)>{{ feature.displayValue | limitTo : 23}}<br>DETAILS</a> <div ng-if=feature.hoverEdit> <a ng-click=srchrsltsctrl.showDetails(feature)>{{ feature.displayValue}} <br>DETAILS</a>\n" +
+    "<a ng-click=srchrsltsctrl.deleteFeature(feature)><i class=\"fa fa-trash\"></i></a> </div> </li> </data-content> </tink-accordion-panel> </tink-accordion> </ul> <a ng-click=srchrsltsctrl.exportToCSV()>Export to CSV</a> </div>"
+  );
+
+
+  $templateCache.put('templates/search/searchSelectedTemplate.html',
+    "<div ng-if=srchslctdctrl.selectedResult> <div class=row> <div class=col-md-6><a ng-if=srchslctdctrl.prevResult ng-click=srchslctdctrl.vorige()>Vorige</a></div> <div class=\"col-md-6 pull-right\"> <a ng-if=srchslctdctrl.nextResult ng-click=srchslctdctrl.volgende()>Volgende</a></div> </div> <div class=row ng-repeat=\"prop in srchslctdctrl.props\"> <div class=col-md-5> {{ prop.key}} </div> <div class=col-md-7> {{ prop.value }} </div> </div> <div class=row> <div class=col-md-6><a ng-click=srchslctdctrl.toonFeatureOpKaart()>Tonen</a></div> <div class=\"col-md-6 pull-right\"> <button ng-click=\"\">Buffer</button></div> </div> <a ng-click=srchslctdctrl.close(srchslctdctrl.selectedResult)>Terug naar resultaten</a> </div>"
+  );
+
+
+  $templateCache.put('templates/search/searchTemplate.html',
+    "<div data-tink-nav-aside=\"\" data-auto-select=true data-toggle-id=asideNavLeft class=\"nav-aside nav-left\"> <aside> <div class=nav-aside-section> <tink-search-results></tink-search-results> <tink-search-selected></tink-search-selected> </div> </aside> </div>"
   );
 
 

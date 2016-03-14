@@ -83,14 +83,20 @@
                     switch (MapData.DrawingType) {
                         case DrawingOption.AFSTAND:
                             var omtrek = berkenOmtrek(e.layer);
-                            e.layer.bindPopup('Afstand (m): ' + omtrek + ' ');
+                            var popup = e.layer.bindPopup('Afstand (m): ' + omtrek + ' ');
+                            popup.on('popupclose', function(event) {
+                                MapData.CleanAll();
+                            });
                             e.layer.openPopup();
                             break;
                         case DrawingOption.OPPERVLAKTE:
                             var omtrek = berkenOmtrek(e.layer);
                             var popuptekst = '<p>Opp  (km<sup>2</sup>): ' + (LGeo.area(e.layer) / 1000000).toFixed(2) + '</p>'
                                 + '<p>Omtrek (m): ' + omtrek + ' </p>';
-                            e.layer.bindPopup(popuptekst);
+                            var popup = e.layer.bindPopup(popuptekst);
+                            popup.on('popupclose', function(event) {
+                                MapData.CleanAll();
+                            });
                             e.layer.openPopup();
                             break;
                         default:
