@@ -485,11 +485,10 @@ var DrawingOption = {
             vm.features = ResultsData.JsonFeatures;
             vm.featureLayers = null;
             vm.selectedResult = null;
-            vm.layerGroupFilter = "geenFilter";
+            vm.layerGroupFilter = "geenfilter";
             $scope.$watchCollection(function() { return ResultsData.JsonFeatures }, function(newValue, oldValue) {
-                console.log("CHANGES");
                 vm.featureLayers = _.uniq(_.map(vm.features, 'layerName'));
-                console.log(vm.features);
+                vm.layerGroupFilter = "geenfilter";
             });
 
             $scope.$watch(function() { return ResultsData.SelectedFeature; }, function(newVal, oldVal) {
@@ -512,9 +511,6 @@ var DrawingOption = {
             vm.showDetails = function(feature) {
                 ResultsData.SelectedFeature = feature;
             }
-            vm.test = function(test) {
-                console.log("jaaaa");
-            };
             vm.exportToCSV = function() {
                 var csvContent = "data:text/csv;charset=utf-8,";
                 var dataString = "";
@@ -542,26 +538,14 @@ var DrawingOption = {
                 window.open(encodedUri);
             };
 
-            // vm.fullyVis = function(feat) {
-            //     console.log("JA");
-            //     console.log(feat);
-            // };
-            // vm.hoverIn = function() {
-            //     console.log("JA");
-            //     vm.hoverEdit = true;
-            // };
 
-            // vm.hoverOut = function() {
-            //     console.log("JA");
-            //     vm.hoverEdit = false;
-            // };
         });
     theController.$inject = ['$scope', 'ResultsData'];
 })();;'use strict';
 (function(module) {
     module = angular.module('tink.gis');
     var theController = module.controller('searchSelectedController',
-        function($scope, ResultsData) {
+        function($scope, ResultsData, MapData) {
             var vm = this;
             vm.selectedResult = null;
             vm.prevResult = null;
@@ -589,9 +573,15 @@ var DrawingOption = {
                         }
                     }
                 }
+                else {
+                    vm.selectedResult = null;
+                    vm.prevResult = null;
+                    vm.nextResult = null;
+                }
             });
             vm.toonFeatureOpKaart = function() {
                 console.log(vm.selectedResult);
+                MapData.PanToFeature(vm.selectedResult);
                 // var bounds = L.latLngBounds(vm.selectedResult.mapItem);
                 // map.fitBounds(bounds);//works!
                 // map.setView(new L.LatLng(51.2192159, 4.4028818));
@@ -947,13 +937,15 @@ var DrawingOption = {
             _data.VisibleFeatures.length = 0;
             map.clearDrawings();
         };
+        _data.PanToFeature = function(feature) {
+            var tmplayer = feature.mapItem._layers[Object.keys(feature.mapItem._layers)[0]]
+            map.panTo(tmplayer.getBounds().getCenter());
+            map.fitBounds(tmplayer.getBounds());
+        };
         _data.AddFeatures = function(features, theme) {
             for (var x = 0; x < features.features.length; x++) {
                 var featureItem = features.features[x];
                 var layer = theme.AllLayers[featureItem.layerId];
-                if (layer.id != featureItem.layerId) {
-                    console.log("ERROR!! moet zelfde layer zijn!!!!!!");
-                }
                 // featureItem.layer = layer;
                 // featureItem.theme = theme;
                 featureItem.layerName = layer.name;
@@ -965,11 +957,6 @@ var DrawingOption = {
                 _data.VisibleFeatures.push(mapItem);
                 featureItem.mapItem = mapItem;
                 ResultsData.JsonFeatures.push(featureItem);
-                console.log(featureItem.id);
-                console.log(featureItem);
-
-
-
             }
             $rootScope.$apply();
         };
@@ -1562,14 +1549,14 @@ var DrawingOption = {
 
 
   $templateCache.put('templates/search/searchResultsTemplate.html',
-    "<div ng-if=!srchrsltsctrl.selectedResult> <select ng-if=\"srchrsltsctrl.featureLayers.length > 0\" ng-model=srchrsltsctrl.layerGroupFilter> <option value=geenfilter>Geen filter</option> <option ng-repeat=\"feat in srchrsltsctrl.featureLayers\" value={{feat}}>{{feat}}</option> </select> <ul ng-repeat=\"layerGroupName in srchrsltsctrl.featureLayers\"> <tink-accordion ng-if=\"srchrsltsctrl.layerGroupFilter=='geenfilter'\" data-start-open=true data-one-at-a-time=false> <tink-accordion-panel> <data-header> <p class=nav-aside-title>{{layerGroupName}}\n" +
+    "<div ng-if=\"!srchrsltsctrl.selectedResult && srchrsltsctrl.featureLayers.length > 0\"> <select ng-model=srchrsltsctrl.layerGroupFilter> <option value=geenfilter selected>Geen filter</option> <option ng-repeat=\"feat in srchrsltsctrl.featureLayers\" value={{feat}}>{{feat}}</option> </select> <ul ng-repeat=\"layerGroupName in srchrsltsctrl.featureLayers\"> <tink-accordion ng-if=\"srchrsltsctrl.layerGroupFilter=='geenfilter' || srchrsltsctrl.layerGroupFilter==layerGroupName \" data-start-open=true data-one-at-a-time=false> <tink-accordion-panel> <data-header> <p class=nav-aside-title>{{layerGroupName}}\n" +
     "<a ng-click=srchrsltsctrl.deleteFeatureGroup(layerGroupName) class=pull-right><i class=\"fa fa-trash\"></i></a> </p>  </data-header> <data-content> <li ng-repeat=\"feature in srchrsltsctrl.features | filter: { layerName:layerGroupName } :true\" ng-mouseover=\"feature.hoverEdit = true\" ng-mouseleave=\"feature.hoverEdit = false\"> <a ng-if=!feature.hoverEdit ng-click=srchrsltsctrl.showDetails(feature)>{{ feature.displayValue | limitTo : 23}}<br>DETAILS</a> <div ng-if=feature.hoverEdit> <a ng-click=srchrsltsctrl.showDetails(feature)>{{ feature.displayValue}} <br>DETAILS</a>\n" +
     "<a ng-click=srchrsltsctrl.deleteFeature(feature)><i class=\"fa fa-trash\"></i></a> </div> </li> </data-content> </tink-accordion-panel> </tink-accordion> </ul> <a ng-click=srchrsltsctrl.exportToCSV()>Export to CSV</a> </div>"
   );
 
 
   $templateCache.put('templates/search/searchSelectedTemplate.html',
-    "<div ng-if=srchslctdctrl.selectedResult> <div class=row> <div class=col-md-6><a ng-if=srchslctdctrl.prevResult ng-click=srchslctdctrl.vorige()>Vorige</a></div> <div class=\"col-md-6 pull-right\"> <a ng-if=srchslctdctrl.nextResult ng-click=srchslctdctrl.volgende()>Volgende</a></div> </div> <div class=row ng-repeat=\"prop in srchslctdctrl.props\"> <div class=col-md-5> {{ prop.key}} </div> <div class=col-md-7> {{ prop.value }} </div> </div> <div class=row> <div class=col-md-6><a ng-click=srchslctdctrl.toonFeatureOpKaart()>Tonen</a></div> <div class=\"col-md-6 pull-right\"> <button ng-click=\"\">Buffer</button></div> </div> <a ng-click=srchslctdctrl.close(srchslctdctrl.selectedResult)>Terug naar resultaten</a> </div>"
+    "<div ng-if=srchslctdctrl.selectedResult> <div class=row> <div class=col-md-6> <button class=\"pull-left srchbtn\" ng-if=srchslctdctrl.prevResult ng-click=srchslctdctrl.vorige()>Vorige</button> </div> <div class=col-md-6> <button class=\"pull-right srchbtn\" ng-if=srchslctdctrl.nextResult ng-click=srchslctdctrl.volgende()>Volgende</button> </div> </div> <div class=row ng-repeat=\"prop in srchslctdctrl.props\"> <div class=col-md-5> {{ prop.key}} </div> <div class=col-md-7 ng-if=\"prop.value.toLowerCase() != 'null'\"> <a ng-if=\" prop.value.indexOf( 'https://')==0 || prop.value.indexOf( 'http://')==0 \" ng-href={{prop.value}} target=_blank>Link</a> <div ng-if=\"prop.value.indexOf( 'https://') !=0 && prop.value.indexOf( 'http://') !=0 \">{{ prop.value }}</div> </div> </div> <div class=row> <div class=col-md-6> <button class=\"pull-left srchbtn\" ng-click=\"srchslctdctrl.toonFeatureOpKaart() \">Tonen</button> </div> <div class=col-md-6> <button class=\"pull-right srchbtn\" ng-click=\" \">Buffer</button> </div> </div> <button class=srchbtn ng-click=\"srchslctdctrl.close(srchslctdctrl.selectedResult) \">Terug naar resultaten</button> </div>"
   );
 
 
