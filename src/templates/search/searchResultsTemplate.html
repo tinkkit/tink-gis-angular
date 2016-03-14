@@ -1,10 +1,11 @@
-<div ng-if="!srchrsltsctrl.selectedResult">
-    <select ng-if="srchrsltsctrl.featureLayers.length > 0" ng-model="srchrsltsctrl.layerGroupFilter">
-        <option value="geenfilter">Geen filter</option>
+<div ng-if="!srchrsltsctrl.selectedResult && srchrsltsctrl.featureLayers.length > 0">
+    <select ng-model="srchrsltsctrl.layerGroupFilter">
+        <option value="geenfilter" selected="selected">Geen filter</option>
         <option ng-repeat="feat in srchrsltsctrl.featureLayers" value="{{feat}}">{{feat}}</option>
     </select>
     <ul ng-repeat="layerGroupName in srchrsltsctrl.featureLayers">
-        <tink-accordion ng-if="srchrsltsctrl.layerGroupFilter=='geenfilter'" data-start-open="true" data-one-at-a-time="false">
+        <tink-accordion ng-if="srchrsltsctrl.layerGroupFilter=='geenfilter' || srchrsltsctrl.layerGroupFilter==layerGroupName " data-start-open="true"
+        data-one-at-a-time="false">
             <tink-accordion-panel>
                 <data-header>
                     <p class="nav-aside-title">{{layerGroupName}}

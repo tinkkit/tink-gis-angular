@@ -121,13 +121,14 @@
             _data.VisibleFeatures.length = 0;
             map.clearDrawings();
         };
+        _data.PanToFeature = function(feature) {
+            var tmplayer = feature.mapItem._layers[Object.keys(feature.mapItem._layers)[0]]
+            map.panTo(tmplayer.getBounds().getCenter());
+        };
         _data.AddFeatures = function(features, theme) {
             for (var x = 0; x < features.features.length; x++) {
                 var featureItem = features.features[x];
                 var layer = theme.AllLayers[featureItem.layerId];
-                if (layer.id != featureItem.layerId) {
-                    console.log("ERROR!! moet zelfde layer zijn!!!!!!");
-                }
                 // featureItem.layer = layer;
                 // featureItem.theme = theme;
                 featureItem.layerName = layer.name;
@@ -139,11 +140,6 @@
                 _data.VisibleFeatures.push(mapItem);
                 featureItem.mapItem = mapItem;
                 ResultsData.JsonFeatures.push(featureItem);
-                console.log(featureItem.id);
-                console.log(featureItem);
-
-
-
             }
             $rootScope.$apply();
         };

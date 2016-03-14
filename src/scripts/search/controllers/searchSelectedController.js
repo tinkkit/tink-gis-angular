@@ -2,7 +2,7 @@
 (function(module) {
     module = angular.module('tink.gis');
     var theController = module.controller('searchSelectedController',
-        function($scope, ResultsData) {
+        function($scope, ResultsData, MapData) {
             var vm = this;
             vm.selectedResult = null;
             vm.prevResult = null;
@@ -30,9 +30,15 @@
                         }
                     }
                 }
+                else {
+                    vm.selectedResult = null;
+                    vm.prevResult = null;
+                    vm.nextResult = null;
+                }
             });
             vm.toonFeatureOpKaart = function() {
                 console.log(vm.selectedResult);
+                MapData.PanToFeature(vm.selectedResult);
                 // var bounds = L.latLngBounds(vm.selectedResult.mapItem);
                 // map.fitBounds(bounds);//works!
                 // map.setView(new L.LatLng(51.2192159, 4.4028818));

@@ -7,11 +7,10 @@
             vm.features = ResultsData.JsonFeatures;
             vm.featureLayers = null;
             vm.selectedResult = null;
-            vm.layerGroupFilter = "geenFilter";
+            vm.layerGroupFilter = "geenfilter";
             $scope.$watchCollection(function() { return ResultsData.JsonFeatures }, function(newValue, oldValue) {
-                console.log("CHANGES");
                 vm.featureLayers = _.uniq(_.map(vm.features, 'layerName'));
-                console.log(vm.features);
+                vm.layerGroupFilter = "geenfilter";
             });
 
             $scope.$watch(function() { return ResultsData.SelectedFeature; }, function(newVal, oldVal) {
@@ -34,9 +33,6 @@
             vm.showDetails = function(feature) {
                 ResultsData.SelectedFeature = feature;
             }
-            vm.test = function(test) {
-                console.log("jaaaa");
-            };
             vm.exportToCSV = function() {
                 var csvContent = "data:text/csv;charset=utf-8,";
                 var dataString = "";
@@ -64,19 +60,7 @@
                 window.open(encodedUri);
             };
 
-            // vm.fullyVis = function(feat) {
-            //     console.log("JA");
-            //     console.log(feat);
-            // };
-            // vm.hoverIn = function() {
-            //     console.log("JA");
-            //     vm.hoverEdit = true;
-            // };
 
-            // vm.hoverOut = function() {
-            //     console.log("JA");
-            //     vm.hoverEdit = false;
-            // };
         });
     theController.$inject = ['$scope', 'ResultsData'];
 })();
