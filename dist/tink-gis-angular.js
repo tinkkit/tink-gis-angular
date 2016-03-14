@@ -485,6 +485,7 @@ var DrawingOption = {
             vm.features = ResultsData.JsonFeatures;
             vm.featureLayers = null;
             vm.selectedResult = null;
+            vm.layerGroupFilter = "geenFilter";
             $scope.$watchCollection(function() { return ResultsData.JsonFeatures }, function(newValue, oldValue) {
                 console.log("CHANGES");
                 vm.featureLayers = _.uniq(_.map(vm.features, 'layerName'));
@@ -500,11 +501,45 @@ var DrawingOption = {
                     ResultsData.JsonFeatures.splice(featureIndex, 1);
                 }
             };
+            vm.deleteFeatureGroup = function(featureGroupName) {
+                ResultsData.JsonFeatures.forEach(function(feature) {
+                    if (feature.layerName === featureGroupName) {
+                        vm.deleteFeature(feature);
+                    }
+                });
+            };
+
             vm.showDetails = function(feature) {
                 ResultsData.SelectedFeature = feature;
             }
             vm.test = function(test) {
                 console.log("jaaaa");
+            };
+            vm.exportToCSV = function() {
+                var csvContent = "data:text/csv;charset=utf-8,";
+                var dataString = "";
+                var layName = "";
+
+                ResultsData.JsonFeatures.forEach(function(feature, index) {
+                    if (layName !== feature.layerName) {
+                        layName = feature.layerName;
+                        var tmparr = [];
+                        for (var name in feature.properties) {
+                            tmparr.push(name);
+                        }
+                        var layfirstline = tmparr.join(",");
+
+                        csvContent += layName + "\n" + layfirstline + "\n";
+                    }
+                    var infoArray = _.values(feature.properties)
+                    dataString = infoArray.join(",");
+                    console.log(dataString);
+                    // csvContent += dataString + "\n";
+                    csvContent += index < ResultsData.JsonFeatures.length ? dataString + "\n" : dataString;
+
+                });
+                var encodedUri = encodeURI(csvContent);
+                window.open(encodedUri);
             };
 
             // vm.fullyVis = function(feat) {
@@ -535,7 +570,7 @@ var DrawingOption = {
             $scope.$watch(function() { return ResultsData.SelectedFeature; }, function(newVal, oldVal) {
                 if (newVal) {
                     vm.selectedResult = newVal;
-                    var item = Object.getOwnPropertyNames(newVal.properties).map(function(k) { ({ key: k, value: newVal.properties[k] }) });
+                    var item = Object.getOwnPropertyNames(newVal.properties).map(function(k) { return ({ key: k, value: newVal.properties[k] }) });
                     vm.props = item;
                     vm.prevResult = null;
                     vm.nextResult = null;
@@ -1030,14 +1065,20 @@ var DrawingOption = {
                     switch (MapData.DrawingType) {
                         case DrawingOption.AFSTAND:
                             var omtrek = berkenOmtrek(e.layer);
-                            e.layer.bindPopup('Afstand (m): ' + omtrek + ' ');
+                            var popup = e.layer.bindPopup('Afstand (m): ' + omtrek + ' ');
+                            popup.on('popupclose', function(event) {
+                                MapData.CleanAll();
+                            });
                             e.layer.openPopup();
                             break;
                         case DrawingOption.OPPERVLAKTE:
                             var omtrek = berkenOmtrek(e.layer);
                             var popuptekst = '<p>Opp  (km<sup>2</sup>): ' + (LGeo.area(e.layer) / 1000000).toFixed(2) + '</p>'
                                 + '<p>Omtrek (m): ' + omtrek + ' </p>';
-                            e.layer.bindPopup(popuptekst);
+                            var popup = e.layer.bindPopup(popuptekst);
+                            popup.on('popupclose', function(event) {
+                                MapData.CleanAll();
+                            });
                             e.layer.openPopup();
                             break;
                         default:
@@ -1494,7 +1535,7 @@ var DrawingOption = {
   );
 
 
-  $templateCache.put('templates/layersTemplate.html',
+  $templateCache.put('templates/layerstemplate.html',
     "<div data-tink-nav-aside=\"\" data-auto-select=true data-toggle-id=asideNavRight class=\"nav-aside nav-right\"> <aside> <div class=nav-aside-section> <ul ui-sortable ng-model=lyrsctrl.themes> <div ng-repeat=\"theme in lyrsctrl.themes\"> <tink-theme theme=theme> </tink-theme> </div> </ul> <button class=\"btn btn-primary addlayerbtn\" ng-click=lyrsctrl.AddLayers()>Voeg laag toe</button> </div> </aside> </div>"
   );
 
@@ -1521,13 +1562,14 @@ var DrawingOption = {
 
 
   $templateCache.put('templates/search/searchResultsTemplate.html',
-    "<ul ng-if=!srchrsltsctrl.selectedResult ng-repeat=\"layerGroupName in srchrsltsctrl.featureLayers\"> <p class=nav-aside-title>{{layerGroupName}}</p> <li ng-repeat=\"feature in srchrsltsctrl.features | filter: { layerName:layerGroupName } :true\" ng-mouseover=\"feature.hoverEdit = true\" ng-mouseleave=\"feature.hoverEdit = false\"> <a ng-if=!feature.hoverEdit ng-click=srchrsltsctrl.showDetails(feature)>{{ feature.displayValue | limitTo : 23}}<br>DETAILS</a> <div ng-if=feature.hoverEdit> <a ng-click=srchrsltsctrl.showDetails(feature)>{{ feature.displayValue}} <br>DETAILS</a>\n" +
-    "<a ng-click=srchrsltsctrl.deleteFeature(feature)><i class=\"fa fa-trash\"></i></a> </div> </li> </ul>"
+    "<div ng-if=!srchrsltsctrl.selectedResult> <select ng-if=\"srchrsltsctrl.featureLayers.length > 0\" ng-model=srchrsltsctrl.layerGroupFilter> <option value=geenfilter>Geen filter</option> <option ng-repeat=\"feat in srchrsltsctrl.featureLayers\" value={{feat}}>{{feat}}</option> </select> <ul ng-repeat=\"layerGroupName in srchrsltsctrl.featureLayers\"> <tink-accordion ng-if=\"srchrsltsctrl.layerGroupFilter=='geenfilter'\" data-start-open=true data-one-at-a-time=false> <tink-accordion-panel> <data-header> <p class=nav-aside-title>{{layerGroupName}}\n" +
+    "<a ng-click=srchrsltsctrl.deleteFeatureGroup(layerGroupName) class=pull-right><i class=\"fa fa-trash\"></i></a> </p>  </data-header> <data-content> <li ng-repeat=\"feature in srchrsltsctrl.features | filter: { layerName:layerGroupName } :true\" ng-mouseover=\"feature.hoverEdit = true\" ng-mouseleave=\"feature.hoverEdit = false\"> <a ng-if=!feature.hoverEdit ng-click=srchrsltsctrl.showDetails(feature)>{{ feature.displayValue | limitTo : 23}}<br>DETAILS</a> <div ng-if=feature.hoverEdit> <a ng-click=srchrsltsctrl.showDetails(feature)>{{ feature.displayValue}} <br>DETAILS</a>\n" +
+    "<a ng-click=srchrsltsctrl.deleteFeature(feature)><i class=\"fa fa-trash\"></i></a> </div> </li> </data-content> </tink-accordion-panel> </tink-accordion> </ul> <a ng-click=srchrsltsctrl.exportToCSV()>Export to CSV</a> </div>"
   );
 
 
   $templateCache.put('templates/search/searchSelectedTemplate.html',
-    "<div ng-if=srchslctdctrl.selectedResult> <a ng-click=srchslctdctrl.close(srchslctdctrl.selectedResult)>Terug naar resultaten</a> <div class=row ng-repeat=\"prop in srchslctdctrl.props\"> <div class=col-md-5> {{ prop.key}} </div> <div class=col-md-7> {{ prop.value }} </div> </div> <div class=row> <div class=col-md-6><a ng-click=srchslctdctrl.toonFeatureOpKaart()>Tonen</a></div> <div class=\"col-md-6 pull-right\"> <a ng-click=\"\">Buffer</a></div> </div> <div class=row> <div class=col-md-6><a ng-if=srchslctdctrl.prevResult ng-click=srchslctdctrl.vorige()>Vorige</a></div> <div class=\"col-md-6 pull-right\"> <a ng-if=srchslctdctrl.nextResult ng-click=srchslctdctrl.volgende()>Volgende</a></div> </div> </div>"
+    "<div ng-if=srchslctdctrl.selectedResult> <div class=row> <div class=col-md-6><a ng-if=srchslctdctrl.prevResult ng-click=srchslctdctrl.vorige()>Vorige</a></div> <div class=\"col-md-6 pull-right\"> <a ng-if=srchslctdctrl.nextResult ng-click=srchslctdctrl.volgende()>Volgende</a></div> </div> <div class=row ng-repeat=\"prop in srchslctdctrl.props\"> <div class=col-md-5> {{ prop.key}} </div> <div class=col-md-7> {{ prop.value }} </div> </div> <div class=row> <div class=col-md-6><a ng-click=srchslctdctrl.toonFeatureOpKaart()>Tonen</a></div> <div class=\"col-md-6 pull-right\"> <button ng-click=\"\">Buffer</button></div> </div> <a ng-click=srchslctdctrl.close(srchslctdctrl.selectedResult)>Terug naar resultaten</a> </div>"
   );
 
 
