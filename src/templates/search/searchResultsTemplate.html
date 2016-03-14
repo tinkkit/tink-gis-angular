@@ -1,15 +1,30 @@
 <div ng-if="!srchrsltsctrl.selectedResult">
+    <select ng-if="srchrsltsctrl.featureLayers.length > 0" ng-model="srchrsltsctrl.layerGroupFilter">
+        <option value="geenfilter">Geen filter</option>
+        <option ng-repeat="feat in srchrsltsctrl.featureLayers" value="{{feat}}">{{feat}}</option>
+    </select>
     <ul ng-repeat="layerGroupName in srchrsltsctrl.featureLayers">
-        <p class="nav-aside-title">{{layerGroupName}}<a ng-click="srchrsltsctrl.deleteFeatureGroup(layerGroupName)" class="pull-right"><i class="fa fa-trash"></i></a></p>
-        <li ng-repeat="feature in srchrsltsctrl.features | filter: { layerName:layerGroupName } :true" ng-mouseover="feature.hoverEdit = true"
-        ng-mouseleave="feature.hoverEdit = false">
-            <a ng-if="!feature.hoverEdit" ng-click="srchrsltsctrl.showDetails(feature)">{{ feature.displayValue | limitTo : 23}}<br/>DETAILS</a>
-            <div ng-if="feature.hoverEdit">
-                <a ng-click="srchrsltsctrl.showDetails(feature)">{{ feature.displayValue}}
+        <tink-accordion ng-if="srchrsltsctrl.layerGroupFilter=='geenfilter'" data-start-open="true" data-one-at-a-time="false">
+            <tink-accordion-panel>
+                <data-header>
+                    <p class="nav-aside-title">{{layerGroupName}}
+                        <a ng-click="srchrsltsctrl.deleteFeatureGroup(layerGroupName)" class="pull-right"><i class="fa fa-trash"></i></a>
+                    </p>
+                    <!--Accordion with callback function-->
+                </data-header>
+                <data-content>
+                    <li ng-repeat="feature in srchrsltsctrl.features | filter: { layerName:layerGroupName } :true" ng-mouseover="feature.hoverEdit = true"
+                    ng-mouseleave="feature.hoverEdit = false">
+                        <a ng-if="!feature.hoverEdit" ng-click="srchrsltsctrl.showDetails(feature)">{{ feature.displayValue | limitTo : 23}}<br/>DETAILS</a>
+                        <div ng-if="feature.hoverEdit">
+                            <a ng-click="srchrsltsctrl.showDetails(feature)">{{ feature.displayValue}}
                 <br/>DETAILS</a>
-                <a ng-click="srchrsltsctrl.deleteFeature(feature)"><i class="fa fa-trash"></i></a>
-            </div>
-        </li>
+                            <a ng-click="srchrsltsctrl.deleteFeature(feature)"><i class="fa fa-trash"></i></a>
+                        </div>
+                    </li>
+                </data-content>
+            </tink-accordion-panel>
+        </tink-accordion>
     </ul>
     </p><a ng-click="srchrsltsctrl.exportToCSV()">Export to CSV</a></p>
 </div>

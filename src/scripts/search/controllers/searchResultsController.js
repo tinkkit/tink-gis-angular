@@ -7,6 +7,7 @@
             vm.features = ResultsData.JsonFeatures;
             vm.featureLayers = null;
             vm.selectedResult = null;
+            vm.layerGroupFilter = "geenFilter";
             $scope.$watchCollection(function() { return ResultsData.JsonFeatures }, function(newValue, oldValue) {
                 console.log("CHANGES");
                 vm.featureLayers = _.uniq(_.map(vm.features, 'layerName'));
