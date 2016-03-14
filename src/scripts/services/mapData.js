@@ -124,6 +124,7 @@
         _data.PanToFeature = function(feature) {
             var tmplayer = feature.mapItem._layers[Object.keys(feature.mapItem._layers)[0]]
             map.panTo(tmplayer.getBounds().getCenter());
+            map.fitBounds(tmplayer.getBounds());
         };
         _data.AddFeatures = function(features, theme) {
             for (var x = 0; x < features.features.length; x++) {
