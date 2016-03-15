@@ -272,6 +272,22 @@ module.exports = function (grunt) {
         ]
       }
     },
+    babel: {
+        options: {
+            sourceMap: true,
+            presets: ['es2015']
+        },
+        dist: {
+  
+               files: [{
+        expand: true,
+        cwd: 'src/scripts',
+        src: ['**/*.js'],
+        dest: 'dist/scripts',
+        ext:'.js'
+      }]
+        }
+    },
     concat: {
       options: {
         separator: ';'
@@ -403,11 +419,12 @@ module.exports = function (grunt) {
   ]);
 
   grunt.registerTask('build', [
-    'karma:build',
     'clean',
+    'babel',
+    'karma:build',
     'ngtemplates',
     'replace',
-    'copy:dist',
+   // 'copy:dist',
     'concat',
     'uglify:dist',
     'concurrent:dist',

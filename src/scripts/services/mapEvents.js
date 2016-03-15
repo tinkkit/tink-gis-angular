@@ -23,6 +23,15 @@
             });
             return totalDistance.toFixed(2);
         };
+
+        map.on('zoomend', function(event) {
+            console.log('Zoomend!!!');
+            console.log(event);
+            MapData.Themes.forEach(x => {
+                  console.log(x.MapData);
+            });
+        });
+
         map.on('click', function(event) {
             console.log('click op map! Is drawing: ' + MapData.IsDrawing);
             if (!MapData.IsDrawing) {
