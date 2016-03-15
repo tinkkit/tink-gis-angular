@@ -419,9 +419,9 @@ module.exports = function (grunt) {
   ]);
 
   grunt.registerTask('build', [
+    'clean',
     'babel',
     'karma:build',
-    'clean',
     'ngtemplates',
     'replace',
    // 'copy:dist',
