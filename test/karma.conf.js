@@ -28,9 +28,9 @@ module.exports = function(config) {
       'bower_components/angular-sanitize/angular-sanitize.js',
       'bower_components/angular-touch/angular-touch.js',
      // 'src/scripts/controllers/format.js',
-      'src/scripts/{,*/}*.js',
-      'src/scripts/{,**/}*.js',
-      'src/{,*/}',
+      'dist/scripts/{,*/}*.js',
+      'dist/scripts/{,**/}*.js',
+      //'src/{,*/}',
       'test/mock/{,*/}*.js',
       'test/spec/{,*/}*.js',
       'src/templates/{,*/}*.html'
