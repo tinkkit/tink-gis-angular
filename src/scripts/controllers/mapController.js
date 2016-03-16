@@ -3,7 +3,7 @@
 'use strict';
 (function(module) {
     module = angular.module('tink.gis');
-    var theController = module.controller('mapController', function($scope, BaseLayersService, MapService, MapData, map, MapEvents) {
+    var theController = module.controller('mapController', function($scope, BaseLayersService, MapService, MapData, map, MapEvents, DrawService) {
         //We need to include MapEvents, even tho we don t call it just to make sure it gets loaded!
         var vm = this;
         vm.layerId = '';
@@ -38,34 +38,10 @@
         };
         vm.drawingButtonChanged = function(drawOption) {
             MapData.CleanAll();
-            MapData.RemoveDrawings();
             MapData.DrawingType = drawOption; // pff must be possible to be able to sync them...
             vm.drawingType = drawOption;
-            switch (MapData.DrawingType) {
-                case DrawingOption.AFSTAND:
-                    MapData.DrawingObject = new L.Draw.Polyline(map);
-                    MapData.DrawingObject.enable();
-                    break;
-                case DrawingOption.OPPERVLAKTE:
-                    var polygon_options = {
-                        showArea: true,
-                        shapeOptions: {
-                            stroke: true,
-                            color: '#22528b',
-                            weight: 4,
-                            opacity: 0.5,
-                            fill: true,
-                            fillColor: null, //same as color by default
-                            fillOpacity: 0.6,
-                            clickable: true
-                        }
-                    }
-                    MapData.DrawingObject = new L.Draw.Polygon(map, polygon_options);
-                    MapData.DrawingObject.enable();
-                    break;
-                default:
-                    break;
-            }
+            DrawService.StartDraw(drawOption);
+      
         };
         vm.layerChange = function() {
             MapData.CleanMap();
@@ -93,5 +69,5 @@
             map.addLayer(BaseLayersService.luchtfoto);
         };
     });
-    theController.$inject = ['BaseLayersService', 'MapService', 'MapData', 'map', 'MapEvents'];
+    theController.$inject = ['BaseLayersService', 'MapService', 'MapData', 'map', 'MapEvents', 'DrawService'];
 })();

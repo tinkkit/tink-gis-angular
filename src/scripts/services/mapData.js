@@ -21,21 +21,23 @@
         _data.ActiveInteractieKnop = ActiveInteractieButton.SELECT;
         _data.DrawingType = DrawingOption.NIETS;
         _data.DrawingObject = null;
-        _data.RemoveDrawings = function() {
+        _data.CleanDrawings = function() {
             if (_data.DrawingObject) {
+                console.log(_data.DrawingObject);
+                if (_data.DrawingObject.layer) { // if the layer (drawing) is created
+                    _data.DrawingObject.layer._popup = null; // remove popup first because else it will fire close event which will do an other clean of the drawings which is not needed
+                }
                 _data.DrawingObject.disable();
-                // map.removeLayer(_data.DrawingObject);
                 _data.DrawingObject = null;
+                map.clearDrawings();
             }
         };
         var WatIsHierMarker = null;
         var WatIsHierOriginalMarker = null;
-
         _data.CleanAll = function() {
-            _data.RemoveDrawings();
-            _data.CleanMap();
+            _data.CleanDrawings();
             _data.CleanWatIsHier();
-            ResultsData.CleanSearch();
+            _data.CleanSearch();
         };
         _data.CleanWatIsHier = function() {
             if (WatIsHierOriginalMarker) {
@@ -114,12 +116,12 @@
             WatIsHierMarker = L.marker([convertedBackToWSG84.x, convertedBackToWSG84.y], { icon: greenIcon }).addTo(map);
 
         };
-        _data.CleanMap = function() {
+        _data.CleanSearch = function() {
+            ResultsData.CleanSearch();
             for (var x = 0; x < _data.VisibleFeatures.length; x++) {
                 map.removeLayer(_data.VisibleFeatures[x]); //eerst de
             }
             _data.VisibleFeatures.length = 0;
-            map.clearDrawings();
         };
         _data.PanToFeature = function(feature) {
             var tmplayer = feature.mapItem._layers[Object.keys(feature.mapItem._layers)[0]]

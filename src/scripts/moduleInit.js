@@ -44,10 +44,12 @@
             drawnItems.addLayer(layer);
         });
         map.on('draw:drawstart', function(event) {
-            console.log(drawnItems);
-            map.clearDrawings();
+            //console.log(drawnItems);
+            //map.clearDrawings();
         });
         map.clearDrawings = function() {
+            console.log("clearingDrawings");
+            console.log(drawnItems);
             drawnItems.clearLayers();
         }
 
@@ -56,7 +58,7 @@
 
     module.factory("map", mapObject);
 })();
-// L.AwesomeMarkers.Icon.prototype.options.prefix = 'fa';
+L.AwesomeMarkers.Icon.prototype.options.prefix = 'fa';
 
 //Moet plaats voor zoeken!!! Enums in Angular hmm
 var ThemeStatus = { // http://stijndewitt.com/2014/01/26/enums-in-javascript/
