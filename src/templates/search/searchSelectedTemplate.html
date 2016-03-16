@@ -1,9 +1,12 @@
 <div ng-if="srchslctdctrl.selectedResult">
     <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-4">
             <button class="pull-left srchbtn" ng-if="srchslctdctrl.prevResult" ng-click="srchslctdctrl.vorige()">Vorige</button>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-4">
+            <button class="srchbtn" ng-click="srchslctdctrl.delete()">Delete</button>
+        </div>
+        <div class="col-md-4">
             <button class="pull-right srchbtn" ng-if="srchslctdctrl.nextResult" ng-click="srchslctdctrl.volgende()">Volgende</button>
         </div>
     </div>
