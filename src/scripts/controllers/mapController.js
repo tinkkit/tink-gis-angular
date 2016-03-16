@@ -44,7 +44,7 @@
       
         };
         vm.layerChange = function() {
-            MapData.CleanMap();
+            MapData.CleanAll();
             // console.log("vm.sel: " + vm.selectedLayer.id + "/ MapData.SelectedLayer: " + MapData.Layer.SelectedLayer.id);
             MapData.SelectedLayer = vm.selectedLayer;
         };
