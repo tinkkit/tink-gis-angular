@@ -13,22 +13,8 @@
                     vm.selectedResult = newVal;
                     var item = Object.getOwnPropertyNames(newVal.properties).map(k => ({ key: k, value: newVal.properties[k] }));
                     vm.props = item;
-                    vm.prevResult = null;
-                    vm.nextResult = null;
-                    var index = ResultsData.JsonFeatures.indexOf(newVal);
-                    var layerName = newVal.layerName;
-                    if (index > 0) { // check or prevResult exists
-                        var prevItem = ResultsData.JsonFeatures[index - 1];
-                        if (prevItem.layerName === layerName) {
-                            vm.prevResult = prevItem;
-                        }
-                    }
-                    if (index < ResultsData.JsonFeatures.length - 1) { // check for nextResult exists
-                        var nextItem = ResultsData.JsonFeatures[index + 1];
-                        if (nextItem.layerName === layerName) {
-                            vm.nextResult = nextItem;
-                        }
-                    }
+                    vm.prevResult = SearchService.GetPrevResult();
+                    vm.nextResult = SearchService.GetNextResult();
                 }
                 else {
                     vm.selectedResult = null;
@@ -49,12 +35,14 @@
 
             };
             vm.delete = function() {
+                var prev = SearchService.GetPrevResult();
+                var next = SearchService.GetNextResult();
                 SearchService.DeleteFeature(vm.selectedResult);
-                if (vm.nextResult) {
-                    ResultsData.SelectedFeature = vm.nextResult;
+                if (next) {
+                    ResultsData.SelectedFeature = next;
                 }
-                else if (vm.nextResult) {
-                    ResultsData.SelectedFeature = vm.prevResult;
+                else if (prev) {
+                    ResultsData.SelectedFeature = prev;
                 }
                 else {
                     ResultsData.SelectedFeature = null;

@@ -6,7 +6,6 @@
         _service.DeleteFeature = function(feature) {
             var featureIndex = ResultsData.JsonFeatures.indexOf(feature);
             if (featureIndex > -1) {
-                console.log(feature);
                 map.removeLayer(feature.mapItem);
                 ResultsData.JsonFeatures.splice(featureIndex, 1);
             }
@@ -44,6 +43,30 @@
             var encodedUri = encodeURI(csvContent);
             window.open(encodedUri);
         };
+        _service.GetNextResult = function() {
+            var index = ResultsData.JsonFeatures.indexOf(ResultsData.SelectedFeature);
+            var layerName = ResultsData.SelectedFeature.layerName;
+            if (index < ResultsData.JsonFeatures.length - 1) { // check for nextResult exists
+                var nextItem = ResultsData.JsonFeatures[index + 1];
+                if (nextItem.layerName === layerName) {
+                    return nextItem;
+                }
+            }
+            return null;
+
+        };
+        _service.GetPrevResult = function() {
+            var index = ResultsData.JsonFeatures.indexOf(ResultsData.SelectedFeature);
+            var layerName = ResultsData.SelectedFeature.layerName;
+            if (index > 0) { // check or prevResult exists
+                var prevItem = ResultsData.JsonFeatures[index - 1];
+                if (prevItem.layerName === layerName) {
+                    return prevItem;
+                }
+            }
+            return null;
+        };
+        
         return _service;
     };
     module.factory("SearchService", service);
