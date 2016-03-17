@@ -85,10 +85,12 @@
             drawnItems.addLayer(layer);
         });
         map.on('draw:drawstart', function(event) {
-            console.log(drawnItems);
-            map.clearDrawings();
+            //console.log(drawnItems);
+            //map.clearDrawings();
         });
         map.clearDrawings = function() {
+            console.log("clearingDrawings");
+            console.log(drawnItems);
             drawnItems.clearLayers();
         }
 

@@ -10,7 +10,6 @@
         function($scope, $modalInstance, ThemeHelper, $q, urls, MapService, MapData, GISService, LayerManagementService) {
             LayerManagementService.EnabledThemes.length = 0;
             LayerManagementService.AvailableThemes.length = 0;
-            console.log(MapData.Themes);
             LayerManagementService.EnabledThemes = angular.copy(MapData.Themes);
             $scope.availableThemes = LayerManagementService.AvailableThemes;
             var init = function() {
@@ -23,10 +22,15 @@
             $scope.selectedTheme = null;
             $scope.copySelectedTheme = null;
             $scope.themeChanged = function(theme) {
+                console.log("themeChanged");
+                console.log(theme);
                 $scope.selectedTheme = theme;
                 $scope.copySelectedTheme = angular.copy(theme);
+                console.log($scope.copySelectedTheme);
+
             };
             $scope.AddOrUpdateTheme = function() {
+                console.log("AddOrUpdateTheme");
                 var allChecked = true;
                 var noneChecked = true;
                 for (var x = 0; x < $scope.copySelectedTheme.AllLayers.length; x++) { // aha dus update gebeurt, we gaan deze toevoegen.
@@ -40,7 +44,7 @@
                         noneChecked = false;
                     }
                 };
-                var alreadyAdded = LayerManagementService.EnabledThemes.find(function(x) { x.Url === $scope.selectedTheme.Url }) != undefined;
+                var alreadyAdded = LayerManagementService.EnabledThemes.find(x => { return x.Url === $scope.selectedTheme.Url }) != undefined;
                 if (noneChecked) {
                     //Niks is checked, dus we moeten deze 'deleten'.
                     $scope.selectedTheme.Added = false;
@@ -49,7 +53,7 @@
                     }
                     else {
                         if (alreadyAdded) {
-                            var index = EnabledThemes.indexOf($scope.selectedTheme);
+                            var index = LayerManagementService.EnabledThemes.indexOf($scope.selectedTheme);
                             if (index > -1) {
                                 LayerManagementService.EnabledThemes.splice(index, 1);
                             }
@@ -75,6 +79,7 @@
                         }
                     }
                 }
+                console.log("AddOrUpdateTheme");
 
                 $scope.selectedTheme = null;
                 $scope.copySelectedTheme = null;

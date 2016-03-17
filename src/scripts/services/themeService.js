@@ -4,12 +4,14 @@
     var service = function(map, ThemeHelper, MapData, LayerManagementService) {
         var _service = {};
         _service.AddAndUpdateThemes = function(themesBatch) {
-            themesBatch.forEach(function(theme) {
-                var existingTheme = MapData.Themes.find(function(x) { x.Url == theme.Url });
+            console.log("AddAndUpdateThemes");
+            console.log(themesBatch);
+            themesBatch.forEach(theme => {
+                var existingTheme = MapData.Themes.find(x => { return x.Url == theme.Url });
+                console.log(theme.status);
                 switch (theme.status) {
                     case ThemeStatus.NEW:
                         LayerManagementService.SetAditionalLayerInfo(theme);
-                        console.log(theme.CleanUrl);
                         _service.AddNewTheme(theme);
                         break;
                     case ThemeStatus.DELETED:
@@ -97,7 +99,7 @@
             if (themeIndex > -1) {
                 MapData.Themes.splice(themeIndex, 1);
             }
-            theme.VisibleLayers.forEach(function(visLayer) {
+            theme.VisibleLayers.forEach(visLayer => {
                 var visLayerIndex = MapData.VisibleLayers.indexOf(visLayer);
                 if (visLayerIndex > -1) {
                     MapData.VisibleLayers.splice(visLayerIndex, 1);

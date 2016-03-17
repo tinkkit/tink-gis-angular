@@ -24,7 +24,7 @@
         <div class="ll zoekbalken">
             <input type="text" class="zoekbalk" placeholder="Welke locatie of adres zoek je?" prevent-default/>
             <select ng-options="layer as layer.name for layer in mapctrl.SelectableLayers" ng-model="mapctrl.selectedLayer" ng-change="mapctrl.layerChange()"
-            ng-class="{invisible: mapctrl.activeInteractieKnop!='select' && mapctrl.SelectableLayers.length<=1}" prevent-default></select>
+            ng-class="{invisible: mapctrl.activeInteractieKnop!='select' || mapctrl.SelectableLayers.length<=1}" prevent-default></select>
         </div>
         <div class="ll btn-group kaarttypes">
             <button class="btn" ng-class="{active: mapctrl.kaartIsGetoond==true}" ng-click="mapctrl.toonKaart()" prevent-default>Kaart</button>

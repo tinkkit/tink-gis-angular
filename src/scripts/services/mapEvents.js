@@ -1,12 +1,12 @@
 'use strict';
 (function() {
     var module = angular.module('tink.gis');
-    var mapEvents = function(map, MapService, MapData) {
+    var mapEvents = function(map, MapService, MapData, DrawService) {
         var _mapEvents = {};
         map.on('draw:drawstart', function(event) {
             console.log('draw started');
             MapData.IsDrawing = true;
-            MapData.CleanMap();
+            // MapData.CleanDrawings();
         });
         var berkenOmtrek = function(layer) {
             // Calculating the distance of the polyline
@@ -28,7 +28,7 @@
             console.log('Zoomend!!!');
             console.log(event);
             MapData.Themes.forEach(x => {
-                  console.log(x.MapData);
+                console.log(x.MapData);
             });
         });
 
