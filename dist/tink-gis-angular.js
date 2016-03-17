@@ -379,7 +379,7 @@
     module.directive('tinkMap', function () {
         return {
             replace: true,
-            templateUrl: 'templates/maptemplate.html',
+            templateUrl: 'templates/mapTemplate.html',
             controller: 'mapController',
             controllerAs: 'mapctrl'
         };
