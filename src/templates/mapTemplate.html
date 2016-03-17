@@ -1,0 +1,45 @@
+<div class="tink-map">
+    <div id="map" class="leafletmap">
+        <div class="btn-group ll searchbtns">
+            <button type="button" class="btn" prevent-default><i class="fa fa-map-marker"></i></button>
+            <button type="button" class="btn" prevent-default><i class="fa fa-download"></i></button>
+        </div>
+        <div class="btn-group btn-group-vertical ll interactiebtns">
+            <button type="button" class="btn" ng-click="mapctrl.interactieButtonChanged('identify')" ng-class="{active: mapctrl.activeInteractieKnop=='identify'}"
+            prevent-default><i class="fa fa-info"></i></button>
+            <button type="button" class="btn" ng-click="mapctrl.interactieButtonChanged('select')" ng-class="{active: mapctrl.activeInteractieKnop=='select'}"
+            prevent-default><i class="fa fa-mouse-pointer"></i></button>
+            <button type="button" class="btn" ng-click="mapctrl.interactieButtonChanged('meten')" ng-class="{active: mapctrl.activeInteractieKnop=='meten'}"
+            prevent-default><i class="fa fa-expand"></i></button>
+            <button type="button" class="btn" ng-click="mapctrl.interactieButtonChanged('watishier')" ng-class="{active: mapctrl.activeInteractieKnop=='watishier'}"
+            prevent-default><i class="fa  fa-thumb-tack"></i></button>
+            <!-- fa-map-pin -->
+        </div>
+        <div class="btn-group ll metenbtns" ng-show="mapctrl.showMetenControls">
+            <button ng-click="mapctrl.drawingButtonChanged('afstand')" ng-class="{active: mapctrl.drawingType=='afstand'}" type="button"
+            class="btn" prevent-default><i class="fa fa-arrows-h "></i></button>
+            <button ng-click="mapctrl.drawingButtonChanged('oppervlakte')" ng-class="{active: mapctrl.drawingType=='oppervlakte'}" type="button"
+            class="btn" prevent-default><i class="fa fa-star-o"></i></button>
+        </div>
+        <div class="ll zoekbalken">
+            <input type="text" class="zoekbalk" placeholder="Welke locatie of adres zoek je?" prevent-default/>
+            <select ng-options="layer as layer.name for layer in mapctrl.SelectableLayers" ng-model="mapctrl.selectedLayer" ng-change="mapctrl.layerChange()"
+            ng-class="{invisible: mapctrl.activeInteractieKnop!='select' || mapctrl.SelectableLayers.length<=1}" prevent-default></select>
+        </div>
+        <div class="ll btn-group kaarttypes">
+            <button class="btn" ng-class="{active: mapctrl.kaartIsGetoond==true}" ng-click="mapctrl.toonKaart()" prevent-default>Kaart</button>
+            <button class="btn" ng-class="{active: mapctrl.kaartIsGetoond==false}" ng-click="mapctrl.toonLuchtfoto()" prevent-default>Luchtfoto</button>
+        </div>
+        <div class="btn-group btn-group-vertical ll viewbtns">
+            <button type="button" class="btn" ng-click="mapctrl.zoomIn()" prevent-default><i class="fa fa-plus"></i></button>
+            <button type="button" class="btn" ng-click="mapctrl.zoomOut()" prevent-default><i class="fa fa-minus"></i></button>
+            <button type="button" class="btn" ng-click="" prevent-default><i class="fa fa-crosshairs"></i></button>
+            <button type="button" class="btn" ng-click="mapctrl.fullExtent()" prevent-default><i class="fa fa-home"></i></button>
+        </div>
+        <div class="btn-group btn-group-vertical ll localiseerbtn">
+            <button type="button" class="btn" prevent-default><i class="fa fa-male"></i></button>
+        </div>
+    </div>
+    <tink-Search></tink-Search>
+    <tink-Layers></tink-Layers>
+</div>
