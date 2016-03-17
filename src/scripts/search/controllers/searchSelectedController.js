@@ -2,7 +2,7 @@
 (function(module) {
     module = angular.module('tink.gis');
     var theController = module.controller('searchSelectedController',
-        function($scope, ResultsData, MapData) {
+        function($scope, ResultsData, MapData, SearchService) {
             var vm = this;
             vm.selectedResult = null;
             vm.prevResult = null;
@@ -11,24 +11,10 @@
             $scope.$watch(function() { return ResultsData.SelectedFeature; }, function(newVal, oldVal) {
                 if (newVal) {
                     vm.selectedResult = newVal;
-                    var item = Object.getOwnPropertyNames(newVal.properties).map(function(k) { return ({ key: k, value: newVal.properties[k] }) });
+                    var item = Object.getOwnPropertyNames(newVal.properties).map(k => ({ key: k, value: newVal.properties[k] }));
                     vm.props = item;
-                    vm.prevResult = null;
-                    vm.nextResult = null;
-                    var index = ResultsData.JsonFeatures.indexOf(newVal);
-                    var layerName = newVal.layerName;
-                    if (index > 0) { // check or prevResult exists
-                        var prevItem = ResultsData.JsonFeatures[index - 1];
-                        if (prevItem.layerName === layerName) {
-                            vm.prevResult = prevItem;
-                        }
-                    }
-                    if (index < ResultsData.JsonFeatures.length - 1) { // check for nextResult exists
-                        var nextItem = ResultsData.JsonFeatures[index + 1];
-                        if (nextItem.layerName === layerName) {
-                            vm.nextResult = nextItem;
-                        }
-                    }
+                    vm.prevResult = SearchService.GetPrevResult();
+                    vm.nextResult = SearchService.GetNextResult();
                 }
                 else {
                     vm.selectedResult = null;
@@ -39,9 +25,6 @@
             vm.toonFeatureOpKaart = function() {
                 console.log(vm.selectedResult);
                 MapData.PanToFeature(vm.selectedResult);
-                // var bounds = L.latLngBounds(vm.selectedResult.mapItem);
-                // map.fitBounds(bounds);//works!
-                // map.setView(new L.LatLng(51.2192159, 4.4028818));
 
             };
             vm.volgende = function() {
@@ -50,6 +33,20 @@
             vm.vorige = function() {
                 ResultsData.SelectedFeature = vm.prevResult;
 
+            };
+            vm.delete = function() {
+                var prev = SearchService.GetPrevResult();
+                var next = SearchService.GetNextResult();
+                SearchService.DeleteFeature(vm.selectedResult);
+                if (next) {
+                    ResultsData.SelectedFeature = next;
+                }
+                else if (prev) {
+                    ResultsData.SelectedFeature = prev;
+                }
+                else {
+                    ResultsData.SelectedFeature = null;
+                }
             };
             vm.close = function(feature) {
                 vm.selectedResult = null;

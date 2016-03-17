@@ -8,11 +8,10 @@
         _service.ProcessUrls = function(urls) {
             console.log("ProcesUrls");
             var promises = [];
-            console.log(_service.AvailableThemes);
             _.each(urls, function(url) {
                 var AlreadyAddedTheme = null
-                _service.EnabledThemes.forEach(function(theme) { // OPTI kan paar loops minder door betere zoek in array te doen
-                    if (theme.Url == url) {
+                _service.EnabledThemes.forEach(theme => { // OPTI kan paar loops minder door betere zoek in array te doen
+                    if (theme.CleanUrl == url) {
                         AlreadyAddedTheme = theme;
                     }
                 });
@@ -39,12 +38,12 @@
             console.log(theme.CleanUrl);
             var prom = GISService.GetThemeLayerData(theme.CleanUrl);
             prom.success(function(data, statuscode, functie, getdata) {
-                theme.AllLayers.forEach(function (layer) { {
+                theme.AllLayers.forEach(layer => {
                     var layerid = layer.id;
                     var layerInfo = data.layers[layerid];
                     var displayField = layerInfo.displayField;
                     layer.displayField = layerInfo.displayField;
-                }                });
+                });
             });
         };
         return _service;

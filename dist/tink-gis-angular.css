@@ -326,3 +326,6 @@ button.btn.active {
 .tink-map {
   padding-right: 25rem !important;
   padding-left: 25rem !important; }
+
+.leaflet-popup-content-wrapper, .leaflet-popup-tip {
+  opacity: 0.8; }
