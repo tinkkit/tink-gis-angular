@@ -1,0 +1,13 @@
+<div data-tink-nav-aside="" data-auto-select="true" data-toggle-id="asideNavRight" class="nav-aside nav-right">
+    <aside>
+        <div class="nav-aside-section">
+            <ul ui-sortable ng-model="lyrsctrl.themes">
+                <div ng-repeat="theme in lyrsctrl.themes">
+                    <tink-Theme theme="theme">
+                    </tink-Theme>
+                </div>
+            </ul>
+            <button class="btn btn-primary addlayerbtn" ng-click="lyrsctrl.AddLayers()">Voeg laag toe</button>
+        </div>
+    </aside>
+</div>
