@@ -435,10 +435,32 @@
         L.AwesomeMarkers.Icon.prototype.options.prefix = 'fa';
     }();
     var mapObject = function mapObject() {
-        var crsLambert = new L.Proj.CRS('EPSG:31370', "+proj=lcc +lat_1=51.16666723333333 +lat_2=49.8333339 +lat_0=90 +lon_0=4.367486666666666 +x_0=150000.013 +y_0=5400088.438 +ellps=intl +towgs84=106.869,-52.2978,103.724,-0.33657,0.456955,-1.84218,1 +units=m +no_defs", {
-            origin: [-35872700, 41422700],
-            resolutions: [66.1459656252646, 52.91677250021167, 39.687579375158755, 26.458386250105836, 13.229193125052918, 6.614596562526459, 5.291677250021167, 3.9687579375158752, 3.3072982812632294, 2.6458386250105836, 1.9843789687579376, 1.3229193125052918, 0.6614596562526459, 0.5291677250021167, 0.39687579375158755, 0.33072982812632296, 0.26458386250105836, 0.19843789687579377, 0.13229193125052918, 0.06614596562526459, 0.026458386250105836]
-        });
+        // var crsLambert = new L.Proj.CRS('EPSG:31370', "+proj=lcc +lat_1=51.16666723333333 +lat_2=49.8333339 +lat_0=90 +lon_0=4.367486666666666 +x_0=150000.013 +y_0=5400088.438 +ellps=intl +towgs84=106.869,-52.2978,103.724,-0.33657,0.456955,-1.84218,1 +units=m +no_defs", {
+        //     origin: [-35872700, 41422700],
+        //     resolutions: [
+        //         66.1459656252646,
+        //         52.91677250021167,
+        //         39.687579375158755,
+        //         26.458386250105836,
+        //         13.229193125052918,
+        //         6.614596562526459,
+        //         5.291677250021167,
+        //         3.9687579375158752,
+        //         3.3072982812632294,
+        //         2.6458386250105836,
+        //         1.9843789687579376,
+        //         1.3229193125052918,
+        //         0.6614596562526459,
+        //         0.5291677250021167,
+        //         0.39687579375158755,
+        //         0.33072982812632296,
+        //         0.26458386250105836,
+        //         0.19843789687579377,
+        //         0.13229193125052918,
+        //         0.06614596562526459,
+        //         0.026458386250105836
+        //     ]
+        // });
         var map = L.map('map', {
             center: [51.2192159, 4.4028818],
             zoom: 17,
@@ -1660,12 +1682,12 @@ var DrawingOption = {
   );
 
 
-  $templateCache.put('templates/layerstemplate.html',
+  $templateCache.put('templates/layersTemplate.html',
     "<div data-tink-nav-aside=\"\" data-auto-select=true data-toggle-id=asideNavRight class=\"nav-aside nav-right\"> <aside> <div class=nav-aside-section> <ul ui-sortable ng-model=lyrsctrl.themes> <div ng-repeat=\"theme in lyrsctrl.themes\"> <tink-theme theme=theme> </tink-theme> </div> </ul> <button class=\"btn btn-primary addlayerbtn\" ng-click=lyrsctrl.AddLayers()>Voeg laag toe</button> </div> </aside> </div>"
   );
 
 
-  $templateCache.put('templates/maptemplate.html',
+  $templateCache.put('templates/mapTemplate.html',
     "<div class=tink-map> <div id=map class=leafletmap> <div class=\"btn-group ll searchbtns\"> <button type=button class=btn prevent-default><i class=\"fa fa-map-marker\"></i></button>\n" +
     "<button type=button class=btn prevent-default><i class=\"fa fa-download\"></i></button> </div> <div class=\"btn-group btn-group-vertical ll interactiebtns\"> <button type=button class=btn ng-click=\"mapctrl.interactieButtonChanged('identify')\" ng-class=\"{active: mapctrl.activeInteractieKnop=='identify'}\" prevent-default><i class=\"fa fa-info\"></i></button>\n" +
     "<button type=button class=btn ng-click=\"mapctrl.interactieButtonChanged('select')\" ng-class=\"{active: mapctrl.activeInteractieKnop=='select'}\" prevent-default><i class=\"fa fa-mouse-pointer\"></i></button>\n" +
