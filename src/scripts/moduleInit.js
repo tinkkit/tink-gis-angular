@@ -24,7 +24,10 @@
             });
         };
     });
-
+    var init = function() {
+        // var abc = _.forEach([], function (x){});
+        L.AwesomeMarkers.Icon.prototype.options.prefix = 'fa';
+    } ();
     var mapObject = function() {
         var crsLambert = new L.Proj.CRS('EPSG:31370', "+proj=lcc +lat_1=51.16666723333333 +lat_2=49.8333339 +lat_0=90 +lon_0=4.367486666666666 +x_0=150000.013 +y_0=5400088.438 +ellps=intl +towgs84=106.869,-52.2978,103.724,-0.33657,0.456955,-1.84218,1 +units=m +no_defs", {
             origin: [-35872700, 41422700],
@@ -96,10 +99,8 @@
 
         return map;
     }
-
     module.factory("map", mapObject);
 })();
-L.AwesomeMarkers.Icon.prototype.options.prefix = 'fa';
 
 //Moet plaats voor zoeken!!! Enums in Angular hmm
 var ThemeStatus = { // http://stijndewitt.com/2014/01/26/enums-in-javascript/

@@ -426,7 +426,7 @@ module.exports = function (grunt) {
     'replace',
    // 'copy:dist',
     'concat',
-    'uglify:dist',
+    // 'uglify:dist',
     'concurrent:dist',
     'autoprefixer',
     'cssUrlEmbed',
