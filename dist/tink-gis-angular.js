@@ -379,7 +379,7 @@
     module.directive('tinkMap', function () {
         return {
             replace: true,
-            templateUrl: 'templates/maptemplate.html',
+            templateUrl: 'templates/mapTemplate.html',
             controller: 'mapController',
             controllerAs: 'mapctrl'
         };
@@ -436,7 +436,7 @@
     }();
     var mapObject = function mapObject() {
         // var crsLambert = new L.Proj.CRS('EPSG:31370', "+proj=lcc +lat_1=51.16666723333333 +lat_2=49.8333339 +lat_0=90 +lon_0=4.367486666666666 +x_0=150000.013 +y_0=5400088.438 +ellps=intl +towgs84=106.869,-52.2978,103.724,-0.33657,0.456955,-1.84218,1 +units=m +no_defs", {
-        //     origin: [-35872700, 41422700],
+        //     origin: [51000, 132000],
         //     resolutions: [
         //         66.1459656252646,
         //         52.91677250021167,
@@ -460,6 +460,29 @@
         //         0.06614596562526459,
         //         0.026458386250105836
         //     ]
+        //     // resolutions: [
+        //     //     250000,
+        //     //     200000,
+        //     //     150000,
+        //     //     100000,
+        //     //     50000,
+        //     //     25000,
+        //     //     20000,
+        //     //     15000,
+        //     //     12500,
+        //     //     10000,
+        //     //     7500,
+        //     //     5000,
+        //     //     2500,
+        //     //     2000,
+        //     //     1500,
+        //     //     1250,
+        //     //     1000,
+        //     //     750,
+        //     //     500,
+        //     //     250,
+        //     //     100
+        //     // ]
         // });
         var map = L.map('map', {
             center: [51.2192159, 4.4028818],
@@ -476,13 +499,22 @@
             zoomControl: false,
             drawControl: true
         });
+        // var url = 'http://geodata.antwerpen.be/arcgissql/rest/services/P_Publiek/P_basemap/MapServer/WMTS';
+        // var layerIGNScanStd = "GEOGRAPHICALGRIDSYSTEMS.MAPS.SCAN-EXPRESS.STANDARD";
 
+        // var wmts = new L.TileLayer.WMTS(url,
+        //     {
+        //         layer: 'P_Publiek_P_basemap',
+        //         style: "normal",
+        //         tilematrixSet: "PM",
+        //         format: "image/png",
+        //     });
+        // map.addLayer(wmts);
         // L.tileLayer({
         //     url: 'http://app11.p.gis.local/arcgissql/rest/services/P_Publiek/P_basemap/MapServer/',
         //     // url: 'http://geodata.antwerpen.be/arcgissql/rest/services/P_Publiek/P_basemap_wgs84/MapServer',
         //     maxZoom: 20,
         //     continuousWorld: true,
-        //     tms: true,
         //     minZoom: 0,
         // }).addTo(map);
 
@@ -724,6 +756,7 @@ var DrawingOption = {
             var csvContent = "data:text/csv;charset=utf-8,";
             var dataString = "";
             var layName = "";
+            csvContent += 'Laag;' + "\n";
 
             ResultsData.JsonFeatures.forEach(function (feature, index) {
                 if (layName !== feature.layerName) {
@@ -732,12 +765,13 @@ var DrawingOption = {
                     for (var name in feature.properties) {
                         tmparr.push(name);
                     }
-                    var layfirstline = tmparr.join(",");
+                    var layfirstline = tmparr.join(";");
 
-                    csvContent += layName + "\n" + layfirstline + "\n";
+                    csvContent += layName + ";" + layfirstline + "\n";
                 }
                 var infoArray = _.values(feature.properties);
-                dataString = infoArray.join(",");
+                infoArray.unshift(layName);
+                dataString = infoArray.join(";");
                 console.log(dataString);
                 // csvContent += dataString + "\n";
                 csvContent += index < ResultsData.JsonFeatures.length ? dataString + "\n" : dataString;

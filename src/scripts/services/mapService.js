@@ -6,8 +6,10 @@
     } catch (e) {
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'tink.modal']); //'leaflet-directive'
     }
-    var mapService = function($rootScope, MapData, map, ThemeHelper, $q, GISService) {
+    var mapService = function($rootScope, MapData, map, ThemeHelper, $q, GISService, WMSService) {
         var _mapService = {};
+        var getwms = WMSService.GetCapabilities('http://mesonet.agron.iastate.edu/cgi-bin/wms/nexrad/n0r.cgi');
+        console.log(getwms);
         _mapService.Identify = function(event, tolerance) {
             if (typeof tolerance === 'undefined') { tolerance = 2; }
             _.each(MapData.Themes, function(theme) {
@@ -79,7 +81,7 @@
         };
         return _mapService;
     };
-    module.$inject = ['$rootScope', 'MapData', 'map', 'ThemeHelper', '$q'];
+    module.$inject = ['$rootScope', 'MapData', 'map', 'ThemeHelper', '$q', 'GISService', 'WMSService'];
     module.factory('MapService', mapService);
 })();
 
