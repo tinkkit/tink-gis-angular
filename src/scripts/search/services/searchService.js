@@ -21,6 +21,7 @@
             var csvContent = "data:text/csv;charset=utf-8,";
             var dataString = "";
             var layName = "";
+            csvContent += 'Laag;' + "\n"
 
             ResultsData.JsonFeatures.forEach(function(feature, index) {
                 if (layName !== feature.layerName) {
@@ -29,12 +30,13 @@
                     for (var name in feature.properties) {
                         tmparr.push(name);
                     }
-                    var layfirstline = tmparr.join(",");
+                    var layfirstline = tmparr.join(";");
 
-                    csvContent += layName + "\n" + layfirstline + "\n";
+                    csvContent += layName + ";" + layfirstline + "\n";
                 }
-                var infoArray = _.values(feature.properties)
-                dataString = infoArray.join(",");
+                var infoArray = _.values(feature.properties);
+                infoArray.unshift(layName);
+                dataString = infoArray.join(";");
                 console.log(dataString);
                 // csvContent += dataString + "\n";
                 csvContent += index < ResultsData.JsonFeatures.length ? dataString + "\n" : dataString;
@@ -66,7 +68,7 @@
             }
             return null;
         };
-        
+
         return _service;
     };
     module.factory("SearchService", service);
