@@ -8,8 +8,6 @@
     }
     var mapService = function($rootScope, MapData, map, ThemeHelper, $q, GISService, WMSService) {
         var _mapService = {};
-        var getwms = WMSService.GetCapabilities('http://mesonet.agron.iastate.edu/cgi-bin/wms/nexrad/n0r.cgi');
-        console.log(getwms);
         _mapService.Identify = function(event, tolerance) {
             if (typeof tolerance === 'undefined') { tolerance = 2; }
             _.each(MapData.Themes, function(theme) {

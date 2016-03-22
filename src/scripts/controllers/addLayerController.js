@@ -6,8 +6,9 @@
     } catch (e) {
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
     }
-    module.controller('addLayerController', ['$scope', '$modalInstance', 'ThemeHelper', '$q', 'urls', 'MapService', 'MapData', 'GISService', 'LayerManagementService',
-        function($scope, $modalInstance, ThemeHelper, $q, urls, MapService, MapData, GISService, LayerManagementService) {
+    module.controller('addLayerController', ['$scope', '$modalInstance', 'ThemeHelper', '$q', 'urls', 'MapService', 'MapData', 'GISService', 'LayerManagementService', 'WMSService',
+        function($scope, $modalInstance, ThemeHelper, $q, urls, MapService, MapData, GISService, LayerManagementService, WMSService, $window) {
+            $scope.searchIsUrl = false;
             LayerManagementService.EnabledThemes.length = 0;
             LayerManagementService.AvailableThemes.length = 0;
             LayerManagementService.EnabledThemes = angular.copy(MapData.Themes);
@@ -16,9 +17,29 @@
                 $scope.searchTerm = 'Laden...';
                 var qwhenready = LayerManagementService.ProcessUrls(urls);
                 qwhenready.then(function(allelagen) {
-                    $scope.searchTerm = '';
+                    $scope.searchTerm = 'http://geodata.antwerpen.be/arcgissql/services/P_SiK/Groeninventaris/MapServer/WMSServer';
+                    //http://mesonet.agron.iastate.edu/cgi-bin/wms/nexrad/n0r.cgi
+                    $scope.searchIsUrl = true;
                 });
             } ();
+            $scope.searchChanged = function() {
+                if ($scope.searchTerm.startsWith("http")) {
+                    $scope.searchIsUrl = true;
+                }
+                else {
+                    $scope.searchIsUrl = false;
+                }
+            };
+            $scope.laadUrl = function() {
+                var getwms = WMSService.GetCapabilities($scope.searchTerm);
+                getwms.success(function(data, status, headers, config) {
+                    $scope.themeChanged(data);
+                    $scope.searchIsUrl = false;
+                    $scope.searchTerm = '';
+                }).error(function(data, status, headers, config) {
+                    $window.alert('error');
+                });
+            };
             $scope.selectedTheme = null;
             $scope.copySelectedTheme = null;
             $scope.themeChanged = function(theme) {
