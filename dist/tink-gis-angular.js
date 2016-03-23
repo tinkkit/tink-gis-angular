@@ -1058,7 +1058,7 @@ var DrawingOption = {
             }
             var convertedxy = HelperService.ConvertWSG84ToLambert72(latlng);
             if (straatNaam) {
-                var html = '<div class="container container-low-padding">' + '<div class="row row-no-padding">' + '<div class="col-sm-4">' + '<img src="https://placehold.it/100x50" />' + '</div>' + '<div class="col-sm-8">' + '<div class="col-sm-12"><b>' + straatNaam + '</b></div>' +
+                var html = '<div class="container container-low-padding">' + '<div class="row row-no-padding">' + '<div class="col-sm-4">' + '<img src="https://maps.googleapis.com/maps/api/streetview?size=100x65&location=51.21,4.40&heading=151.78&pitch=-0.76&key=AIzaSyBEISwhjYd_3auB40fCcFEYgMvfvncH3Qc" />' + '</div>' + '<div class="col-sm-8">' + '<div class="col-sm-12"><b>' + straatNaam + '</b></div>' +
                 // '<div class="row">' +
                 '<div class="col-sm-3">WGS84:</div><div class="col-sm-8" style="text-align: left;">' + latlng.lat.toFixed(6) + ', ' + latlng.lng.toFixed(6) + '</div><div class="col-sm-1"><i class="fa fa-files-o"></i></div>' + '<div class="col-sm-3">Lambert:</div><div class="col-sm-8" style="text-align: left;">' + convertedxy.x.toFixed(1) + ', ' + convertedxy.y.toFixed(1) + '</div><div class="col-sm-1"><i class="fa fa-files-o"></i></div>' +
                 // '<div class="row">Lambert (x,y):' + convertedxy.x.toFixed(1) + ',' + convertedxy.y.toFixed(1) + '</div>' +
