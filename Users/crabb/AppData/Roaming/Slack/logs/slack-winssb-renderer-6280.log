@@ -1,6 +1,0 @@
-2016-03-17T09:43:22.083Z - info: No teams found to migrate
-2016-03-17T09:43:22.085Z - info: Found legacy settings: {}
-2016-03-17T09:43:22.085Z - info: LOAD_LEGACY: {"updated":{"settings":{"hasMigratedData":{"renderer":true}}}}
-2016-03-17T09:43:22.307Z - info: SET_NETWORK_STATUS: "online"
-2016-03-17T09:43:22.479Z - info: Checking network connection to Slack...
-2016-03-17T09:48:32.459Z - warn: Unable to handle slack://T0M4APB25/magic-login/27376218549-oZ0d63d3se because no teams are signed in.
