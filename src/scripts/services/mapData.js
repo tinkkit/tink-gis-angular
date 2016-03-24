@@ -76,9 +76,8 @@
                     '<div class="container container-low-padding">' +
                     '<div class="row row-no-padding">' +
                     '<div class="col-sm-4">' +
-                   // '<a href="http://maps.google.com/maps?q=&layer=c&cbll=' + latlng.lat + ',' + latlng.lng +  '&cbp=12,34,0,1,0&key=AIzaSyBEISwhjYd_3auB40fCcFEYgMvfvncH3Qc "  target="_blank" >' +
                     '<a href="templates/external/streetView.html?lat=' + latlng.lat  + '&lng=' + latlng.lng + '" + target="_blank" >' +
-                        '<img src="https://maps.googleapis.com/maps/api/streetview?size=100x50&location=' +  latlng.lat + ',' + latlng.lng + '&pitch=-0.76&key=AIzaSyBEISwhjYd_3auB40fCcFEYgMvfvncH3Qc" />' +
+                        '<img src="https://maps.googleapis.com/maps/api/streetview?size=100x50&location=' +  latlng.lat + ',' + latlng.lng + '&pitch=-0.76" />' +
                     '</a>' +
                     '</div>' +
                     '<div class="col-sm-8">' +
