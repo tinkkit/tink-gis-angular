@@ -4,14 +4,18 @@
     var service = function(map, ThemeHelper, MapData, LayerManagementService) {
         var _service = {};
         _service.AddAndUpdateThemes = function(themesBatch) {
-            console.log("AddAndUpdateThemes");
+            console.log("Themes batch for add and updates...");
             console.log(themesBatch);
+            console.log("...");
             themesBatch.forEach(theme => {
                 var existingTheme = MapData.Themes.find(x => { return x.Url == theme.Url });
+                console.log(theme);
                 console.log(theme.status);
                 switch (theme.status) {
                     case ThemeStatus.NEW:
-                        LayerManagementService.SetAditionalLayerInfo(theme);
+                        if (theme.status == ThemeType.ESRI) {
+                            LayerManagementService.SetAditionalLayerInfo(theme);
+                        }
                         _service.AddNewTheme(theme);
                         break;
                     case ThemeStatus.DELETED:
@@ -25,7 +29,7 @@
                         _service.UpdateThemeVisibleLayers(existingTheme);
                         break;
                     default:
-                        console.log("Er is iets fout, status niet bekend" + theme.status);
+                        console.log("Er is iets fout, status niet bekend!!!: " + theme.status);
                         break;
                 }
             });
@@ -76,20 +80,41 @@
 
             });
             theme.RecalculateVisibleLayerIds();
-            theme.MapData = L.esri.dynamicMapLayer({
-                url: theme.CleanUrl,
-                opacity: 0.5,
-                layers: theme.VisibleLayerIds,
-                // maxZoom: 21,
-                // minZoom: 10,
-                useCors: true
-            }).addTo(map);
+            console.log(theme.Type);
+            console.log(theme);
+            switch (theme.Type) {
+                case ThemeType.ESRI:
+                    theme.MapData = L.esri.dynamicMapLayer({
+                        url: theme.CleanUrl,
+                        opacity: 0.5,
+                        layers: theme.VisibleLayerIds,
+                        // maxZoom: 21,
+                        // minZoom: 10,
+                        useCors: true
+                    }).addTo(map);
+                    break;
+                case ThemeType.WMS:
+                    theme.MapData = L.tileLayer.wms(theme.CleanUrl, {
+                        // opacity: 0.5,
+                        format: 'image/png',
+                        layers: theme.VisibleLayerIds,
+                        transparent: true,
+                        // maxZoom: 21,
+                        // minZoom: 10,
+                        useCors: true
+                    }).addTo(map);
+                    break;
+                default:
+                    console.log("UNKNOW TYPE");
+                    break;
+            }
+
             // _mapService.UpdateThemeVisibleLayers(theme);
             theme.MapData.on('requeststart', function(obj) {
-                console.log('requeststart');
+                console.log('requeststart ' + theme.Naam);
             });
             theme.MapData.on('requestsuccess', function(obj) {
-                console.log('requestsuccess');
+                console.log('requestsuccess ' + theme.Naam);
             });
 
         };

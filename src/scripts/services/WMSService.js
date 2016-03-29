@@ -19,7 +19,7 @@
             // parseValues: false            // default: true
         });
         _service.GetCapabilities = function(url) {
-            var posturl = '?request=GetCapabilities&service=WMS';
+            var posturl = '?request=GetCapabilities&service=WMS&callback=foo';
             var prom = $http({
                 method: 'GET',
                 url: url + posturl,
@@ -38,9 +38,15 @@
                         wmstheme.Visible = true;
                         wmstheme.Layers = [];
                         wmstheme.AllLayers = [];
+                        wmstheme.Groups = []; // layergroups die nog eens layers zelf hebben
                         wmstheme.CleanUrl = url;
                         wmstheme.Added = false;
+                        wmstheme.status = ThemeStatus.NEW;
                         wmstheme.Description = returnjson.service.abstract;
+                        wmstheme.Type = ThemeType.WMS;
+                        wmstheme.VisibleLayerIds = [];
+                        wmstheme.VisibleLayers = [];
+
                         var layers = returnjson.capability.layer.layer;
                         layers.forEach(layer => {
                             var tmplayer = {};
@@ -49,10 +55,22 @@
                             tmplayer.parent = null;
                             tmplayer.theme = wmstheme;
                             tmplayer.name = layer.title;
+                            tmplayer.type = LayerType.LAYER;
                             tmplayer.id = layer.name; //names are the ids of the layer in wms
                             wmstheme.Layers.push(tmplayer);
                             wmstheme.AllLayers.push(tmplayer);
                         });
+                        wmstheme.RecalculateVisibleLayerIds = function() {
+                            wmstheme.VisibleLayerIds.length = 0;
+                            _.forEach(wmstheme.VisibleLayers, function(visLayer) {
+                                wmstheme.VisibleLayerIds.push(visLayer.id);
+                            });
+                            if (wmstheme.VisibleLayerIds.length === 0) {
+                                wmstheme.VisibleLayerIds.push(-1); //als we niet doen dan zoekt hij op alle lagen!
+                            }
+                        };
+                        wmstheme.RecalculateVisibleLayerIds();
+
                     }
 
                     return wmstheme;

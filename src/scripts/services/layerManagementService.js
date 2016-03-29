@@ -9,7 +9,7 @@
             console.log("ProcesUrls");
             var promises = [];
             _.each(urls, function(url) {
-                var AlreadyAddedTheme = null
+                var AlreadyAddedTheme = null;
                 _service.EnabledThemes.forEach(theme => { // OPTI kan paar loops minder door betere zoek in array te doen
                     if (theme.CleanUrl == url) {
                         AlreadyAddedTheme = theme;

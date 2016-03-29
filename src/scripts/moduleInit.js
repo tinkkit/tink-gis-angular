@@ -6,16 +6,17 @@
     } catch (e) {
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
     }
-    module.config(['$httpProvider', function($httpProvider) {
-        // $httpProvider.defaults.useXDomain = true;
-        // delete $httpProvider.defaults.headers.common['X-Requested-With'];
-        console.log('httpprov config')
-        $httpProvider.defaults.useXDomain = true;
-        $httpProvider.defaults.withCredentials = true;
-        delete $httpProvider.defaults.headers.common["X-Requested-With"];
-        $httpProvider.defaults.headers.common["Accept"] = "application/javascript";
-        $httpProvider.defaults.headers.common["Content-Type"] = "application/json";
-    }]);
+    // module.config(['$httpProvider', function($httpProvider) {
+    //     // $httpProvider.defaults.useXDomain = true;
+    //     // delete $httpProvider.defaults.headers.common['X-Requested-With'];
+    //     console.log('httpprov config')
+    //     $httpProvider.defaults.useXDomain = true;
+    //     $httpProvider.defaults.withCredentials = true;
+    //     delete $httpProvider.defaults.headers.common["X-Requested-With"];
+    //     $httpProvider.defaults.headers.common["Accept"] = "application/javascript";
+    //     $httpProvider.defaults.headers.common["Content-Type"] = "application/json";
+    // }]);
+
     module.constant('appConfig', {
         templateUrl: "/digipolis.stadinkaart.webui",
         apiUrl: "/digipolis.stadinkaart.api/",
@@ -170,4 +171,8 @@ var DrawingOption = {
     NIETS: '',
     AFSTAND: 'afstand',
     OPPERVLAKTE: 'oppervlakte'
+};
+var ThemeType = {
+    ESRI: 'esri',
+    WMS: 'wms'
 };
