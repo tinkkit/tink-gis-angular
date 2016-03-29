@@ -13,7 +13,7 @@
                 console.log(theme.status);
                 switch (theme.status) {
                     case ThemeStatus.NEW:
-                        if (theme.status == ThemeType.ESRI) {
+                        if (theme.Type == ThemeType.ESRI) {
                             LayerManagementService.SetAditionalLayerInfo(theme);
                         }
                         _service.AddNewTheme(theme);
@@ -32,6 +32,10 @@
                         console.log("Er is iets fout, status niet bekend!!!: " + theme.status);
                         break;
                 }
+                //Theme is proccessed, now make it unmodified again
+                theme.status = ThemeStatus.UNMODIFIED;
+
+
             });
         };
         _service.UpdateThemeVisibleLayers = function(theme) {
@@ -88,19 +92,14 @@
                         url: theme.CleanUrl,
                         opacity: 0.5,
                         layers: theme.VisibleLayerIds,
-                        // maxZoom: 21,
-                        // minZoom: 10,
                         useCors: true
                     }).addTo(map);
-                    break;
+                    break;  
                 case ThemeType.WMS:
                     theme.MapData = L.tileLayer.wms(theme.CleanUrl, {
-                        // opacity: 0.5,
                         format: 'image/png',
                         layers: theme.VisibleLayerIds,
                         transparent: true,
-                        // maxZoom: 21,
-                        // minZoom: 10,
                         useCors: true
                     }).addTo(map);
                     break;
@@ -119,7 +118,8 @@
 
         };
         _service.DeleteTheme = function(theme) {
-            theme.MapData.removeFrom(map);
+            // theme.MapData.removeFrom(map);
+            map.removeLayer(theme.MapData); // this one works with ESRI And leaflet
             var themeIndex = MapData.Themes.indexOf(theme);
             if (themeIndex > -1) {
                 MapData.Themes.splice(themeIndex, 1);

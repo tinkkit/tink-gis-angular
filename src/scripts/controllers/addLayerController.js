@@ -8,8 +8,6 @@
     }
     module.controller('addLayerController', ['$scope', '$modalInstance', 'ThemeHelper', '$q', 'urls', 'MapService', 'MapData', 'GISService', 'LayerManagementService', 'WMSService', '$window', '$http',
         function($scope, $modalInstance, ThemeHelper, $q, urls, MapService, MapData, GISService, LayerManagementService, WMSService, $window, $http) {
-            delete $http.defaults.headers.common['X-Requested-With'];
-
             $scope.searchIsUrl = false;
             LayerManagementService.EnabledThemes.length = 0;
             LayerManagementService.AvailableThemes.length = 0;
@@ -33,14 +31,22 @@
                 }
             };
             $scope.laadUrl = function() {
-                var getwms = WMSService.GetCapabilities($scope.searchTerm);
-                getwms.success(function(data, status, headers, config) {
-                    $scope.themeChanged(data);
-                    $scope.searchIsUrl = false;
-                    $scope.searchTerm = '';
-                }).error(function(data, status, headers, config) {
-                    $window.alert('error');
-                });
+                if (MapData.Themes.find(x => x.CleanUrl == $scope.searchTerm) == undefined) {
+                    var getwms = WMSService.GetCapabilities($scope.searchTerm);
+                    getwms.success(function(data, status, headers, config) {
+                        $scope.themeChanged(data);
+                        $scope.searchIsUrl = false;
+                        $scope.searchTerm = '';
+                    }).error(function(data, status, headers, config) {
+                        $window.alert('error');
+                    });
+                }
+                else
+                {
+                    alert("Deze is al toegevoegd aan de map.")
+                }
+
+
             };
             $scope.selectedTheme = null;
             $scope.copySelectedTheme = null;
