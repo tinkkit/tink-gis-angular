@@ -6,7 +6,7 @@
     } catch (e) {
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
     }
-    var service = function($http, $window) {
+    var service = function($http, $window, map) {
         var _service = {};
         JXON.config({
             // valueKey: '_',                // default: 'keyValue'
@@ -60,6 +60,17 @@
                             wmstheme.Layers.push(tmplayer);
                             wmstheme.AllLayers.push(tmplayer);
                         });
+                        wmstheme.UpdateMap = function() {
+                            wmstheme.RecalculateVisibleLayerIds();
+                            map.removeLayer(wmstheme.MapData);
+                            // theme.MapData = L.tileLayer.wms(wmstheme.CleanUrl, {
+                            //     format: 'image/png',
+                            //     layers: wmstheme.VisibleLayerIds,
+                            //     transparent: true,
+                            //     useCors: true
+                            // }).addTo(map);
+                            map.addLayer(wmstheme.MapData);
+                        };
                         wmstheme.RecalculateVisibleLayerIds = function() {
                             wmstheme.VisibleLayerIds.length = 0;
                             _.forEach(wmstheme.VisibleLayers, function(visLayer) {

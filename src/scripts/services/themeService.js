@@ -39,10 +39,8 @@
             });
         };
         _service.UpdateThemeVisibleLayers = function(theme) {
-            theme.RecalculateVisibleLayerIds();
-            console.log(theme.VisibleLayerIds);
-            theme.MapData.setLayers(theme.VisibleLayerIds);
-        }
+            theme.UpdateMap();
+        };
         _service.UpdateTheme = function(updatedTheme, existingTheme) {
             //lets update the existingTheme
             for (var x = 0; x < updatedTheme.AllLayers.length; x++) {
@@ -94,7 +92,7 @@
                         layers: theme.VisibleLayerIds,
                         useCors: true
                     }).addTo(map);
-                    break;  
+                    break;
                 case ThemeType.WMS:
                     theme.MapData = L.tileLayer.wms(theme.CleanUrl, {
                         format: 'image/png',
