@@ -46,7 +46,7 @@
                         wmstheme.Type = ThemeType.WMS;
                         wmstheme.VisibleLayerIds = [];
                         wmstheme.VisibleLayers = [];
-
+                        
                         var layers = returnjson.capability.layer.layer;
                         layers.forEach(layer => {
                             var tmplayer = {};
