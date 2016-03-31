@@ -124,9 +124,10 @@
             _data.VisibleFeatures.length = 0;
         };
         _data.PanToFeature = function(feature) {
+            console.log("FEATUREPANTO");
             var tmplayer = feature.mapItem._layers[Object.keys(feature.mapItem._layers)[0]]
-            map.panTo(tmplayer.getBounds().getCenter());
             map.fitBounds(tmplayer.getBounds());
+            map.panTo(tmplayer.getBounds().getCenter());
         };
         _data.AddFeatures = function(features, theme) {
             for (var x = 0; x < features.features.length; x++) {

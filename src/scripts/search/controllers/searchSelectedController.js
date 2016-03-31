@@ -10,6 +10,15 @@
             vm.props = [];
             $scope.$watch(function() { return ResultsData.SelectedFeature; }, function(newVal, oldVal) {
                 if (newVal) {
+                    if (oldVal) {
+                        if (oldVal != newVal) {
+                            console.log("UNHIGHLIGHT: ");
+                            console.log(oldVal);
+                        }
+                    }
+                    console.log("HIGHLIGHT: ");
+                    console.log(newVal);
+
                     vm.selectedResult = newVal;
                     var item = Object.getOwnPropertyNames(newVal.properties).map(k => ({ key: k, value: newVal.properties[k] }));
                     vm.props = item;

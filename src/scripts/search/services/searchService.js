@@ -18,7 +18,7 @@
             });
         };
         _service.ExportToCSV = function() {
-            var csvContent = "data:text/csv;charset=utf-8,";
+            var csvContent = ""; // "data:text/csv;charset=utf-8,";
             var dataString = "";
             var layName = "";
             csvContent += 'Laag;' + "\n"
@@ -42,8 +42,15 @@
                 csvContent += index < ResultsData.JsonFeatures.length ? dataString + "\n" : dataString;
 
             });
-            var encodedUri = encodeURI(csvContent);
-            window.open(encodedUri);
+            var a = document.createElement('a');
+            a.href = 'data:attachment/csv,' + encodeURIComponent(csvContent);
+            a.target = '_blank';
+            a.download = 'exportsik.csv';
+
+            document.body.appendChild(a);
+            a.click();
+            // var encodedUri = encodeURI(csvContent);
+            // window.open(encodedUri, 'exportsik.csv');
         };
         _service.GetNextResult = function() {
             var index = ResultsData.JsonFeatures.indexOf(ResultsData.SelectedFeature);
