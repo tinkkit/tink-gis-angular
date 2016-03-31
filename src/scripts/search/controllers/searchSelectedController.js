@@ -13,10 +13,12 @@
                     if (oldVal != newVal) {
                         console.log("UNHIGHLIGHT: ");
                         console.log(oldVal);
-                        var tmplayer = newVal.mapItem._layers[Object.keys(newVal.mapItem._layers)[0]]
+                        var tmplayer = oldVal.mapItem._layers[Object.keys(oldVal.mapItem._layers)[0]]
                         console.log(tmplayer);
                         tmplayer.setStyle({
-                            fillOpacity: 0
+                            fillOpacity: 0,
+                            color: 'blue',
+                            weight: 1
                         });
                     }
                 }
