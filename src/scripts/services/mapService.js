@@ -9,7 +9,7 @@
     var mapService = function($rootScope, MapData, map, ThemeHelper, $q, GISService, WMSService) {
         var _mapService = {};
         _mapService.Identify = function(event, tolerance) {
-            if (typeof tolerance === 'undefined') { tolerance = 2; }
+            if (typeof tolerance === 'undefined') { tolerance = 10; }
             _.each(MapData.Themes, function(theme) {
                 theme.RecalculateVisibleLayerIds();
                 var identifOnThisTheme = true;
@@ -49,7 +49,6 @@
                                                 layerName: lay,
                                                 name: lay,
                                                 layerId: lay,
-                                                // displayValue: Object.keys(feat)[0],
                                                 properties: feat,
                                                 type: "Feature"
                                             }

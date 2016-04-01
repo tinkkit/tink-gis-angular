@@ -138,9 +138,11 @@
                 featureItem.layerName = layer.name;
                 if (theme.Type === ThemeType.ESRI) {
                     featureItem.displayValue = featureItem.properties[layer.displayField];
+                    console.log(featureItem);
                     var mapItem = L.geoJson(featureItem, { style: Style.DEFAULT }).addTo(map);
                     _data.VisibleFeatures.push(mapItem);
                     featureItem.mapItem = mapItem;
+                    console.log(mapItem);
                 }
                 else {
                     featureItem.displayValue = featureItem.properties[Object.keys(featureItem.properties)[0]];

@@ -12,15 +12,19 @@
                 if (oldVal) {
                     if (oldVal != newVal) {
                         if (oldVal.mapItem) {
-                            var tmplayer = oldVal.mapItem._layers[Object.keys(oldVal.mapItem._layers)[0]]
-                            tmplayer.setStyle(Style.DEFAULT);
+                            var tmplayer = oldVal.mapItem._layers[Object.keys(oldVal.mapItem._layers)[0]];
+                            if (tmplayer._layers) {
+                                tmplayer.setStyle(Style.DEFAULT);
+                            }
                         }
                     }
                 }
                 if (newVal) {
                     if (newVal.mapItem) {
-                        var tmplayer = newVal.mapItem._layers[Object.keys(newVal.mapItem._layers)[0]]
-                        tmplayer.setStyle(Style.HIGHLIGHT);
+                        var tmplayer = newVal.mapItem._layers[Object.keys(newVal.mapItem._layers)[0]];
+                        if (tmplayer._layers) {
+                            tmplayer.setStyle(Style.HIGHLIGHT);
+                        }
                     }
                     vm.selectedResult = newVal;
                     var item = Object.getOwnPropertyNames(newVal.properties).map(k => ({ key: k, value: newVal.properties[k] }));

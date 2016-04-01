@@ -38,7 +38,7 @@
                 MapData.CleanAll();
                 switch (MapData.ActiveInteractieKnop) {
                     case ActiveInteractieButton.IDENTIFY:
-                        MapService.Identify(event, 2);
+                        MapService.Identify(event, 10);
                         break;
                     case ActiveInteractieButton.SELECT:
                         if (MapData.SelectedLayer.id === '') {
