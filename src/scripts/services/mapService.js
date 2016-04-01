@@ -16,14 +16,76 @@
                 if (theme.VisibleLayerIds.length === 1 && theme.VisibleLayerIds[0] === -1) {
                     identifOnThisTheme = false; // we moeten de layer niet qryen wnnr er geen vis layers zijn
                 }
-                else {
-                    var layersVoorIdentify = 'visible: ' + theme.VisibleLayerIds;
-                }
                 if (identifOnThisTheme) {
-                    theme.MapData.identify().on(map).at(event.latlng).layers(layersVoorIdentify).tolerance(tolerance).run(function(error, featureCollection) {
-                        MapData.AddFeatures(featureCollection, theme);
-                    });
+                    switch (theme.Type) {
+                        case ThemeType.ESRI:
+                            var layersVoorIdentify = 'visible: ' + theme.VisibleLayerIds;
+                            theme.MapData.identify().on(map).at(event.latlng).layers(layersVoorIdentify).tolerance(tolerance).run(function(error, featureCollection) {
+                                console.log(featureCollection);
+                                MapData.AddFeatures(featureCollection, theme);
+                            });
+                            break;
+                        case ThemeType.WMS:
+                            var layersVoorIdentify = theme.VisibleLayerIds;
+                            theme.VisibleLayerIds.forEach(lay => {
+                                theme.MapData.getFeatureInfo(event.latlng, lay).success(function(data, status, xhr) {
+                                    var xmlstring = JXON.xmlToString(data);
+                                    var returnjson = JXON.stringToJs(xmlstring);
+                                    var processedjson = returnjson.featureinforesponse.fields;
+                                    var returnitem = {
+                                        type: "FeatureCollection",
+                                        features: []
+                                    }
+                                    if (processedjson) {
+                                        var featureArr = [];
+                                        if (typeof processedjson === "object") {
+                                            featureArr.push(processedjson)
+                                        } else {
+                                            featureArr = processedjson;
+                                        }
+
+                                        featureArr.forEach(feat => {
+                                            var tmpitem = {
+                                                layerName: lay,
+                                                name: lay,
+                                                layerId: lay,
+                                                // displayValue: Object.keys(feat)[0],
+                                                properties: feat,
+                                                type: "Feature"
+                                            }
+                                            returnitem.features.push(tmpitem);
+                                        });
+                                        console.log(lay + " item info: ");
+                                        console.log(returnitem);
+                                        MapData.AddFeatures(returnitem, theme);
+                                    }
+
+                                });
+                            });
+                            // theme.MapData.getFeatureInfo(event.latlng, layersVoorIdentify).success(function(data, status, xhr) {
+                            //     console.log(data);
+                            //     var xmlstring = JXON.xmlToString(data);
+                            //     var returnjson = JXON.stringToJs(xmlstring);
+                            //     console.log(returnjson);
+                            //     // var processedjson = returnjson.featureinforesponse.fields;
+                            //     // var featureArr = [];
+                            //     // if (typeof processedjson === Object) {
+                            //     //     featureArr.push(processedjson)
+                            //     // } else {
+                            //     //     featureArr = processedjson;
+                            //     // }
+                            //     // console.log(processedjson);
+                            // });
+
+                            break;
+                        default:
+                            console.log("UNKNOW TYPE!!!!:");
+                            console.log(Theme.Type);
+                            break;
+                    }
                 }
+
+
             });
         };
 

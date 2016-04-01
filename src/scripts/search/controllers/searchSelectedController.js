@@ -11,15 +11,17 @@
             $scope.$watch(function() { return ResultsData.SelectedFeature; }, function(newVal, oldVal) {
                 if (oldVal) {
                     if (oldVal != newVal) {
-                        console.log("UNHIGHLIGHT: ");
-                        var tmplayer = oldVal.mapItem._layers[Object.keys(oldVal.mapItem._layers)[0]]
-                        tmplayer.setStyle(Style.DEFAULT);
+                        if (oldVal.mapItem) {
+                            var tmplayer = oldVal.mapItem._layers[Object.keys(oldVal.mapItem._layers)[0]]
+                            tmplayer.setStyle(Style.DEFAULT);
+                        }
                     }
                 }
                 if (newVal) {
-                    console.log("HIGHLIGHT: ");
-                    var tmplayer = newVal.mapItem._layers[Object.keys(newVal.mapItem._layers)[0]]
-                    tmplayer.setStyle(Style.HIGHLIGHT);
+                    if (newVal.mapItem) {
+                        var tmplayer = newVal.mapItem._layers[Object.keys(newVal.mapItem._layers)[0]]
+                        tmplayer.setStyle(Style.HIGHLIGHT);
+                    }
                     vm.selectedResult = newVal;
                     var item = Object.getOwnPropertyNames(newVal.properties).map(k => ({ key: k, value: newVal.properties[k] }));
                     vm.props = item;

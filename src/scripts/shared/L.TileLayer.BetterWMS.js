@@ -1,36 +1,43 @@
 L.TileLayer.BetterWMS = L.TileLayer.WMS.extend({
 
-    onAdd: function(map) {
-        // Triggered when the layer is added to a map.
-        //   Register a click listener, then do all the upstream WMS things
-        L.TileLayer.WMS.prototype.onAdd.call(this, map);
-        map.on('click', this.getFeatureInfo, this);
-    },
+    // onAdd: function(map) {
+    //     // Triggered when the layer is added to a map.
+    //     //   Register a click listener, then do all the upstream WMS things
+    //     L.TileLayer.WMS.prototype.onAdd.call(this, map);
+    //     map.on('click', this.getFeatureInfo, this);
+    // },
 
-    onRemove: function(map) {
-        // Triggered when the layer is removed from a map.
-        //   Unregister a click listener, then do all the upstream WMS things
-        L.TileLayer.WMS.prototype.onRemove.call(this, map);
-        map.off('click', this.getFeatureInfo, this);
-    },
+    // onRemove: function(map) {
+    //     // Triggered when the layer is removed from a map.
+    //     //   Unregister a click listener, then do all the upstream WMS things
+    //     L.TileLayer.WMS.prototype.onRemove.call(this, map);
+    //     map.off('click', this.getFeatureInfo, this);
+    // },
 
-    getFeatureInfo: function(evt) {
+    getFeatureInfo: function(latlng, layers) {
         // Make an AJAX request to the server and hope for the best
-        var url = this.getFeatureInfoUrl(evt.latlng),
-            showResults = L.Util.bind(this.showGetFeatureInfo, this);
-        $.ajax({
+        var url = this.getFeatureInfoUrl(latlng, layers);
+            // showResults = L.Util.bind(this.showGetFeatureInfo, this);
+        var prom = $.ajax({
             url: url,
             success: function(data, status, xhr) {
-                var err = typeof data === 'string' ? null : data;
-                showResults(err, evt.latlng, data);
+                // var err = typeof data === 'string' ? null : data;
+                // showResults(err, latlng, data);
+                // console.log(data);
+                // var xmlstring = JXON.xmlToString(data);
+                // var returnjson = JXON.stringToJs(xmlstring);
+
+
+                // console.log(returnjson);
             },
             error: function(xhr, status, error) {
-                showResults(error);
+                // showResults(error);
             }
         });
+        return prom;
     },
 
-    getFeatureInfoUrl: function(latlng) {
+    getFeatureInfoUrl: function(latlng, layers) {
         // Construct a GetFeatureInfo request URL given a point
         var point = this._map.latLngToContainerPoint(latlng, this._map.getZoom()),
             size = this._map.getSize(),
@@ -46,9 +53,10 @@ L.TileLayer.BetterWMS = L.TileLayer.WMS.extend({
                 bbox: this._map.getBounds().toBBoxString(),
                 height: size.y,
                 width: size.x,
-                layers: this.wmsParams.layers,
-                query_layers: this.wmsParams.layers,
-                info_format: 'text/html'
+                layers: layers,
+                query_layers: layers,
+                buffer: 100,
+                info_format: 'text/xml'
             };
 
         params[params.version === '1.3.0' ? 'i' : 'x'] = point.x;

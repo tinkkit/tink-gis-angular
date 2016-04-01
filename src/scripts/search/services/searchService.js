@@ -6,7 +6,9 @@
         _service.DeleteFeature = function(feature) {
             var featureIndex = ResultsData.JsonFeatures.indexOf(feature);
             if (featureIndex > -1) {
-                map.removeLayer(feature.mapItem);
+                if (feature.mapItem) {
+                    map.removeLayer(feature.mapItem);
+                }
                 ResultsData.JsonFeatures.splice(featureIndex, 1);
             }
         };

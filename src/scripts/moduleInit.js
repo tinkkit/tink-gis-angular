@@ -8,40 +8,37 @@
     } catch (e) {
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
     }
-    // module.config(['$httpProvider', function($httpProvider) {
-    //     // $httpProvider.defaults.useXDomain = true;
-    //     // delete $httpProvider.defaults.headers.common['X-Requested-With'];
-    //     console.log('httpprov config')
-    //     $httpProvider.defaults.useXDomain = true;
-    //     $httpProvider.defaults.withCredentials = true;
-    //     delete $httpProvider.defaults.headers.common["X-Requested-With"];
-    //     $httpProvider.defaults.headers.common["Accept"] = "application/javascript";
-    //     $httpProvider.defaults.headers.common["Content-Type"] = "application/json";
-    // }]);
-
-    module.constant('appConfig', {
-        templateUrl: "/digipolis.stadinkaart.webui",
-        apiUrl: "/digipolis.stadinkaart.api/",
-        enableDebug: true,
-        enableLog: true
-    });
-    module.directive('preventDefault', function() {
-        return function(scope, element, attrs) {
-            angular.element(element).bind('click', function(event) {
-                event.preventDefault();
-                event.stopPropagation();
-            });
-            angular.element(element).bind('dblclick', function(event) {
-                event.preventDefault();
-                event.stopPropagation();
-            });
-        };
-    });
-
     var init = function() {
         // var abc = _.forEach([], function (x){});
         L.AwesomeMarkers.Icon.prototype.options.prefix = 'fa';
-
+        JXON.config({
+            // valueKey: '_',                // default: 'keyValue'
+            // attrKey: '$',                 // default: 'keyAttributes'
+            attrPrefix: '',              // default: '@'
+            // lowerCaseTags: false,         // default: true
+            // trueIsEmpty: false,           // default: true
+            autoDate: false              // default: true
+            // ignorePrefixedNodes: false,   // default: true
+            // parseValues: false            // default: true
+        });
+        module.constant('appConfig', {
+            templateUrl: "/digipolis.stadinkaart.webui",
+            apiUrl: "/digipolis.stadinkaart.api/",
+            enableDebug: true,
+            enableLog: true
+        });
+        module.directive('preventDefault', function() {
+            return function(scope, element, attrs) {
+                angular.element(element).bind('click', function(event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                });
+                angular.element(element).bind('dblclick', function(event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                });
+            };
+        });
     } ();
     var mapObject = function() {
 

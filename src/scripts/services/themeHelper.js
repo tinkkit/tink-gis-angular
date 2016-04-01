@@ -57,8 +57,8 @@
                     }
                 });
                 thema.UpdateMap = function() {
-                    theme.RecalculateVisibleLayerIds();
-                    theme.MapData.setLayers(theme.VisibleLayerIds);
+                    thema.RecalculateVisibleLayerIds();
+                    thema.MapData.setLayers(thema.VisibleLayerIds);
                 };
            
                 thema.RecalculateVisibleLayerIds = function() {

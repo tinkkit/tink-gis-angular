@@ -132,15 +132,19 @@
         _data.AddFeatures = function(features, theme) {
             for (var x = 0; x < features.features.length; x++) {
                 var featureItem = features.features[x];
-                var layer = theme.AllLayers[featureItem.layerId];
+                var layer = theme.AllLayers.find(x => x.id === featureItem.layerId);
                 // featureItem.layer = layer;
                 // featureItem.theme = theme;
                 featureItem.layerName = layer.name;
-                featureItem.displayValue = featureItem.properties[layer.displayField];
-
-                var mapItem = L.geoJson(featureItem, { style: Style.DEFAULT }).addTo(map);
-                _data.VisibleFeatures.push(mapItem);
-                featureItem.mapItem = mapItem;
+                if (theme.Type === ThemeType.ESRI) {
+                    featureItem.displayValue = featureItem.properties[layer.displayField];
+                    var mapItem = L.geoJson(featureItem, { style: Style.DEFAULT }).addTo(map);
+                    _data.VisibleFeatures.push(mapItem);
+                    featureItem.mapItem = mapItem;
+                }
+                else {
+                    featureItem.displayValue = featureItem.properties[Object.keys(featureItem.properties)[0]];
+                }
                 ResultsData.JsonFeatures.push(featureItem);
             }
             $rootScope.$apply();
