@@ -94,7 +94,7 @@
                     }).addTo(map);
                     break;
                 case ThemeType.WMS:
-                    theme.MapData = L.tileLayer.wms(theme.CleanUrl, {
+                    theme.MapData = L.tileLayer.betterWms(theme.CleanUrl, {
                         format: 'image/png',
                         layers: theme.VisibleLayerIds,
                         transparent: true,

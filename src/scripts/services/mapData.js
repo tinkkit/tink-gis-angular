@@ -37,7 +37,7 @@
         _data.CleanAll = function() {
             _data.CleanDrawings();
             _data.CleanWatIsHier();
-            _data.CleanSearcsh();
+            _data.CleanSearch();
         };
         _data.CleanWatIsHier = function() {
             if (WatIsHierOriginalMarker) {
@@ -137,7 +137,7 @@
                 // featureItem.theme = theme;
                 featureItem.layerName = layer.name;
                 featureItem.displayValue = featureItem.properties[layer.displayField];
-           
+
                 var mapItem = L.geoJson(featureItem, { style: Style.DEFAULT }).addTo(map);
                 _data.VisibleFeatures.push(mapItem);
                 featureItem.mapItem = mapItem;
