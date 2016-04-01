@@ -12,28 +12,14 @@
                 if (oldVal) {
                     if (oldVal != newVal) {
                         console.log("UNHIGHLIGHT: ");
-                        console.log(oldVal);
                         var tmplayer = oldVal.mapItem._layers[Object.keys(oldVal.mapItem._layers)[0]]
-                        console.log(tmplayer);
-                        tmplayer.setStyle({
-                            fillOpacity: 0,
-                            color: 'blue',
-                            weight: 1
-                        });
+                        tmplayer.setStyle(Style.DEFAULT);
                     }
                 }
                 if (newVal) {
                     console.log("HIGHLIGHT: ");
-                    // var layer = newVal.mapItem._layers.target;
                     var tmplayer = newVal.mapItem._layers[Object.keys(newVal.mapItem._layers)[0]]
-                    console.log(tmplayer);
-                    tmplayer.setStyle({
-                        weight: 2,
-                        color: 'red',
-                        // dashArray: '',
-                        fillOpacity: 0.7
-                    });
-
+                    tmplayer.setStyle(Style.HIGHLIGHT);
                     vm.selectedResult = newVal;
                     var item = Object.getOwnPropertyNames(newVal.properties).map(k => ({ key: k, value: newVal.properties[k] }));
                     vm.props = item;

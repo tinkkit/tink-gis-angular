@@ -178,3 +178,15 @@ var ThemeType = {
     ESRI: 'esri',
     WMS: 'wms'
 };
+var Style = {
+    DEFAULT: {
+        fillOpacity: 0,
+        color: 'blue',
+        weight: 5
+    },
+    HIGHLIGHT: {
+        weight: 7,
+        color: 'red',
+        fillOpacity: 0.5
+    }
+};
