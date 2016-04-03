@@ -126,15 +126,19 @@
         _data.PanToFeature = function(feature) {
             console.log("FEATUREPANTO");
             var tmplayer = feature.mapItem._layers[Object.keys(feature.mapItem._layers)[0]]
-            map.fitBounds(tmplayer.getBounds());
-            map.panTo(tmplayer.getBounds().getCenter());
+            if (tmplayer._latlngs) { // with s so it has bounds etc
+                map.panTo(tmplayer.getBounds().getCenter());
+            }
+            else {
+                map.panTo(tmplayer.getLatLng());
+            }
         };
         _data.AddFeatures = function(features, theme) {
             for (var x = 0; x < features.features.length; x++) {
                 var featureItem = features.features[x];
                 var layer = theme.AllLayers.find(x => x.id === featureItem.layerId);
                 // featureItem.layer = layer;
-                // featureItem.theme = theme;
+                featureItem.theme = theme;
                 featureItem.layerName = layer.name;
                 if (theme.Type === ThemeType.ESRI) {
                     featureItem.displayValue = featureItem.properties[layer.displayField];

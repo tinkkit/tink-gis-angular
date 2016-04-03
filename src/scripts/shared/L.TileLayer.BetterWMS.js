@@ -1,3 +1,4 @@
+'use strict'
 L.TileLayer.BetterWMS = L.TileLayer.WMS.extend({
 
     // onAdd: function(map) {

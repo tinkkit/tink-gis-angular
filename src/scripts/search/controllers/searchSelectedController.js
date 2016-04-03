@@ -13,7 +13,7 @@
                     if (oldVal != newVal) {
                         if (oldVal.mapItem) {
                             var tmplayer = oldVal.mapItem._layers[Object.keys(oldVal.mapItem._layers)[0]];
-                            if (tmplayer._layers) {
+                            if (tmplayer._latlngs) { // with s so it is an array, so not a point so we can set the style
                                 tmplayer.setStyle(Style.DEFAULT);
                             }
                         }
@@ -22,7 +22,7 @@
                 if (newVal) {
                     if (newVal.mapItem) {
                         var tmplayer = newVal.mapItem._layers[Object.keys(newVal.mapItem._layers)[0]];
-                        if (tmplayer._layers) {
+                        if (tmplayer._latlngs) { // with s so it is an array, so not a point so we can set the style
                             tmplayer.setStyle(Style.HIGHLIGHT);
                         }
                     }

@@ -128,6 +128,7 @@
                     MapData.VisibleLayers.splice(visLayerIndex, 1);
                 }
             });
+            MapData.CleanSearch();
         };
 
 
