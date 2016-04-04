@@ -8,7 +8,7 @@
     }
     var service = function($http, $window, map) {
         var _service = {};
-     
+
         _service.GetCapabilities = function(url) {
             var posturl = '?request=GetCapabilities&service=WMS&callback=foo';
             var prom = $http({
@@ -37,26 +37,35 @@
                         wmstheme.Type = ThemeType.WMS;
                         wmstheme.VisibleLayerIds = [];
                         wmstheme.VisibleLayers = [];
-                        
-                        var layers = returnjson.capability.layer.layer;
-                        layers.forEach(layer => {
+                        var createLayer = function(layer) {
                             var tmplayer = {};
                             tmplayer.visible = true;
                             tmplayer.enabled = true;
                             tmplayer.parent = null;
                             tmplayer.theme = wmstheme;
                             tmplayer.name = layer.title;
+                            tmplayer.queryable = layer.queryable;
                             tmplayer.type = LayerType.LAYER;
                             tmplayer.id = layer.name; //names are the ids of the layer in wms
                             wmstheme.Layers.push(tmplayer);
                             wmstheme.AllLayers.push(tmplayer);
-                        });
+                        };
+                        var layers = returnjson.capability.layer.layer;
+                        if (layers) {
+                            layers.forEach(layer => {
+                                createLayer(layer);
+                            });
+                        } else {
+                            createLayer(returnjson.capability.layer);
+                        }
+
+
                         wmstheme.UpdateMap = function() {
                             wmstheme.RecalculateVisibleLayerIds();
                             map.removeLayer(wmstheme.MapData);
                             map.addLayer(wmstheme.MapData);
                         };
-                        
+
                         wmstheme.RecalculateVisibleLayerIds = function() {
                             wmstheme.VisibleLayerIds.length = 0;
                             _.forEach(wmstheme.VisibleLayers, function(visLayer) {

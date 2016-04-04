@@ -12,36 +12,43 @@
         vm.selectedLayer = MapData.SelectedLayer;
         vm.drawingType = MapData.DrawingType
         vm.showMetenControls = false;
+        vm.showDrawControls = false;
         vm.interactieButtonChanged = function(ActiveButton) {
             MapData.CleanAll();
             MapData.ActiveInteractieKnop = ActiveButton; // If we only could keep the vmactiveInteractieKnop in sync with the one from MapData
             vm.activeInteractieKnop = ActiveButton;
-            //make controls invis
-            toggleDrawControls(false);
             vm.showMetenControls = false;
+            vm.showDrawControls = false;
             switch (ActiveButton) {
                 case ActiveInteractieButton.SELECT:
-                    toggleDrawControls(true);
+                    vm.showDrawControls = true;
+                    vm.selectpunt();
                     break;
                 case ActiveInteractieButton.METEN:
                     vm.showMetenControls = true;
+                    vm.drawingButtonChanged(DrawingOption.AFSTAND);
                     break;
             }
         };
-        var toggleDrawControls = function(showControls) {
-            if (showControls) {
-                $('.leaflet-draw.leaflet-control').show();
-            }
-            else {
-                $('.leaflet-draw.leaflet-control').hide();
-            }
-        };
+        // var toggleDrawControls = function(showControls) {
+        //     if (showControls) {
+        //         $('.leaflet-draw.leaflet-control').show();
+        //     }
+        //     else {
+        //         $('.leaflet-draw.leaflet-control').hide();
+        //     }
+        // };
         vm.drawingButtonChanged = function(drawOption) {
             MapData.CleanAll();
             MapData.DrawingType = drawOption; // pff must be possible to be able to sync them...
             vm.drawingType = drawOption;
             DrawService.StartDraw(drawOption);
-      
+
+        };
+        vm.selectpunt = function() {
+            MapData.CleanAll();
+            MapData.DrawingType = DrawingOption.NIETS; // pff must be possible to be able to sync them...
+            vm.drawingType = DrawingOption.NIETS;
         };
         vm.layerChange = function() {
             MapData.CleanAll();

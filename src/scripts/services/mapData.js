@@ -18,7 +18,7 @@
         var defaultlayer = { id: '', name: 'Alle Layers' };
         _data.SelectedLayer = defaultlayer;
         _data.VisibleLayers.unshift(defaultlayer);
-        _data.ActiveInteractieKnop = ActiveInteractieButton.SELECT;
+        _data.ActiveInteractieKnop = ActiveInteractieButton.IDENTIFY;
         _data.DrawingType = DrawingOption.NIETS;
         _data.DrawingObject = null;
         _data.CleanDrawings = function() {
@@ -134,26 +134,32 @@
             }
         };
         _data.AddFeatures = function(features, theme) {
-            for (var x = 0; x < features.features.length; x++) {
-                var featureItem = features.features[x];
-                var layer = theme.AllLayers.find(x => x.id === featureItem.layerId);
-                // featureItem.layer = layer;
-                featureItem.theme = theme;
-                featureItem.layerName = layer.name;
-                if (theme.Type === ThemeType.ESRI) {
-                    featureItem.displayValue = featureItem.properties[layer.displayField];
-                    console.log(featureItem);
-                    var mapItem = L.geoJson(featureItem, { style: Style.DEFAULT }).addTo(map);
-                    _data.VisibleFeatures.push(mapItem);
-                    featureItem.mapItem = mapItem;
-                    console.log(mapItem);
-                }
-                else {
-                    featureItem.displayValue = featureItem.properties[Object.keys(featureItem.properties)[0]];
-                }
-                ResultsData.JsonFeatures.push(featureItem);
+            if (features.length == 0) {
+                ResultsData.EmptyResult = true;
             }
-            $rootScope.$apply();
+            else {
+                ResultsData.EmptyResult = false;
+                for (var x = 0; x < features.features.length; x++) {
+                    var featureItem = features.features[x];
+                    var layer = theme.AllLayers.find(x => x.id === featureItem.layerId);
+                    // featureItem.layer = layer;
+                    featureItem.theme = theme;
+                    featureItem.layerName = layer.name;
+                    if (theme.Type === ThemeType.ESRI) {
+                        featureItem.displayValue = featureItem.properties[layer.displayField];
+                        console.log(featureItem);
+                        var mapItem = L.geoJson(featureItem, { style: Style.DEFAULT }).addTo(map);
+                        _data.VisibleFeatures.push(mapItem);
+                        featureItem.mapItem = mapItem;
+                        console.log(mapItem);
+                    }
+                    else {
+                        featureItem.displayValue = featureItem.properties[Object.keys(featureItem.properties)[0]];
+                    }
+                    ResultsData.JsonFeatures.push(featureItem);
+                }
+                $rootScope.$apply();
+            }
         };
         return _data;
     };

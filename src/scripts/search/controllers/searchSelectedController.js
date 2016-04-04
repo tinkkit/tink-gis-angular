@@ -9,14 +9,10 @@
             vm.nextResult = null;
             vm.props = [];
             $scope.$watch(function() { return ResultsData.SelectedFeature; }, function(newVal, oldVal) {
-                if (oldVal) {
-                    if (oldVal != newVal) {
-                        if (oldVal.mapItem) {
-                            var tmplayer = oldVal.mapItem._layers[Object.keys(oldVal.mapItem._layers)[0]];
-                            if (tmplayer._latlngs) { // with s so it is an array, so not a point so we can set the style
-                                tmplayer.setStyle(Style.DEFAULT);
-                            }
-                        }
+                if (oldVal && oldVal != newVal && oldVal.mapItem) { // there must be an oldval and it must not be the newval and it must have an mapitem (to dehighlight)
+                    var tmplayer = oldVal.mapItem._layers[Object.keys(oldVal.mapItem._layers)[0]];
+                    if (tmplayer._latlngs) { // with s so it is an array, so not a point so we can set the style
+                        tmplayer.setStyle(Style.DEFAULT);
                     }
                 }
                 if (newVal) {

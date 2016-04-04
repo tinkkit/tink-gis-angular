@@ -22,10 +22,10 @@
                             stroke: true,
                             color: '#22528b',
                             weight: 4,
-                            opacity: 0.5,
+                            opacity: 0.6,
                             fill: true,
                             fillColor: null, //same as color by default
-                            fillOpacity: 0.6,
+                            fillOpacity: 0.4,
                             clickable: true
                         }
                     }

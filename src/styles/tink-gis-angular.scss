@@ -68,6 +68,16 @@
   }
 }
 
+.drawingbtns {
+  left: rem(55);
+  top: rem(130);
+
+  @include mq($screen-sm) {
+    left: rem(60);
+    top: rem(135);
+  }
+}
+
 .zoekbalken {
   left: rem(90);
   top: rem(10);

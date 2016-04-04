@@ -104,7 +104,7 @@
             // layers: L.tileLayer('http://geodata.antwerpen.be/arcgissql/rest/services/P_Publiek/P_basemap/MapServer/tile/{z}/{y}/{x}', { id: 'kaart' }),
             // layers: L.esri.tiledMapLayer({ url: 'http://geodata.antwerpen.be/arcgissql/rest/services/P_Publiek/P_basemap/MapServer', id: 'kaart' }),
             zoomControl: false,
-            drawControl: true
+            drawControl: false
         });
         // var url = 'http://geodata.antwerpen.be/arcgissql/rest/services/P_Publiek/P_basemap/MapServer/WMTS';
         // var layerIGNScanStd = "GEOGRAPHICALGRIDSYSTEMS.MAPS.SCAN-EXPRESS.STANDARD";
@@ -169,7 +169,10 @@ var ActiveInteractieButton = {
 var DrawingOption = {
     NIETS: '',
     AFSTAND: 'afstand',
-    OPPERVLAKTE: 'oppervlakte'
+    OPPERVLAKTE: 'oppervlakte',
+    LIJN: 'lijn',
+    VIERKANT: 'vierkant',
+    POLYGON: 'polygon'
 };
 var ThemeType = {
     ESRI: 'esri',

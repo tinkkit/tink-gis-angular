@@ -6,7 +6,7 @@
     } catch (e) {
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'tink.modal']); //'leaflet-directive'
     }
-    var mapService = function($rootScope, MapData, map, ThemeHelper, $q, GISService, WMSService) {
+    var mapService = function($rootScope, MapData, map, ThemeHelper, $q, GISService, WMSService, ResultsData) {
         var _mapService = {};
         _mapService.Identify = function(event, tolerance) {
             if (typeof tolerance === 'undefined') { tolerance = 10; }
@@ -89,9 +89,12 @@
         };
 
         _mapService.Select = function(event) {
+            ResultsData.Loading = true;
             console.log(MapData.SelectedLayer);
             MapData.SelectedLayer.theme.MapData.identify().on(map).at(event.latlng).layers('visible: ' + MapData.SelectedLayer.id).run(function(error, featureCollection) {
-                MapData.AddFeatures(featureCollection);
+                MapData.AddFeatures(featureCollection, MapData.SelectedLayer.theme);
+                ResultsData.Loading = false;
+
             });
         };
         _mapService.WatIsHier = function(event) {
@@ -140,7 +143,7 @@
         };
         return _mapService;
     };
-    module.$inject = ['$rootScope', 'MapData', 'map', 'ThemeHelper', '$q', 'GISService', 'WMSService'];
+    module.$inject = ['$rootScope', 'MapData', 'map', 'ThemeHelper', '$q', 'GISService', 'WMSService', 'ResultsData'];
     module.factory('MapService', mapService);
 })();
 
