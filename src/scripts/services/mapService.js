@@ -101,13 +101,17 @@
         _mapService.Query = function(event) {
             if (MapData.SelectedLayer.id == '') { // alle layers selected
                 MapData.Themes.forEach(theme => { // dus doen we de qry op alle lagen.
-                    theme.MapData.query()
-                        .layer('visible:' + theme.VisibleLayerIds)
-                        // .fields(['id', 'layerId'])
-                        .intersects(event.layer)
-                        .run(function(error, featureCollection, response) {
-                            MapData.AddFeatures(featureCollection, theme);
-                        });
+                    var qry = theme.MapData.query()
+                        .intersects(event.layer);
+                    // .layer(theme.VisibleLayerIds)
+                    // .fields(['id', 'layerId'])
+                    // .simplify(map, 0);
+                    // qry.count(function(error, count, response) {
+                    //     console.log('Found ' + count + ' features');
+                    // });
+                    qry.run(function(error, featureCollection, response) {
+                        MapData.AddFeatures(featureCollection, theme);
+                    });
                 });
             }
             else {
