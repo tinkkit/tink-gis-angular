@@ -61,21 +61,6 @@
 
                                 });
                             });
-                            // theme.MapData.getFeatureInfo(event.latlng, layersVoorIdentify).success(function(data, status, xhr) {
-                            //     console.log(data);
-                            //     var xmlstring = JXON.xmlToString(data);
-                            //     var returnjson = JXON.stringToJs(xmlstring);
-                            //     console.log(returnjson);
-                            //     // var processedjson = returnjson.featureinforesponse.fields;
-                            //     // var featureArr = [];
-                            //     // if (typeof processedjson === Object) {
-                            //     //     featureArr.push(processedjson)
-                            //     // } else {
-                            //     //     featureArr = processedjson;
-                            //     // }
-                            //     // console.log(processedjson);
-                            // });
-
                             break;
                         default:
                             console.log("UNKNOW TYPE!!!!:");
@@ -91,23 +76,49 @@
         _mapService.Select = function(event) {
             ResultsData.Loading = true;
             console.log(MapData.SelectedLayer);
-            MapData.SelectedLayer.theme.MapData.identify().on(map).at(event.latlng).layers('visible: ' + MapData.SelectedLayer.id).run(function(error, featureCollection) {
-                MapData.AddFeatures(featureCollection, MapData.SelectedLayer.theme);
-                ResultsData.Loading = false;
+            if (MapData.SelectedLayer.id == '') { // alle layers selected
+                MapData.Themes.forEach(theme => { // dus doen we de qry op alle lagen.
+                    theme.MapData.identify().on(map).at(event.latlng).layers('visible: ' + theme.VisibleLayerIds).run(function(error, featureCollection) {
+                        MapData.AddFeatures(featureCollection, theme);
+                        ResultsData.Loading = false;
 
-            });
+                    });
+                });
+            }
+            else {
+                MapData.SelectedLayer.theme.MapData.identify().on(map).at(event.latlng).layers('visible: ' + MapData.SelectedLayer.id).run(function(error, featureCollection) {
+                    MapData.AddFeatures(featureCollection, MapData.SelectedLayer.theme);
+                    ResultsData.Loading = false;
+
+                });
+            }
+
         };
         _mapService.WatIsHier = function(event) {
             GISService.ReverseGeocode(event);
         };
 
         _mapService.Query = function(event) {
-            MapData.SelectedLayer.theme.MapData.query()
-                .layer('visible: ' + MapData.SelectedLayer.id)
-                .intersects(event.layer)
-                .run(function(error, featureCollection, response) {
-                    MapData.AddFeatures(featureCollection);
+            if (MapData.SelectedLayer.id == '') { // alle layers selected
+                MapData.Themes.forEach(theme => { // dus doen we de qry op alle lagen.
+                    theme.MapData.query()
+                        .layer('visible:' + theme.VisibleLayerIds)
+                        // .fields(['id', 'layerId'])
+                        .intersects(event.layer)
+                        .run(function(error, featureCollection, response) {
+                            MapData.AddFeatures(featureCollection, theme);
+                        });
                 });
+            }
+            else {
+                MapData.SelectedLayer.theme.MapData.query()
+                    .layer(MapData.SelectedLayer.id)
+                    .intersects(event.layer)
+                    .run(function(error, featureCollection, response) {
+                        MapData.AddFeatures(featureCollection, MapData.SelectedLayer.theme);
+                    });
+            }
+
         };
         _mapService.UpdateThemeStatus = function(theme) {
             _.each(theme.Groups, function(layerGroup) {

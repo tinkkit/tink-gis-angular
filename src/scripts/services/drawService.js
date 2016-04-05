@@ -11,10 +11,12 @@
 
         _service.StartDraw = function(DrawingOptie) {
             switch (MapData.DrawingType) {
+                case DrawingOption.Lijn:
                 case DrawingOption.AFSTAND:
                     MapData.DrawingObject = new L.Draw.Polyline(map);
                     MapData.DrawingObject.enable();
                     break;
+                case DrawingOption.POLYGON:
                 case DrawingOption.OPPERVLAKTE:
                     var polygon_options = {
                         showArea: true,
@@ -30,6 +32,10 @@
                         }
                     }
                     MapData.DrawingObject = new L.Draw.Polygon(map, polygon_options);
+                    MapData.DrawingObject.enable();
+                    break;
+                case DrawingOption.VIERKANT:
+                    MapData.DrawingObject = new L.Draw.Rectangle(map);
                     MapData.DrawingObject.enable();
                     break;
                 default:

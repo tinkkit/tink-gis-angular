@@ -100,7 +100,7 @@
             // maxZoom: 21,
             // minZoom: 10,
             // layers: L.tileLayer('http://geodata.antwerpen.be/arcgissql/rest/services/P_Publiek/P_basemap_wgs84/MapServer', { id: 'kaart' }),
-            layers: L.tileLayer('https://tiles.arcgis.com/tiles/1KSVSmnHT2Lw9ea6/arcgis/rest/services/basemap_stadsplan_v6/MapServer/tile/{z}/{y}/{x}', { id: 'kaart' }),
+            layers: L.tileLayer('https://tiles.arcgis.com/tiles/1KSVSmnHT2Lw9ea6/arcgis/rest/services/basemap_stadsplan_v10/MapServer/tile/{z}/{y}/{x}', { id: 'kaart' }),
             // layers: L.tileLayer('http://geodata.antwerpen.be/arcgissql/rest/services/P_Publiek/P_basemap/MapServer/tile/{z}/{y}/{x}', { id: 'kaart' }),
             // layers: L.esri.tiledMapLayer({ url: 'http://geodata.antwerpen.be/arcgissql/rest/services/P_Publiek/P_basemap/MapServer', id: 'kaart' }),
             zoomControl: false,

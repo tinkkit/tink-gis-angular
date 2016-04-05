@@ -8,6 +8,13 @@
             MapData.IsDrawing = true;
             // MapData.CleanDrawings();
         });
+
+        map.on('draw:drawstop', function(event) {
+            console.log('draw stopped');
+            MapData.IsDrawing = false;
+            // MapData.CleanDrawings();
+        });
+
         var berkenOmtrek = function(layer) {
             // Calculating the distance of the polyline
             var tempLatLng = null;
@@ -41,12 +48,7 @@
                         MapService.Identify(event, 10);
                         break;
                     case ActiveInteractieButton.SELECT:
-                        if (MapData.SelectedLayer.id === '') {
-                            console.log('Geen layer selected! kan dus niet opvragen');
-                        }
-                        else {
-                            MapService.Select(event);
-                        }
+                        MapService.Select(event);
                         break;
                     case ActiveInteractieButton.WATISHIER:
                         MapService.WatIsHier(event);
@@ -81,12 +83,24 @@
             console.log(e)
             switch (MapData.ActiveInteractieKnop) {
                 case ActiveInteractieButton.SELECT:
-                    if (MapData.SelectedLayer.id == '') {
-                        console.log('Geen layer selected! kan dus niet opvragen');
+                    switch (MapData.DrawingType) {
+                        case DrawingOption.LIJN:
+                            break;
+                        case DrawingOption.VIERKANT:
+                            break;
+                        case DrawingOption.POLYGON:
+                            break;
+                        default:
+                            break;
                     }
-                    else {
-                        MapService.Query(event);
-                    }
+                    MapService.Query(e);
+
+                    // if (MapData.SelectedLayer.id == '') {
+                    //     console.log('Geen layer selected! kan dus niet opvragen');
+                    // }
+                    // else {
+                    //     MapService.Query(event);
+                    // }
                     break;
                 case ActiveInteractieButton.METEN:
                     switch (MapData.DrawingType) {
