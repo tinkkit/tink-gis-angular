@@ -1,14 +1,14 @@
 'use strict';
 (function() {
     var module = angular.module('tink.gis');
-    var service = function(map, ThemeHelper, MapData, LayerManagementService) {
+    var service = function(map, ThemeHelper, MapData, LayerManagementService, $rootScope) {
         var _service = {};
         _service.AddAndUpdateThemes = function(themesBatch) {
             console.log("Themes batch for add and updates...");
             console.log(themesBatch);
             console.log("...");
             themesBatch.forEach(theme => {
-                var existingTheme = MapData.Themes.find(x => { return x.Url == theme.Url });
+                var existingTheme = MapData.Themes.find(x => { return x.CleanUrl == theme.CleanUrl });
                 console.log(theme);
                 console.log(theme.status);
                 switch (theme.status) {
@@ -92,6 +92,27 @@
                         layers: theme.VisibleLayerIds,
                         useCors: true
                     }).addTo(map);
+                    // theme.MapData.on('load', function(e) {
+                    //     console.log('load' + MapData.Loading);
+                    // });
+                    // theme.MapData.on('loading', function(e) {
+                    //     console.log('loading' + MapData.Loading);
+                    // });
+                    theme.MapData.on('requeststart', function(obj) {
+                        MapData.Loading++;
+                        console.log(MapData.Loading + 'requeststart ' + theme.Naam);
+                        $rootScope.$apply();
+
+
+                    });
+                    theme.MapData.on('requestend', function(obj) {
+                        if (MapData.Loading > 0) {
+                            MapData.Loading--;
+                        }
+                        console.log(MapData.Loading + 'requestend ' + theme.Naam);
+                        $rootScope.$apply();
+
+                    });
                     break;
                 case ThemeType.WMS:
                     theme.MapData = L.tileLayer.betterWms(theme.CleanUrl, {
@@ -100,6 +121,30 @@
                         transparent: true,
                         useCors: true
                     }).addTo(map);
+                    theme.MapData.on('tileloadstart', function(obj) {
+                        MapData.Loading++;
+                        console.log(MapData.Loading + 'tileloadstart ' + theme.Naam);
+                        $rootScope.$apply();
+
+
+                    });
+                    theme.MapData.on('tileerror', function(obj) {
+                        if (MapData.Loading > 0) {
+                            MapData.Loading--;
+                        }
+                        console.log('!!!!!!!!! ' + MapData.Loading + 'tileerror ' + theme.Naam);
+                        $rootScope.$apply();
+
+
+                    });
+                    theme.MapData.on('tileload', function(obj) {
+                        if (MapData.Loading > 0) {
+                            MapData.Loading--;
+                        }
+                        console.log(MapData.Loading + 'tileload ' + theme.Naam);
+                        $rootScope.$apply();
+
+                    });
                     break;
                 default:
                     console.log("UNKNOW TYPE");
@@ -107,12 +152,7 @@
             }
 
             // _mapService.UpdateThemeVisibleLayers(theme);
-            theme.MapData.on('requeststart', function(obj) {
-                console.log('requeststart ' + theme.Naam);
-            });
-            theme.MapData.on('requestsuccess', function(obj) {
-                console.log('requestsuccess ' + theme.Naam);
-            });
+
 
         };
         _service.DeleteTheme = function(theme) {
@@ -135,6 +175,6 @@
 
         return _service;
     };
-    module.$inject = ['map', 'ThemeHelper', 'MapData', 'LayerManagementService'];
+    module.$inject = ['map', 'ThemeHelper', 'MapData', 'LayerManagementService', '$rootScope'];
     module.factory('ThemeService', service);
 })();

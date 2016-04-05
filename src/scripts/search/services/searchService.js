@@ -13,11 +13,16 @@
             }
         };
         _service.DeleteFeatureGroup = function(featureGroupName) {
+            let toDelFeatures = [];
             ResultsData.JsonFeatures.forEach(function(feature) {
                 if (feature.layerName === featureGroupName) {
-                    _service.DeleteFeature(feature);
+                    toDelFeatures.push(feature);
                 }
             });
+            toDelFeatures.forEach(feat => {
+                _service.DeleteFeature(feat);
+            });
+
         };
         _service.ExportToCSV = function() {
             var csvContent = ""; // "data:text/csv;charset=utf-8,";

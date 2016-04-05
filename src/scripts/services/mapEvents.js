@@ -24,7 +24,6 @@
                     tempLatLng = latlng;
                     return;
                 }
-                console.log(tempLatLng.distanceTo(latlng) + " m");
                 totalDistance += tempLatLng.distanceTo(latlng);
                 tempLatLng = latlng;
             });
@@ -34,9 +33,9 @@
         map.on('zoomend', function(event) {
             console.log('Zoomend!!!');
             console.log(event);
-            MapData.Themes.forEach(x => {
-                console.log(x.MapData);
-            });
+            // MapData.Themes.forEach(x => {
+            //     console.log(x.MapData);
+            // });
         });
 
         map.on('click', function(event) {
@@ -48,7 +47,9 @@
                         MapService.Identify(event, 10);
                         break;
                     case ActiveInteractieButton.SELECT:
-                        MapService.Select(event);
+                        if (MapData.DrawingType === DrawingOption.NIETS) {
+                            MapService.Select(event);
+                        } // else a drawing finished
                         break;
                     case ActiveInteractieButton.WATISHIER:
                         MapService.WatIsHier(event);

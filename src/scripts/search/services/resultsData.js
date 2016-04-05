@@ -5,8 +5,8 @@
         var _data = {};
         _data.SelectedFeature = null;
         _data.JsonFeatures = [];
-        _data.Loading = false;
-        _data.EmptyResult = false;        
+        _data.Loading = 0;
+        _data.EmptyResult = false;
         _data.CleanSearch = function() {
             _data.JsonFeatures.length = 0;
             _data.SelectedFeature = null;

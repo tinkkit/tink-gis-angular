@@ -20,15 +20,18 @@
                     switch (theme.Type) {
                         case ThemeType.ESRI:
                             var layersVoorIdentify = 'visible: ' + theme.VisibleLayerIds;
+                            ResultsData.Loading++;
                             theme.MapData.identify().on(map).at(event.latlng).layers(layersVoorIdentify).tolerance(tolerance).run(function(error, featureCollection) {
-                                console.log(featureCollection);
+                                ResultsData.Loading--;
                                 MapData.AddFeatures(featureCollection, theme);
                             });
                             break;
                         case ThemeType.WMS:
                             var layersVoorIdentify = theme.VisibleLayerIds;
                             theme.VisibleLayerIds.forEach(lay => {
+                                ResultsData.Loading++;
                                 theme.MapData.getFeatureInfo(event.latlng, lay).success(function(data, status, xhr) {
+                                    ResultsData.Loading--;
                                     var xmlstring = JXON.xmlToString(data);
                                     var returnjson = JXON.stringToJs(xmlstring);
                                     var processedjson = returnjson.featureinforesponse.fields;
@@ -74,13 +77,12 @@
         };
 
         _mapService.Select = function(event) {
-            ResultsData.Loading = true;
-            console.log(MapData.SelectedLayer);
+            ResultsData.Loading++;
             if (MapData.SelectedLayer.id == '') { // alle layers selected
                 MapData.Themes.forEach(theme => { // dus doen we de qry op alle lagen.
                     theme.MapData.identify().on(map).at(event.latlng).layers('visible: ' + theme.VisibleLayerIds).run(function(error, featureCollection) {
                         MapData.AddFeatures(featureCollection, theme);
-                        ResultsData.Loading = false;
+                        ResultsData.Loading--;
 
                     });
                 });
@@ -88,7 +90,7 @@
             else {
                 MapData.SelectedLayer.theme.MapData.identify().on(map).at(event.latlng).layers('visible: ' + MapData.SelectedLayer.id).run(function(error, featureCollection) {
                     MapData.AddFeatures(featureCollection, MapData.SelectedLayer.theme);
-                    ResultsData.Loading = false;
+                    ResultsData.Loading--;
 
                 });
             }
@@ -101,28 +103,30 @@
         _mapService.Query = function(event) {
             if (MapData.SelectedLayer.id == '') { // alle layers selected
                 MapData.Themes.forEach(theme => { // dus doen we de qry op alle lagen.
-                    var qry = theme.MapData.query()
-                        .intersects(event.layer);
-                    // .layer(theme.VisibleLayerIds)
-                    // .fields(['id', 'layerId'])
-                    // .simplify(map, 0);
-                    // qry.count(function(error, count, response) {
-                    //     console.log('Found ' + count + ' features');
-                    // });
-                    qry.run(function(error, featureCollection, response) {
-                        MapData.AddFeatures(featureCollection, theme);
-                    });
+                    if (theme.Type === ThemeType.ESRI) {
+                        theme.VisibleLayers.forEach(lay => {
+                            ResultsData.Loading++;
+                            theme.MapData.query()
+                                .layer(lay.id)
+                                .intersects(event.layer)
+                                .run(function(error, featureCollection, response) {
+                                    ResultsData.Loading--;
+                                    MapData.AddFeatures(featureCollection, theme, lay.id);
+                                });
+                        });
+                    }
                 });
             }
             else {
+                ResultsData.Loading++;
                 MapData.SelectedLayer.theme.MapData.query()
                     .layer(MapData.SelectedLayer.id)
                     .intersects(event.layer)
                     .run(function(error, featureCollection, response) {
-                        MapData.AddFeatures(featureCollection, MapData.SelectedLayer.theme);
+                        ResultsData.Loading--;
+                        MapData.AddFeatures(featureCollection, MapData.SelectedLayer.theme, MapData.SelectedLayer.id);
                     });
             }
-
         };
         _mapService.UpdateThemeStatus = function(theme) {
             _.each(theme.Groups, function(layerGroup) {

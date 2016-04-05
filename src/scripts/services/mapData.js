@@ -7,6 +7,7 @@
         _data.VisibleLayers = [];
         _data.SelectableLayers = [];
         _data.VisibleFeatures = [];
+        _data.Loading = 0;
         _data.IsDrawing = false;
         _data.ThemeUrls = ['http://app11.p.gis.local/arcgissql/rest/services/P_Stad/Afval/MapServer/',
             'http://app11.p.gis.local/arcgissql/rest/services/P_Stad/Cultuur/MapServer/',
@@ -133,7 +134,7 @@
                 map.panTo(tmplayer.getLatLng());
             }
         };
-        _data.AddFeatures = function(features, theme) {
+        _data.AddFeatures = function(features, theme, layerId) {
             if (features.length == 0) {
                 ResultsData.EmptyResult = true;
             }
@@ -141,17 +142,24 @@
                 ResultsData.EmptyResult = false;
                 for (var x = 0; x < features.features.length; x++) {
                     var featureItem = features.features[x];
-                    var layer = theme.AllLayers.find(x => x.id === featureItem.layerId);
+
+                    var layer = {};
+                    if (featureItem.layerId != undefined && featureItem.layerId != null) {
+                        layer = theme.AllLayers.find(x => x.id === featureItem.layerId);
+                    }
+                    else if (layerId != undefined && layerId != null) {
+                        layer = theme.AllLayers.find(x => x.id === layerId);
+                    } else {
+                        console.log("NO LAYER ID WAS GIVEN EITHER FROM FEATURE ITEM OR FROM PARAMETER");
+                    }
                     // featureItem.layer = layer;
                     featureItem.theme = theme;
                     featureItem.layerName = layer.name;
                     if (theme.Type === ThemeType.ESRI) {
                         featureItem.displayValue = featureItem.properties[layer.displayField];
-                        console.log(featureItem);
                         var mapItem = L.geoJson(featureItem, { style: Style.DEFAULT }).addTo(map);
                         _data.VisibleFeatures.push(mapItem);
                         featureItem.mapItem = mapItem;
-                        console.log(mapItem);
                     }
                     else {
                         featureItem.displayValue = featureItem.properties[Object.keys(featureItem.properties)[0]];

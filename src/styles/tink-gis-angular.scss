@@ -105,7 +105,15 @@
     bottom: rem(20);
   }
 }
-
+.loading {
+  right: rem(10);
+  top: rem(10);
+  background-color: white;
+  @include mq($screen-sm) {
+    right: rem(15);
+    top: rem(15);
+  }
+}
 .viewbtns {
   right: rem(10);
   bottom: rem(64);

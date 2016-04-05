@@ -45,6 +45,25 @@
             DrawService.StartDraw(drawOption);
 
         };
+        vm.Loading = 0;
+        vm.MaxLoading = 0;
+
+        $scope.$watch(function() { return MapData.Loading; }, function(newVal, oldVal) {
+            vm.Loading = newVal;
+            if (oldVal == 0) {
+                vm.MaxLoading = newVal;
+            }
+            // if (newVal < oldVal) {
+            if (vm.MaxLoading < oldVal) {
+                vm.MaxLoading = oldVal;
+            }
+            // }
+            if (newVal == 0) {
+                vm.MaxLoading = 0;
+            }
+            // $scope.$apply();
+            console.log("MapLoading val: " + newVal + "/" + vm.MaxLoading);
+        });
         vm.selectpunt = function() {
             MapData.CleanAll();
             MapData.DrawingType = DrawingOption.NIETS; // pff must be possible to be able to sync them...

@@ -11,7 +11,7 @@
 
         _service.StartDraw = function(DrawingOptie) {
             switch (MapData.DrawingType) {
-                case DrawingOption.Lijn:
+                case DrawingOption.LIJN:
                 case DrawingOption.AFSTAND:
                     MapData.DrawingObject = new L.Draw.Polyline(map);
                     MapData.DrawingObject.enable();

@@ -48,6 +48,9 @@
         <div class="btn-group btn-group-vertical ll localiseerbtn">
             <button type="button" class="btn" prevent-default><i class="fa fa-male"></i></button>
         </div>
+        <div class="ll loading" ng-show="mapctrl.Loading > 0">
+            <div class="loader"></div> {{mapctrl.MaxLoading - mapctrl.Loading}}/ {{mapctrl.MaxLoading}}
+        </div>
     </div>
     <tink-Search></tink-Search>
     <tink-Layers></tink-Layers>
