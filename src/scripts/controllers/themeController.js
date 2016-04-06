@@ -19,7 +19,26 @@
                 ThemeService.UpdateThemeVisibleLayers(vm.theme);
             };
             vm.deleteTheme = function () {
-                ThemeService.DeleteTheme(vm.theme);
+              
+                    swal({   title: "Verwijderen?",   
+                    text: "U staat op het punt om " + vm.theme.title + " te verwijderen.",  
+                     type: "warning",   
+                     showCancelButton: true,   
+                     confirmButtonColor: "#DD6B55",   
+                     confirmButtonText: "Verwijder",   
+                     closeOnConfirm: true 
+                    }
+                     , function(){   
+                         console.log("JAHOOR");
+                            ThemeService.DeleteTheme(vm.theme);
+                            console.log(vm);
+                            console.log(ThemeService);
+                    console.log(vm.theme);
+                         console.log("JAHOOR");
+                         
+                            
+                        });
+                        console.log(vm.theme);
             }
         }]);
 })();

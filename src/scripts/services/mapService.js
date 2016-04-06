@@ -31,7 +31,8 @@
                             theme.VisibleLayerIds.forEach(lay => {
                                 ResultsData.Loading++;
                                 theme.MapData.getFeatureInfo(event.latlng, lay).success(function(data, status, xhr) {
-                                    ResultsData.Loading--;
+                                    ResultsData.Loading--; 
+                                    console.log("minus");
                                     var xmlstring = JXON.xmlToString(data);
                                     var returnjson = JXON.stringToJs(xmlstring);
                                     var processedjson = returnjson.featureinforesponse.fields;
@@ -60,6 +61,11 @@
                                         console.log(lay + " item info: ");
                                         console.log(returnitem);
                                         MapData.AddFeatures(returnitem, theme);
+                                    }
+                                    else
+                                    {
+                                        // we must still apply for the loading to get updated
+                                        $rootScope.$apply();
                                     }
 
                                 });

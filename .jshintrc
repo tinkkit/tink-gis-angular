@@ -27,6 +27,7 @@
         "_": false,
         "jQuery": true,
         "Sortable": false,
-        "console": false
+        "console": false,
+        "JXON": false
     }
 }

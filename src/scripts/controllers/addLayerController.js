@@ -73,7 +73,7 @@
                         noneChecked = false;
                     }
                 };
-                var alreadyAdded = LayerManagementService.EnabledThemes.find(x => { return x.Url === $scope.selectedTheme.Url }) != undefined;
+                var alreadyAdded = LayerManagementService.EnabledThemes.find(x => { return x.CleanUrl === $scope.selectedTheme.CleanUrl }) != undefined;
                 if (noneChecked) {
                     //Niks is checked, dus we moeten deze 'deleten'.
                     $scope.selectedTheme.Added = false;

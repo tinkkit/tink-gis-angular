@@ -166,6 +166,7 @@
                     }
                     ResultsData.JsonFeatures.push(featureItem);
                 }
+                console.log("applying");
                 $rootScope.$apply();
             }
         };

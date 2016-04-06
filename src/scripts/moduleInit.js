@@ -6,7 +6,7 @@
     try {
         module = angular.module('tink.gis');
     } catch (e) {
-        module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
+        module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter','ng-sweet-alert']); //'leaflet-directive'
     }
     var init = function() {
         // var abc = _.forEach([], function (x){});
