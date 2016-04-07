@@ -28,10 +28,12 @@
                             break;
                         case ThemeType.WMS:
                             var layersVoorIdentify = theme.VisibleLayerIds;
-                            theme.VisibleLayerIds.forEach(lay => {
+                            theme.VisibleLayers.forEach(lay => {
+                                console.log(lay);                
                                 if (lay.queryable == true) {
+                                
                                     ResultsData.Loading++;
-                                    theme.MapData.getFeatureInfo(event.latlng, lay).success(function(data, status, xhr) {
+                                    theme.MapData.getFeatureInfo(event.latlng, lay.name).success(function(data, status, xhr) {
                                         ResultsData.Loading--;
                                         console.log("minus");
                                         var xmlstring = JXON.xmlToString(data);
@@ -54,15 +56,15 @@
 
                                             featureArr.forEach(feat => {
                                                 var tmpitem = {
-                                                    layerName: lay,
-                                                    name: lay,
-                                                    layerId: lay,
+                                                    layerName: lay.name,
+                                                    name: lay.name,
+                                                    layerId: lay.name,
                                                     properties: feat,
                                                     type: "Feature"
                                                 }
                                                 returnitem.features.push(tmpitem);
                                             });
-                                            console.log(lay + " item info: ");
+                                            console.log(lay.name + " item info: ");
                                             console.log(returnitem);
                                             MapData.AddFeatures(returnitem, theme);
                                         }

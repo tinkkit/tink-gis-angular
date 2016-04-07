@@ -43,7 +43,8 @@
                             tmplayer.enabled = true;
                             tmplayer.parent = null;
                             tmplayer.theme = wmstheme;
-                            tmplayer.name = layer.title;
+                            tmplayer.name = layer.name;
+                            tmplayer.title = layer.title;
                             tmplayer.queryable = layer.queryable;
                             tmplayer.type = LayerType.LAYER;
                             tmplayer.id = layer.name; //names are the ids of the layer in wms

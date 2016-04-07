@@ -37,6 +37,11 @@
 
 
             });
+
+            console.log("regfresh of sortableThemes");
+            $("#sortableThemes").sortable("refresh");
+
+            MapData.SetZIndexes();
         };
         _service.UpdateThemeVisibleLayers = function(theme) {
             theme.UpdateMap();
@@ -72,7 +77,8 @@
             existingTheme.RecalculateVisibleLayerIds();
         };
         _service.AddNewTheme = function(theme) {
-            MapData.Themes.push(theme);
+            MapData.Themes.push(theme)
+
             _.each(theme.AllLayers, function(layer) {
                 if (layer.enabled && layer.visible && layer.type === LayerType.LAYER) {
                     console.log(layer.id);
@@ -82,8 +88,7 @@
 
             });
             theme.RecalculateVisibleLayerIds();
-            console.log(theme.Type);
-            console.log(theme);
+
             switch (theme.Type) {
                 case ThemeType.ESRI:
                     theme.MapData = L.esri.dynamicMapLayer({
@@ -98,27 +103,27 @@
                     //     layers: theme.VisibleLayerIds,
                     //     useCors: true
                     // }).addTo(map);
-                    theme.MapData.on('load', function(e) {
-                        console.log('load' + MapData.Loading);
-                    });
-                    theme.MapData.on('loading', function(e) {
-                        console.log('loading' + MapData.Loading);
-                    });
-                    theme.MapData.on('requeststart', function(obj) {
-                        MapData.Loading++;
-                        console.log(MapData.Loading + 'requeststart ' + theme.Naam);
-                        $rootScope.$apply();
+                    // theme.MapData.on('load', function(e) {
+                    //     console.log('load' + MapData.Loading);
+                    // });
+                    // theme.MapData.on('loading', function(e) {
+                    //     console.log('loading' + MapData.Loading);
+                    // });
+                    // theme.MapData.on('requeststart', function(obj) {
+                    //     MapData.Loading++;
+                    //     console.log(MapData.Loading + 'requeststart ' + theme.Naam);
+                    //     $rootScope.$apply();
 
 
-                    });
-                    theme.MapData.on('requestend', function(obj) {
-                        if (MapData.Loading > 0) {
-                            MapData.Loading--;
-                        }
-                        console.log(MapData.Loading + 'requestend ' + theme.Naam);
-                        $rootScope.$apply();
+                    // });
+                    // theme.MapData.on('requestend', function(obj) {
+                    //     if (MapData.Loading > 0) {
+                    //         MapData.Loading--;
+                    //     }
+                    //     console.log(MapData.Loading + 'requestend ' + theme.Naam);
+                    //     $rootScope.$apply();
 
-                    });
+                    // });
                     break;
                 case ThemeType.WMS:
                     theme.MapData = L.tileLayer.betterWms(theme.CleanUrl, {
@@ -127,30 +132,30 @@
                         transparent: true,
                         useCors: true
                     }).addTo(map);
-                    theme.MapData.on('tileloadstart', function(obj) {
-                        MapData.Loading++;
-                        console.log(MapData.Loading + 'tileloadstart ' + theme.Naam);
-                        $rootScope.$apply();
+                    // theme.MapData.on('tileloadstart', function(obj) {
+                    //     MapData.Loading++;
+                    //     console.log(MapData.Loading + 'tileloadstart ' + theme.Naam);
+                    //     $rootScope.$apply();
 
 
-                    });
-                    theme.MapData.on('tileerror', function(obj) {
-                        if (MapData.Loading > 0) {
-                            MapData.Loading--;
-                        }
-                        console.log('!!!!!!!!! ' + MapData.Loading + 'tileerror ' + theme.Naam);
-                        $rootScope.$apply();
+                    // });
+                    // theme.MapData.on('tileerror', function(obj) {
+                    //     // if (MapData.Loading > 0) {
+                    //         MapData.Loading--;
+                    //     // }
+                    //     console.log('!!!!!!!!! ' + MapData.Loading + 'tileerror ' + theme.Naam);
+                    //     $rootScope.$apply();
 
 
-                    });
-                    theme.MapData.on('tileload', function(obj) {
-                        if (MapData.Loading > 0) {
-                            MapData.Loading--;
-                        }
-                        console.log(MapData.Loading + 'tileload ' + theme.Naam);
-                        $rootScope.$apply();
+                    // });
+                    // theme.MapData.on('tileload', function(obj) {
+                    //     // if (MapData.Loading > 0) {
+                    //         MapData.Loading--;
+                    //     // }
+                    //     console.log(MapData.Loading + 'tileload ' + theme.Naam);
+                    //     $rootScope.$apply();
 
-                    });
+                    // });
                     break;
                 default:
                     console.log("UNKNOW TYPE");

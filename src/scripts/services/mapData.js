@@ -128,28 +128,30 @@
             console.log("FEATUREPANTO");
             var tmplayer = feature.mapItem._layers[Object.keys(feature.mapItem._layers)[0]]
             if (tmplayer._latlngs) { // with s so it has bounds etc
-                map.panTo(tmplayer.getBounds().getCenter());
+                map.fitBounds(tmplayer.getBounds(), { paddingTopLeft: L.point(25, 25), paddingBottomRight: L.point(25, 25) });
             }
             else {
-                map.panTo(tmplayer.getLatLng());
+                // map.panTo(tmplayer.getLatLng());
             }
         };
-        _data.SetZIndexes = function(themes) {
+        _data.SetZIndexes = function() {
             var counter = 1;
-            themes.forEach(theme => {
+            _data.Themes.forEach(theme => {
                 if (theme.Type == ThemeType.WMS) {
                     theme.MapData.setZIndex(counter);
                 }
                 else {
-                    var lays = theme.MapData.getLayers();
-                    lays.forEach(lay => {
-                        console.log(lay);
-                        lay.setZIndex(counter);
-                    });
+                    // var lays = theme.MapData.getLayers();
+                    // lays.forEach(lay => {
+                    //     console.log(lay);
+                    //     lay.setZIndex(counter);
+                    // });
                 }
                 counter++;
-                console.log(theme.MapData);
-            })
+
+            });
+            console.log("Ordering Zindexs");
+            console.log(_data.Themes.map(x => x.name));
         };
         _data.AddFeatures = function(features, theme, layerId) {
             if (features.length == 0) {

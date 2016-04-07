@@ -12,6 +12,8 @@
             var thema = {};
             try {
                 var rawlayers = rawdata.layers;
+                console.log("INFOOOOOOOO");
+                console.log(rawdata.layers);
                 var cleanUrl = getData.url.substring(0, getData.url.indexOf('?'));
                 thema.Naam = rawdata.documentInfo.Title;
                 thema.name = rawdata.documentInfo.Title;
@@ -32,6 +34,7 @@
                     x.visible = true;
                     x.enabled = true;
                     x.parent = null;
+                    x.title = x.name;
                     x.theme = thema;
                     x.type = LayerType.LAYER;
                     thema.AllLayers.push(x);
