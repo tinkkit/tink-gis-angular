@@ -7,26 +7,10 @@
         vm.selectedLayers = [];
         vm.sortableOptions = {
             update: function(e, ui) {
-                vm.SetZIndexes(vm.themes);
+                MapData.SetZIndexes(vm.themes);
             }
         };
-        vm.SetZIndexes = function(themes) {
-            var counter = 1;
-            themes.forEach(theme => {
-                if (theme.Type == ThemeType.WMS) {
-                    theme.MapData.setZIndex(counter);
-                }
-                else {
-                    var lays = theme.MapData.getLayers();
-                    lays.forEach(lay => {
-                        console.log(lay);
-                        lay.setZIndex(counter);
-                    });
-                }
-                counter++;
-                console.log(theme.MapData);
-            })
-        };
+    
         vm.AddLayers = function() {
             var addLayerInstance = $modal.open({
                 templateUrl: 'templates/modals/addLayerModalTemplate.html',

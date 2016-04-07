@@ -134,6 +134,23 @@
                 map.panTo(tmplayer.getLatLng());
             }
         };
+        _data.SetZIndexes = function(themes) {
+            var counter = 1;
+            themes.forEach(theme => {
+                if (theme.Type == ThemeType.WMS) {
+                    theme.MapData.setZIndex(counter);
+                }
+                else {
+                    var lays = theme.MapData.getLayers();
+                    lays.forEach(lay => {
+                        console.log(lay);
+                        lay.setZIndex(counter);
+                    });
+                }
+                counter++;
+                console.log(theme.MapData);
+            })
+        };
         _data.AddFeatures = function(features, theme, layerId) {
             if (features.length == 0) {
                 ResultsData.EmptyResult = true;

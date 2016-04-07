@@ -92,12 +92,18 @@
                         layers: theme.VisibleLayerIds,
                         useCors: true
                     }).addTo(map);
-                    // theme.MapData.on('load', function(e) {
-                    //     console.log('load' + MapData.Loading);
-                    // });
-                    // theme.MapData.on('loading', function(e) {
-                    //     console.log('loading' + MapData.Loading);
-                    // });
+
+                    // theme.MapData = L.esri.tiledMapLayer({
+                    //     url: theme.CleanUrl,
+                    //     layers: theme.VisibleLayerIds,
+                    //     useCors: true
+                    // }).addTo(map);
+                    theme.MapData.on('load', function(e) {
+                        console.log('load' + MapData.Loading);
+                    });
+                    theme.MapData.on('loading', function(e) {
+                        console.log('loading' + MapData.Loading);
+                    });
                     theme.MapData.on('requeststart', function(obj) {
                         MapData.Loading++;
                         console.log(MapData.Loading + 'requeststart ' + theme.Naam);

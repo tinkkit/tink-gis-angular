@@ -29,46 +29,51 @@
                         case ThemeType.WMS:
                             var layersVoorIdentify = theme.VisibleLayerIds;
                             theme.VisibleLayerIds.forEach(lay => {
-                                ResultsData.Loading++;
-                                theme.MapData.getFeatureInfo(event.latlng, lay).success(function(data, status, xhr) {
-                                    ResultsData.Loading--; 
-                                    console.log("minus");
-                                    var xmlstring = JXON.xmlToString(data);
-                                    var returnjson = JXON.stringToJs(xmlstring);
-                                    var processedjson = returnjson.featureinforesponse.fields;
-                                    var returnitem = {
-                                        type: "FeatureCollection",
-                                        features: []
-                                    }
-                                    if (processedjson) {
-                                        var featureArr = [];
-                                        if (typeof processedjson === "object") {
-                                            featureArr.push(processedjson)
-                                        } else {
-                                            featureArr = processedjson;
+                                if (lay.queryable == true) {
+                                    ResultsData.Loading++;
+                                    theme.MapData.getFeatureInfo(event.latlng, lay).success(function(data, status, xhr) {
+                                        ResultsData.Loading--;
+                                        console.log("minus");
+                                        var xmlstring = JXON.xmlToString(data);
+                                        var returnjson = JXON.stringToJs(xmlstring);
+                                        var processedjson = null;
+                                        if (returnjson.featureinforesponse) {
+                                            processedjson = returnjson.featureinforesponse.fields;
+                                        }
+                                        var returnitem = {
+                                            type: "FeatureCollection",
+                                            features: []
+                                        }
+                                        if (processedjson) {
+                                            var featureArr = [];
+                                            if (typeof processedjson === "object") {
+                                                featureArr.push(processedjson)
+                                            } else {
+                                                featureArr = processedjson;
+                                            }
+
+                                            featureArr.forEach(feat => {
+                                                var tmpitem = {
+                                                    layerName: lay,
+                                                    name: lay,
+                                                    layerId: lay,
+                                                    properties: feat,
+                                                    type: "Feature"
+                                                }
+                                                returnitem.features.push(tmpitem);
+                                            });
+                                            console.log(lay + " item info: ");
+                                            console.log(returnitem);
+                                            MapData.AddFeatures(returnitem, theme);
+                                        }
+                                        else {
+                                            // we must still apply for the loading to get updated
+                                            $rootScope.$apply();
                                         }
 
-                                        featureArr.forEach(feat => {
-                                            var tmpitem = {
-                                                layerName: lay,
-                                                name: lay,
-                                                layerId: lay,
-                                                properties: feat,
-                                                type: "Feature"
-                                            }
-                                            returnitem.features.push(tmpitem);
-                                        });
-                                        console.log(lay + " item info: ");
-                                        console.log(returnitem);
-                                        MapData.AddFeatures(returnitem, theme);
-                                    }
-                                    else
-                                    {
-                                        // we must still apply for the loading to get updated
-                                        $rootScope.$apply();
-                                    }
+                                    });
+                                }
 
-                                });
                             });
                             break;
                         default:
