@@ -77,7 +77,9 @@
                     '<div class="container container-low-padding">' +
                     '<div class="row row-no-padding">' +
                     '<div class="col-sm-4">' +
-                    '<img src="https://placehold.it/100x50" />' +
+                    '<a href="templates/external/streetView.html?lat=' + latlng.lat  + '&lng=' + latlng.lng + '" + target="_blank" >' +
+                        '<img src="https://maps.googleapis.com/maps/api/streetview?size=100x50&location=' +  latlng.lat + ',' + latlng.lng + '&pitch=-0.76" />' +
+                    '</a>' +
                     '</div>' +
                     '<div class="col-sm-8">' +
                     '<div class="col-sm-12"><b>' + straatNaam + '</b></div>' +
@@ -104,9 +106,9 @@
             });
         };
         var straatNaam = null;
-        _data.CreateWatIsHierMarker = function(data) {
+       _data.CreateWatIsHierMarker = function(data) {
             var convertedBackToWSG84 = HelperService.ConvertLambert72ToWSG84(data.location)
-            straatNaam = data.address.Street + " (" + data.address.Postal + ")";
+           straatNaam = data.address.Street + " (" + data.address.Postal + ")";
             var greenIcon = L.icon({
                 iconUrl: 'styles/fa-dot-circle-o_24_0_000000_none.png',
                 iconSize: [24, 24],
