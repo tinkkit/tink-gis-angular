@@ -55,7 +55,7 @@
                 //laten we alle Visible Layers nu terug toevoegen meteen juiste ref etc uit de geupdate theme.
                 if (updatedLayer.enabled && updatedLayer.visible) {
                     //eerst checken dat ze nog niet bestaan!.
-                    if (MapData.VisibleLayers.indexOf(existingLayer) == -1) {
+                    if (existingTheme.Type == ThemeType.ESRI && MapData.VisibleLayers.indexOf(existingLayer) == -1) {
                         MapData.VisibleLayers.push(existingLayer);
                     }
                     if (existingTheme.VisibleLayers.indexOf(existingLayer) == -1) {
@@ -64,7 +64,7 @@
                 }
                 else {
                     //Anders halen we hem ook moest hij bij VisLayers aanwezig zijn er van af!
-                    if (MapData.VisibleLayers.indexOf(existingLayer) != -1) {
+                    if (existingTheme.Type == ThemeType.ESRI && MapData.VisibleLayers.indexOf(existingLayer) != -1) {
                         MapData.VisibleLayers.splice(MapData.VisibleLayers.indexOf(existingLayer), 1);
                     }
                     if (existingTheme.VisibleLayers.indexOf(existingLayer) != -1) {
@@ -82,8 +82,10 @@
             _.each(theme.AllLayers, function(layer) {
                 if (layer.enabled && layer.visible && layer.type === LayerType.LAYER) {
                     console.log(layer.id);
-                    MapData.VisibleLayers.push(layer);
                     theme.VisibleLayers.push(layer);
+                    if (theme.Type == ThemeType.ESRI) {
+                        MapData.VisibleLayers.push(layer);
+                    }
                 }
 
             });
@@ -92,6 +94,8 @@
             switch (theme.Type) {
                 case ThemeType.ESRI:
                     theme.MapData = L.esri.dynamicMapLayer({
+                        maxZoom: 20,
+                        minZoom: 1,
                         url: theme.CleanUrl,
                         opacity: 0.5,
                         layers: theme.VisibleLayerIds,
@@ -128,6 +132,8 @@
                     break;
                 case ThemeType.WMS:
                     theme.MapData = L.tileLayer.betterWms(theme.CleanUrl, {
+                        maxZoom: 20,
+                        minZoom: 1,
                         format: 'image/png',
                         layers: theme.VisibleLayerIds,
                         transparent: true,

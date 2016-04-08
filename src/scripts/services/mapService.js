@@ -29,9 +29,9 @@
                         case ThemeType.WMS:
                             var layersVoorIdentify = theme.VisibleLayerIds;
                             theme.VisibleLayers.forEach(lay => {
-                                console.log(lay);                
+                                console.log(lay);
                                 if (lay.queryable == true) {
-                                
+
                                     ResultsData.Loading++;
                                     theme.MapData.getFeatureInfo(event.latlng, lay.name).success(function(data, status, xhr) {
                                         ResultsData.Loading--;
@@ -90,20 +90,21 @@
         };
 
         _mapService.Select = function(event) {
-            ResultsData.Loading++;
             if (MapData.SelectedLayer.id == '') { // alle layers selected
-                MapData.Themes.forEach(theme => { // dus doen we de qry op alle lagen.
+                MapData.Themes.filter(x => x.Type == ThemeType.ESRI).forEach(theme => { // dus doen we de qry op alle lagen.
+                    ResultsData.Loading++;
                     theme.MapData.identify().on(map).at(event.latlng).layers('visible: ' + theme.VisibleLayerIds).run(function(error, featureCollection) {
-                        MapData.AddFeatures(featureCollection, theme);
                         ResultsData.Loading--;
+                        MapData.AddFeatures(featureCollection, theme);
 
                     });
                 });
             }
             else {
+                ResultsData.Loading++;
                 MapData.SelectedLayer.theme.MapData.identify().on(map).at(event.latlng).layers('visible: ' + MapData.SelectedLayer.id).run(function(error, featureCollection) {
-                    MapData.AddFeatures(featureCollection, MapData.SelectedLayer.theme);
                     ResultsData.Loading--;
+                    MapData.AddFeatures(featureCollection, MapData.SelectedLayer.theme);
 
                 });
             }
@@ -162,14 +163,18 @@
             if (visibleOnMap) {
                 if (indexOfLayerInVisibleLayers === -1 && layer.enabled) { // alleen maar toevoegen wnnr layer enabled en niet aanwezig al in de array!
                     theme.VisibleLayers.push(layer);
-                    MapData.VisibleLayers.push(layer);
+                    if (theme.Type == ThemeType.ESRI) {
+                        MapData.VisibleLayers.push(layer);
+                    }
                 }
             }
             else {
                 if (indexOfLayerInVisibleLayers > -1) {
                     theme.VisibleLayers.splice(indexOfLayerInVisibleLayers, 1);
-                    var indexOfLayerInVisibleLayersOfMap = MapData.VisibleLayers.indexOf(layer);
-                    MapData.VisibleLayers.splice(indexOfLayerInVisibleLayersOfMap, 1);
+                    if (theme.Type == ThemeType.ESRI) {
+                        var indexOfLayerInVisibleLayersOfMap = MapData.VisibleLayers.indexOf(layer);
+                        MapData.VisibleLayers.splice(indexOfLayerInVisibleLayersOfMap, 1);
+                    }
                 }
             }
         };
