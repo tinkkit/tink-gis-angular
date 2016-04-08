@@ -130,6 +130,7 @@
                         format: 'image/png',
                         layers: theme.VisibleLayerIds,
                         transparent: true,
+                        continuousWorld: true,
                         useCors: true
                     }).addTo(map);
                     // theme.MapData.on('tileloadstart', function(obj) {
