@@ -14,8 +14,7 @@
                     <!--Accordion with callback function-->
                 </data-header>
                 <data-content>
-                    <li ng-repeat="feature in srchrsltsctrl.features | filter: { layerName:layerGroupName } :true" ng-mouseover="feature.hoverEdit = true"
-                    ng-mouseleave="feature.hoverEdit = false">
+                    <li ng-repeat="feature in srchrsltsctrl.features | filter: { layerName:layerGroupName } :true" ng-mouseover="srchrsltsctrl.HoverOver(feature)"> <!-- ng-mouseleave="feature.hoverEdit = false -->
                         <a ng-if="!feature.hoverEdit" ng-click="srchrsltsctrl.showDetails(feature)">{{ feature.displayValue | limitTo : 23}}<br/>DETAILS</a>
                         <div ng-if="feature.hoverEdit">
                             <a ng-click="srchrsltsctrl.showDetails(feature)">{{ feature.displayValue}}

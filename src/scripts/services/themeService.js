@@ -95,6 +95,7 @@
                         url: theme.CleanUrl,
                         opacity: 0.5,
                         layers: theme.VisibleLayerIds,
+                        continuousWorld: true,
                         useCors: true
                     }).addTo(map);
 

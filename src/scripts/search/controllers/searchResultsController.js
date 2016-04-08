@@ -18,6 +18,14 @@
             vm.deleteFeature = function(feature) {
                 SearchService.DeleteFeature(feature);
             };
+            vm.HoveredFeature = null;
+            vm.HoverOver = function(feature) {
+                if (vm.HoveredFeature) {
+                    vm.HoveredFeature.hoverEdit = false;
+                }
+                feature.hoverEdit = true;
+                vm.HoveredFeature = feature;
+            };
             vm.deleteFeatureGroup = function(featureGroupName) {
                 SearchService.DeleteFeatureGroup(featureGroupName);
             };
