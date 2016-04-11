@@ -77,7 +77,7 @@
             existingTheme.RecalculateVisibleLayerIds();
         };
         _service.AddNewTheme = function(theme) {
-            MapData.Themes.push(theme)
+            MapData.Themes.unshift(theme)
 
             _.each(theme.AllLayers, function(layer) {
                 if (layer.enabled && layer.visible && layer.type === LayerType.LAYER) {
@@ -93,11 +93,11 @@
 
             switch (theme.Type) {
                 case ThemeType.ESRI:
-                    theme.MapData = L.esri.dynamicMapLayer({
+                    theme.MapData = L.esri.digiDynamicMapLayer({
                         maxZoom: 20,
                         minZoom: 1,
                         url: theme.CleanUrl,
-                        opacity: 0.5,
+                        opacity: 1,
                         layers: theme.VisibleLayerIds,
                         continuousWorld: true,
                         useCors: true
@@ -108,11 +108,16 @@
                     //     layers: theme.VisibleLayerIds,
                     //     useCors: true
                     // }).addTo(map);
-                    // theme.MapData.on('load', function(e) {
-                    //     console.log('load' + MapData.Loading);
-                    // });
+                    theme.MapData.on('load', function(e) {
+                        // console.log(MapData.Zindex);
+                        // console.log("Load Fired for " + theme.Naam);
+                        if (theme.MapData._currentImage) {
+                            theme.MapData._currentImage._image.style.zIndex = theme.MapData.ZIndex;
+                            console.log("Zindex on " + theme.Naam + " set to " + theme.MapData.ZIndex);
+                        }
+                    });
                     // theme.MapData.on('loading', function(e) {
-                    //     console.log('loading' + MapData.Loading);
+                    //     console.log('loading ' + theme.Naam);
                     // });
                     // theme.MapData.on('requeststart', function(obj) {
                     //     MapData.Loading++;

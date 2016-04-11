@@ -7,12 +7,12 @@
         vm.selectedLayers = [];
 
         vm.sortableOptions = {
-            update: function(e, ui) {
-                console.log("UPDATEZINDEXES");
-                MapData.SetZIndexes();
-            },
+            // update: function(e, ui) {
+            //     console.log("UPDATEZINDEXES");
+            //     MapData.SetZIndexes();
+            // },
             stop: function(e, ui) {
-                console.log("stop");
+                // console.log("stop");
                 MapData.SetZIndexes();
             }
         };

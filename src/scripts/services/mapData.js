@@ -77,8 +77,8 @@
                     '<div class="container container-low-padding">' +
                     '<div class="row row-no-padding">' +
                     '<div class="col-sm-4">' +
-                    '<a href="templates/external/streetView.html?lat=' + latlng.lat  + '&lng=' + latlng.lng + '" + target="_blank" >' +
-                        '<img src="https://maps.googleapis.com/maps/api/streetview?size=100x50&location=' +  latlng.lat + ',' + latlng.lng + '&pitch=-0.76" />' +
+                    '<a href="templates/external/streetView.html?lat=' + latlng.lat + '&lng=' + latlng.lng + '" + target="_blank" >' +
+                    '<img src="https://maps.googleapis.com/maps/api/streetview?size=100x50&location=' + latlng.lat + ',' + latlng.lng + '&pitch=-0.76" />' +
                     '</a>' +
                     '</div>' +
                     '<div class="col-sm-8">' +
@@ -106,9 +106,9 @@
             });
         };
         var straatNaam = null;
-       _data.CreateWatIsHierMarker = function(data) {
+        _data.CreateWatIsHierMarker = function(data) {
             var convertedBackToWSG84 = HelperService.ConvertLambert72ToWSG84(data.location)
-           straatNaam = data.address.Street + " (" + data.address.Postal + ")";
+            straatNaam = data.address.Street + " (" + data.address.Postal + ")";
             var greenIcon = L.icon({
                 iconUrl: 'styles/fa-dot-circle-o_24_0_000000_none.png',
                 iconSize: [24, 24],
@@ -137,23 +137,19 @@
             }
         };
         _data.SetZIndexes = function() {
-            var counter = 1;
+            var counter = _data.Themes.length + 1;
             _data.Themes.forEach(theme => {
-                if (theme.Type == ThemeType.WMS) {
+                theme.MapData.ZIndex = counter;
+                if (theme.Type == ThemeType.ESRI) {
+                    if (theme.MapData._currentImage) {
+                        theme.MapData._currentImage._image.style.zIndex = counter;
+                    }
+                } else { // WMS
                     theme.MapData.setZIndex(counter);
                 }
-                else {
-                    // var lays = theme.MapData.getLayers();
-                    // lays.forEach(lay => {
-                    //     console.log(lay);
-                    //     lay.setZIndex(counter);
-                    // });
-                }
-                counter++;
+                counter--;
 
             });
-            console.log("Ordering Zindexs");
-            console.log(_data.Themes.map(x => x.name));
         };
         _data.AddFeatures = function(features, theme, layerId) {
             if (features.length == 0) {
