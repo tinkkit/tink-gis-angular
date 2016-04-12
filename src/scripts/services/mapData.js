@@ -137,7 +137,7 @@
             }
         };
         _data.SetZIndexes = function() {
-            var counter = _data.Themes.length + 1;
+            var counter = _data.Themes.length + 3;
             _data.Themes.forEach(theme => {
                 theme.MapData.ZIndex = counter;
                 if (theme.Type == ThemeType.ESRI) {
@@ -145,6 +145,7 @@
                         theme.MapData._currentImage._image.style.zIndex = counter;
                     }
                 } else { // WMS
+                    theme.MapData.bringToFront();
                     theme.MapData.setZIndex(counter);
                 }
                 counter--;

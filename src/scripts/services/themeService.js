@@ -169,6 +169,17 @@
                     //     $rootScope.$apply();
 
                     // });
+                    theme.MapData.on('load', function(e) {
+                        console.log("LOAD VAN " + theme.Naam);
+                        console.log(theme.MapData);
+                        if (theme.MapData._tileContainer.children) {
+                            [].slice.call(theme.MapData._tileContainer.childNodes).forEach(imgNode => {
+                                imgNode.style.zIndex = theme.MapData.ZIndex;
+                            });
+                            // theme.MapData._currentImage._image.style.zIndex = theme.MapData.ZIndex;
+                            console.log("Zindex on " + theme.Naam + " set to " + theme.MapData.ZIndex);
+                        }
+                    });
                     break;
                 default:
                     console.log("UNKNOW TYPE");
