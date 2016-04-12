@@ -7,8 +7,8 @@ L.drawLocal = {
         text: 'Annuleren'
 },	
 finish: {
-    title: 'Tekenen be�indigen',
-        text: 'Tekenen be�indigen'
+    title: 'Tekenen beëindigen',
+        text: 'Tekenen beëindigen'
 },	
 undo: {
     title: 'Verwijder laatst getekende punt',
@@ -56,7 +56,7 @@ handlers: {
     },	
     simpleshape: {
         tooltip: {
-            end: 'Laat de muis los om het tekenen te be�indigen.'
+            end: 'Laat de muis los om het tekenen te beëindigen.'
         }
     }
 }	
