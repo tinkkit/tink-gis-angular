@@ -222,6 +222,14 @@
       left: 4.2857142857rem ;
       top: 12.1428571429rem ; } }
 
+.drawingbtns {
+  left: 3.9285714286rem ;
+  top: 9.2857142857rem ; }
+  @media (min-width: 768px) {
+    .drawingbtns {
+      left: 4.2857142857rem ;
+      top: 9.6428571429rem ; } }
+
 .zoekbalken {
   left: 6.4285714286rem ;
   top: 0.7142857143rem ; }
@@ -243,6 +251,15 @@
     .localiseerbtn {
       right: 1.0714285714rem ;
       bottom: 1.4285714286rem ; } }
+
+.loading {
+  right: 0.7142857143rem ;
+  top: 0.7142857143rem ;
+  background-color: white; }
+  @media (min-width: 768px) {
+    .loading {
+      right: 1.0714285714rem ;
+      top: 1.0714285714rem ; } }
 
 .viewbtns {
   right: 0.7142857143rem ;

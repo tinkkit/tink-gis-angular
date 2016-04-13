@@ -7,6 +7,7 @@
         _data.VisibleLayers = [];
         _data.SelectableLayers = [];
         _data.VisibleFeatures = [];
+        _data.Loading = 0;
         _data.IsDrawing = false;
         _data.ThemeUrls = ['http://app11.p.gis.local/arcgissql/rest/services/P_Stad/Afval/MapServer/',
             'http://app11.p.gis.local/arcgissql/rest/services/P_Stad/Cultuur/MapServer/',
@@ -18,7 +19,7 @@
         var defaultlayer = { id: '', name: 'Alle Layers' };
         _data.SelectedLayer = defaultlayer;
         _data.VisibleLayers.unshift(defaultlayer);
-        _data.ActiveInteractieKnop = ActiveInteractieButton.SELECT;
+        _data.ActiveInteractieKnop = ActiveInteractieButton.IDENTIFY;
         _data.DrawingType = DrawingOption.NIETS;
         _data.DrawingObject = null;
         _data.CleanDrawings = function() {
@@ -76,7 +77,9 @@
                     '<div class="container container-low-padding">' +
                     '<div class="row row-no-padding">' +
                     '<div class="col-sm-4">' +
-                    '<img src="https://placehold.it/100x50" />' +
+                    '<a href="templates/external/streetView.html?lat=' + latlng.lat  + '&lng=' + latlng.lng + '" + target="_blank" >' +
+                        '<img src="https://maps.googleapis.com/maps/api/streetview?size=100x50&location=' +  latlng.lat + ',' + latlng.lng + '&pitch=-0.76" />' +
+                    '</a>' +
                     '</div>' +
                     '<div class="col-sm-8">' +
                     '<div class="col-sm-12"><b>' + straatNaam + '</b></div>' +
@@ -103,9 +106,9 @@
             });
         };
         var straatNaam = null;
-        _data.CreateWatIsHierMarker = function(data) {
+       _data.CreateWatIsHierMarker = function(data) {
             var convertedBackToWSG84 = HelperService.ConvertLambert72ToWSG84(data.location)
-            straatNaam = data.address.Street + " (" + data.address.Postal + ")";
+           straatNaam = data.address.Street + " (" + data.address.Postal + ")";
             var greenIcon = L.icon({
                 iconUrl: 'styles/fa-dot-circle-o_24_0_000000_none.png',
                 iconSize: [24, 24],
@@ -124,27 +127,69 @@
             _data.VisibleFeatures.length = 0;
         };
         _data.PanToFeature = function(feature) {
+            console.log("FEATUREPANTO");
             var tmplayer = feature.mapItem._layers[Object.keys(feature.mapItem._layers)[0]]
-            map.panTo(tmplayer.getBounds().getCenter());
-            map.fitBounds(tmplayer.getBounds());
-        };
-        _data.AddFeatures = function(features, theme) {
-            for (var x = 0; x < features.features.length; x++) {
-                var featureItem = features.features[x];
-                var layer = theme.AllLayers[featureItem.layerId];
-                // featureItem.layer = layer;
-                // featureItem.theme = theme;
-                featureItem.layerName = layer.name;
-                featureItem.displayValue = featureItem.properties[layer.displayField];
-                var myStyle = {
-                    'fillOpacity': 0
-                };
-                var mapItem = L.geoJson(featureItem, { style: myStyle }).addTo(map);
-                _data.VisibleFeatures.push(mapItem);
-                featureItem.mapItem = mapItem;
-                ResultsData.JsonFeatures.push(featureItem);
+            if (tmplayer._latlngs) { // with s so it has bounds etc
+                map.fitBounds(tmplayer.getBounds(), { paddingTopLeft: L.point(25, 25), paddingBottomRight: L.point(25, 25) });
             }
-            $rootScope.$apply();
+            else {
+                // map.panTo(tmplayer.getLatLng());
+            }
+        };
+        _data.SetZIndexes = function() {
+            var counter = 1;
+            _data.Themes.forEach(theme => {
+                if (theme.Type == ThemeType.WMS) {
+                    theme.MapData.setZIndex(counter);
+                }
+                else {
+                    // var lays = theme.MapData.getLayers();
+                    // lays.forEach(lay => {
+                    //     console.log(lay);
+                    //     lay.setZIndex(counter);
+                    // });
+                }
+                counter++;
+
+            });
+            console.log("Ordering Zindexs");
+            console.log(_data.Themes.map(x => x.name));
+        };
+        _data.AddFeatures = function(features, theme, layerId) {
+            if (features.length == 0) {
+                ResultsData.EmptyResult = true;
+            }
+            else {
+                ResultsData.EmptyResult = false;
+                for (var x = 0; x < features.features.length; x++) {
+                    var featureItem = features.features[x];
+
+                    var layer = {};
+                    if (featureItem.layerId != undefined && featureItem.layerId != null) {
+                        layer = theme.AllLayers.find(x => x.id === featureItem.layerId);
+                    }
+                    else if (layerId != undefined && layerId != null) {
+                        layer = theme.AllLayers.find(x => x.id === layerId);
+                    } else {
+                        console.log("NO LAYER ID WAS GIVEN EITHER FROM FEATURE ITEM OR FROM PARAMETER");
+                    }
+                    // featureItem.layer = layer;
+                    featureItem.theme = theme;
+                    featureItem.layerName = layer.name;
+                    if (theme.Type === ThemeType.ESRI) {
+                        featureItem.displayValue = featureItem.properties[layer.displayField];
+                        var mapItem = L.geoJson(featureItem, { style: Style.DEFAULT }).addTo(map);
+                        _data.VisibleFeatures.push(mapItem);
+                        featureItem.mapItem = mapItem;
+                    }
+                    else {
+                        featureItem.displayValue = featureItem.properties[Object.keys(featureItem.properties)[0]];
+                    }
+                    ResultsData.JsonFeatures.push(featureItem);
+                }
+                console.log("applying");
+                $rootScope.$apply();
+            }
         };
         return _data;
     };

@@ -6,21 +6,29 @@
         _service.DeleteFeature = function(feature) {
             var featureIndex = ResultsData.JsonFeatures.indexOf(feature);
             if (featureIndex > -1) {
-                map.removeLayer(feature.mapItem);
+                if (feature.mapItem) {
+                    map.removeLayer(feature.mapItem);
+                }
                 ResultsData.JsonFeatures.splice(featureIndex, 1);
             }
         };
         _service.DeleteFeatureGroup = function(featureGroupName) {
+            let toDelFeatures = [];
             ResultsData.JsonFeatures.forEach(function(feature) {
                 if (feature.layerName === featureGroupName) {
-                    _service.DeleteFeature(feature);
+                    toDelFeatures.push(feature);
                 }
             });
+            toDelFeatures.forEach(feat => {
+                _service.DeleteFeature(feat);
+            });
+
         };
         _service.ExportToCSV = function() {
-            var csvContent = "data:text/csv;charset=utf-8,";
+            var csvContent = ""; // "data:text/csv;charset=utf-8,";
             var dataString = "";
             var layName = "";
+            csvContent += 'Laag;' + "\n"
 
             ResultsData.JsonFeatures.forEach(function(feature, index) {
                 if (layName !== feature.layerName) {
@@ -29,19 +37,27 @@
                     for (var name in feature.properties) {
                         tmparr.push(name);
                     }
-                    var layfirstline = tmparr.join(",");
+                    var layfirstline = tmparr.join(";");
 
-                    csvContent += layName + "\n" + layfirstline + "\n";
+                    csvContent += layName + ";" + layfirstline + "\n";
                 }
-                var infoArray = _.values(feature.properties)
-                dataString = infoArray.join(",");
+                var infoArray = _.values(feature.properties);
+                infoArray.unshift(layName);
+                dataString = infoArray.join(";");
                 console.log(dataString);
                 // csvContent += dataString + "\n";
                 csvContent += index < ResultsData.JsonFeatures.length ? dataString + "\n" : dataString;
 
             });
-            var encodedUri = encodeURI(csvContent);
-            window.open(encodedUri);
+            var a = document.createElement('a');
+            a.href = 'data:attachment/csv,' + encodeURIComponent(csvContent);
+            a.target = '_blank';
+            a.download = 'exportsik.csv';
+
+            document.body.appendChild(a);
+            a.click();
+            // var encodedUri = encodeURI(csvContent);
+            // window.open(encodedUri, 'exportsik.csv');
         };
         _service.GetNextResult = function() {
             var index = ResultsData.JsonFeatures.indexOf(ResultsData.SelectedFeature);
@@ -66,7 +82,7 @@
             }
             return null;
         };
-        
+
         return _service;
     };
     module.factory("SearchService", service);

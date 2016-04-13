@@ -17,7 +17,7 @@
             <div ng-if="prop.value.indexOf( 'https://') !=0 && prop.value.indexOf( 'http://') !=0 ">{{ prop.value }}</div>
         </div>
     </div>
-    <div class="row ">
+    <div class="row" ng-show="srchslctdctrl.selectedResult.theme.Type === 'esri'">
         <div class="col-md-6 ">
             <button class="pull-left srchbtn " ng-click="srchslctdctrl.toonFeatureOpKaart() ">Tonen</button>
         </div>

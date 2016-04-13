@@ -24,61 +24,69 @@
             });
         };
     });
+    JXON.config({
+        // valueKey: '_',                // default: 'keyValue'
+        // attrKey: '$',                 // default: 'keyAttributes'
+        attrPrefix: '',              // default: '@'
+        // lowerCaseTags: false,         // default: true
+        // trueIsEmpty: false,           // default: true
+        autoDate: false              // default: true
+        // ignorePrefixedNodes: false,   // default: true
+        // parseValues: false            // default: true
+    });
     var init = function() {
         // var abc = _.forEach([], function (x){});
         L.AwesomeMarkers.Icon.prototype.options.prefix = 'fa';
     } ();
     var mapObject = function() {
-        // var crsLambert = new L.Proj.CRS('EPSG:31370', "+proj=lcc +lat_1=51.16666723333333 +lat_2=49.8333339 +lat_0=90 +lon_0=4.367486666666666 +x_0=150000.013 +y_0=5400088.438 +ellps=intl +towgs84=106.869,-52.2978,103.724,-0.33657,0.456955,-1.84218,1 +units=m +no_defs", {
-        //     origin: [-35872700, 41422700],
-        //     resolutions: [
-        //         66.1459656252646,
-        //         52.91677250021167,
-        //         39.687579375158755,
-        //         26.458386250105836,
-        //         13.229193125052918,
-        //         6.614596562526459,
-        //         5.291677250021167,
-        //         3.9687579375158752,
-        //         3.3072982812632294,
-        //         2.6458386250105836,
-        //         1.9843789687579376,
-        //         1.3229193125052918,
-        //         0.6614596562526459,
-        //         0.5291677250021167,
-        //         0.39687579375158755,
-        //         0.33072982812632296,
-        //         0.26458386250105836,
-        //         0.19843789687579377,
-        //         0.13229193125052918,
-        //         0.06614596562526459,
-        //         0.026458386250105836
-        //     ]
-        // });
-        var map = L.map('map', {
-            center: [51.2192159, 4.4028818],
-            zoom: 17,
-            // crs: crsLambert,
-            maxZoom: 19,
-            minZoom: 0,
-            // maxZoom: 21,
-            // minZoom: 10,
-            // layers: L.tileLayer('http://geodata.antwerpen.be/arcgissql/rest/services/P_Publiek/P_basemap_wgs84/MapServer', { id: 'kaart' }),
-            layers: L.tileLayer('https://tiles.arcgis.com/tiles/1KSVSmnHT2Lw9ea6/arcgis/rest/services/basemap_stadsplan_v6/MapServer/tile/{z}/{y}/{x}', { id: 'kaart' }),
-            // layers: L.tileLayer('http://geodata.antwerpen.be/arcgissql/rest/services/P_Publiek/P_basemap/MapServer/tile/{z}/{y}/{x}', { id: 'kaart' }),
-            // layers: L.esri.tiledMapLayer({ url: 'http://geodata.antwerpen.be/arcgissql/rest/services/P_Publiek/P_basemap/MapServer', id: 'kaart' }),
-            zoomControl: false,
-            drawControl: true
+        var crsLambert = new L.Proj.CRS('EPSG:31370', "+proj=lcc +lat_1=51.16666723333333 +lat_2=49.8333339 +lat_0=90 +lon_0=4.367486666666666 +x_0=150000.013 +y_0=5400088.438 +ellps=intl +towgs84=106.869,-52.2978,103.724,-0.33657,0.456955,-1.84218,1 +units=m +no_defs", {
+            origin: [-35872522, 41422761],
+
+            resolutions: [
+                66.1459656252646,
+                52.91677250021167,
+                39.687579375158755,
+                26.458386250105836,
+                13.229193125052918,
+                6.614596562526459,
+                5.291677250021167,
+                3.9687579375158752,
+                3.3072982812632294,
+                2.6458386250105836,
+                1.9843789687579376,
+                1.3229193125052918,
+                0.6614596562526459,
+                0.5291677250021167,
+                0.39687579375158755,
+                0.33072982812632296,
+                0.26458386250105836,
+                0.19843789687579377,
+                0.13229193125052918,
+                0.06614596562526459,
+                0.026458386250105836
+            ]
         });
 
-        // L.tileLayer({
-        //     url: 'http://app11.p.gis.local/arcgissql/rest/services/P_Publiek/P_basemap/MapServer/',
-        //     // url: 'http://geodata.antwerpen.be/arcgissql/rest/services/P_Publiek/P_basemap_wgs84/MapServer',
-        //     maxZoom: 20,
-        //     continuousWorld: true,
-        //     tms: true,
-        //     minZoom: 0,
-        // }).addTo(map);
+
+        var map = L.map('map', {
+            crs: crsLambert,
+            zoomControl: false,
+            drawControl: false
+            
+            
+        }).setView([51.2192159, 4.4028818], 1);
+
+        // The min/maxZoom values provided should match the actual cache thats been published. This information can be retrieved from the service endpoint directly.
+        L.esri.tiledMapLayer({
+            url: 'https://geodata.antwerpen.be/arcgissql/rest/services/P_Publiek/P_basemap/MapServer',
+            maxZoom: 20,
+            minZoom: 1,
+            continuousWorld: true
+        }).addTo(map);
+
+
+
+
 
         map.doubleClickZoom.disable();
         L.control.scale({ imperial: false }).addTo(map);
@@ -122,5 +130,24 @@ var ActiveInteractieButton = {
 var DrawingOption = {
     NIETS: '',
     AFSTAND: 'afstand',
-    OPPERVLAKTE: 'oppervlakte'
+    OPPERVLAKTE: 'oppervlakte',
+    LIJN: 'lijn',
+    VIERKANT: 'vierkant',
+    POLYGON: 'polygon'
+};
+var ThemeType = {
+    ESRI: 'esri',
+    WMS: 'wms'
+};
+var Style = {
+    DEFAULT: {
+        fillOpacity: 0,
+        color: 'blue',
+        weight: 5
+    },
+    HIGHLIGHT: {
+        weight: 7,
+        color: 'red',
+        fillOpacity: 0.5
+    }
 };

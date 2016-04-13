@@ -7,7 +7,7 @@
         <div class="row">
             <div class="col-md-4">
                 <input class="searchbox" type="text" ng-model="searchTerm" ng-change="searchChanged()" placeholder="Geef een trefwoord of een url in" />
-                <div ng-repeat="theme in availableThemes | filter: { Naam: searchTerm } | orderBy: 'Naam'">
+                <div ng-if="!searchIsUrl" ng-repeat="theme in availableThemes | filter: { Naam: searchTerm } | orderBy: 'Naam'">
                         <div ng-click="themeChanged(theme)">
                             {{theme.Naam}}  
                             <i ng-if="theme.Added == true" class="fa fa-check-circle"></i>
@@ -17,30 +17,33 @@
                 </div> 
             </div>
             <div class="col-md-8">
-                <div ng-if="copySelectedTheme !== null">
+                <div ng-if="searchIsUrl">
+                    <button ng-click="laadUrl()">Laad url</button>
+                </div>
+                <div ng-if="copySelectedTheme !== null && !searchIsUrl">
                     <button ng-if="copySelectedTheme.Added != false" data-ng-click="AddOrUpdateTheme()">Update</button>
                     <p>{{copySelectedTheme.Description}}</p>
                     <p><small><a ng-href="{{copySelectedTheme.CleanUrl}}" target="_blank">Details</a></small></p>
                         <div class="layercontroller-checkbox">
                        <input indeterminate-checkbox child-list="copySelectedTheme.AllLayers" property="enabled" type="checkbox" ng-model="copySelectedTheme.enabled" id="{{copySelectedTheme.name}}">
-                            <label for="{{copySelectedTheme.name}}"> {{copySelectedTheme.name | limitTo: 20}}</label>
+                            <label for="{{copySelectedTheme.name}}"> {{copySelectedTheme.name | limitTo: 99}}</label>
                     <div ng-repeat="mainlayer in copySelectedTheme.Layers">
                         <div class="layercontroller-checkbox">
                             <input  type="checkbox" ng-model="mainlayer.enabled" id="{{mainlayer.name}}{{mainlayer.id}}">
-                            <label for="{{mainlayer.name}}{{mainlayer.id}}"> {{mainlayer.name | limitTo: 20}}</label>
+                            <label for="{{mainlayer.name}}{{mainlayer.id}}"> {{mainlayer.name | limitTo: 99}}</label>
                         </div>
                     </div>
                     <div ng-repeat="groupLayer in copySelectedTheme.Groups">
                         <div class="layercontroller-checkbox">
                             <input indeterminate-checkbox child-list="groupLayer.Layers" property="enabled" type="checkbox" ng-model="groupLayer.enabled"  
                             id="{{groupLayer.name}}{{groupLayer.id}}">
-                            <label for="{{groupLayer.name}}{{groupLayer.id}}"> {{groupLayer.name | limitTo: 20}}</label>
+                            <label for="{{groupLayer.name}}{{groupLayer.id}}"> {{groupLayer.name | limitTo: 99}}</label>
               
                         <div ng-repeat="layer in groupLayer.Layers">
                             <div class="layercontroller-checkbox">
                              
                                  <input  type="checkbox" ng-model="layer.enabled" ng-change="layer.chkChanged()" id="{{layer.name}}{{layer.id}}">
-                                <label for="{{layer.name}}{{layer.id}}"> {{layer.name | limitTo: 20}}</label>
+                                <label for="{{layer.name}}{{layer.id}}"> {{layer.name | limitTo: 99}}</label>
                              </div>
                             </div>
                         </div>

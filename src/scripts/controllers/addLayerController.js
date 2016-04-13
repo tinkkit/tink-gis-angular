@@ -6,8 +6,9 @@
     } catch (e) {
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
     }
-    module.controller('addLayerController', ['$scope', '$modalInstance', 'ThemeHelper', '$q', 'urls', 'MapService', 'MapData', 'GISService', 'LayerManagementService',
-        function($scope, $modalInstance, ThemeHelper, $q, urls, MapService, MapData, GISService, LayerManagementService) {
+    module.controller('addLayerController', ['$scope', '$modalInstance', 'ThemeHelper', '$q', 'urls', 'MapService', 'MapData', 'GISService', 'LayerManagementService', 'WMSService', '$window', '$http',
+        function($scope, $modalInstance, ThemeHelper, $q, urls, MapService, MapData, GISService, LayerManagementService, WMSService, $window, $http) {
+            $scope.searchIsUrl = false;
             LayerManagementService.EnabledThemes.length = 0;
             LayerManagementService.AvailableThemes.length = 0;
             LayerManagementService.EnabledThemes = angular.copy(MapData.Themes);
@@ -16,9 +17,37 @@
                 $scope.searchTerm = 'Laden...';
                 var qwhenready = LayerManagementService.ProcessUrls(urls);
                 qwhenready.then(function(allelagen) {
-                    $scope.searchTerm = '';
+                    // $scope.searchTerm = 'http://mesonet.agron.iastate.edu/cgi-bin/wms/nexrad/n0r.cgi';
+                    $scope.searchTerm = 'https://geodata.antwerpen.be/arcgissql/services/P_SiK/Groeninventaris/MapServer/WMSServer';
+                    $scope.searchIsUrl = true;
                 });
             } ();
+            $scope.searchChanged = function() {
+                if ($scope.searchTerm.startsWith("http")) {
+                    $scope.searchIsUrl = true;
+                }
+                else {
+                    $scope.searchIsUrl = false;
+                }
+            };
+            $scope.laadUrl = function() {
+                if (MapData.Themes.find(x => x.CleanUrl == $scope.searchTerm) == undefined) {
+                    var getwms = WMSService.GetCapabilities($scope.searchTerm);
+                    getwms.success(function(data, status, headers, config) {
+                        $scope.themeChanged(data);
+                        $scope.searchIsUrl = false;
+                        $scope.searchTerm = '';
+                    }).error(function(data, status, headers, config) {
+                        $window.alert('error');
+                    });
+                }
+                else
+                {
+                    alert("Deze is al toegevoegd aan de map.")
+                }
+
+
+            };
             $scope.selectedTheme = null;
             $scope.copySelectedTheme = null;
             $scope.themeChanged = function(theme) {
@@ -44,7 +73,7 @@
                         noneChecked = false;
                     }
                 };
-                var alreadyAdded = LayerManagementService.EnabledThemes.find(x => { return x.Url === $scope.selectedTheme.Url }) != undefined;
+                var alreadyAdded = LayerManagementService.EnabledThemes.find(x => { return x.CleanUrl === $scope.selectedTheme.CleanUrl }) != undefined;
                 if (noneChecked) {
                     //Niks is checked, dus we moeten deze 'deleten'.
                     $scope.selectedTheme.Added = false;
@@ -86,6 +115,7 @@
             };
 
             $scope.ok = function() {
+                console.log(LayerManagementService.EnabledThemes);
                 $modalInstance.$close(LayerManagementService.EnabledThemes); // return the themes.
             };
             $scope.cancel = function() {

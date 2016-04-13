@@ -22,11 +22,12 @@
     "smarttabs": true,
     "globals": {
         "angular": false,
-        "$": false,
+        "$": true,
         "L": false,
         "_": false,
-        "jQuery": false,
+        "jQuery": true,
         "Sortable": false,
-        "console": false
+        "console": false,
+        "JXON": false
     }
 }

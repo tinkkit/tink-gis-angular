@@ -68,6 +68,16 @@
   }
 }
 
+.drawingbtns {
+  left: rem(55);
+  top: rem(130);
+
+  @include mq($screen-sm) {
+    left: rem(60);
+    top: rem(135);
+  }
+}
+
 .zoekbalken {
   left: rem(90);
   top: rem(10);
@@ -95,7 +105,15 @@
     bottom: rem(20);
   }
 }
-
+.loading {
+  right: rem(10);
+  top: rem(10);
+  background-color: white;
+  @include mq($screen-sm) {
+    right: rem(15);
+    top: rem(15);
+  }
+}
 .viewbtns {
   right: rem(10);
   bottom: rem(64);

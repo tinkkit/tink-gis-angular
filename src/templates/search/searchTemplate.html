@@ -1,8 +1,11 @@
 <div data-tink-nav-aside="" data-auto-select="true" data-toggle-id="asideNavLeft" class="nav-aside nav-left">
     <aside>
-        <div class="nav-aside-section">
+        <div class="nav-aside-section" ng-show="srchctrl.Loading == 0">
             <tink-search-results></tink-search-results>
             <tink-search-selected></tink-search-selected>
+        </div>
+        <div class="nav-aside-section" ng-show="srchctrl.Loading > 0">
+            <div class="loader"></div> {{srchctrl.MaxLoading - srchctrl.Loading}}/ {{srchctrl.MaxLoading}}
         </div>
     </aside>
 </div>

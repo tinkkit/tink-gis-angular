@@ -9,7 +9,7 @@
             <tink-accordion-panel>
                 <data-header>
                     <p class="nav-aside-title">{{layerGroupName}}
-                        <a ng-click="srchrsltsctrl.deleteFeatureGroup(layerGroupName)" class="pull-right"><i class="fa fa-trash"></i></a>
+                        <button prevent-default ng-click="srchrsltsctrl.deleteFeatureGroup(layerGroupName)"  class="pull-right"><i class="fa fa-trash"></i></button>
                     </p>
                     <!--Accordion with callback function-->
                 </data-header>
@@ -20,7 +20,7 @@
                         <div ng-if="feature.hoverEdit">
                             <a ng-click="srchrsltsctrl.showDetails(feature)">{{ feature.displayValue}}
                                  <br/>DETAILS</a>
-                            <a ng-click="srchrsltsctrl.deleteFeature(feature)"><i class="fa fa-trash"></i></a>
+                            <a prevent-default ng-click="srchrsltsctrl.deleteFeature(feature)"  ><i class="fa fa-trash"></i></a>
                         </div>
                     </li>
                 </data-content>

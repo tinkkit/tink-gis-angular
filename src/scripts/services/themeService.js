@@ -1,17 +1,21 @@
 'use strict';
 (function() {
     var module = angular.module('tink.gis');
-    var service = function(map, ThemeHelper, MapData, LayerManagementService) {
+    var service = function(map, ThemeHelper, MapData, LayerManagementService, $rootScope) {
         var _service = {};
         _service.AddAndUpdateThemes = function(themesBatch) {
-            console.log("AddAndUpdateThemes");
+            console.log("Themes batch for add and updates...");
             console.log(themesBatch);
+            console.log("...");
             themesBatch.forEach(theme => {
-                var existingTheme = MapData.Themes.find(x => { return x.Url == theme.Url });
+                var existingTheme = MapData.Themes.find(x => { return x.CleanUrl == theme.CleanUrl });
+                console.log(theme);
                 console.log(theme.status);
                 switch (theme.status) {
                     case ThemeStatus.NEW:
-                        LayerManagementService.SetAditionalLayerInfo(theme);
+                        if (theme.Type == ThemeType.ESRI) {
+                            LayerManagementService.SetAditionalLayerInfo(theme);
+                        }
                         _service.AddNewTheme(theme);
                         break;
                     case ThemeStatus.DELETED:
@@ -25,16 +29,23 @@
                         _service.UpdateThemeVisibleLayers(existingTheme);
                         break;
                     default:
-                        console.log("Er is iets fout, status niet bekend" + theme.status);
+                        console.log("Er is iets fout, status niet bekend!!!: " + theme.status);
                         break;
                 }
+                //Theme is proccessed, now make it unmodified again
+                theme.status = ThemeStatus.UNMODIFIED;
+
+
             });
+
+            console.log("regfresh of sortableThemes");
+            $("#sortableThemes").sortable("refresh");
+
+            MapData.SetZIndexes();
         };
         _service.UpdateThemeVisibleLayers = function(theme) {
-            theme.RecalculateVisibleLayerIds();
-            console.log(theme.VisibleLayerIds);
-            theme.MapData.setLayers(theme.VisibleLayerIds);
-        }
+            theme.UpdateMap();
+        };
         _service.UpdateTheme = function(updatedTheme, existingTheme) {
             //lets update the existingTheme
             for (var x = 0; x < updatedTheme.AllLayers.length; x++) {
@@ -66,7 +77,8 @@
             existingTheme.RecalculateVisibleLayerIds();
         };
         _service.AddNewTheme = function(theme) {
-            MapData.Themes.push(theme);
+            MapData.Themes.push(theme)
+
             _.each(theme.AllLayers, function(layer) {
                 if (layer.enabled && layer.visible && layer.type === LayerType.LAYER) {
                     console.log(layer.id);
@@ -76,25 +88,87 @@
 
             });
             theme.RecalculateVisibleLayerIds();
-            theme.MapData = L.esri.dynamicMapLayer({
-                url: theme.CleanUrl,
-                opacity: 0.5,
-                layers: theme.VisibleLayerIds,
-                // maxZoom: 21,
-                // minZoom: 10,
-                useCors: true
-            }).addTo(map);
+
+            switch (theme.Type) {
+                case ThemeType.ESRI:
+                    theme.MapData = L.esri.dynamicMapLayer({
+                        url: theme.CleanUrl,
+                        opacity: 0.5,
+                        layers: theme.VisibleLayerIds,
+                        useCors: true
+                    }).addTo(map);
+
+                    // theme.MapData = L.esri.tiledMapLayer({
+                    //     url: theme.CleanUrl,
+                    //     layers: theme.VisibleLayerIds,
+                    //     useCors: true
+                    // }).addTo(map);
+                    // theme.MapData.on('load', function(e) {
+                    //     console.log('load' + MapData.Loading);
+                    // });
+                    // theme.MapData.on('loading', function(e) {
+                    //     console.log('loading' + MapData.Loading);
+                    // });
+                    // theme.MapData.on('requeststart', function(obj) {
+                    //     MapData.Loading++;
+                    //     console.log(MapData.Loading + 'requeststart ' + theme.Naam);
+                    //     $rootScope.$apply();
+
+
+                    // });
+                    // theme.MapData.on('requestend', function(obj) {
+                    //     if (MapData.Loading > 0) {
+                    //         MapData.Loading--;
+                    //     }
+                    //     console.log(MapData.Loading + 'requestend ' + theme.Naam);
+                    //     $rootScope.$apply();
+
+                    // });
+                    break;
+                case ThemeType.WMS:
+                    theme.MapData = L.tileLayer.betterWms(theme.CleanUrl, {
+                        format: 'image/png',
+                        layers: theme.VisibleLayerIds,
+                        transparent: true,
+                        useCors: true
+                    }).addTo(map);
+                    // theme.MapData.on('tileloadstart', function(obj) {
+                    //     MapData.Loading++;
+                    //     console.log(MapData.Loading + 'tileloadstart ' + theme.Naam);
+                    //     $rootScope.$apply();
+
+
+                    // });
+                    // theme.MapData.on('tileerror', function(obj) {
+                    //     // if (MapData.Loading > 0) {
+                    //         MapData.Loading--;
+                    //     // }
+                    //     console.log('!!!!!!!!! ' + MapData.Loading + 'tileerror ' + theme.Naam);
+                    //     $rootScope.$apply();
+
+
+                    // });
+                    // theme.MapData.on('tileload', function(obj) {
+                    //     // if (MapData.Loading > 0) {
+                    //         MapData.Loading--;
+                    //     // }
+                    //     console.log(MapData.Loading + 'tileload ' + theme.Naam);
+                    //     $rootScope.$apply();
+
+                    // });
+                    break;
+                default:
+                    console.log("UNKNOW TYPE");
+                    break;
+            }
+
             // _mapService.UpdateThemeVisibleLayers(theme);
-            theme.MapData.on('requeststart', function(obj) {
-                console.log('requeststart');
-            });
-            theme.MapData.on('requestsuccess', function(obj) {
-                console.log('requestsuccess');
-            });
+
 
         };
         _service.DeleteTheme = function(theme) {
-            theme.MapData.removeFrom(map);
+            // theme.MapData.removeFrom(map);
+            map.removeLayer(theme.MapData); // this one works with ESRI And leaflet
             var themeIndex = MapData.Themes.indexOf(theme);
             if (themeIndex > -1) {
                 MapData.Themes.splice(themeIndex, 1);
@@ -105,12 +179,13 @@
                     MapData.VisibleLayers.splice(visLayerIndex, 1);
                 }
             });
+            MapData.CleanSearch();
         };
 
 
 
         return _service;
     };
-    module.$inject = ['map', 'ThemeHelper', 'MapData', 'LayerManagementService'];
+    module.$inject = ['map', 'ThemeHelper', 'MapData', 'LayerManagementService', '$rootScope'];
     module.factory('ThemeService', service);
 })();

@@ -8,6 +8,13 @@
             MapData.IsDrawing = true;
             // MapData.CleanDrawings();
         });
+
+        map.on('draw:drawstop', function(event) {
+            console.log('draw stopped');
+            MapData.IsDrawing = false;
+            // MapData.CleanDrawings();
+        });
+
         var berkenOmtrek = function(layer) {
             // Calculating the distance of the polyline
             var tempLatLng = null;
@@ -17,7 +24,6 @@
                     tempLatLng = latlng;
                     return;
                 }
-                console.log(tempLatLng.distanceTo(latlng) + " m");
                 totalDistance += tempLatLng.distanceTo(latlng);
                 tempLatLng = latlng;
             });
@@ -27,9 +33,9 @@
         map.on('zoomend', function(event) {
             console.log('Zoomend!!!');
             console.log(event);
-            MapData.Themes.forEach(x => {
-                console.log(x.MapData);
-            });
+            // MapData.Themes.forEach(x => {
+            //     console.log(x.MapData);
+            // });
         });
 
         map.on('click', function(event) {
@@ -38,15 +44,12 @@
                 MapData.CleanAll();
                 switch (MapData.ActiveInteractieKnop) {
                     case ActiveInteractieButton.IDENTIFY:
-                        MapService.Identify(event, 2);
+                        MapService.Identify(event, 10);
                         break;
                     case ActiveInteractieButton.SELECT:
-                        if (MapData.SelectedLayer.id === '') {
-                            console.log('Geen layer selected! kan dus niet opvragen');
-                        }
-                        else {
+                        if (MapData.DrawingType === DrawingOption.NIETS) {
                             MapService.Select(event);
-                        }
+                        } // else a drawing finished
                         break;
                     case ActiveInteractieButton.WATISHIER:
                         MapService.WatIsHier(event);
@@ -81,12 +84,24 @@
             console.log(e)
             switch (MapData.ActiveInteractieKnop) {
                 case ActiveInteractieButton.SELECT:
-                    if (MapData.SelectedLayer.id == '') {
-                        console.log('Geen layer selected! kan dus niet opvragen');
+                    switch (MapData.DrawingType) {
+                        case DrawingOption.LIJN:
+                            break;
+                        case DrawingOption.VIERKANT:
+                            break;
+                        case DrawingOption.POLYGON:
+                            break;
+                        default:
+                            break;
                     }
-                    else {
-                        MapService.Query(event);
-                    }
+                    MapService.Query(e);
+
+                    // if (MapData.SelectedLayer.id == '') {
+                    //     console.log('Geen layer selected! kan dus niet opvragen');
+                    // }
+                    // else {
+                    //     MapService.Query(event);
+                    // }
                     break;
                 case ActiveInteractieButton.METEN:
                     switch (MapData.DrawingType) {

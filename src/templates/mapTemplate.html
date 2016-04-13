@@ -21,6 +21,15 @@
             <button ng-click="mapctrl.drawingButtonChanged('oppervlakte')" ng-class="{active: mapctrl.drawingType=='oppervlakte'}" type="button"
             class="btn" prevent-default><i class="fa fa-star-o"></i></button>
         </div>
+        <div class="btn-group ll drawingbtns" ng-show="mapctrl.showDrawControls">
+            <button ng-click="mapctrl.selectpunt()" ng-class="{active: mapctrl.drawingType==''}" type="button" class="btn" prevent-default><i class="fa fa-mouse-pointer"></i></button>
+            <button ng-click="mapctrl.drawingButtonChanged('lijn')" ng-class="{active: mapctrl.drawingType=='lijn'}" type="button" class="btn"
+            prevent-default><i class="fa fa-minus"></i></button>
+            <button ng-click="mapctrl.drawingButtonChanged('vierkant')" ng-class="{active: mapctrl.drawingType=='vierkant'}" type="button"
+            class="btn" prevent-default><i class="fa fa-square-o"></i></button>
+            <button ng-click="mapctrl.drawingButtonChanged('polygon')" ng-class="{active: mapctrl.drawingType=='polygon'}" type="button"
+            class="btn" prevent-default><i class="fa fa-star-o"></i></button>
+        </div>
         <div class="ll zoekbalken">
             <input type="text" class="zoekbalk" placeholder="Welke locatie of adres zoek je?" prevent-default/>
             <select ng-options="layer as layer.name for layer in mapctrl.SelectableLayers" ng-model="mapctrl.selectedLayer" ng-change="mapctrl.layerChange()"
@@ -38,6 +47,9 @@
         </div>
         <div class="btn-group btn-group-vertical ll localiseerbtn">
             <button type="button" class="btn" prevent-default><i class="fa fa-male"></i></button>
+        </div>
+        <div class="ll loading" ng-show="mapctrl.Loading > 0">
+            <div class="loader"></div> {{mapctrl.MaxLoading - mapctrl.Loading}}/ {{mapctrl.MaxLoading}}
         </div>
     </div>
     <tink-Search></tink-Search>
