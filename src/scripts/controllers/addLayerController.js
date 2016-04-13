@@ -18,7 +18,7 @@
                 var qwhenready = LayerManagementService.ProcessUrls(urls);
                 qwhenready.then(function(allelagen) {
                     // $scope.searchTerm = 'http://mesonet.agron.iastate.edu/cgi-bin/wms/nexrad/n0r.cgi';
-                    $scope.searchTerm = 'http://geodata.antwerpen.be/arcgissql/services/P_SiK/Groeninventaris/MapServer/WMSServer';
+                    $scope.searchTerm = 'https://geodata.antwerpen.be/arcgissql/services/P_SiK/Groeninventaris/MapServer/WMSServer';
                     $scope.searchIsUrl = true;
                 });
             } ();

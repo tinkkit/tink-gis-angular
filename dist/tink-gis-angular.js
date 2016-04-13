@@ -18,7 +18,7 @@
             var qwhenready = LayerManagementService.ProcessUrls(urls);
             qwhenready.then(function (allelagen) {
                 // $scope.searchTerm = 'http://mesonet.agron.iastate.edu/cgi-bin/wms/nexrad/n0r.cgi';
-                $scope.searchTerm = 'http://geodata.antwerpen.be/arcgissql/services/P_SiK/Groeninventaris/MapServer/WMSServer';
+                $scope.searchTerm = 'https://geodata.antwerpen.be/arcgissql/services/P_SiK/Groeninventaris/MapServer/WMSServer';
                 $scope.searchIsUrl = true;
             });
         }();
@@ -545,7 +545,7 @@
 
         // The min/maxZoom values provided should match the actual cache thats been published. This information can be retrieved from the service endpoint directly.
         L.esri.tiledMapLayer({
-            url: 'http://geodata.antwerpen.be/arcgissql/rest/services/P_Publiek/P_basemap/MapServer',
+            url: 'https://geodata.antwerpen.be/arcgissql/rest/services/P_Publiek/P_basemap/MapServer',
             maxZoom: 20,
             minZoom: 1,
             continuousWorld: true
@@ -1065,7 +1065,7 @@ var Style = {
     var baseLayersService = function baseLayersService() {
         var _baseLayersService = {};
         _baseLayersService.kaart = L.tileLayer('http://tiles.arcgis.com/tiles/1KSVSmnHT2Lw9ea6/arcgis/rest/services/basemap_stadsplan_v6/MapServer/tile/{z}/{y}/{x}', { id: 'kaart' });
-        // _baseLayersService.kaart = L.esri.dynamicMapLayer({ url: 'http://geodata.antwerpen.be/arcgissql/rest/services/P_Publiek/Basemap_stadsplan/MapServer' ,id: 'kaart' });
+        // _baseLayersService.kaart = L.esri.dynamicMapLayer({ url: 'https://geodata.antwerpen.be/arcgissql/rest/services/P_Publiek/Basemap_stadsplan/MapServer' ,id: 'kaart' });
         _baseLayersService.luchtfoto = L.tileLayer("http://tile.informatievlaanderen.be/ws/raadpleegdiensten/tms/1.0.0/omwrgbmrvl@GoogleMapsVL/{z}/{x}/{y}.png", { id: 'luchtfoto', tms: 'true' });
         return _baseLayersService;
     };
