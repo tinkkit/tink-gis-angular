@@ -1,9 +1,9 @@
 'use strict';
-(function() {
+(function () {
     var module = angular.module('tink.gis');
-    var service = function(map, ThemeHelper, MapData, LayerManagementService, $rootScope) {
+    var service = function (map, ThemeHelper, MapData, LayerManagementService, $rootScope, DataService) {
         var _service = {};
-        _service.AddAndUpdateThemes = function(themesBatch) {
+        _service.AddAndUpdateThemes = function (themesBatch) {
             console.log("Themes batch for add and updates...");
             console.log(themesBatch);
             console.log("...");
@@ -37,16 +37,16 @@
 
 
             });
-
+            DataService.Export();
             console.log("regfresh of sortableThemes");
             $("#sortableThemes").sortable("refresh");
 
             MapData.SetZIndexes();
         };
-        _service.UpdateThemeVisibleLayers = function(theme) {
+        _service.UpdateThemeVisibleLayers = function (theme) {
             theme.UpdateMap();
         };
-        _service.UpdateTheme = function(updatedTheme, existingTheme) {
+        _service.UpdateTheme = function (updatedTheme, existingTheme) {
             //lets update the existingTheme
             for (var x = 0; x < updatedTheme.AllLayers.length; x++) {
                 var updatedLayer = updatedTheme.AllLayers[x];
@@ -76,10 +76,10 @@
             };
             existingTheme.RecalculateVisibleLayerIds();
         };
-        _service.AddNewTheme = function(theme) {
+        _service.AddNewTheme = function (theme) {
             MapData.Themes.unshift(theme)
 
-            _.each(theme.AllLayers, function(layer) {
+            _.each(theme.AllLayers, function (layer) {
                 if (layer.enabled && layer.visible && layer.type === LayerType.LAYER) {
                     console.log(layer.id);
                     theme.VisibleLayers.push(layer);
@@ -108,7 +108,7 @@
                     //     layers: theme.VisibleLayerIds,
                     //     useCors: true
                     // }).addTo(map);
-                    theme.MapData.on('load', function(e) {
+                    theme.MapData.on('load', function (e) {
                         // console.log(MapData.Zindex);
                         // console.log("Load Fired for " + theme.Naam);
                         if (theme.MapData._currentImage) {
@@ -169,7 +169,7 @@
                     //     $rootScope.$apply();
 
                     // });
-                    theme.MapData.on('load', function(e) {
+                    theme.MapData.on('load', function (e) {
                         console.log("LOAD VAN " + theme.Naam);
                         console.log(theme.MapData);
                         if (theme.MapData._tileContainer.children) {
@@ -190,7 +190,7 @@
 
 
         };
-        _service.DeleteTheme = function(theme) {
+        _service.DeleteTheme = function (theme) {
             // theme.MapData.removeFrom(map);
             map.removeLayer(theme.MapData); // this one works with ESRI And leaflet
             var themeIndex = MapData.Themes.indexOf(theme);
@@ -210,6 +210,6 @@
 
         return _service;
     };
-    module.$inject = ['map', 'ThemeHelper', 'MapData', 'LayerManagementService', '$rootScope'];
+    module.$inject = ['map', 'ThemeHelper', 'MapData', 'LayerManagementService', '$rootScope', 'DataService'];
     module.factory('ThemeService', service);
 })();
