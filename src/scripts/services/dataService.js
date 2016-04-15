@@ -15,6 +15,7 @@
                 console.log(item);
                 returnitem.Naam;
                 returnitem.CleanUrl;
+                returnitem.
                 return returnitem;
             });
             exportObject.Themes = arr;
