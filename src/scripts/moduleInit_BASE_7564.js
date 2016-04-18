@@ -74,11 +74,11 @@
             drawControl: false
             
             
-        }).setView([51.2192159, 4.4028818], 5);
+        }).setView([51.2192159, 4.4028818], 1);
 
         // The min/maxZoom values provided should match the actual cache thats been published. This information can be retrieved from the service endpoint directly.
         L.esri.tiledMapLayer({
-            url: 'https://geodata.antwerpen.be/arcgissql/rest/services/P_Publiek/P_basemap/MapServer',
+            url: 'http://geodata.antwerpen.be/arcgissql/rest/services/P_Publiek/P_basemap/MapServer',
             maxZoom: 20,
             minZoom: 1,
             continuousWorld: true

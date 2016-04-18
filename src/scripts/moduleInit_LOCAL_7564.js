@@ -39,8 +39,9 @@
         L.AwesomeMarkers.Icon.prototype.options.prefix = 'fa';
     } ();
     var mapObject = function() {
-        var crsLambert = new L.Proj.CRS('EPSG:31370', "+proj=lcc +lat_1=51.16666723333333 +lat_2=49.8333339 +lat_0=90 +lon_0=4.367486666666666 +x_0=150000.013 +y_0=5400088.438 +ellps=intl +towgs84=106.869,-52.2978,103.724,-0.33657,0.456955,-1.84218,1 +units=m +no_defs", {
-            origin: [-35872522, 41422761],
+        var crsLambert = new L.Proj.CRS('EPSG:31370','+proj=lcc +lat_1=51.16666723333334 +lat_2=49.83333389999999 +lat_0=90 +lon_0=4.367486666666666 +x_0=150000.013 +y_0=5400088.438'
+            + ' +ellps=intl +towgs84=-99.1,53.3,-112.5,0.419,-0.83,1.885,-1.0 +units=m +no_defs', {
+            origin: [-35872700, 41422700],
 
             resolutions: [
                 66.1459656252646,
@@ -77,12 +78,7 @@
         }).setView([51.2192159, 4.4028818], 5);
 
         // The min/maxZoom values provided should match the actual cache thats been published. This information can be retrieved from the service endpoint directly.
-        L.esri.tiledMapLayer({
-            url: 'https://geodata.antwerpen.be/arcgissql/rest/services/P_Publiek/P_basemap/MapServer',
-            maxZoom: 20,
-            minZoom: 1,
-            continuousWorld: true
-        }).addTo(map);
+      
 
 
 
