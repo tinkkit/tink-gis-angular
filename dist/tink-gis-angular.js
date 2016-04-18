@@ -1986,7 +1986,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
             switch (theme.Type) {
                 case ThemeType.ESRI:
-                    theme.MapData = L.esri.digiDynamicMapLayer({
+                    theme.MapData = L.esri.dynamicMapLayer({
                         maxZoom: 20,
                         minZoom: 1,
                         url: theme.CleanUrl,
