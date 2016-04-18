@@ -11,19 +11,28 @@
         _dataService.Export = function () {
             var exportObject = {};
             var arr = MapData.Themes.map(theme => {
-                var returnitem = {};
                 console.log(theme);
+                var returnitem = {};
                 returnitem.Naam = theme.Naam;
                 returnitem.CleanUrl = theme.CleanUrl;
-                returnitem.Layers = theme.Layers.map(layer => {
+                returnitem.Type = theme.Type;
+                returnitem.Visible = theme.Visible;
+                returnitem.Layers = theme.AllLayers.filter(x => { return x.enabled == true }).map(layer => {
+                    var returnlayer = {};
+                    // returnlayer.enabled = layer.enabled; // will always be true... since we only export the enabled layers
+                    returnlayer.visible = layer.visible;
+                    returnlayer.name = layer.name;
+                    returnlayer.id = layer.id;
                     console.log(layer);
+                    return returnlayer;
                 })
                 return returnitem;
             });
             exportObject.Themes = arr;
             exportObject.Extent = map.getBounds();
-            console.log(exportObject.Extent);
             exportObject.IsKaart = true;
+            console.log(exportObject);
+
             return exportObject;
         }
         return _dataService;
