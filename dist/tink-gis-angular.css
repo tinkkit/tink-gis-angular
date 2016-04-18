@@ -346,3 +346,21 @@ button.btn.active {
 
 .leaflet-popup-content-wrapper, .leaflet-popup-tip {
   opacity: 0.8; }
+
+svg.leaflet-zoom-animated {
+  z-index: 999; }
+
+.leaflet-marker-pane {
+  z-index: 999; }
+
+.leaflet-popup-pane {
+  z-index: 1000; }
+
+.leaflet-overlay-pane {
+  z-index: auto; }
+
+.leaflet-objects-pane {
+  z-index: auto; }
+
+.leaflet-tile-pane {
+  z-index: auto; }
