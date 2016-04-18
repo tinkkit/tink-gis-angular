@@ -10,12 +10,14 @@
         var _dataService = {};
         _dataService.Export = function () {
             var exportObject = {};
-            var arr = MapData.Themes.map(item => {
+            var arr = MapData.Themes.map(theme => {
                 var returnitem = {};
-                console.log(item);
-                returnitem.Naam;
-                returnitem.CleanUrl;
-                returnitem.
+                console.log(theme);
+                returnitem.Naam = theme.Naam;
+                returnitem.CleanUrl = theme.CleanUrl;
+                returnitem.Layers = theme.Layers.map(layer => {
+                    console.log(layer);
+                })
                 return returnitem;
             });
             exportObject.Themes = arr;
