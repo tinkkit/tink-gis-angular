@@ -7,6 +7,7 @@
         <div class="row">
             <div class="col-md-4">
                 <input class="searchbox" type="text" ng-model="searchTerm" ng-change="searchChanged()" placeholder="Geef een trefwoord of een url in" />
+                <input type="text" disabled="disabled" value="https://geodata.antwerpen.be/arcgissql/services/P_SiK/Groeninventaris/MapServer/WMSServer" />
                 <div ng-if="!searchIsUrl" ng-repeat="theme in availableThemes | filter: { Naam: searchTerm } | orderBy: 'Naam'">
                         <div ng-click="themeChanged(theme)">
                             {{theme.Naam}}  

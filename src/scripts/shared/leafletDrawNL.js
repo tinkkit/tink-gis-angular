@@ -46,7 +46,7 @@ handlers: {
             tooltip: {
             start: 'Klik om een lijn te tekenen.',
                 cont: 'Klik om de lijn verder te tekenen.',
-                    end: 'Klik op het eerste punt om de lijn af te sluiten.'
+                    end: 'Klik op het laatste punt om de lijn af te sluiten.'
         }
     },	
     rectangle: {

@@ -1,14 +1,14 @@
 'use strict';
-(function(module) {
+(function (module) {
     module = angular.module('tink.gis');
     var theController = module.controller('searchSelectedController',
-        function($scope, ResultsData, MapData, SearchService) {
+        function ($scope, ResultsData, MapData, SearchService) {
             var vm = this;
             vm.selectedResult = null;
             vm.prevResult = null;
             vm.nextResult = null;
             vm.props = [];
-            $scope.$watch(function() { return ResultsData.SelectedFeature; }, function(newVal, oldVal) {
+            $scope.$watch(function () { return ResultsData.SelectedFeature; }, function (newVal, oldVal) {
                 if (oldVal && oldVal != newVal && oldVal.mapItem) { // there must be an oldval and it must not be the newval and it must have an mapitem (to dehighlight)
                     var tmplayer = oldVal.mapItem._layers[Object.keys(oldVal.mapItem._layers)[0]];
                     if (tmplayer._latlngs) { // with s so it is an array, so not a point so we can set the style
@@ -34,19 +34,25 @@
                     vm.nextResult = null;
                 }
             });
-            vm.toonFeatureOpKaart = function() {
-                console.log(vm.selectedResult);
-                MapData.PanToFeature(vm.selectedResult);
+            vm.toonFeatureOpKaart = function () {
+                if (vm.selectedResult.theme.Type === 'esri') {
+                    MapData.PanToFeature(vm.selectedResult);
+                }
+                else { // wms we go to the last identifybounds
+                    MapData.GoToLastClickBounds();
+                }
+
+              
 
             };
-            vm.volgende = function() {
+            vm.volgende = function () {
                 ResultsData.SelectedFeature = vm.nextResult;
             };
-            vm.vorige = function() {
+            vm.vorige = function () {
                 ResultsData.SelectedFeature = vm.prevResult;
 
             };
-            vm.delete = function() {
+            vm.delete = function () {
                 var prev = SearchService.GetPrevResult();
                 var next = SearchService.GetNextResult();
                 SearchService.DeleteFeature(vm.selectedResult);
@@ -60,7 +66,7 @@
                     ResultsData.SelectedFeature = null;
                 }
             };
-            vm.close = function(feature) {
+            vm.close = function (feature) {
                 vm.selectedResult = null;
                 vm.prevResult = null;
                 vm.nextResult = null;

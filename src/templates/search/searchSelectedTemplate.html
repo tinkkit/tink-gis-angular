@@ -17,11 +17,11 @@
             <div ng-if="prop.value.indexOf( 'https://') !=0 && prop.value.indexOf( 'http://') !=0 ">{{ prop.value }}</div>
         </div>
     </div>
-    <div class="row" ng-show="srchslctdctrl.selectedResult.theme.Type === 'esri'">
+    <div class="row" >
         <div class="col-md-6 ">
             <button class="pull-left srchbtn " ng-click="srchslctdctrl.toonFeatureOpKaart() ">Tonen</button>
         </div>
-        <div class="col-md-6 ">
+        <div class="col-md-6 " ng-show="srchslctdctrl.selectedResult.theme.Type === 'esri'">
             <button class="pull-right srchbtn " ng-click=" ">Buffer</button>
         </div>
     </div>
