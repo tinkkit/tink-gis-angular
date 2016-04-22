@@ -178,6 +178,14 @@
                     featureItem.theme = theme;
                     featureItem.layerName = layer.name;
                     if (theme.Type === ThemeType.ESRI) {
+                        console.log("jaaaaaaaaa");
+                        layer.fields.forEach(field => {
+                            if (field.type == "esriFieldTypeDate") {
+                                var date = new Date(featureItem.properties[field.name])
+                                var date_string = (date.getDate() + 1) + '/' + (date.getMonth() + 1) + "/" + date.getFullYear(); // "2013-9-23"
+                                featureItem.properties[field.name] = date_string;
+                            }
+                        });
                         featureItem.displayValue = featureItem.properties[layer.displayField];
                         var mapItem = L.geoJson(featureItem, { style: Style.DEFAULT }).addTo(map);
                         _data.VisibleFeatures.push(mapItem);

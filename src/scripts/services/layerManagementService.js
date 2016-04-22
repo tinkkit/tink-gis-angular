@@ -45,6 +45,9 @@
                     var layerInfo = data.layers[layerid];
                     var displayField = layerInfo.displayField;
                     layer.displayField = layerInfo.displayField;
+                    layer.fields = layerInfo.fields;
+                
+                    console.log(data.layers[layerid]);
                 });
             });
         };
