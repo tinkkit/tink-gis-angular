@@ -178,7 +178,6 @@
                     featureItem.theme = theme;
                     featureItem.layerName = layer.name;
                     if (theme.Type === ThemeType.ESRI) {
-                        console.log("jaaaaaaaaa");
                         layer.fields.forEach(field => {
                             if (field.type == "esriFieldTypeDate") {
                                 var date = new Date(featureItem.properties[field.name])

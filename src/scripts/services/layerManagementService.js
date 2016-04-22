@@ -37,7 +37,6 @@
             return $q.all(promises);
         };
         _service.SetAditionalLayerInfo = function(theme) {
-            console.log(theme.CleanUrl);
             var prom = GISService.GetThemeLayerData(theme.CleanUrl);
             prom.success(function(data, statuscode, functie, getdata) {
                 theme.AllLayers.forEach(layer => {
@@ -46,8 +45,6 @@
                     var displayField = layerInfo.displayField;
                     layer.displayField = layerInfo.displayField;
                     layer.fields = layerInfo.fields;
-                
-                    console.log(data.layers[layerid]);
                 });
             });
         };
