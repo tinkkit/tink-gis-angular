@@ -37,7 +37,8 @@
             _dataService.setExtent(project.extent);
         };
         _dataService.setExtent = function (extent) {
-            map.setBounds(extent);
+            
+            map.setBounds([extent._northEast.lat,extent._northEast.lng],[extent._southWest.lat,extent._southWest.lng]);
         };
 
 

@@ -25,7 +25,6 @@
         _data.LastIdentifyBounds = null;
         _data.CleanDrawings = function () {
             if (_data.DrawingObject) {
-                console.log(_data.DrawingObject);
                 if (_data.DrawingObject.layer) { // if the layer (drawing) is created
                     _data.DrawingObject.layer._popup = null; // remove popup first because else it will fire close event which will do an other clean of the drawings which is not needed
                 }
@@ -109,11 +108,10 @@
         var straatNaam = null;
         _data.CreateWatIsHierMarker = function (data) {
             var convertedBackToWSG84 = HelperService.ConvertLambert72ToWSG84(data.location)
-            straatNaam = data.address.Street + " (" + data.address.Postal + ")";
+            straatNaam = data.address.Street + ' (' + data.address.Postal + ')';
             var greenIcon = L.icon({
                 iconUrl: 'styles/fa-dot-circle-o_24_0_000000_none.png',
-                iconSize: [24, 24],
-                // iconAnchor: [0, 0]
+                iconSize: [24, 24]
             });
 
 
@@ -172,16 +170,16 @@
                     else if (layerId != undefined && layerId != null) {
                         layer = theme.AllLayers.find(x => x.id === layerId);
                     } else {
-                        console.log("NO LAYER ID WAS GIVEN EITHER FROM FEATURE ITEM OR FROM PARAMETER");
+                        console.log('NO LAYER ID WAS GIVEN EITHER FROM FEATURE ITEM OR FROM PARAMETER');
                     }
                     // featureItem.layer = layer;
                     featureItem.theme = theme;
                     featureItem.layerName = layer.name;
                     if (theme.Type === ThemeType.ESRI) {
                         layer.fields.forEach(field => {
-                            if (field.type == "esriFieldTypeDate") {
-                                var date = new Date(featureItem.properties[field.name])
-                                var date_string = (date.getDate() + 1) + '/' + (date.getMonth() + 1) + "/" + date.getFullYear(); // "2013-9-23"
+                            if (field.type == 'esriFieldTypeDate') {
+                                var date = new Date(featureItem.properties[field.name]);
+                                var date_string = (date.getDate() + 1) + '/' + (date.getMonth() + 1) + '/' + date.getFullYear(); // "2013-9-23"
                                 featureItem.properties[field.name] = date_string;
                             }
                         });
