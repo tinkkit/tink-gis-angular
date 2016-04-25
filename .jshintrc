@@ -4,6 +4,7 @@
     "scripturl": true,
     "esversion": 6,
     "bitwise": true,
+    "es6": true,
     "camelcase": true,
     "curly": true,
     "eqeqeq": true,
