@@ -18,7 +18,6 @@
             var x = (coordinates.lng || coordinates.x || coordinates[0]);
             var y = (coordinates.lat || coordinates.y || coordinates[1]);
             var result = proj4('EPSG:31370', 'WGS84', [x, y]);
-            console.log(result);
             return {
                 y: result[0],
                 x: result[1]
@@ -28,5 +27,5 @@
         return _service;
     };
     // module.$inject = ["$http", 'map'];
-    module.factory("HelperService", service);
+    module.factory('HelperService', service);
 })();

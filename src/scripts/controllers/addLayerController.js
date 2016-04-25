@@ -23,7 +23,7 @@
                 });
             } ();
             $scope.searchChanged = function() {
-                if ($scope.searchTerm.startsWith("http")) {
+                if ($scope.searchTerm.startsWith('http')) {
                     $scope.searchIsUrl = true;
                 }
                 else {
@@ -43,7 +43,7 @@
                 }
                 else
                 {
-                    alert("Deze is al toegevoegd aan de map.")
+                    alert('Deze is al toegevoegd aan de map.');
                 }
 
 
@@ -51,7 +51,7 @@
             $scope.selectedTheme = null;
             $scope.copySelectedTheme = null;
             $scope.themeChanged = function(theme) {
-                console.log("themeChanged");
+                console.log('themeChanged');
                 console.log(theme);
                 $scope.selectedTheme = theme;
                 $scope.copySelectedTheme = angular.copy(theme);
@@ -59,7 +59,7 @@
 
             };
             $scope.AddOrUpdateTheme = function() {
-                console.log("AddOrUpdateTheme");
+                console.log('AddOrUpdateTheme');
                 var allChecked = true;
                 var noneChecked = true;
                 for (var x = 0; x < $scope.copySelectedTheme.AllLayers.length; x++) { // aha dus update gebeurt, we gaan deze toevoegen.
@@ -72,7 +72,7 @@
                     else {
                         noneChecked = false;
                     }
-                };
+                }
                 var alreadyAdded = LayerManagementService.EnabledThemes.find(x => { return x.CleanUrl === $scope.selectedTheme.CleanUrl }) != undefined;
                 if (noneChecked) {
                     //Niks is checked, dus we moeten deze 'deleten'.
@@ -101,14 +101,14 @@
                     } else { // already exist! It is an update!
                         if ($scope.selectedTheme.status != ThemeStatus.NEW) {
                             $scope.selectedTheme.status = ThemeStatus.UPDATED;
-                            console.log("changed naar updated");
+                            console.log('changed naar updated');
                         }
                         else {
-                            console.log("Hij is al new, dus moet hij niet naar updated changen.");
+                            console.log('Hij is al new, dus moet hij niet naar updated changen.');
                         }
                     }
                 }
-                console.log("AddOrUpdateTheme");
+                console.log('AddOrUpdateTheme');
 
                 $scope.selectedTheme = null;
                 $scope.copySelectedTheme = null;

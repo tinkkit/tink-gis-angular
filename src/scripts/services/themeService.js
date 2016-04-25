@@ -1,12 +1,12 @@
 'use strict';
 (function () {
     var module = angular.module('tink.gis');
-    var service = function (map, ThemeHelper, MapData, LayerManagementService, $rootScope, DataService) {
+    var service = function (map, ThemeHelper, MapData, LayerManagementService) {
         var _service = {};
         _service.AddAndUpdateThemes = function (themesBatch) {
-            console.log("Themes batch for add and updates...");
+            console.log('Themes batch for add and updates...');
             console.log(themesBatch);
-            console.log("...");
+            console.log('...');
             themesBatch.forEach(theme => {
                 var existingTheme = MapData.Themes.find(x => { return x.CleanUrl == theme.CleanUrl });
                 console.log(theme);
@@ -29,7 +29,7 @@
                         _service.UpdateThemeVisibleLayers(existingTheme);
                         break;
                     default:
-                        console.log("Er is iets fout, status niet bekend!!!: " + theme.status);
+                        console.log('Er is iets fout, status niet bekend!!!: ' + theme.status);
                         break;
                 }
                 //Theme is proccessed, now make it unmodified again
@@ -37,9 +37,8 @@
 
 
             });
-            DataService.Export();
-            console.log("regfresh of sortableThemes");
-            $("#sortableThemes").sortable("refresh");
+            console.log('regfresh of sortableThemes');
+            $('#sortableThemes').sortable('refresh');
 
             MapData.SetZIndexes();
         };
@@ -110,10 +109,10 @@
                     // }).addTo(map);
                     theme.MapData.on('load', function (e) {
                         // console.log(MapData.Zindex);
-                        // console.log("Load Fired for " + theme.Naam);
+                        // console.log('Load Fired for ' + theme.Naam);
                         if (theme.MapData._currentImage) {
                             theme.MapData._currentImage._image.style.zIndex = theme.MapData.ZIndex;
-                            console.log("Zindex on " + theme.Naam + " set to " + theme.MapData.ZIndex);
+                            console.log('Zindex on ' + theme.Naam + ' set to ' + theme.MapData.ZIndex);
                         }
                     });
                     // theme.MapData.on('loading', function(e) {
@@ -170,19 +169,19 @@
 
                     // });
                     theme.MapData.on('load', function (e) {
-                        console.log("LOAD VAN " + theme.Naam);
+                        console.log('LOAD VAN ' + theme.Naam);
                         console.log(theme.MapData);
                         if (theme.MapData._tileContainer.children) {
                             [].slice.call(theme.MapData._tileContainer.childNodes).forEach(imgNode => {
                                 imgNode.style.zIndex = theme.MapData.ZIndex;
                             });
                             // theme.MapData._currentImage._image.style.zIndex = theme.MapData.ZIndex;
-                            console.log("Zindex on " + theme.Naam + " set to " + theme.MapData.ZIndex);
+                            console.log('Zindex on ' + theme.Naam + ' set to ' + theme.MapData.ZIndex);
                         }
                     });
                     break;
                 default:
-                    console.log("UNKNOW TYPE");
+                    console.log('UNKNOW TYPE');
                     break;
             }
 
@@ -210,6 +209,6 @@
 
         return _service;
     };
-    module.$inject = ['map', 'ThemeHelper', 'MapData', 'LayerManagementService', '$rootScope', 'DataService'];
+    module.$inject = ['map', 'ThemeHelper', 'MapData', 'LayerManagementService'];
     module.factory('ThemeService', service);
 })();

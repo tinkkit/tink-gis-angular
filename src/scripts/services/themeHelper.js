@@ -1,14 +1,14 @@
 'use strict';
-(function() {
+(function () {
     var module;
     try {
         module = angular.module('tink.gis');
     } catch (e) {
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi']); //'leaflet-directive'
     }
-    var service = function(map) {
+    var service = function (map) {
         var themeHelper = {};
-        themeHelper.createThemeFromJson = function(rawdata, getData) {
+        themeHelper.createThemeFromJson = function (rawdata, getData) {
             var thema = {};
             try {
                 var rawlayers = rawdata.layers;
@@ -29,8 +29,9 @@
                 thema.Added = false;
                 thema.enabled = true;
                 thema.Type = ThemeType.ESRI;
+                thema.status = ThemeStatus.NEW;
                 thema.MapData = {};
-                _.each(rawlayers, function(x) {
+                _.each(rawlayers, function (x) {
                     x.visible = true;
                     x.enabled = true;
                     x.parent = null;
@@ -48,10 +49,10 @@
                         }
                     }
                 });
-                _.each(thema.Groups, function(layerGroup) {
+                _.each(thema.Groups, function (layerGroup) {
                     if (layerGroup.subLayerIds !== null) {
                         layerGroup.Layers = [];
-                        _.each(rawlayers, function(rawlayer) {
+                        _.each(rawlayers, function (rawlayer) {
                             if (layerGroup.id === rawlayer.parentLayerId) {
                                 rawlayer.parent = layerGroup;
                                 layerGroup.Layers.push(rawlayer);
@@ -59,14 +60,14 @@
                         });
                     }
                 });
-                thema.UpdateMap = function() {
+                thema.UpdateMap = function () {
                     thema.RecalculateVisibleLayerIds();
                     thema.MapData.setLayers(thema.VisibleLayerIds);
                 };
-           
-                thema.RecalculateVisibleLayerIds = function() {
+
+                thema.RecalculateVisibleLayerIds = function () {
                     thema.VisibleLayerIds.length = 0;
-                    _.forEach(thema.VisibleLayers, function(visLayer) {
+                    _.forEach(thema.VisibleLayers, function (visLayer) {
                         thema.VisibleLayerIds.push(visLayer.id);
                     });
                     if (thema.VisibleLayerIds.length === 0) {

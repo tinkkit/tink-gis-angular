@@ -23,7 +23,7 @@
             });
         }();
         $scope.searchChanged = function () {
-            if ($scope.searchTerm.startsWith("http")) {
+            if ($scope.searchTerm.startsWith('http')) {
                 $scope.searchIsUrl = true;
             } else {
                 $scope.searchIsUrl = false;
@@ -42,20 +42,20 @@
                     $window.alert('error');
                 });
             } else {
-                alert("Deze is al toegevoegd aan de map.");
+                alert('Deze is al toegevoegd aan de map.');
             }
         };
         $scope.selectedTheme = null;
         $scope.copySelectedTheme = null;
         $scope.themeChanged = function (theme) {
-            console.log("themeChanged");
+            console.log('themeChanged');
             console.log(theme);
             $scope.selectedTheme = theme;
             $scope.copySelectedTheme = angular.copy(theme);
             console.log($scope.copySelectedTheme);
         };
         $scope.AddOrUpdateTheme = function () {
-            console.log("AddOrUpdateTheme");
+            console.log('AddOrUpdateTheme');
             var allChecked = true;
             var noneChecked = true;
             for (var x = 0; x < $scope.copySelectedTheme.AllLayers.length; x++) {
@@ -69,7 +69,7 @@
                 } else {
                     noneChecked = false;
                 }
-            };
+            }
             var alreadyAdded = LayerManagementService.EnabledThemes.find(function (x) {
                 return x.CleanUrl === $scope.selectedTheme.CleanUrl;
             }) != undefined;
@@ -101,13 +101,13 @@
                     // already exist! It is an update!
                     if ($scope.selectedTheme.status != ThemeStatus.NEW) {
                         $scope.selectedTheme.status = ThemeStatus.UPDATED;
-                        console.log("changed naar updated");
+                        console.log('changed naar updated');
                     } else {
-                        console.log("Hij is al new, dus moet hij niet naar updated changen.");
+                        console.log('Hij is al new, dus moet hij niet naar updated changen.');
                     }
                 }
             }
-            console.log("AddOrUpdateTheme");
+            console.log('AddOrUpdateTheme');
 
             $scope.selectedTheme = null;
             $scope.copySelectedTheme = null;
@@ -1105,7 +1105,7 @@ var Style = {
     } catch (e) {
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'tink.modal']); //'leaflet-directive'
     }
-    var dataService = function dataService(MapData, map) {
+    var dataService = function dataService(MapData, map, GISService, ThemeHelper, WMSService, ThemeService, $q) {
         var _dataService = {};
         _dataService.Export = function () {
             var exportObject = {};
@@ -1136,15 +1136,40 @@ var Style = {
         _dataService.Import = function (project) {
             console.log(project);
             _dataService.setExtent(project.extent);
+            var themesArray = [];
+            var promises = [];
+
+            project.themes.forEach(function (theme) {
+                if (theme.type == ThemeType.ESRI) {
+                    var prom = GISService.GetThemeData(theme.cleanUrl + '?f=pjson');
+                    promises.push(prom);
+                    prom.success(function (data, statuscode, functie, getdata) {
+                        themesArray.push(ThemeHelper.createThemeFromJson(data, getdata));
+                    });
+                } else {
+                    // wms
+                    var _prom = WMSService.GetCapabilities(theme.cleanUrl);
+                    promises.push(_prom);
+                    _prom.success(function (data, status, headers, config) {
+                        themesArray.push(data);
+                    }).error(function (data, status, headers, config) {
+                        console.log('error!!!!!!!', data, status, headers, config);
+                    });
+                }
+            });
+            $q.all(promises).then(function () {
+                ThemeService.AddAndUpdateThemes(themesArray);
+                console.log('all loaded');
+            });
         };
         _dataService.setExtent = function (extent) {
 
-            map.fitBounds([extent._northEast.lat, extent._northEast.lng], [extent._southWest.lat, extent._southWest.lng]);
+            map.fitBounds([[extent._northEast.lat, extent._northEast.lng], [extent._southWest.lat, extent._southWest.lng]]);
         };
 
         return _dataService;
     };
-    module.$inject = ['MapData', 'map'];
+    module.$inject = ['MapData', 'map', 'GISService', 'ThemeHelper', 'WMSService', 'ThemeService', '$q'];
     module.factory('DataService', dataService);
 })();
 //# sourceMappingURL=dataService.js.map
@@ -1220,7 +1245,6 @@ var Style = {
             var x = coordinates.lng || coordinates.x || coordinates[0];
             var y = coordinates.lat || coordinates.y || coordinates[1];
             var result = proj4('EPSG:31370', 'WGS84', [x, y]);
-            console.log(result);
             return {
                 y: result[0],
                 x: result[1]
@@ -1230,7 +1254,7 @@ var Style = {
         return _service;
     };
     // module.$inject = ["$http", 'map'];
-    module.factory("HelperService", service);
+    module.factory('HelperService', service);
 })();
 //# sourceMappingURL=helperService.js.map
 ;/// <reference path="../../../typings/tsd.d.ts"/>
@@ -1244,7 +1268,6 @@ var Style = {
         _service.EnabledThemes = [];
         _service.AvailableThemes = [];
         _service.ProcessUrls = function (urls) {
-            console.log("ProcesUrls");
             var promises = [];
             _.each(urls, function (url) {
                 var AlreadyAddedTheme = null;
@@ -1280,7 +1303,6 @@ var Style = {
                 theme.AllLayers.forEach(function (layer) {
                     var layerid = layer.id;
                     var layerInfo = data.layers[layerid];
-                    var displayField = layerInfo.displayField;
                     layer.displayField = layerInfo.displayField;
                     layer.fields = layerInfo.fields;
                 });
@@ -1289,7 +1311,7 @@ var Style = {
         return _service;
     };
     module.$inject = ['MapData', '$http', '$q', 'GISService', 'ThemeHelper'];
-    module.factory("LayerManagementService", service);
+    module.factory('LayerManagementService', service);
 })();
 //# sourceMappingURL=layerManagementService.js.map
 ;'use strict';
@@ -1843,6 +1865,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 thema.Added = false;
                 thema.enabled = true;
                 thema.Type = ThemeType.ESRI;
+                thema.status = ThemeStatus.NEW;
                 thema.MapData = {};
                 _.each(rawlayers, function (x) {
                     x.visible = true;
@@ -1915,12 +1938,12 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 (function () {
     var module = angular.module('tink.gis');
-    var service = function service(map, ThemeHelper, MapData, LayerManagementService, $rootScope, DataService) {
+    var service = function service(map, ThemeHelper, MapData, LayerManagementService) {
         var _service = {};
         _service.AddAndUpdateThemes = function (themesBatch) {
-            console.log("Themes batch for add and updates...");
+            console.log('Themes batch for add and updates...');
             console.log(themesBatch);
-            console.log("...");
+            console.log('...');
             themesBatch.forEach(function (theme) {
                 var existingTheme = MapData.Themes.find(function (x) {
                     return x.CleanUrl == theme.CleanUrl;
@@ -1945,15 +1968,14 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                         _service.UpdateThemeVisibleLayers(existingTheme);
                         break;
                     default:
-                        console.log("Er is iets fout, status niet bekend!!!: " + theme.status);
+                        console.log('Er is iets fout, status niet bekend!!!: ' + theme.status);
                         break;
                 }
                 //Theme is proccessed, now make it unmodified again
                 theme.status = ThemeStatus.UNMODIFIED;
             });
-            DataService.Export();
-            console.log("regfresh of sortableThemes");
-            $("#sortableThemes").sortable("refresh");
+            console.log('regfresh of sortableThemes');
+            $('#sortableThemes').sortable('refresh');
 
             MapData.SetZIndexes();
         };
@@ -2022,10 +2044,10 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                     // }).addTo(map);
                     theme.MapData.on('load', function (e) {
                         // console.log(MapData.Zindex);
-                        // console.log("Load Fired for " + theme.Naam);
+                        // console.log('Load Fired for ' + theme.Naam);
                         if (theme.MapData._currentImage) {
                             theme.MapData._currentImage._image.style.zIndex = theme.MapData.ZIndex;
-                            console.log("Zindex on " + theme.Naam + " set to " + theme.MapData.ZIndex);
+                            console.log('Zindex on ' + theme.Naam + ' set to ' + theme.MapData.ZIndex);
                         }
                     });
                     // theme.MapData.on('loading', function(e) {
@@ -2079,19 +2101,19 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
                     // });
                     theme.MapData.on('load', function (e) {
-                        console.log("LOAD VAN " + theme.Naam);
+                        console.log('LOAD VAN ' + theme.Naam);
                         console.log(theme.MapData);
                         if (theme.MapData._tileContainer.children) {
                             [].slice.call(theme.MapData._tileContainer.childNodes).forEach(function (imgNode) {
                                 imgNode.style.zIndex = theme.MapData.ZIndex;
                             });
                             // theme.MapData._currentImage._image.style.zIndex = theme.MapData.ZIndex;
-                            console.log("Zindex on " + theme.Naam + " set to " + theme.MapData.ZIndex);
+                            console.log('Zindex on ' + theme.Naam + ' set to ' + theme.MapData.ZIndex);
                         }
                     });
                     break;
                 default:
-                    console.log("UNKNOW TYPE");
+                    console.log('UNKNOW TYPE');
                     break;
             }
 
@@ -2115,7 +2137,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
         return _service;
     };
-    module.$inject = ['map', 'ThemeHelper', 'MapData', 'LayerManagementService', '$rootScope', 'DataService'];
+    module.$inject = ['map', 'ThemeHelper', 'MapData', 'LayerManagementService'];
     module.factory('ThemeService', service);
 })();
 //# sourceMappingURL=themeService.js.map
