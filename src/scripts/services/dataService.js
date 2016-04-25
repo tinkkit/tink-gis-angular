@@ -34,7 +34,7 @@
         };
         _dataService.Import = function (project) {
             console.log(project);
-            _dataService.setExtent(project.Extent);
+            _dataService.setExtent(project.extent);
         };
         _dataService.setExtent = function (extent) {
             map.setBounds(extent);

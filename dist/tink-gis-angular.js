@@ -1110,7 +1110,6 @@ var Style = {
         _dataService.Export = function () {
             var exportObject = {};
             var arr = MapData.Themes.map(function (theme) {
-                console.log(theme);
                 var returnitem = {};
                 returnitem.Naam = theme.Naam;
                 returnitem.CleanUrl = theme.CleanUrl;
@@ -1124,7 +1123,6 @@ var Style = {
                     returnlayer.visible = layer.visible;
                     returnlayer.name = layer.name;
                     returnlayer.id = layer.id;
-                    console.log(layer);
                     return returnlayer;
                 });
                 return returnitem;
@@ -1132,10 +1130,17 @@ var Style = {
             exportObject.Themes = arr;
             exportObject.Extent = map.getBounds();
             exportObject.IsKaart = true;
-            console.log(exportObject);
 
             return exportObject;
         };
+        _dataService.Import = function (project) {
+            console.log(project);
+            _dataService.setExtent(project.extent);
+        };
+        _dataService.setExtent = function (extent) {
+            map.setBounds(extent);
+        };
+
         return _dataService;
     };
     module.$inject = ['MapData', 'map'];
@@ -1478,7 +1483,6 @@ var Style = {
                     }
                     ResultsData.JsonFeatures.push(featureItem);
                 }
-                console.log("applying");
                 $rootScope.$apply();
             }
         };
