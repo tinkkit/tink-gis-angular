@@ -38,7 +38,7 @@
         };
         _dataService.setExtent = function (extent) {
             
-            map.setBounds([extent._northEast.lat,extent._northEast.lng],[extent._southWest.lat,extent._southWest.lng]);
+            map.fitBounds([extent._northEast.lat,extent._northEast.lng],[extent._southWest.lat,extent._southWest.lng]);
         };
 
 
