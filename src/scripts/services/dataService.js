@@ -11,7 +11,7 @@
         _dataService.Export = function () {
             var exportObject = {};
             var arr = MapData.Themes.map(theme => {
-                var returnitem = {};
+                let returnitem = {};
                 returnitem.Naam = theme.Naam;
                 returnitem.CleanUrl = theme.CleanUrl;
                 returnitem.Type = theme.Type;

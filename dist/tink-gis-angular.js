@@ -30,6 +30,7 @@
             }
         };
         $scope.laadUrl = function () {
+            $scope.searchTerm = $scope.searchTerm.trim().replace('?', '');
             if (MapData.Themes.find(function (x) {
                 return x.CleanUrl == $scope.searchTerm;
             }) == undefined) {

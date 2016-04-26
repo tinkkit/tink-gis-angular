@@ -31,6 +31,7 @@
                 }
             };
             $scope.laadUrl = function() {
+                 $scope.searchTerm =  $scope.searchTerm.trim().replace('?','');
                 if (MapData.Themes.find(x => x.CleanUrl == $scope.searchTerm) == undefined) {
                     var getwms = WMSService.GetCapabilities($scope.searchTerm);
                     getwms.success(function(data, status, headers, config) {
