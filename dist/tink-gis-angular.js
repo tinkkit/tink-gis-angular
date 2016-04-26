@@ -654,12 +654,12 @@ var Style = {
         vm.features = ResultsData.JsonFeatures;
         vm.featureLayers = null;
         vm.selectedResult = null;
-        vm.layerGroupFilter = "geenfilter";
+        vm.layerGroupFilter = 'geenfilter';
         $scope.$watchCollection(function () {
             return ResultsData.JsonFeatures;
         }, function (newValue, oldValue) {
             vm.featureLayers = _.uniq(_.map(vm.features, 'layerName'));
-            vm.layerGroupFilter = "geenfilter";
+            vm.layerGroupFilter = 'geenfilter';
         });
         $scope.$watch(function () {
             return ResultsData.SelectedFeature;
@@ -1158,8 +1158,47 @@ var Style = {
                 }
             });
             $q.all(promises).then(function () {
-                ThemeService.AddAndUpdateThemes(themesArray);
+                var orderedArray = [];
+                var errorMessages = [];
+                project.themes.forEach(function (theme) {
+                    var realTheme = themesArray.find(function (x) {
+                        return x.CleanUrl == theme.cleanUrl;
+                    });
+                    realTheme.Visible = theme.visible;
+                    console.log(theme, ' vs real theme: ', realTheme);
+                    if (realTheme.AllLayers.length == theme.layers.length) {
+                        realTheme.Added = true; //all are added
+                    } else {
+                            realTheme.Added = null; // some are added, never false because else we woudn't save it.
+                        }
+                    realTheme.AllLayers.forEach(function (layer) {
+                        layer.enabled = false; // lets disable all layers first
+                    });
+                    //lets check what we need to enable and set visiblity of, and also check what we don't find
+                    theme.layers.forEach(function (layer) {
+                        var realLayer = realTheme.AllLayers.find(function (x) {
+                            return x.name == layer.name;
+                        });
+                        if (realLayer) {
+                            realLayer.visible = layer.visible; // aha so there was a layer, lets save this
+                            realLayer.enabled = true;
+                        } else {
+                            errorMessages.push('"' + layer.name + '" not found in mapserver: ' + realTheme.Naam + '.');
+                        }
+                    });
+                });
+                project.themes.forEach(function (theme) {
+                    // lets order them, since we get themesArray filled by async calls, the order can be wrong, thats why we make an ordered array
+                    var realTheme = themesArray.find(function (x) {
+                        return x.CleanUrl == theme.cleanUrl;
+                    });
+                    orderedArray.unshift(realTheme);
+                });
+                ThemeService.AddAndUpdateThemes(orderedArray);
                 console.log('all loaded');
+                if (errorMessages.length > 0) {
+                    alert(errorMessages.join('\n'));
+                }
             });
         };
         _dataService.setExtent = function (extent) {
@@ -1842,14 +1881,12 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     } catch (e) {
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi']); //'leaflet-directive'
     }
-    var service = function service(map) {
+    var service = function service() {
         var themeHelper = {};
         themeHelper.createThemeFromJson = function (rawdata, getData) {
             var thema = {};
             try {
                 var rawlayers = rawdata.layers;
-                console.log("INFOOOOOOOO");
-                console.log(rawdata.layers);
                 var cleanUrl = getData.url.substring(0, getData.url.indexOf('?'));
                 thema.Naam = rawdata.documentInfo.Title;
                 thema.name = rawdata.documentInfo.Title;
@@ -1909,21 +1946,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                         thema.VisibleLayerIds.push(-1); //als we niet doen dan zoekt hij op alle lagen!
                     }
                 };
-                // thema.GetAllLayers = function () {
-                //     var alllayers = [];
-                //     _.each(thema.Layers, function (layer) {
-                //         alllayers.push(layer);
-                //     });
-                //     _.each(thema.Groups, function (group) {
-                //         _.each(group.Layers, function (layer) {
-                //             alllayers.push(layer);
-                //         });
-                //     });
-                //     return alllayers;
-                // };
                 thema.RecalculateVisibleLayerIds();
             } catch (ex) {
-                console.log("Error when creating theme from url: " + getData.url + " Exeption: " + ex + " Data: ");
+                console.log('Error when creating theme from url: ' + getData.url + ' Exeption: ' + ex + ' Data: ');
                 console.log(rawdata);
             }
             return thema;
@@ -1943,7 +1968,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         _service.AddAndUpdateThemes = function (themesBatch) {
             console.log('Themes batch for add and updates...');
             console.log(themesBatch);
-            console.log('...');
             themesBatch.forEach(function (theme) {
                 var existingTheme = MapData.Themes.find(function (x) {
                     return x.CleanUrl == theme.CleanUrl;
@@ -1974,7 +1998,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 //Theme is proccessed, now make it unmodified again
                 theme.status = ThemeStatus.UNMODIFIED;
             });
-            console.log('regfresh of sortableThemes');
+            console.log('refresh of sortableThemes');
             $('#sortableThemes').sortable('refresh');
 
             MapData.SetZIndexes();

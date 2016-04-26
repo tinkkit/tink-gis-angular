@@ -6,7 +6,6 @@
         _service.AddAndUpdateThemes = function (themesBatch) {
             console.log('Themes batch for add and updates...');
             console.log(themesBatch);
-            console.log('...');
             themesBatch.forEach(theme => {
                 var existingTheme = MapData.Themes.find(x => { return x.CleanUrl == theme.CleanUrl });
                 console.log(theme);
@@ -37,7 +36,7 @@
 
 
             });
-            console.log('regfresh of sortableThemes');
+            console.log('refresh of sortableThemes');
             $('#sortableThemes').sortable('refresh');
 
             MapData.SetZIndexes();

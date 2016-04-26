@@ -52,15 +52,49 @@
                     prom.success(function (data, status, headers, config) {
                         themesArray.push(data);
                     }).error(function (data, status, headers, config) {
-                        console.log('error!!!!!!!', data, status, headers,config);
-                        
+                        console.log('error!!!!!!!', data, status, headers, config);
+
                     });
                 }
 
             });
             $q.all(promises).then(function () {
-                ThemeService.AddAndUpdateThemes(themesArray);
+                var orderedArray = [];
+                var errorMessages = [];
+                project.themes.forEach(theme => {
+                    var realTheme = themesArray.find(x => x.CleanUrl == theme.cleanUrl);
+                    realTheme.Visible = theme.visible;
+                    console.log(theme, ' vs real theme: ', realTheme);
+                    if (realTheme.AllLayers.length == theme.layers.length) {
+                        realTheme.Added = true; //all are added 
+                    }
+                    else {
+                        realTheme.Added = null; // some are added, never false because else we woudn't save it.
+                    }
+                    realTheme.AllLayers.forEach(layer => {
+                        layer.enabled = false;  // lets disable all layers first
+                    });
+                    //lets check what we need to enable and set visiblity of, and also check what we don't find
+                    theme.layers.forEach(layer => {
+                        var realLayer = realTheme.AllLayers.find(x => x.name == layer.name);
+                        if (realLayer) {
+                            realLayer.visible = layer.visible; // aha so there was a layer, lets save this
+                            realLayer.enabled = true;
+                        }
+                        else {
+                            errorMessages.push('"' + layer.name + '" not found in mapserver: ' + realTheme.Naam + '.');
+                        }
+                    });
+                });
+                project.themes.forEach(theme => { // lets order them, since we get themesArray filled by async calls, the order can be wrong, thats why we make an ordered array
+                    var realTheme = themesArray.find(x => x.CleanUrl == theme.cleanUrl);
+                    orderedArray.unshift(realTheme);
+                });
+                ThemeService.AddAndUpdateThemes(orderedArray);
                 console.log('all loaded');
+                if (errorMessages.length > 0) {
+                    alert(errorMessages.join('\n'));
+                }
             });
 
         };

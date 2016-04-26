@@ -6,14 +6,12 @@
     } catch (e) {
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi']); //'leaflet-directive'
     }
-    var service = function (map) {
+    var service = function () {
         var themeHelper = {};
         themeHelper.createThemeFromJson = function (rawdata, getData) {
             var thema = {};
             try {
                 var rawlayers = rawdata.layers;
-                console.log("INFOOOOOOOO");
-                console.log(rawdata.layers);
                 var cleanUrl = getData.url.substring(0, getData.url.indexOf('?'));
                 thema.Naam = rawdata.documentInfo.Title;
                 thema.name = rawdata.documentInfo.Title;
@@ -45,7 +43,6 @@
                         } else {
                             thema.Groups.push(x);
                             x.type = LayerType.GROUP;
-
                         }
                     }
                 });
@@ -74,22 +71,10 @@
                         thema.VisibleLayerIds.push(-1); //als we niet doen dan zoekt hij op alle lagen!
                     }
                 };
-                // thema.GetAllLayers = function () {
-                //     var alllayers = [];
-                //     _.each(thema.Layers, function (layer) {
-                //         alllayers.push(layer);
-                //     });
-                //     _.each(thema.Groups, function (group) {
-                //         _.each(group.Layers, function (layer) {
-                //             alllayers.push(layer);
-                //         });
-                //     });
-                //     return alllayers;
-                // };
                 thema.RecalculateVisibleLayerIds();
             }
             catch (ex) {
-                console.log("Error when creating theme from url: " + getData.url + " Exeption: " + ex + " Data: ")
+                console.log('Error when creating theme from url: ' + getData.url + ' Exeption: ' + ex + ' Data: ');
                 console.log(rawdata);
             }
             return thema;

@@ -7,10 +7,10 @@
             vm.features = ResultsData.JsonFeatures;
             vm.featureLayers = null;
             vm.selectedResult = null;
-            vm.layerGroupFilter = "geenfilter";
-            $scope.$watchCollection(function() { return ResultsData.JsonFeatures }, function(newValue, oldValue) {
+            vm.layerGroupFilter = 'geenfilter';
+            $scope.$watchCollection(function() { return ResultsData.JsonFeatures; }, function(newValue, oldValue) {
                 vm.featureLayers = _.uniq(_.map(vm.features, 'layerName'));
-                vm.layerGroupFilter = "geenfilter";
+                vm.layerGroupFilter = 'geenfilter';
             });
             $scope.$watch(function() { return ResultsData.SelectedFeature; }, function(newVal, oldVal) {
                 vm.selectedResult = newVal;
@@ -31,7 +31,7 @@
             };
             vm.showDetails = function(feature) {
                 ResultsData.SelectedFeature = feature;
-            }
+            };
             vm.exportToCSV = function() {
                 SearchService.ExportToCSV();
             };
