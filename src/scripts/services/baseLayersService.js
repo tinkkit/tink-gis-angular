@@ -10,7 +10,7 @@
         _baseLayersService.kaart =
             L.esri.tiledMapLayer({
                 url: 'http://geodata.antwerpen.be/arcgissql/rest/services/P_Publiek/P_basemap/MapServer',
-                maxZoom: 20,
+                maxZoom: 19,
                 minZoom: 0,
                 continuousWorld: true
             });
@@ -18,8 +18,8 @@
 
         _baseLayersService.luchtfoto =
             L.esri.tiledMapLayer({
-                url: 'http://geodata.antwerpen.be/arcgissql/rest/services/P_Publiek/Luchtfoto_2011/MapServer',
-                maxZoom: 12,
+                url: 'http://geodata.antwerpen.be/arcgissql/rest/services/P_Publiek/Luchtfoto_2015/MapServer',
+                maxZoom: 19,
                 minZoom: 0,
                 continuousWorld: true
             });
