@@ -224,7 +224,7 @@
         vm.showMetenControls = false;
         vm.showDrawControls = false;
         vm.interactieButtonChanged = function (ActiveButton) {
-            MapData.CleanAll();
+            MapData.CleanMap();
             MapData.ActiveInteractieKnop = ActiveButton; // If we only could keep the vmactiveInteractieKnop in sync with the one from MapData
             vm.activeInteractieKnop = ActiveButton;
             vm.showMetenControls = false;
@@ -249,7 +249,7 @@
         //     }
         // };
         vm.drawingButtonChanged = function (drawOption) {
-            MapData.CleanAll();
+            MapData.CleanMap();
             MapData.DrawingType = drawOption; // pff must be possible to be able to sync them...
             vm.drawingType = drawOption;
             DrawService.StartDraw(drawOption);
@@ -276,12 +276,12 @@
             console.log("MapLoading val: " + newVal + "/" + vm.MaxLoading);
         });
         vm.selectpunt = function () {
-            MapData.CleanAll();
+            MapData.CleanMap();
             MapData.DrawingType = DrawingOption.NIETS; // pff must be possible to be able to sync them...
             vm.drawingType = DrawingOption.NIETS;
         };
         vm.layerChange = function () {
-            MapData.CleanAll();
+            MapData.CleanMap();
             // console.log("vm.sel: " + vm.selectedLayer.id + "/ MapData.SelectedLayer: " + MapData.Layer.SelectedLayer.id);
             MapData.SelectedLayer = vm.selectedLayer;
         };
@@ -1100,15 +1100,67 @@ var Style = {
 ;'use strict';
 
 (function () {
+
+    try {
+        var module = angular.module('tink.gis');
+    } catch (e) {
+        var module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi']); //'leaflet-directive'
+    }
+    var service = function service(MapData, map) {
+        var _service = {};
+
+        _service.StartDraw = function (DrawingOptie) {
+            switch (MapData.DrawingType) {
+                case DrawingOption.LIJN:
+                case DrawingOption.AFSTAND:
+                    MapData.DrawingObject = new L.Draw.Polyline(map);
+                    MapData.DrawingObject.enable();
+                    break;
+                case DrawingOption.POLYGON:
+                case DrawingOption.OPPERVLAKTE:
+                    var polygon_options = {
+                        showArea: true,
+                        shapeOptions: {
+                            stroke: true,
+                            color: '#22528b',
+                            weight: 4,
+                            opacity: 0.6,
+                            fill: true,
+                            fillColor: null, //same as color by default
+                            fillOpacity: 0.4,
+                            clickable: true
+                        }
+                    };
+                    MapData.DrawingObject = new L.Draw.Polygon(map, polygon_options);
+                    MapData.DrawingObject.enable();
+                    break;
+                case DrawingOption.VIERKANT:
+                    MapData.DrawingObject = new L.Draw.Rectangle(map);
+                    MapData.DrawingObject.enable();
+                    break;
+                default:
+                    break;
+            }
+        };
+        return _service;
+    };
+    // module.$inject = ['MapData', 'map'];
+
+    module.factory("DrawService", service);
+})();
+//# sourceMappingURL=drawService.js.map
+;'use strict';
+
+(function () {
     var module;
     try {
         module = angular.module('tink.gis');
     } catch (e) {
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'tink.modal']); //'leaflet-directive'
     }
-    var dataService = function dataService(MapData, map, GISService, ThemeHelper, WMSService, ThemeService, $q) {
-        var _dataService = {};
-        _dataService.Export = function () {
+    var externService = function externService(MapData, map, GISService, ThemeHelper, WMSService, ThemeService, $q) {
+        var _externService = {};
+        _externService.Export = function () {
             var exportObject = {};
             var arr = MapData.Themes.map(function (theme) {
                 var returnitem = {};
@@ -1134,9 +1186,9 @@ var Style = {
 
             return exportObject;
         };
-        _dataService.Import = function (project) {
+        _externService.Import = function (project) {
             console.log(project);
-            _dataService.setExtent(project.extent);
+            _externService.setExtent(project.extent);
             var themesArray = [];
             var promises = [];
 
@@ -1202,69 +1254,22 @@ var Style = {
                 }
             });
         };
-        _dataService.setExtent = function (extent) {
+        _externService.setExtent = function (extent) {
 
             map.fitBounds([[extent._northEast.lat, extent._northEast.lng], [extent._southWest.lat, extent._southWest.lng]]);
+            map.setZoom(map.getZoom() + 1);
+        };
+        _externService.CleanMapAndThemes = function () {
+            MapData.CleanMap();
+            ThemeService.CleanThemes();
         };
 
-        return _dataService;
+        return _externService;
     };
     module.$inject = ['MapData', 'map', 'GISService', 'ThemeHelper', 'WMSService', 'ThemeService', '$q'];
-    module.factory('DataService', dataService);
+    module.factory('ExternService', externService);
 })();
-//# sourceMappingURL=dataService.js.map
-;'use strict';
-
-(function () {
-
-    try {
-        var module = angular.module('tink.gis');
-    } catch (e) {
-        var module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi']); //'leaflet-directive'
-    }
-    var service = function service(MapData, map) {
-        var _service = {};
-
-        _service.StartDraw = function (DrawingOptie) {
-            switch (MapData.DrawingType) {
-                case DrawingOption.LIJN:
-                case DrawingOption.AFSTAND:
-                    MapData.DrawingObject = new L.Draw.Polyline(map);
-                    MapData.DrawingObject.enable();
-                    break;
-                case DrawingOption.POLYGON:
-                case DrawingOption.OPPERVLAKTE:
-                    var polygon_options = {
-                        showArea: true,
-                        shapeOptions: {
-                            stroke: true,
-                            color: '#22528b',
-                            weight: 4,
-                            opacity: 0.6,
-                            fill: true,
-                            fillColor: null, //same as color by default
-                            fillOpacity: 0.4,
-                            clickable: true
-                        }
-                    };
-                    MapData.DrawingObject = new L.Draw.Polygon(map, polygon_options);
-                    MapData.DrawingObject.enable();
-                    break;
-                case DrawingOption.VIERKANT:
-                    MapData.DrawingObject = new L.Draw.Rectangle(map);
-                    MapData.DrawingObject.enable();
-                    break;
-                default:
-                    break;
-            }
-        };
-        return _service;
-    };
-    // module.$inject = ['MapData', 'map'];
-
-    module.factory("DrawService", service);
-})();
-//# sourceMappingURL=drawService.js.map
+//# sourceMappingURL=externService.js.map
 ;'use strict';
 
 (function () {
@@ -1385,9 +1390,9 @@ var Style = {
         _data.IsDrawing = false;
         _data.ThemeUrls = ['http://app11.p.gis.local/arcgissql/rest/services/P_Stad/Afval/MapServer/', 'http://app11.p.gis.local/arcgissql/rest/services/P_Stad/Cultuur/MapServer/', 'http://app11.p.gis.local/arcgissql/rest/services/P_Stad/Jeugd/MapServer/', 'http://app11.p.gis.local/arcgissql/rest/services/P_Stad/Onderwijs/MapServer/', 'http://app11.p.gis.local/arcgissql/rest/services/P_Stad/stad/MapServer/'];
         _data.Themes = [];
-        var defaultlayer = { id: '', name: 'Alle Layers' };
-        _data.SelectedLayer = defaultlayer;
-        _data.VisibleLayers.unshift(defaultlayer);
+        _data.defaultlayer = { id: '', name: 'Alle Layers' };
+        _data.SelectedLayer = _data.defaultlayer;
+        _data.VisibleLayers.unshift(_data.defaultlayer);
         _data.ActiveInteractieKnop = ActiveInteractieButton.IDENTIFY;
         _data.DrawingType = DrawingOption.NIETS;
         _data.DrawingObject = null;
@@ -1405,7 +1410,7 @@ var Style = {
         };
         var WatIsHierMarker = null;
         var WatIsHierOriginalMarker = null;
-        _data.CleanAll = function () {
+        _data.CleanMap = function () {
             _data.CleanDrawings();
             _data.CleanWatIsHier();
             _data.CleanSearch();
@@ -1476,17 +1481,18 @@ var Style = {
             _data.VisibleFeatures.length = 0;
         };
         _data.PanToFeature = function (feature) {
-            console.log("FEATUREPANTO");
             var tmplayer = feature.mapItem._layers[Object.keys(feature.mapItem._layers)[0]];
             if (tmplayer._latlngs) {
                 // with s so it has bounds etc
                 map.fitBounds(tmplayer.getBounds(), { paddingTopLeft: L.point(25, 25), paddingBottomRight: L.point(25, 25) });
+                map.setZoom(map.getZoom() + 1);
             } else {
                 // map.panTo(tmplayer.getLatLng());
             }
         };
         _data.GoToLastClickBounds = function () {
             map.fitBounds(_data.LastIdentifyBounds, { paddingTopLeft: L.point(0, 0), paddingBottomRight: L.point(0, 0) });
+            map.setZoom(map.getZoom() + 1);
         };
         _data.SetZIndexes = function () {
             var counter = _data.Themes.length + 3;
@@ -1597,7 +1603,7 @@ var Style = {
         map.on('click', function (event) {
             console.log('click op map! Is drawing: ' + MapData.IsDrawing);
             if (!MapData.IsDrawing) {
-                MapData.CleanAll();
+                MapData.CleanMap();
                 switch (MapData.ActiveInteractieKnop) {
                     case ActiveInteractieButton.IDENTIFY:
                         MapData.LastIdentifyBounds = map.getBounds();
@@ -1664,7 +1670,7 @@ var Style = {
                             var omtrek = berkenOmtrek(e.layer);
                             var popup = e.layer.bindPopup('Afstand (m): ' + omtrek + ' ');
                             popup.on('popupclose', function (event) {
-                                MapData.CleanAll();
+                                MapData.CleanMap();
                             });
                             e.layer.openPopup();
                             break;
@@ -1673,7 +1679,7 @@ var Style = {
                             var popuptekst = '<p>Opp  (km<sup>2</sup>): ' + (LGeo.area(e.layer) / 1000000).toFixed(2) + '</p>' + '<p>Omtrek (m): ' + omtrek + ' </p>';
                             var popup = e.layer.bindPopup(popuptekst);
                             popup.on('popupclose', function (event) {
-                                MapData.CleanAll();
+                                MapData.CleanMap();
                             });
                             e.layer.openPopup();
                             break;
@@ -2033,7 +2039,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 }
                 existingLayer.enabled = updatedLayer.enabled;
                 existingLayer.visible = updatedLayer.visible;
-            };
+            }
             existingTheme.RecalculateVisibleLayerIds();
         };
         _service.AddNewTheme = function (theme) {
@@ -2062,11 +2068,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                         useCors: true
                     }).addTo(map);
 
-                    // theme.MapData = L.esri.tiledMapLayer({
-                    //     url: theme.CleanUrl,
-                    //     layers: theme.VisibleLayerIds,
-                    //     useCors: true
-                    // }).addTo(map);
                     theme.MapData.on('load', function (e) {
                         // console.log(MapData.Zindex);
                         // console.log('Load Fired for ' + theme.Naam);
@@ -2144,6 +2145,12 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
             // _mapService.UpdateThemeVisibleLayers(theme);
         };
+        _service.CleanThemes = function () {
+            MapData.Themes.length = 0;
+            MapData.VisibleLayers.length = 0;
+            MapData.VisibleLayers.unshift(MapData.defaultlayer);
+        };
+
         _service.DeleteTheme = function (theme) {
             // theme.MapData.removeFrom(map);
             map.removeLayer(theme.MapData); // this one works with ESRI And leaflet

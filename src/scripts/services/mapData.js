@@ -16,9 +16,9 @@
             'http://app11.p.gis.local/arcgissql/rest/services/P_Stad/stad/MapServer/'
         ];
         _data.Themes = [];
-        var defaultlayer = { id: '', name: 'Alle Layers' };
-        _data.SelectedLayer = defaultlayer;
-        _data.VisibleLayers.unshift(defaultlayer);
+        _data.defaultlayer = { id: '', name: 'Alle Layers' };
+        _data.SelectedLayer = _data.defaultlayer;
+        _data.VisibleLayers.unshift(_data.defaultlayer);
         _data.ActiveInteractieKnop = ActiveInteractieButton.IDENTIFY;
         _data.DrawingType = DrawingOption.NIETS;
         _data.DrawingObject = null;
@@ -35,7 +35,7 @@
         };
         var WatIsHierMarker = null;
         var WatIsHierOriginalMarker = null;
-        _data.CleanAll = function () {
+        _data.CleanMap = function () {
             _data.CleanDrawings();
             _data.CleanWatIsHier();
             _data.CleanSearch();
@@ -126,10 +126,10 @@
             _data.VisibleFeatures.length = 0;
         };
         _data.PanToFeature = function (feature) {
-            console.log("FEATUREPANTO");
             var tmplayer = feature.mapItem._layers[Object.keys(feature.mapItem._layers)[0]]
             if (tmplayer._latlngs) { // with s so it has bounds etc
                 map.fitBounds(tmplayer.getBounds(), { paddingTopLeft: L.point(25, 25), paddingBottomRight: L.point(25, 25) });
+                map.setZoom(map.getZoom() + 1);
             }
             else {
                 // map.panTo(tmplayer.getLatLng());
@@ -137,6 +137,7 @@
         };
         _data.GoToLastClickBounds = function () {
             map.fitBounds(_data.LastIdentifyBounds, { paddingTopLeft: L.point(0, 0), paddingBottomRight: L.point(0, 0) });
+            map.setZoom(map.getZoom() + 1);
         };
         _data.SetZIndexes = function () {
             var counter = _data.Themes.length + 3;

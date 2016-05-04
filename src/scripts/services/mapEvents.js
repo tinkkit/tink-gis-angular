@@ -41,7 +41,7 @@
         map.on('click', function (event) {
             console.log('click op map! Is drawing: ' + MapData.IsDrawing);
             if (!MapData.IsDrawing) {
-                MapData.CleanAll();
+                MapData.CleanMap();
                 switch (MapData.ActiveInteractieKnop) {
                     case ActiveInteractieButton.IDENTIFY:
                         MapData.LastIdentifyBounds = map.getBounds();
@@ -110,7 +110,7 @@
                             var omtrek = berkenOmtrek(e.layer);
                             var popup = e.layer.bindPopup('Afstand (m): ' + omtrek + ' ');
                             popup.on('popupclose', function (event) {
-                                MapData.CleanAll();
+                                MapData.CleanMap();
                             });
                             e.layer.openPopup();
                             break;
@@ -120,7 +120,7 @@
                                 + '<p>Omtrek (m): ' + omtrek + ' </p>';
                             var popup = e.layer.bindPopup(popuptekst);
                             popup.on('popupclose', function (event) {
-                                MapData.CleanAll();
+                                MapData.CleanMap();
                             });
                             e.layer.openPopup();
                             break;

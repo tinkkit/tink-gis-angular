@@ -71,7 +71,7 @@
                 }
                 existingLayer.enabled = updatedLayer.enabled;
                 existingLayer.visible = updatedLayer.visible;
-            };
+            }
             existingTheme.RecalculateVisibleLayerIds();
         };
         _service.AddNewTheme = function (theme) {
@@ -101,11 +101,7 @@
                         useCors: true
                     }).addTo(map);
 
-                    // theme.MapData = L.esri.tiledMapLayer({
-                    //     url: theme.CleanUrl,
-                    //     layers: theme.VisibleLayerIds,
-                    //     useCors: true
-                    // }).addTo(map);
+
                     theme.MapData.on('load', function (e) {
                         // console.log(MapData.Zindex);
                         // console.log('Load Fired for ' + theme.Naam);
@@ -188,6 +184,12 @@
 
 
         };
+        _service.CleanThemes = function () {
+            MapData.Themes.length = 0;
+            MapData.VisibleLayers.length = 0;
+            MapData.VisibleLayers.unshift(MapData.defaultlayer);
+        };
+
         _service.DeleteTheme = function (theme) {
             // theme.MapData.removeFrom(map);
             map.removeLayer(theme.MapData); // this one works with ESRI And leaflet

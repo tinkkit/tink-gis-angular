@@ -14,7 +14,7 @@
         vm.showMetenControls = false;
         vm.showDrawControls = false;
         vm.interactieButtonChanged = function(ActiveButton) {
-            MapData.CleanAll();
+            MapData.CleanMap();
             MapData.ActiveInteractieKnop = ActiveButton; // If we only could keep the vmactiveInteractieKnop in sync with the one from MapData
             vm.activeInteractieKnop = ActiveButton;
             vm.showMetenControls = false;
@@ -39,7 +39,7 @@
         //     }
         // };
         vm.drawingButtonChanged = function(drawOption) {
-            MapData.CleanAll();
+            MapData.CleanMap();
             MapData.DrawingType = drawOption; // pff must be possible to be able to sync them...
             vm.drawingType = drawOption;
             DrawService.StartDraw(drawOption);
@@ -65,12 +65,12 @@
             console.log("MapLoading val: " + newVal + "/" + vm.MaxLoading);
         });
         vm.selectpunt = function() {
-            MapData.CleanAll();
+            MapData.CleanMap();
             MapData.DrawingType = DrawingOption.NIETS; // pff must be possible to be able to sync them...
             vm.drawingType = DrawingOption.NIETS;
         };
         vm.layerChange = function() {
-            MapData.CleanAll();
+            MapData.CleanMap();
             // console.log("vm.sel: " + vm.selectedLayer.id + "/ MapData.SelectedLayer: " + MapData.Layer.SelectedLayer.id);
             MapData.SelectedLayer = vm.selectedLayer;
         };

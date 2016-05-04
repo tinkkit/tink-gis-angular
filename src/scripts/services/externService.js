@@ -1,5 +1,4 @@
 'use strict';
-
 (function () {
     var module;
     try {
@@ -7,19 +6,17 @@
     } catch (e) {
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'tink.modal']); //'leaflet-directive'
     }
-    var dataService = function dataService(MapData, map, GISService, ThemeHelper, WMSService, ThemeService, $q) {
-        var _dataService = {};
-        _dataService.Export = function () {
+    var externService = function (MapData, map, GISService, ThemeHelper, WMSService, ThemeService, $q) {
+        var _externService = {};
+        _externService.Export = function () {
             var exportObject = {};
-            var arr = MapData.Themes.map(function (theme) {
-                var returnitem = {};
+            var arr = MapData.Themes.map(theme => {
+                let returnitem = {};
                 returnitem.Naam = theme.Naam;
                 returnitem.CleanUrl = theme.CleanUrl;
                 returnitem.Type = theme.Type;
                 returnitem.Visible = theme.Visible;
-                returnitem.Layers = theme.AllLayers.filter(function (x) {
-                    return x.enabled == true;
-                }).map(function (layer) {
+                returnitem.Layers = theme.AllLayers.filter(x => { return x.enabled == true; }).map(layer => {
                     var returnlayer = {};
                     // returnlayer.enabled = layer.enabled; // will always be true... since we only export the enabled layers
                     returnlayer.visible = layer.visible;
@@ -35,65 +32,62 @@
 
             return exportObject;
         };
-        _dataService.Import = function (project) {
+        _externService.Import = function (project) {
             console.log(project);
-            _dataService.setExtent(project.extent);
-            var themesArray = [];
-            var promises = [];
+            _externService.setExtent(project.extent);
+            let themesArray = [];
+            let promises = [];
 
-            project.themes.forEach(function (theme) {
+            project.themes.forEach(theme => {
                 if (theme.type == ThemeType.ESRI) {
-                    var prom = GISService.GetThemeData(theme.cleanUrl + '?f=pjson');
+                    let prom = GISService.GetThemeData(theme.cleanUrl + '?f=pjson');
                     promises.push(prom);
                     prom.success(function (data, statuscode, functie, getdata) {
                         themesArray.push(ThemeHelper.createThemeFromJson(data, getdata));
                     });
                 } else {
                     // wms
-                    var _prom = WMSService.GetCapabilities(theme.cleanUrl);
-                    promises.push(_prom);
-                    _prom.success(function (data, status, headers, config) {
+                    let prom = WMSService.GetCapabilities(theme.cleanUrl);
+                    promises.push(prom);
+                    prom.success(function (data, status, headers, config) {
                         themesArray.push(data);
                     }).error(function (data, status, headers, config) {
                         console.log('error!!!!!!!', data, status, headers, config);
+
                     });
                 }
+
             });
             $q.all(promises).then(function () {
                 var orderedArray = [];
                 var errorMessages = [];
-                project.themes.forEach(function (theme) {
-                    var realTheme = themesArray.find(function (x) {
-                        return x.CleanUrl == theme.cleanUrl;
-                    });
+                project.themes.forEach(theme => {
+                    var realTheme = themesArray.find(x => x.CleanUrl == theme.cleanUrl);
                     realTheme.Visible = theme.visible;
                     console.log(theme, ' vs real theme: ', realTheme);
                     if (realTheme.AllLayers.length == theme.layers.length) {
-                        realTheme.Added = true; //all are added
-                    } else {
-                            realTheme.Added = null; // some are added, never false because else we woudn't save it.
-                        }
-                    realTheme.AllLayers.forEach(function (layer) {
-                        layer.enabled = false; // lets disable all layers first
+                        realTheme.Added = true; //all are added 
+                    }
+                    else {
+                        realTheme.Added = null; // some are added, never false because else we woudn't save it.
+                    }
+                    realTheme.AllLayers.forEach(layer => {
+                        layer.enabled = false;  // lets disable all layers first
                     });
                     //lets check what we need to enable and set visiblity of, and also check what we don't find
-                    theme.layers.forEach(function (layer) {
-                        var realLayer = realTheme.AllLayers.find(function (x) {
-                            return x.name == layer.name;
-                        });
+                    theme.layers.forEach(layer => {
+                        var realLayer = realTheme.AllLayers.find(x => x.name == layer.name);
                         if (realLayer) {
                             realLayer.visible = layer.visible; // aha so there was a layer, lets save this
                             realLayer.enabled = true;
-                        } else {
+                        }
+                        else {
                             errorMessages.push('"' + layer.name + '" not found in mapserver: ' + realTheme.Naam + '.');
                         }
                     });
                 });
-                project.themes.forEach(function (theme) {
-                    // lets order them, since we get themesArray filled by async calls, the order can be wrong, thats why we make an ordered array
-                    var realTheme = themesArray.find(function (x) {
-                        return x.CleanUrl == theme.cleanUrl;
-                    });
+                project.themes.forEach(theme => { // lets order them, since we get themesArray filled by async calls, the order can be wrong, thats why we make an ordered array
+                    var realTheme = themesArray.find(x => x.CleanUrl == theme.cleanUrl);
                     orderedArray.unshift(realTheme);
                 });
                 ThemeService.AddAndUpdateThemes(orderedArray);
@@ -102,15 +96,21 @@
                     alert(errorMessages.join('\n'));
                 }
             });
+
         };
-        _dataService.setExtent = function (extent) {
+        _externService.setExtent = function (extent) {
 
             map.fitBounds([[extent._northEast.lat, extent._northEast.lng], [extent._southWest.lat, extent._southWest.lng]]);
+            map.setZoom(map.getZoom() +1);
+        };
+        _externService.CleanMapAndThemes = function () {
+            MapData.CleanMap();
+            ThemeService.CleanThemes();
         };
 
-        return _dataService;
+
+        return _externService;
     };
     module.$inject = ['MapData', 'map', 'GISService', 'ThemeHelper', 'WMSService', 'ThemeService', '$q'];
-    module.factory('DataService', dataService);
+    module.factory('ExternService', externService);
 })();
-//# sourceMappingURL=dataService.js.map
