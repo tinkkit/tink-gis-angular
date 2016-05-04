@@ -315,7 +315,7 @@
     module = angular.module('tink.gis');
     module.controller('themeController', ['$scope', 'MapService', 'ThemeService', function ($scope, MapService, ThemeService) {
         var vm = this;
-        console.log("Theme geladen");
+        console.log('Theme geladen');
         vm.theme = $scope.theme;
         $scope.$on('groupCheckboxChangedEvent', function (event, groupLayer) {
             // stuur het door naar het thema
@@ -333,12 +333,12 @@
         };
         vm.deleteTheme = function () {
             swal({
-                title: "Verwijderen?",
-                text: "U staat op het punt om " + vm.theme.Naam + " te verwijderen.",
-                type: "warning",
+                title: 'Verwijderen?',
+                text: 'U staat op het punt om ' + vm.theme.Naam + ' te verwijderen.',
+                type: 'warning',
                 showCancelButton: true,
-                confirmButtonColor: "#DD6B55",
-                confirmButtonText: "Verwijder",
+                confirmButtonColor: '#DD6B55',
+                confirmButtonText: 'Verwijder',
                 closeOnConfirm: true
             }, function () {
                 ThemeService.DeleteTheme(vm.theme);
@@ -1676,7 +1676,7 @@ var Style = {
                             break;
                         case DrawingOption.OPPERVLAKTE:
                             var omtrek = berkenOmtrek(e.layer);
-                            var popuptekst = '<p>Opp  (km<sup>2</sup>): ' + (LGeo.area(e.layer) / 1000000).toFixed(2) + '</p>' + '<p>Omtrek (m): ' + omtrek + ' </p>';
+                            var popuptekst = '<p>Opp  (m<sup>2</sup>): ' + LGeo.area(e.layer).toFixed(2) + '</p>' + '<p>Omtrek (m): ' + omtrek + ' </p>';
                             var popup = e.layer.bindPopup(popuptekst);
                             popup.on('popupclose', function (event) {
                                 MapData.CleanMap();
@@ -2044,10 +2044,10 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         };
         _service.AddNewTheme = function (theme) {
             MapData.Themes.unshift(theme);
-
+            console.log('Adding THEME!!!', theme);
             _.each(theme.AllLayers, function (layer) {
-                if (layer.enabled && layer.visible && layer.type === LayerType.LAYER) {
-                    console.log(layer.id);
+                if (layer.enabled && layer.visible && layer.type === LayerType.LAYER && theme.Visible && (layer.parent == null || layer.parent == undefined || layer.parent.visible == true)) {
+                    console.log("LAYERINFO: ", layer);
                     theme.VisibleLayers.push(layer);
                     if (theme.Type == ThemeType.ESRI) {
                         MapData.VisibleLayers.push(layer);
@@ -2146,9 +2146,13 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             // _mapService.UpdateThemeVisibleLayers(theme);
         };
         _service.CleanThemes = function () {
-            MapData.Themes.length = 0;
-            MapData.VisibleLayers.length = 0;
-            MapData.VisibleLayers.unshift(MapData.defaultlayer);
+            while (MapData.Themes.length != 0) {
+                console.log('DELETING THIS THEME', MapData.Themes[0]);
+                _service.DeleteTheme(MapData.Themes[0]);
+            }
+            // MapData.Themes.length = 0;
+            // MapData.VisibleLayers.length = 0;
+            // MapData.VisibleLayers.unshift(MapData.defaultlayer);
         };
 
         _service.DeleteTheme = function (theme) {

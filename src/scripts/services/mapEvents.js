@@ -116,7 +116,7 @@
                             break;
                         case DrawingOption.OPPERVLAKTE:
                             var omtrek = berkenOmtrek(e.layer);
-                            var popuptekst = '<p>Opp  (km<sup>2</sup>): ' + (LGeo.area(e.layer) / 1000000).toFixed(2) + '</p>'
+                            var popuptekst = '<p>Opp  (m<sup>2</sup>): ' + (LGeo.area(e.layer)).toFixed(2) + '</p>'
                                 + '<p>Omtrek (m): ' + omtrek + ' </p>';
                             var popup = e.layer.bindPopup(popuptekst);
                             popup.on('popupclose', function (event) {

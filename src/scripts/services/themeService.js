@@ -75,11 +75,11 @@
             existingTheme.RecalculateVisibleLayerIds();
         };
         _service.AddNewTheme = function (theme) {
-            MapData.Themes.unshift(theme)
-
+            MapData.Themes.unshift(theme);
+            console.log('Adding THEME!!!', theme);
             _.each(theme.AllLayers, function (layer) {
-                if (layer.enabled && layer.visible && layer.type === LayerType.LAYER) {
-                    console.log(layer.id);
+                if (layer.enabled && layer.visible && layer.type === LayerType.LAYER && theme.Visible && ((layer.parent == null || layer.parent == undefined) || layer.parent.visible == true)) {
+                    console.log("LAYERINFO: ", layer);
                     theme.VisibleLayers.push(layer);
                     if (theme.Type == ThemeType.ESRI) {
                         MapData.VisibleLayers.push(layer);
@@ -185,9 +185,14 @@
 
         };
         _service.CleanThemes = function () {
-            MapData.Themes.length = 0;
-            MapData.VisibleLayers.length = 0;
-            MapData.VisibleLayers.unshift(MapData.defaultlayer);
+            while (MapData.Themes.length != 0) {
+                console.log('DELETING THIS THEME', MapData.Themes[0]);
+                _service.DeleteTheme(MapData.Themes[0]);
+
+            }
+            // MapData.Themes.length = 0;
+            // MapData.VisibleLayers.length = 0;
+            // MapData.VisibleLayers.unshift(MapData.defaultlayer);
         };
 
         _service.DeleteTheme = function (theme) {
