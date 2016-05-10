@@ -1,14 +1,14 @@
 <div ng-if="!srchrsltsctrl.selectedResult && srchrsltsctrl.featureLayers.length > 0">
     <select ng-model="srchrsltsctrl.layerGroupFilter">
-        <option value="geenfilter" selected="selected">Geen filter</option>
-        <option ng-repeat="feat in srchrsltsctrl.featureLayers" value="{{feat}}">{{feat}}</option>
+        <option value="geenfilter" selected="selected">Geen filter ({{srchrsltsctrl.features.length}})</option>
+        <option ng-repeat="feat in srchrsltsctrl.featureLayers" value="{{feat}}">{{feat}} ({{srchrsltsctrl.aantalFeaturesMetType(feat)}})</option>
     </select>
     <ul ng-repeat="layerGroupName in srchrsltsctrl.featureLayers">
         <tink-accordion ng-if="srchrsltsctrl.layerGroupFilter=='geenfilter' || srchrsltsctrl.layerGroupFilter==layerGroupName " data-start-open="true"
         data-one-at-a-time="false">
             <tink-accordion-panel>
                 <data-header>
-                    <p class="nav-aside-title">{{layerGroupName}}
+                    <p class="nav-aside-title">{{layerGroupName}} ({{srchrsltsctrl.aantalFeaturesMetType(layerGroupName)}})
                         <button prevent-default ng-click="srchrsltsctrl.deleteFeatureGroup(layerGroupName)"  class="pull-right"><i class="fa fa-trash"></i></button>
                     </p>
                     <!--Accordion with callback function-->
