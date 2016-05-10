@@ -41,7 +41,7 @@
                 default:
                     break;
             }
-        }
+        };
         return _service;
     };
     // module.$inject = ['MapData', 'map'];

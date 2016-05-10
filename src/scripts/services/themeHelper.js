@@ -1,19 +1,17 @@
 'use strict';
-(function() {
+(function () {
     var module;
     try {
         module = angular.module('tink.gis');
     } catch (e) {
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi']); //'leaflet-directive'
     }
-    var service = function(map) {
+    var service = function () {
         var themeHelper = {};
-        themeHelper.createThemeFromJson = function(rawdata, getData) {
+        themeHelper.createThemeFromJson = function (rawdata, getData) {
             var thema = {};
             try {
                 var rawlayers = rawdata.layers;
-                console.log("INFOOOOOOOO");
-                console.log(rawdata.layers);
                 var cleanUrl = getData.url.substring(0, getData.url.indexOf('?'));
                 thema.Naam = rawdata.documentInfo.Title;
                 thema.name = rawdata.documentInfo.Title;
@@ -29,8 +27,9 @@
                 thema.Added = false;
                 thema.enabled = true;
                 thema.Type = ThemeType.ESRI;
+                thema.status = ThemeStatus.NEW;
                 thema.MapData = {};
-                _.each(rawlayers, function(x) {
+                _.each(rawlayers, function (x) {
                     x.visible = true;
                     x.enabled = true;
                     x.parent = null;
@@ -44,14 +43,13 @@
                         } else {
                             thema.Groups.push(x);
                             x.type = LayerType.GROUP;
-
                         }
                     }
                 });
-                _.each(thema.Groups, function(layerGroup) {
+                _.each(thema.Groups, function (layerGroup) {
                     if (layerGroup.subLayerIds !== null) {
                         layerGroup.Layers = [];
-                        _.each(rawlayers, function(rawlayer) {
+                        _.each(rawlayers, function (rawlayer) {
                             if (layerGroup.id === rawlayer.parentLayerId) {
                                 rawlayer.parent = layerGroup;
                                 layerGroup.Layers.push(rawlayer);
@@ -59,36 +57,24 @@
                         });
                     }
                 });
-                thema.UpdateMap = function() {
+                thema.UpdateMap = function () {
                     thema.RecalculateVisibleLayerIds();
                     thema.MapData.setLayers(thema.VisibleLayerIds);
                 };
-           
-                thema.RecalculateVisibleLayerIds = function() {
+
+                thema.RecalculateVisibleLayerIds = function () {
                     thema.VisibleLayerIds.length = 0;
-                    _.forEach(thema.VisibleLayers, function(visLayer) {
+                    _.forEach(thema.VisibleLayers, function (visLayer) {
                         thema.VisibleLayerIds.push(visLayer.id);
                     });
                     if (thema.VisibleLayerIds.length === 0) {
                         thema.VisibleLayerIds.push(-1); //als we niet doen dan zoekt hij op alle lagen!
                     }
                 };
-                // thema.GetAllLayers = function () {
-                //     var alllayers = [];
-                //     _.each(thema.Layers, function (layer) {
-                //         alllayers.push(layer);
-                //     });
-                //     _.each(thema.Groups, function (group) {
-                //         _.each(group.Layers, function (layer) {
-                //             alllayers.push(layer);
-                //         });
-                //     });
-                //     return alllayers;
-                // };
                 thema.RecalculateVisibleLayerIds();
             }
             catch (ex) {
-                console.log("Error when creating theme from url: " + getData.url + " Exeption: " + ex + " Data: ")
+                console.log('Error when creating theme from url: ' + getData.url + ' Exeption: ' + ex + ' Data: ');
                 console.log(rawdata);
             }
             return thema;

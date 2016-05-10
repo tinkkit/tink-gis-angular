@@ -1,7 +1,7 @@
 'use strict';
-(function() {
+(function () {
     var module = angular.module('tink.gis');
-    var mapData = function(map, $rootScope, HelperService, ResultsData) {
+    var mapData = function (map, $rootScope, HelperService, ResultsData) {
         var _data = {};
 
         _data.VisibleLayers = [];
@@ -16,15 +16,15 @@
             'http://app11.p.gis.local/arcgissql/rest/services/P_Stad/stad/MapServer/'
         ];
         _data.Themes = [];
-        var defaultlayer = { id: '', name: 'Alle Layers' };
-        _data.SelectedLayer = defaultlayer;
-        _data.VisibleLayers.unshift(defaultlayer);
+        _data.defaultlayer = { id: '', name: 'Alle Layers' };
+        _data.SelectedLayer = _data.defaultlayer;
+        _data.VisibleLayers.unshift(_data.defaultlayer);
         _data.ActiveInteractieKnop = ActiveInteractieButton.IDENTIFY;
         _data.DrawingType = DrawingOption.NIETS;
         _data.DrawingObject = null;
-        _data.CleanDrawings = function() {
+        _data.LastIdentifyBounds = null;
+        _data.CleanDrawings = function () {
             if (_data.DrawingObject) {
-                console.log(_data.DrawingObject);
                 if (_data.DrawingObject.layer) { // if the layer (drawing) is created
                     _data.DrawingObject.layer._popup = null; // remove popup first because else it will fire close event which will do an other clean of the drawings which is not needed
                 }
@@ -35,12 +35,12 @@
         };
         var WatIsHierMarker = null;
         var WatIsHierOriginalMarker = null;
-        _data.CleanAll = function() {
+        _data.CleanMap = function () {
             _data.CleanDrawings();
             _data.CleanWatIsHier();
             _data.CleanSearch();
         };
-        _data.CleanWatIsHier = function() {
+        _data.CleanWatIsHier = function () {
             if (WatIsHierOriginalMarker) {
                 WatIsHierOriginalMarker.clearAllEventListeners();
                 WatIsHierOriginalMarker.closePopup();
@@ -53,7 +53,7 @@
             }
             straatNaam = null;
         };
-        _data.CreateOrigineleMarker = function(latlng, addressFound) {
+        _data.CreateOrigineleMarker = function (latlng, addressFound) {
             if (addressFound) {
                 var foundMarker = L.AwesomeMarkers.icon({
                     icon: 'fa-map-marker',
@@ -77,8 +77,8 @@
                     '<div class="container container-low-padding">' +
                     '<div class="row row-no-padding">' +
                     '<div class="col-sm-4">' +
-                    '<a href="templates/external/streetView.html?lat=' + latlng.lat  + '&lng=' + latlng.lng + '" + target="_blank" >' +
-                        '<img src="https://maps.googleapis.com/maps/api/streetview?size=100x50&location=' +  latlng.lat + ',' + latlng.lng + '&pitch=-0.76" />' +
+                    '<a href="templates/external/streetView.html?lat=' + latlng.lat + '&lng=' + latlng.lng + '" + target="_blank" >' +
+                    '<img src="https://maps.googleapis.com/maps/api/streetview?size=100x50&location=' + latlng.lat + ',' + latlng.lng + '&pitch=-0.76" />' +
                     '</a>' +
                     '</div>' +
                     '<div class="col-sm-8">' +
@@ -101,61 +101,61 @@
             }
 
 
-            WatIsHierOriginalMarker.on('popupclose', function(event) {
+            WatIsHierOriginalMarker.on('popupclose', function (event) {
                 _data.CleanWatIsHier();
             });
         };
         var straatNaam = null;
-       _data.CreateWatIsHierMarker = function(data) {
+        _data.CreateWatIsHierMarker = function (data) {
             var convertedBackToWSG84 = HelperService.ConvertLambert72ToWSG84(data.location)
-           straatNaam = data.address.Street + " (" + data.address.Postal + ")";
+            straatNaam = data.address.Street + ' (' + data.address.Postal + ')';
             var greenIcon = L.icon({
                 iconUrl: 'styles/fa-dot-circle-o_24_0_000000_none.png',
-                iconSize: [24, 24],
-                // iconAnchor: [0, 0]
+                iconSize: [24, 24]
             });
 
 
             WatIsHierMarker = L.marker([convertedBackToWSG84.x, convertedBackToWSG84.y], { icon: greenIcon }).addTo(map);
 
         };
-        _data.CleanSearch = function() {
+        _data.CleanSearch = function () {
             ResultsData.CleanSearch();
             for (var x = 0; x < _data.VisibleFeatures.length; x++) {
                 map.removeLayer(_data.VisibleFeatures[x]); //eerst de
             }
             _data.VisibleFeatures.length = 0;
         };
-        _data.PanToFeature = function(feature) {
-            console.log("FEATUREPANTO");
+        _data.PanToFeature = function (feature) {
             var tmplayer = feature.mapItem._layers[Object.keys(feature.mapItem._layers)[0]]
             if (tmplayer._latlngs) { // with s so it has bounds etc
                 map.fitBounds(tmplayer.getBounds(), { paddingTopLeft: L.point(25, 25), paddingBottomRight: L.point(25, 25) });
+                map.setZoom(map.getZoom() + 1);
             }
             else {
                 // map.panTo(tmplayer.getLatLng());
             }
         };
-        _data.SetZIndexes = function() {
-            var counter = 1;
+        _data.GoToLastClickBounds = function () {
+            map.fitBounds(_data.LastIdentifyBounds, { paddingTopLeft: L.point(0, 0), paddingBottomRight: L.point(0, 0) });
+            map.setZoom(map.getZoom() + 1);
+        };
+        _data.SetZIndexes = function () {
+            var counter = _data.Themes.length + 3;
             _data.Themes.forEach(theme => {
-                if (theme.Type == ThemeType.WMS) {
+                theme.MapData.ZIndex = counter;
+                if (theme.Type == ThemeType.ESRI) {
+                    if (theme.MapData._currentImage) {
+                        theme.MapData._currentImage._image.style.zIndex = counter;
+                    }
+                } else { // WMS
+                    theme.MapData.bringToFront();
                     theme.MapData.setZIndex(counter);
                 }
-                else {
-                    // var lays = theme.MapData.getLayers();
-                    // lays.forEach(lay => {
-                    //     console.log(lay);
-                    //     lay.setZIndex(counter);
-                    // });
-                }
-                counter++;
+                counter--;
 
             });
-            console.log("Ordering Zindexs");
-            console.log(_data.Themes.map(x => x.name));
         };
-        _data.AddFeatures = function(features, theme, layerId) {
+        _data.AddFeatures = function (features, theme, layerId) {
             if (features.length == 0) {
                 ResultsData.EmptyResult = true;
             }
@@ -171,12 +171,19 @@
                     else if (layerId != undefined && layerId != null) {
                         layer = theme.AllLayers.find(x => x.id === layerId);
                     } else {
-                        console.log("NO LAYER ID WAS GIVEN EITHER FROM FEATURE ITEM OR FROM PARAMETER");
+                        console.log('NO LAYER ID WAS GIVEN EITHER FROM FEATURE ITEM OR FROM PARAMETER');
                     }
                     // featureItem.layer = layer;
                     featureItem.theme = theme;
                     featureItem.layerName = layer.name;
                     if (theme.Type === ThemeType.ESRI) {
+                        layer.fields.forEach(field => {
+                            if (field.type == 'esriFieldTypeDate') {
+                                var date = new Date(featureItem.properties[field.name]);
+                                var date_string = (date.getDate() + 1) + '/' + (date.getMonth() + 1) + '/' + date.getFullYear(); // "2013-9-23"
+                                featureItem.properties[field.name] = date_string;
+                            }
+                        });
                         featureItem.displayValue = featureItem.properties[layer.displayField];
                         var mapItem = L.geoJson(featureItem, { style: Style.DEFAULT }).addTo(map);
                         _data.VisibleFeatures.push(mapItem);
@@ -187,7 +194,6 @@
                     }
                     ResultsData.JsonFeatures.push(featureItem);
                 }
-                console.log("applying");
                 $rootScope.$apply();
             }
         };

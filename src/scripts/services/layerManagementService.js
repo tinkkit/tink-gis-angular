@@ -8,7 +8,6 @@
         _service.EnabledThemes = [];
         _service.AvailableThemes = [];
         _service.ProcessUrls = function(urls) {
-            console.log("ProcesUrls");
             var promises = [];
             _.each(urls, function(url) {
                 var AlreadyAddedTheme = null;
@@ -20,7 +19,7 @@
                 if (AlreadyAddedTheme == null) { // if we didn t get an alreadyadderdtheme we get the data
                     var prom = GISService.GetThemeData(url + '?f=pjson');
                     prom.success(function(data, statuscode, functie, getdata) {
-                        var convertedTheme = ThemeHelper.createThemeFromJson(data, getdata)
+                        var convertedTheme = ThemeHelper.createThemeFromJson(data, getdata);
                         _service.AvailableThemes.push(convertedTheme);
                         convertedTheme.status = ThemeStatus.NEW;
                     });
@@ -37,19 +36,18 @@
             return $q.all(promises);
         };
         _service.SetAditionalLayerInfo = function(theme) {
-            console.log(theme.CleanUrl);
             var prom = GISService.GetThemeLayerData(theme.CleanUrl);
             prom.success(function(data, statuscode, functie, getdata) {
                 theme.AllLayers.forEach(layer => {
                     var layerid = layer.id;
                     var layerInfo = data.layers[layerid];
-                    var displayField = layerInfo.displayField;
                     layer.displayField = layerInfo.displayField;
+                    layer.fields = layerInfo.fields;
                 });
             });
         };
         return _service;
     };
     module.$inject = ['MapData', '$http', '$q', 'GISService', 'ThemeHelper'];
-    module.factory("LayerManagementService", service);
+    module.factory('LayerManagementService', service);
 })();

@@ -1,0 +1,35 @@
+{
+    "env": {
+        "browser": true,
+        "es6": true
+    },
+    "extends": "eslint:recommended",
+    "rules": {
+        // "indent": [
+        //     "error",
+        //     "tab"
+        // ],
+        "linebreak-style": [
+            "error",
+            "windows"
+        ],
+        "quotes": [
+            "error",
+            "single"
+        ],
+        "semi": [
+            "error",
+            "always"
+        ]
+    },
+    "globals": {
+        "angular": false,
+        "$": true,
+        "L": false,
+        "_": false,
+        "jQuery": true,
+        "Sortable": false,
+        "console": false,
+        "JXON": false
+    }
+}

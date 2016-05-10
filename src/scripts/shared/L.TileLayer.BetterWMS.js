@@ -66,15 +66,15 @@ L.TileLayer.BetterWMS = L.TileLayer.WMS.extend({
         return this._url + L.Util.getParamString(params, this._url, true);
     },
 
-    showGetFeatureInfo: function(err, latlng, content) {
-        if (err) { console.log(err); return; } // do nothing if there's an error
+    // showGetFeatureInfo: function(err, latlng, content) {
+    //     if (err) { console.log(err); return; } // do nothing if there's an error
 
-        // Otherwise show the content in a popup, or something.
-        L.popup({ maxWidth: 800 })
-            .setLatLng(latlng)
-            .setContent(content)
-            .openOn(this._map);
-    }
+    //     // Otherwise show the content in a popup, or something.
+    //     L.popup({ maxWidth: 800 })
+    //         .setLatLng(latlng)
+    //         .setContent(content)
+    //         .openOn(this._map);
+    // }
 });
 
 L.tileLayer.betterWms = function(url, options) {

@@ -5,11 +5,26 @@
     } catch (e) {
         var module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi']); //'leaflet-directive'
     }
-    var baseLayersService = function() {
+    var baseLayersService = function(map) {
         var _baseLayersService = {};
-        _baseLayersService.kaart = L.tileLayer('http://tiles.arcgis.com/tiles/1KSVSmnHT2Lw9ea6/arcgis/rest/services/basemap_stadsplan_v6/MapServer/tile/{z}/{y}/{x}', { id: 'kaart' });
-        // _baseLayersService.kaart = L.esri.dynamicMapLayer({ url: 'https://geodata.antwerpen.be/arcgissql/rest/services/P_Publiek/Basemap_stadsplan/MapServer' ,id: 'kaart' });
-        _baseLayersService.luchtfoto = L.tileLayer("http://tile.informatievlaanderen.be/ws/raadpleegdiensten/tms/1.0.0/omwrgbmrvl@GoogleMapsVL/{z}/{x}/{y}.png", { id: 'luchtfoto', tms: 'true' });
+        _baseLayersService.kaart =
+            L.esri.tiledMapLayer({
+                url: 'http://geodata.antwerpen.be/arcgissql/rest/services/P_Publiek/P_basemap/MapServer',
+                maxZoom: 19,
+                minZoom: 0,
+                continuousWorld: true
+            });
+
+
+        _baseLayersService.luchtfoto =
+            L.esri.tiledMapLayer({
+                url: 'http://geodata.antwerpen.be/arcgissql/rest/services/P_Publiek/Luchtfoto_2015/MapServer',
+                maxZoom: 19,
+                minZoom: 0,
+                continuousWorld: true
+            });
+        _baseLayersService.kaart.addTo(map);
+
         return _baseLayersService;
     };
 

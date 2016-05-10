@@ -1,25 +1,25 @@
 'use strict';
-(function() {
+(function () {
     var module = angular.module('tink.gis');
-    var mapEvents = function(map, MapService, MapData, DrawService) {
+    var mapEvents = function (map, MapService, MapData, DrawService) {
         var _mapEvents = {};
-        map.on('draw:drawstart', function(event) {
+        map.on('draw:drawstart', function (event) {
             console.log('draw started');
             MapData.IsDrawing = true;
             // MapData.CleanDrawings();
         });
 
-        map.on('draw:drawstop', function(event) {
+        map.on('draw:drawstop', function (event) {
             console.log('draw stopped');
             MapData.IsDrawing = false;
             // MapData.CleanDrawings();
         });
 
-        var berkenOmtrek = function(layer) {
+        var berkenOmtrek = function (layer) {
             // Calculating the distance of the polyline
             var tempLatLng = null;
             var totalDistance = 0.00000;
-            _.each(layer._latlngs, function(latlng) {
+            _.each(layer._latlngs, function (latlng) {
                 if (tempLatLng == null) {
                     tempLatLng = latlng;
                     return;
@@ -30,7 +30,7 @@
             return totalDistance.toFixed(2);
         };
 
-        map.on('zoomend', function(event) {
+        map.on('zoomend', function (event) {
             console.log('Zoomend!!!');
             console.log(event);
             // MapData.Themes.forEach(x => {
@@ -38,12 +38,13 @@
             // });
         });
 
-        map.on('click', function(event) {
+        map.on('click', function (event) {
             console.log('click op map! Is drawing: ' + MapData.IsDrawing);
             if (!MapData.IsDrawing) {
-                MapData.CleanAll();
+                MapData.CleanMap();
                 switch (MapData.ActiveInteractieKnop) {
                     case ActiveInteractieButton.IDENTIFY:
+                        MapData.LastIdentifyBounds = map.getBounds();
                         MapService.Identify(event, 10);
                         break;
                     case ActiveInteractieButton.SELECT:
@@ -79,7 +80,7 @@
         });
 
 
-        map.on('draw:created', function(e) {
+        map.on('draw:created', function (e) {
             console.log('draw created');
             console.log(e)
             switch (MapData.ActiveInteractieKnop) {
@@ -108,18 +109,18 @@
                         case DrawingOption.AFSTAND:
                             var omtrek = berkenOmtrek(e.layer);
                             var popup = e.layer.bindPopup('Afstand (m): ' + omtrek + ' ');
-                            popup.on('popupclose', function(event) {
-                                MapData.CleanAll();
+                            popup.on('popupclose', function (event) {
+                                MapData.CleanMap();
                             });
                             e.layer.openPopup();
                             break;
                         case DrawingOption.OPPERVLAKTE:
                             var omtrek = berkenOmtrek(e.layer);
-                            var popuptekst = '<p>Opp  (km<sup>2</sup>): ' + (LGeo.area(e.layer) / 1000000).toFixed(2) + '</p>'
+                            var popuptekst = '<p>Opp  (m<sup>2</sup>): ' + (LGeo.area(e.layer)).toFixed(2) + '</p>'
                                 + '<p>Omtrek (m): ' + omtrek + ' </p>';
                             var popup = e.layer.bindPopup(popuptekst);
-                            popup.on('popupclose', function(event) {
-                                MapData.CleanAll();
+                            popup.on('popupclose', function (event) {
+                                MapData.CleanMap();
                             });
                             e.layer.openPopup();
                             break;
