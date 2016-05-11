@@ -1,49 +1,67 @@
 'use strict';
-(function(module) {
+(function (module) {
     var module;
     try {
         module = angular.module('tink.gis');
     } catch (e) {
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
     }
-    module.controller('addLayerController', ['$scope', '$modalInstance', 'ThemeHelper', '$q', 'urls', 'MapService', 'MapData', 'GISService', 'LayerManagementService', 'WMSService', '$window', '$http',
-        function($scope, $modalInstance, ThemeHelper, $q, urls, MapService, MapData, GISService, LayerManagementService, WMSService, $window, $http) {
+    module.controller('addLayerController', ['$scope', '$modalInstance', 'ThemeHelper', '$q', 'urls', 'MapService', 'MapData', 'GISService', 'LayerManagementService', 'WMSService', '$window', '$http', 'GeopuntService',
+        function ($scope, $modalInstance, ThemeHelper, $q, urls, MapService, MapData, GISService, LayerManagementService, WMSService, $window, $http, GeopuntService) {
             $scope.searchIsUrl = false;
+            $scope.pagingCount = null;
+            $scope.numberofrecordsmatched = 20;
+            $scope.recordsAPage = 5;
+            $scope.currentPage = 1;
             LayerManagementService.EnabledThemes.length = 0;
             LayerManagementService.AvailableThemes.length = 0;
             LayerManagementService.EnabledThemes = angular.copy(MapData.Themes);
-            $scope.availableThemes = LayerManagementService.AvailableThemes;
-            var init = function() {
-                $scope.searchTerm = 'Laden...';
-                var qwhenready = LayerManagementService.ProcessUrls(urls);
-                qwhenready.then(function(allelagen) {
-                    // $scope.searchTerm = 'http://mesonet.agron.iastate.edu/cgi-bin/wms/nexrad/n0r.cgi';
-                    $scope.searchTerm = '';
-                    $scope.searchIsUrl = false;
-                });
+            $scope.availableThemes = [];
+            var init = function () {
+                // $scope.searchTerm = 'Laden...';
+                // var qwhenready = LayerManagementService.ProcessUrls(urls);
+                // qwhenready.then(function(allelagen) {
+                // $scope.searchTerm = 'http://mesonet.agron.iastate.edu/cgi-bin/wms/nexrad/n0r.cgi';
+                $scope.searchTerm = 'water';
+                $scope.searchIsUrl = false;
+                // });
             } ();
-            $scope.searchChanged = function() {
+            $scope.searchChanged = function () {
                 if ($scope.searchTerm.startsWith('http')) {
                     $scope.searchIsUrl = true;
                 }
                 else {
                     $scope.searchIsUrl = false;
                 }
+                var prom = GeopuntService.getMetaData($scope.searchTerm, 1, 5);
+                prom.then(function (metadata) {
+                    $scope.availableThemes = metadata.results;
+                    $scope.searchTerm = metadata.searchterm;
+                    $scope.currentrecord = metadata.currentrecord;
+                    $scope.recordsAPage = metadata.recordsAPage;
+                    $scope.nextrecord = metadata.nextrecord;
+                    $scope.numberofrecordsmatched = metadata.numberofrecordsmatched;
+                    $scope.numberofrecordsreturned = metadata.numberofrecordsreturned;
+                    $scope.currentPage = Math.ceil($scope.pagingStart / $scope.recordsAPage)
+                    console.log(metadata);
+                }, function (reason) {
+                    console.log(reason);
+                })
             };
-            $scope.laadUrl = function() {
-                 $scope.searchTerm =  $scope.searchTerm.trim().replace('?','');
+            $scope.pageChanged = function() {
+              console.log("JA");  
+            };
+            $scope.laadUrl = function () {
+                $scope.searchTerm = $scope.searchTerm.trim().replace('?', '');
                 if (MapData.Themes.find(x => x.CleanUrl == $scope.searchTerm) == undefined) {
                     var getwms = WMSService.GetCapabilities($scope.searchTerm);
-                    getwms.success(function(data, status, headers, config) {
-                        $scope.themeChanged(data);
-                        $scope.searchIsUrl = false;
-                        $scope.searchTerm = '';
-                    }).error(function(data, status, headers, config) {
+                    getwms.success(function (data, status, headers, config) {
+                        $scope.previewTheme(data);
+                    }).error(function (data, status, headers, config) {
                         $window.alert('error');
                     });
                 }
-                else
-                {
+                else {
                     alert('Deze is al toegevoegd aan de map.');
                 }
 
@@ -51,7 +69,7 @@
             };
             $scope.selectedTheme = null;
             $scope.copySelectedTheme = null;
-            $scope.themeChanged = function(theme) {
+            $scope.previewTheme = function (theme) {
                 console.log('themeChanged');
                 console.log(theme);
                 $scope.selectedTheme = theme;
@@ -59,7 +77,27 @@
                 console.log($scope.copySelectedTheme);
 
             };
-            $scope.AddOrUpdateTheme = function() {
+            $scope.geopuntThemeChanged = function (theme) {
+                // alert(theme.Type != 'WMS' && theme.Type != 'ESRI');
+                // if (theme.Type != 'wms' && theme.Type != 'esri') {
+                var url = theme.Url.trim().replace('?', '');
+                if (MapData.Themes.find(x => x.CleanUrl == url) == undefined) {
+                    var getwms = WMSService.GetCapabilities(url);
+                    getwms.success(function (data, status, headers, config) {
+
+                        $scope.previewTheme(data);
+                    }).error(function (data, status, headers, config) {
+                        $window.alert('error');
+                    });
+                }
+                else {
+                    alert('Deze is al toegevoegd aan de map.');
+                }
+                // }
+
+
+            };
+            $scope.AddOrUpdateTheme = function () {
                 console.log('AddOrUpdateTheme');
                 var allChecked = true;
                 var noneChecked = true;
@@ -115,11 +153,11 @@
                 $scope.copySelectedTheme = null;
             };
 
-            $scope.ok = function() {
+            $scope.ok = function () {
                 console.log(LayerManagementService.EnabledThemes);
                 $modalInstance.$close(LayerManagementService.EnabledThemes); // return the themes.
             };
-            $scope.cancel = function() {
+            $scope.cancel = function () {
                 $modalInstance.$dismiss('cancel is pressed'); // To close the controller with a dismiss message
             };
 
