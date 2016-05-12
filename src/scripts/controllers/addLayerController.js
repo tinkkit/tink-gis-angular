@@ -46,7 +46,7 @@
                     console.log(metadata);
                 }, function (reason) {
                     console.log(reason);
-                })
+                });
             };
             $scope.pageChanged = function() {
               console.log("JA");  
