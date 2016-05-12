@@ -10,9 +10,8 @@
         function ($scope, $modalInstance, ThemeHelper, $q, urls, MapService, MapData, GISService, LayerManagementService, WMSService, $window, $http, GeopuntService) {
             $scope.searchIsUrl = false;
             $scope.pagingCount = null;
-            $scope.numberofrecordsmatched = 20;
-            $scope.recordsAPage = 5;
-            $scope.currentPage = 1;
+            $scope.numberofrecordsmatched = 0;
+            // $scope.currentPage = 1;
             LayerManagementService.EnabledThemes.length = 0;
             LayerManagementService.AvailableThemes.length = 0;
             LayerManagementService.EnabledThemes = angular.copy(MapData.Themes);
@@ -33,23 +32,25 @@
                 else {
                     $scope.searchIsUrl = false;
                 }
-                var prom = GeopuntService.getMetaData($scope.searchTerm, 1, 5);
+                $scope.QueryGeoPunt($scope.searchTerm, 1)
+            };
+            $scope.QueryGeoPunt = function (searchTerm, page) {
+                var prom = GeopuntService.getMetaData(searchTerm, ((page - 1) * 5) + 1, 5);
                 prom.then(function (metadata) {
                     $scope.availableThemes = metadata.results;
                     $scope.searchTerm = metadata.searchterm;
                     $scope.currentrecord = metadata.currentrecord;
-                    $scope.recordsAPage = metadata.recordsAPage;
                     $scope.nextrecord = metadata.nextrecord;
                     $scope.numberofrecordsmatched = metadata.numberofrecordsmatched;
-                    $scope.numberofrecordsreturned = metadata.numberofrecordsreturned;
-                    $scope.currentPage = Math.ceil($scope.pagingStart / $scope.recordsAPage)
+                    // $scope.numberofrecordsreturned = metadata.numberofrecordsreturned;
+                    // $scope.currentPage = Math.ceil($scope.pagingStart / $scope.recordsAPage)
                     console.log(metadata);
                 }, function (reason) {
                     console.log(reason);
                 });
             };
-            $scope.pageChanged = function() {
-              console.log("JA");  
+            $scope.pageChanged = function (page, recordsAPage) {
+                $scope.QueryGeoPunt($scope.searchTerm, page)
             };
             $scope.laadUrl = function () {
                 $scope.searchTerm = $scope.searchTerm.trim().replace('?', '');

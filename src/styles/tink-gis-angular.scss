@@ -254,3 +254,10 @@ svg.leaflet-zoom-animated {
 .greytext {
   color: grey;
 }
+
+a.btn.prev,a.btn.next {
+  display: none;
+}
+div.table-sort-pagination {
+      float: left !important;
+}
