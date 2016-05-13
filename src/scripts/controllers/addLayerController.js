@@ -21,24 +21,32 @@
                 // var qwhenready = LayerManagementService.ProcessUrls(urls);
                 // qwhenready.then(function(allelagen) {
                 // $scope.searchTerm = 'http://mesonet.agron.iastate.edu/cgi-bin/wms/nexrad/n0r.cgi';
-                $scope.searchTerm = 'water';
+                $scope.searchTerm = '';
                 $scope.searchIsUrl = false;
                 // });
             } ();
+
             $scope.searchChanged = function () {
-                if ($scope.searchTerm.startsWith('http')) {
-                    $scope.searchIsUrl = true;
+                if ($scope.searchTerm != null && $scope.searchTerm != '' && $scope.searchTerm.length > 2)  {
+
+                    if ($scope.searchTerm.startsWith('http')) {
+                        $scope.searchIsUrl = true;
+                    }
+                    else {
+                        $scope.searchIsUrl = false;
+                    }
+                    $scope.QueryGeoPunt($scope.searchTerm, 1);
                 }
                 else {
-                    $scope.searchIsUrl = false;
+                    $scope.availableThemes.length = 0;
                 }
-                $scope.QueryGeoPunt($scope.searchTerm, 1)
+
+
             };
             $scope.QueryGeoPunt = function (searchTerm, page) {
                 var prom = GeopuntService.getMetaData(searchTerm, ((page - 1) * 5) + 1, 5);
                 prom.then(function (metadata) {
                     $scope.availableThemes = metadata.results;
-                    $scope.searchTerm = metadata.searchterm;
                     $scope.currentrecord = metadata.currentrecord;
                     $scope.nextrecord = metadata.nextrecord;
                     $scope.numberofrecordsmatched = metadata.numberofrecordsmatched;
@@ -50,7 +58,7 @@
                 });
             };
             $scope.pageChanged = function (page, recordsAPage) {
-                $scope.QueryGeoPunt($scope.searchTerm, page)
+                $scope.QueryGeoPunt($scope.searchTerm, page);
             };
             $scope.laadUrl = function () {
                 $scope.searchTerm = $scope.searchTerm.trim().replace('?', '');
