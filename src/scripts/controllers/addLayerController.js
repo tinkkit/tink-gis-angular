@@ -27,8 +27,8 @@
             } ();
 
             $scope.searchChanged = function () {
-                if ($scope.searchTerm != null && $scope.searchTerm != '' && $scope.searchTerm.length > 2)  {
-
+                if ($scope.searchTerm != null && $scope.searchTerm != '' && $scope.searchTerm.length > 2) {
+                    $scope.clearPreview();
                     if ($scope.searchTerm.startsWith('http')) {
                         $scope.searchIsUrl = true;
                     }
@@ -39,6 +39,7 @@
                 }
                 else {
                     $scope.availableThemes.length = 0;
+                    $scope.numberofrecordsmatched = 0;
                 }
 
 
@@ -83,8 +84,10 @@
                 console.log(theme);
                 $scope.selectedTheme = theme;
                 $scope.copySelectedTheme = angular.copy(theme);
-                console.log($scope.copySelectedTheme);
-
+            };
+            $scope.clearPreview = function () {
+                $scope.selectedTheme = null;
+                $scope.copySelectedTheme = null;
             };
             $scope.geopuntThemeChanged = function (theme) {
                 // alert(theme.Type != 'WMS' && theme.Type != 'ESRI');

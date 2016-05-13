@@ -28,7 +28,7 @@
 
         $scope.searchChanged = function () {
             if ($scope.searchTerm != null && $scope.searchTerm != '' && $scope.searchTerm.length > 2) {
-
+                $scope.clearPreview();
                 if ($scope.searchTerm.startsWith('http')) {
                     $scope.searchIsUrl = true;
                 } else {
@@ -37,6 +37,7 @@
                 $scope.QueryGeoPunt($scope.searchTerm, 1);
             } else {
                 $scope.availableThemes.length = 0;
+                $scope.numberofrecordsmatched = 0;
             }
         };
         $scope.QueryGeoPunt = function (searchTerm, page) {
@@ -78,7 +79,10 @@
             console.log(theme);
             $scope.selectedTheme = theme;
             $scope.copySelectedTheme = angular.copy(theme);
-            console.log($scope.copySelectedTheme);
+        };
+        $scope.clearPreview = function () {
+            $scope.selectedTheme = null;
+            $scope.copySelectedTheme = null;
         };
         $scope.geopuntThemeChanged = function (theme) {
             // alert(theme.Type != 'WMS' && theme.Type != 'ESRI');
@@ -1509,7 +1513,7 @@ var Style = {
             var startpos = arguments.length <= 1 || arguments[1] === undefined ? 1 : arguments[1];
             var recordsAPage = arguments.length <= 2 || arguments[2] === undefined ? 10 : arguments[2];
 
-            var url = 'https://metadata.geopunt.be/zoekdienst/srv/dut/csw?service=CSW&version=2.0.2&request=GetRecords&namespace=xmlns%28csw=http://www.opengis.net/cat/csw%29&resultType=results&outputSchema=http://www.opengis.net/cat/csw/2.0.2&outputFormat=application/xml&startPosition=' + startpos + '&maxRecords=' + recordsAPage + '&typeNames=csw:Record&elementSetName=full&constraintLanguage=CQL_TEXT&constraint_language_version=1.1.0&constraint=AnyText+LIKE+%27%25' + searchterm + '%25%27AND%20Type%20=%20%27service%27';
+            var url = 'https://metadata.geopunt.be/zoekdienst/srv/dut/csw?service=CSW&version=2.0.2&request=GetRecords&namespace=xmlns%28csw=http://www.opengis.net/cat/csw%29&resultType=results&outputSchema=http://www.opengis.net/cat/csw/2.0.2&outputFormat=application/xml&startPosition=' + startpos + '&maxRecords=' + recordsAPage + '&typeNames=csw:Record&elementSetName=full&constraintLanguage=CQL_TEXT&constraint_language_version=1.1.0&constraint=AnyText+LIKE+%27%25' + searchterm + '%25%27AND%20Type%20=%20%27service%27%20AND%20Servicetype%20=%27view%27';
             console.log("GETTING METADATA WITH ULR:", url);
             var prom = $q.defer();
             $http.get(url).success(function (data, status, headers, config) {
