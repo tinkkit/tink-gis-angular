@@ -25,7 +25,7 @@
     "tink-core": "latest",
     "tink-navigation-angular": "^2.0.1",
     "angular-logger": "~1.0.2",
-    "leaflet": "latest",
+    "leaflet": "leaflet/leaflet#v1.0.0-rc.1",
     "tink-accordion-angular": "^1.2.6",
     "angular-ui-sortable": "^0.13.4",
     "lodash": "^4.3.0",
@@ -35,9 +35,9 @@
     "angular-filter": "^0.5.8",
     "leaflet-draw": "leaflet.draw#^0.3.0",
     "leaflet-geodesy": "^0.2.1",
-    "esri-leaflet": "^1.0.2",
+    "esri-leaflet": "^2.0.0",
     "jxon": "^1.6.1",
-    "Proj4Leaflet": "proj4leaflet#~0.7.2",
+    "Proj4Leaflet": "proj4leaflet#leaflet-proj-refactor",
     "sweetalert": "^1.1.3",
     "tink-pagination-angular": "^1.0.1",
     "ng-lodash": "^0.5.0"
@@ -56,7 +56,8 @@
     "angular-animate": "~1.4.7",
     "angular-resource": "~1.4.7",
     "proj4": "^2.3.12",
-    "leaflet": "0.7.7",
-    "esri-leaflet": "^1.0.2"
+    "esri-leaflet": "^2.0.0",
+    "ng-lodash": "^0.5.0",
+    "leaflet": "v1.0.0-rc.1"
   }
 }
