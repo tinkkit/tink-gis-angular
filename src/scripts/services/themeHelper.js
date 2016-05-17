@@ -34,6 +34,7 @@
                     x.enabled = true;
                     x.parent = null;
                     x.title = x.name;
+                    x.name = x.name;
                     x.theme = thema;
                     x.type = LayerType.LAYER;
                     thema.AllLayers.push(x);

@@ -1,22 +1,22 @@
 'use strict';
-(function() {
+(function () {
     var module;
     try {
         module = angular.module('tink.gis');
     } catch (e) {
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
     }
-    var service = function($http, $window, map) {
+    var service = function ($http, $window, map) {
         var _service = {};
 
-        _service.GetCapabilities = function(url) {
+        _service.GetCapabilities = function (url) {
             var posturl = '?request=GetCapabilities&service=WMS&callback=foo';
             var prom = $http({
                 method: 'GET',
                 url: url + posturl,
                 timeout: 10000,
                 // params: {},  // Query Parameters (GET)
-                transformResponse: function(data) {
+                transformResponse: function (data) {
                     var wmstheme = {};
                     if (data) {
                         var returnjson = JXON.stringToJs(data).wms_capabilities;
@@ -37,7 +37,7 @@
                         wmstheme.Type = ThemeType.WMS;
                         wmstheme.VisibleLayerIds = [];
                         wmstheme.VisibleLayers = [];
-                        var createLayer = function(layer) {
+                        var createLayer = function (layer) {
                             var tmplayer = {};
                             tmplayer.visible = true;
                             tmplayer.enabled = true;
@@ -53,23 +53,30 @@
                         };
                         var layers = returnjson.capability.layer.layer;
                         if (layers) {
-                            layers.forEach(layer => {
-                                createLayer(layer);
-                            });
+                            if (layers.length != undefined) { // array, it has a length
+                                layers.forEach(layer => {
+                                    createLayer(layer);
+                                });
+                            }
+                            else {
+                                createLayer(layers);
+
+                            }
+
                         } else {
                             createLayer(returnjson.capability.layer);
                         }
 
 
-                        wmstheme.UpdateMap = function() {
+                        wmstheme.UpdateMap = function () {
                             wmstheme.RecalculateVisibleLayerIds();
                             map.removeLayer(wmstheme.MapData);
                             map.addLayer(wmstheme.MapData);
                         };
 
-                        wmstheme.RecalculateVisibleLayerIds = function() {
+                        wmstheme.RecalculateVisibleLayerIds = function () {
                             wmstheme.VisibleLayerIds.length = 0;
-                            _.forEach(wmstheme.VisibleLayers, function(visLayer) {
+                            _.forEach(wmstheme.VisibleLayers, function (visLayer) {
                                 wmstheme.VisibleLayerIds.push(visLayer.id);
                             });
                             if (wmstheme.VisibleLayerIds.length === 0) {
@@ -82,9 +89,9 @@
 
                     return wmstheme;
                 }
-            }).success(function(data, status, headers, config) {
+            }).success(function (data, status, headers, config) {
                 console.dir(data);  // XML document object
-            }).error(function(data, status, headers, config) {
+            }).error(function (data, status, headers, config) {
                 console.log('error: data, status, headers, config:');
                 console.log(data);
                 console.log(status);
