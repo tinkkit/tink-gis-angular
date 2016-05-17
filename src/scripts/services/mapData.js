@@ -105,9 +105,9 @@
             }
 
 
-            WatIsHierOriginalMarker.on('popupclose', function (event) {
-                _data.CleanWatIsHier();
-            });
+            // WatIsHierOriginalMarker.on('popupclose', function (event) {
+            //     _data.CleanWatIsHier();
+            // });
         };
         var straatNaam = null;
         _data.CreateWatIsHierMarker = function (data) {

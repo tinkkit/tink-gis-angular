@@ -1585,9 +1585,9 @@ var Style = {
                 //     '<br>Lambert (x,y):' + convertedxy.x.toFixed(1) + ',' + convertedxy.y.toFixed(1)).openPopup();
             }
 
-            WatIsHierOriginalMarker.on('popupclose', function (event) {
-                _data.CleanWatIsHier();
-            });
+            // WatIsHierOriginalMarker.on('popupclose', function (event) {
+            //     _data.CleanWatIsHier();
+            // });
         };
         var straatNaam = null;
         _data.CreateWatIsHierMarker = function (data) {
