@@ -25,7 +25,7 @@
     "tink-core": "latest",
     "tink-navigation-angular": "^2.0.1",
     "angular-logger": "~1.0.2",
-    "leaflet": "leaflet/leaflet#v1.0.0-rc.1",
+    "leaflet": "v1.0.0-rc.1",
     "tink-accordion-angular": "^1.2.6",
     "angular-ui-sortable": "^0.13.4",
     "lodash": "^4.3.0",
@@ -57,7 +57,7 @@
     "angular-resource": "~1.4.7",
     "proj4": "^2.3.12",
     "esri-leaflet": "^2.0.0",
-    "ng-lodash": "^0.5.0",
-    "leaflet": "v1.0.0-rc.1"
+    "ng-lodash": "^0.5.0"
+   
   }
 }

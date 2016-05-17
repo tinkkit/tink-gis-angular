@@ -196,7 +196,7 @@
 
 .ll {
   position: absolute;
-  z-index: 1; }
+  z-index: 600; }
 
 .interactiebtns {
   left: 0.7142857143rem ;
@@ -303,11 +303,6 @@ button.btn.active {
   margin-bottom: 5px;
   display: block; }
 
-.modal-dialog {
-  min-width: 800px;
-  background-color: white;
-  text-align: left; }
-
 .modal-header {
   padding: 15px;
   border-bottom: 1px solid gray; }
@@ -366,7 +361,13 @@ svg.leaflet-zoom-animated {
   z-index: auto; }
 
 .modal-dialog {
-  min-width: 1000px; }
+  min-width: 1000px;
+  background-color: white;
+  text-align: left;
+  z-index: 9999; }
+
+.modal {
+  z-index: 9998; }
 
 .greytext {
   color: grey; }
