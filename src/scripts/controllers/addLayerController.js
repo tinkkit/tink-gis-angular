@@ -34,8 +34,8 @@
                     }
                     else {
                         $scope.searchIsUrl = false;
+                        $scope.QueryGISSOLR($scope.searchTerm);
                     }
-                    $scope.QueryGeoPunt($scope.searchTerm, 1);
                 }
                 else {
                     $scope.availableThemes.length = 0;
@@ -43,6 +43,9 @@
                 }
 
 
+            };
+            $scope.QueryGISSOLR = function (searchterm) {
+                GISService.QuerySOLRGIS(searchterm);
             };
             $scope.QueryGeoPunt = function (searchTerm, page) {
                 var prom = GeopuntService.getMetaData(searchTerm, ((page - 1) * 5) + 1, 5);
