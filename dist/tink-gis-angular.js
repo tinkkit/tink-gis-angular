@@ -33,12 +33,15 @@
                     $scope.searchIsUrl = true;
                 } else {
                     $scope.searchIsUrl = false;
+                    $scope.QueryGISSOLR($scope.searchTerm);
                 }
-                $scope.QueryGeoPunt($scope.searchTerm, 1);
             } else {
                 $scope.availableThemes.length = 0;
                 $scope.numberofrecordsmatched = 0;
             }
+        };
+        $scope.QueryGISSOLR = function (searchterm) {
+            GISService.QuerySOLRGIS(searchterm);
         };
         $scope.QueryGeoPunt = function (searchTerm, page) {
             var prom = GeopuntService.getMetaData(searchTerm, (page - 1) * 5 + 1, 5);
@@ -999,10 +1002,14 @@ var Style = {
                     MapData.CreateOrigineleMarker(event.latlng, false);
                 }
             }).error(function (data, status, headers, config) {
-                console.log("ERROR!");
-                console.log(status);
-                console.log(headers);
+                console.log("ERROR!", status, headers, data);
+            });
+        };
+        _service.QuerySOLRGIS = function (searchterm) {
+            $http.get('http://esb-app1-o.antwerpen.be/v1/giszoek/solr/search?q=*' + searchterm + '*&wt=json&indent=true').success(function (data, status, headers, config) {
                 console.log(data);
+            }).error(function (data, status, headers, config) {
+                console.log("ERROR!", status, headers, data);
             });
         };
         _service.GetThemeData = function (url) {
