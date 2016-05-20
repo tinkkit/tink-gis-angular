@@ -7,27 +7,55 @@
     } catch (e) {
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
     }
-    module.controller('addLayerController', ['$scope', '$modalInstance', 'ThemeHelper', '$q', 'urls', 'MapService', 'MapData', 'GISService', 'LayerManagementService', 'WMSService', '$window', '$http', function ($scope, $modalInstance, ThemeHelper, $q, urls, MapService, MapData, GISService, LayerManagementService, WMSService, $window, $http) {
+    module.controller('addLayerController', ['$scope', '$modalInstance', 'ThemeHelper', '$q', 'urls', 'MapService', 'MapData', 'GISService', 'LayerManagementService', 'WMSService', '$window', '$http', 'GeopuntService', function ($scope, $modalInstance, ThemeHelper, $q, urls, MapService, MapData, GISService, LayerManagementService, WMSService, $window, $http, GeopuntService) {
         $scope.searchIsUrl = false;
+        $scope.pagingCount = null;
+        $scope.numberofrecordsmatched = 0;
+        // $scope.currentPage = 1;
         LayerManagementService.EnabledThemes.length = 0;
         LayerManagementService.AvailableThemes.length = 0;
         LayerManagementService.EnabledThemes = angular.copy(MapData.Themes);
-        $scope.availableThemes = LayerManagementService.AvailableThemes;
+        $scope.availableThemes = [];
         var init = function () {
-            $scope.searchTerm = 'Laden...';
-            var qwhenready = LayerManagementService.ProcessUrls(urls);
-            qwhenready.then(function (allelagen) {
-                // $scope.searchTerm = 'http://mesonet.agron.iastate.edu/cgi-bin/wms/nexrad/n0r.cgi';
-                $scope.searchTerm = '';
-                $scope.searchIsUrl = false;
-            });
+            // $scope.searchTerm = 'Laden...';
+            // var qwhenready = LayerManagementService.ProcessUrls(urls);
+            // qwhenready.then(function(allelagen) {
+            // $scope.searchTerm = 'http://mesonet.agron.iastate.edu/cgi-bin/wms/nexrad/n0r.cgi';
+            $scope.searchTerm = '';
+            $scope.searchIsUrl = false;
+            // });
         }();
+
         $scope.searchChanged = function () {
-            if ($scope.searchTerm.startsWith('http')) {
-                $scope.searchIsUrl = true;
+            if ($scope.searchTerm != null && $scope.searchTerm != '' && $scope.searchTerm.length > 2) {
+                $scope.clearPreview();
+                if ($scope.searchTerm.startsWith('http')) {
+                    $scope.searchIsUrl = true;
+                } else {
+                    $scope.searchIsUrl = false;
+                }
+                $scope.QueryGeoPunt($scope.searchTerm, 1);
             } else {
-                $scope.searchIsUrl = false;
+                $scope.availableThemes.length = 0;
+                $scope.numberofrecordsmatched = 0;
             }
+        };
+        $scope.QueryGeoPunt = function (searchTerm, page) {
+            var prom = GeopuntService.getMetaData(searchTerm, (page - 1) * 5 + 1, 5);
+            prom.then(function (metadata) {
+                $scope.availableThemes = metadata.results;
+                $scope.currentrecord = metadata.currentrecord;
+                $scope.nextrecord = metadata.nextrecord;
+                $scope.numberofrecordsmatched = metadata.numberofrecordsmatched;
+                // $scope.numberofrecordsreturned = metadata.numberofrecordsreturned;
+                // $scope.currentPage = Math.ceil($scope.pagingStart / $scope.recordsAPage)
+                console.log(metadata);
+            }, function (reason) {
+                console.log(reason);
+            });
+        };
+        $scope.pageChanged = function (page, recordsAPage) {
+            $scope.QueryGeoPunt($scope.searchTerm, page);
         };
         $scope.laadUrl = function () {
             $scope.searchTerm = $scope.searchTerm.trim().replace('?', '');
@@ -36,9 +64,7 @@
             }) == undefined) {
                 var getwms = WMSService.GetCapabilities($scope.searchTerm);
                 getwms.success(function (data, status, headers, config) {
-                    $scope.themeChanged(data);
-                    $scope.searchIsUrl = false;
-                    $scope.searchTerm = '';
+                    $scope.previewTheme(data);
                 }).error(function (data, status, headers, config) {
                     $window.alert('error');
                 });
@@ -48,12 +74,34 @@
         };
         $scope.selectedTheme = null;
         $scope.copySelectedTheme = null;
-        $scope.themeChanged = function (theme) {
+        $scope.previewTheme = function (theme) {
             console.log('themeChanged');
             console.log(theme);
             $scope.selectedTheme = theme;
             $scope.copySelectedTheme = angular.copy(theme);
-            console.log($scope.copySelectedTheme);
+        };
+        $scope.clearPreview = function () {
+            $scope.selectedTheme = null;
+            $scope.copySelectedTheme = null;
+        };
+        $scope.geopuntThemeChanged = function (theme) {
+            // alert(theme.Type != 'WMS' && theme.Type != 'ESRI');
+            // if (theme.Type != 'wms' && theme.Type != 'esri') {
+            var url = theme.Url.trim().replace('?', '');
+            if (MapData.Themes.find(function (x) {
+                return x.CleanUrl == url;
+            }) == undefined) {
+                var getwms = WMSService.GetCapabilities(url);
+                getwms.success(function (data, status, headers, config) {
+
+                    $scope.previewTheme(data);
+                }).error(function (data, status, headers, config) {
+                    $window.alert('error');
+                });
+            } else {
+                alert('Deze is al toegevoegd aan de map.');
+            }
+            // }
         };
         $scope.AddOrUpdateTheme = function () {
             console.log('AddOrUpdateTheme');
@@ -496,14 +544,15 @@
     try {
         module = angular.module('tink.gis');
     } catch (e) {
-        module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
+        module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter', 'tink.pagination']); //'leaflet-directive'
     }
     module.constant('appConfig', {
-        templateUrl: "/digipolis.stadinkaart.webui",
-        apiUrl: "/digipolis.stadinkaart.api/",
+        templateUrl: '/digipolis.stadinkaart.webui',
+        apiUrl: '/digipolis.stadinkaart.api/',
         enableDebug: true,
         enableLog: true
     });
+
     module.directive('preventDefault', function () {
         return function (scope, element, attrs) {
             angular.element(element).bind('click', function (event) {
@@ -552,7 +601,7 @@
         // }).addTo(map);
 
         map.doubleClickZoom.disable();
-        L.control.scale({ imperial: false }).addTo(map);
+        // L.control.scale({ imperial: false }).addTo(map);
         var drawnItems = L.featureGroup().addTo(map);
         map.on('draw:created', function (event) {
             var layer = event.layer;
@@ -563,14 +612,14 @@
             //map.clearDrawings();
         });
         map.clearDrawings = function () {
-            console.log("clearingDrawings");
+            console.log('clearingDrawings');
             console.log(drawnItems);
             drawnItems.clearLayers();
         };
 
         return map;
     };
-    module.factory("map", mapObject);
+    module.factory('map', mapObject);
 })();
 
 //Moet plaats voor zoeken!!! Enums in Angular hmm
@@ -585,10 +634,10 @@ var LayerType = {
     GROUP: 1
 };
 var ActiveInteractieButton = {
-    IDENTIFY: "identify",
-    SELECT: "select",
-    METEN: "meten",
-    WATISHIER: "watishier"
+    IDENTIFY: 'identify',
+    SELECT: 'select',
+    METEN: 'meten',
+    WATISHIER: 'watishier'
 };
 var DrawingOption = {
     NIETS: '',
@@ -669,6 +718,11 @@ var Style = {
         });
         vm.deleteFeature = function (feature) {
             SearchService.DeleteFeature(feature);
+        };
+        vm.aantalFeaturesMetType = function (type) {
+            return vm.features.filter(function (x) {
+                return x.layerName == type;
+            }).length;
         };
         vm.HoveredFeature = null;
         vm.HoverOver = function (feature) {
@@ -1021,9 +1075,14 @@ var Style = {
                         };
                         var layers = returnjson.capability.layer.layer;
                         if (layers) {
-                            layers.forEach(function (layer) {
-                                createLayer(layer);
-                            });
+                            if (layers.length != undefined) {
+                                // array, it has a length
+                                layers.forEach(function (layer) {
+                                    createLayer(layer);
+                                });
+                            } else {
+                                createLayer(layers);
+                            }
                         } else {
                             createLayer(returnjson.capability.layer);
                         }
@@ -1274,6 +1333,75 @@ var Style = {
 
 (function () {
     var module = angular.module('tink.gis');
+    var service = function service($http, map, MapData, $rootScope, $q) {
+        var _service = {};
+        _service.getMetaData = function () {
+            var searchterm = arguments.length <= 0 || arguments[0] === undefined ? 'water' : arguments[0];
+            var startpos = arguments.length <= 1 || arguments[1] === undefined ? 1 : arguments[1];
+            var recordsAPage = arguments.length <= 2 || arguments[2] === undefined ? 10 : arguments[2];
+
+            var url = 'https://metadata.geopunt.be/zoekdienst/srv/dut/csw?service=CSW&version=2.0.2&request=GetRecords&namespace=xmlns%28csw=http://www.opengis.net/cat/csw%29&resultType=results&outputSchema=http://www.opengis.net/cat/csw/2.0.2&outputFormat=application/xml&startPosition=' + startpos + '&maxRecords=' + recordsAPage + '&typeNames=csw:Record&elementSetName=full&constraintLanguage=CQL_TEXT&constraint_language_version=1.1.0&constraint=AnyText+LIKE+%27%25' + searchterm + '%25%27AND%20Type%20=%20%27service%27%20AND%20Servicetype%20=%27view%27';
+            console.log("GETTING METADATA WITH ULR:", url);
+            var prom = $q.defer();
+            $http.get(url).success(function (data, status, headers, config) {
+                if (data) {
+                    var returnjson = JXON.stringToJs(data);
+                    var getResults = returnjson['csw:getrecordsresponse']['csw:searchresults'];
+                    var returnObject = {};
+                    returnObject.searchTerm = searchterm;
+                    returnObject.currentrecord = startpos;
+                    returnObject.recordsAPage = recordsAPage;
+                    returnObject.nextrecord = getResults.nextrecord;
+                    returnObject.numberofrecordsmatched = getResults.numberofrecordsmatched;
+                    returnObject.numberofrecordsreturned = getResults.numberofrecordsreturned;
+                    returnObject.results = [];
+                    if (returnObject.numberofrecordsmatched != 0) {
+                        // only foreach when there are items
+                        getResults['csw:record'].forEach(function (record) {
+                            if (record['dc:uri'] instanceof Array == false) {
+                                var tmpdata = record['dc:uri'];
+                                record['dc:uri'] = [];
+                                record['dc:uri'].push(tmpdata);
+                            }
+                            var tmptheme = {};
+                            tmptheme.Added = false;
+                            tmptheme.Naam = record['dc:title'];
+                            var wmsinfo = record['dc:uri'].find(function (x) {
+                                return x.protocol == 'WMS' || x.protocol == 'OGC:WMS';
+                            });
+                            if (wmsinfo) {
+                                tmptheme.Url = wmsinfo.keyValue;
+                                tmptheme.Type = ThemeType.WMS;
+                            } else {
+                                tmptheme.Type = 'DONTKNOW';
+                            }
+                            tmptheme.TMPMETADATA = record;
+                            returnObject.results.push(tmptheme);
+                        });
+                    }
+
+                    prom.resolve(returnObject);
+                    // console.log(getResults['csw:record']);
+                } else {
+                        prom.reject(null);
+                        console.log('EMPTY RESULT');
+                    }
+            }).error(function (data, status, headers, config) {
+                prom.reject(null);
+                console.log("ERROR!", data, status, headers, config);
+            });
+            return prom.promise;
+        };
+        return _service;
+    };
+    module.$inject = ["$http", 'map', 'MapData', '$rootScope', '$q'];
+    module.factory("GeopuntService", service);
+})();
+//# sourceMappingURL=geopuntService.js.map
+;'use strict';
+
+(function () {
+    var module = angular.module('tink.gis');
     var service = function service() {
         var _service = {};
         proj4.defs('EPSG:31370', '+proj=lcc +lat_1=51.16666723333334 +lat_2=49.83333389999999 +lat_0=90 +lon_0=4.367486666666666 +x_0=150000.013 +y_0=5400088.438' + ' +ellps=intl +towgs84=-99.1,53.3,-112.5,0.419,-0.83,1.885,-1.0 +units=m +no_defs');
@@ -1447,20 +1575,19 @@ var Style = {
             }
             var convertedxy = HelperService.ConvertWSG84ToLambert72(latlng);
             if (straatNaam) {
-                var html = '<div class="container container-low-padding">' + '<div class="row row-no-padding">' + '<div class="col-sm-4">' + '<a href="templates/external/streetView.html?lat=' + latlng.lat + '&lng=' + latlng.lng + '" + target="_blank" >' + '<img src="https://maps.googleapis.com/maps/api/streetview?size=100x50&location=' + latlng.lat + ',' + latlng.lng + '&pitch=-0.76" />' + '</a>' + '</div>' + '<div class="col-sm-8">' + '<div class="col-sm-12"><b>' + straatNaam + '</b></div>' +
-                // '<div class="row">' +
-                '<div class="col-sm-3">WGS84:</div><div class="col-sm-8" style="text-align: left;">' + latlng.lat.toFixed(6) + ', ' + latlng.lng.toFixed(6) + '</div><div class="col-sm-1"><i class="fa fa-files-o"></i></div>' + '<div class="col-sm-3">Lambert:</div><div class="col-sm-8" style="text-align: left;">' + convertedxy.x.toFixed(1) + ', ' + convertedxy.y.toFixed(1) + '</div><div class="col-sm-1"><i class="fa fa-files-o"></i></div>' +
-                // '<div class="row">Lambert (x,y):' + convertedxy.x.toFixed(1) + ',' + convertedxy.y.toFixed(1) + '</div>' +
-                '</div>' + '</div>' + '</div>';
-                // var html = '<tink-Theme></tink-Theme>'
+                var html = '<div class="container container-low-padding">' + '<div class="row row-no-padding">' + '<div class="col-sm-4">' + '<a href="templates/external/streetView.html?lat=' + latlng.lat + '&lng=' + latlng.lng + '" + target="_blank" >' + '<img src="https://maps.googleapis.com/maps/api/streetview?size=100x50&location=' + latlng.lat + ',' + latlng.lng + '&pitch=-0.76" />' + '</a>' + '</div>' + '<div class="col-sm-8">' + '<div class="col-sm-12"><b>' + straatNaam + '</b></div>' + '<div class="col-sm-3">WGS84:</div><div class="col-sm-8" style="text-align: left;">' + latlng.lat.toFixed(6) + ', ' + latlng.lng.toFixed(6) + '</div><div class="col-sm-1"><i class="fa fa-files-o"></i></div>' + '<div class="col-sm-3">Lambert:</div><div class="col-sm-8" style="text-align: left;">' + convertedxy.x.toFixed(1) + ', ' + convertedxy.y.toFixed(1) + '</div><div class="col-sm-1"><i class="fa fa-files-o"></i></div>' + '</div>' + '</div>' + '</div>';
                 WatIsHierOriginalMarker.bindPopup(html, { minWidth: 300 }).openPopup();
             } else {
-                WatIsHierOriginalMarker.bindPopup('WGS84 (x,y):' + latlng.lat.toFixed(6) + ',' + latlng.lng.toFixed(6) + '<br>Lambert (x,y):' + convertedxy.x.toFixed(1) + ',' + convertedxy.y.toFixed(1)).openPopup();
+                var html = '<div class="container container-low-padding">' + '<div class="row row-no-padding">' + '<div class="col-sm-3">WGS84:</div><div class="col-sm-8" style="text-align: left;">' + latlng.lat.toFixed(6) + ', ' + latlng.lng.toFixed(6) + '</div><div class="col-sm-1"><i class="fa fa-files-o"></i></div>' + '<div class="col-sm-3">Lambert:</div><div class="col-sm-8" style="text-align: left;">' + convertedxy.x.toFixed(1) + ', ' + convertedxy.y.toFixed(1) + '</div><div class="col-sm-1"><i class="fa fa-files-o"></i></div>' + '</div>' + '</div>';
+                WatIsHierOriginalMarker.bindPopup(html, { minWidth: 200 }).openPopup();
+                // WatIsHierOriginalMarker.bindPopup(
+                //     'WGS84 (x,y):' + latlng.lat.toFixed(6) + ',' + latlng.lng.toFixed(6) +
+                //     '<br>Lambert (x,y):' + convertedxy.x.toFixed(1) + ',' + convertedxy.y.toFixed(1)).openPopup();
             }
 
-            WatIsHierOriginalMarker.on('popupclose', function (event) {
-                _data.CleanWatIsHier();
-            });
+            // WatIsHierOriginalMarker.on('popupclose', function (event) {
+            //     _data.CleanWatIsHier();
+            // });
         };
         var straatNaam = null;
         _data.CreateWatIsHierMarker = function (data) {
@@ -1916,6 +2043,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                     x.enabled = true;
                     x.parent = null;
                     x.title = x.name;
+                    x.name = x.name;
                     x.theme = thema;
                     x.type = LayerType.LAYER;
                     thema.AllLayers.push(x);
@@ -2129,8 +2257,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                     theme.MapData.on('load', function (e) {
                         console.log('LOAD VAN ' + theme.Naam);
                         console.log(theme.MapData);
-                        if (theme.MapData._tileContainer.children) {
-                            [].slice.call(theme.MapData._tileContainer.childNodes).forEach(function (imgNode) {
+                        if (theme.MapData._container.childNodes) {
+                            [].slice.call(theme.MapData._container.childNodes).forEach(function (imgNode) {
                                 imgNode.style.zIndex = theme.MapData.ZIndex;
                             });
                             // theme.MapData._currentImage._image.style.zIndex = theme.MapData.ZIndex;
@@ -2601,15 +2729,15 @@ L.drawLocal = {
 
 
   $templateCache.put('templates/modals/addLayerModalTemplate.html',
-    "<div> <div class=modal-header> <button type=button style=float:right data-ng-click=cancel()><i class=\"fa fa-times\"></i></button> <h4 class=model-title>Laag toevoegen </h4></div> <div class=modal-content> <div class=row> <div class=col-md-4> <input class=searchbox ng-model=searchTerm ng-change=searchChanged() placeholder=\"Geef een trefwoord of een url in\">\n" +
-    "<input disabled value=\"https://geodata.antwerpen.be/arcgissql/services/P_SiK/Groeninventaris/MapServer/WMSServer\"> <div ng-if=!searchIsUrl ng-repeat=\"theme in availableThemes | filter: { Naam: searchTerm } | orderBy: 'Naam'\"> <div ng-click=themeChanged(theme)> {{theme.Naam}}\n" +
+    "<div> <div class=modal-header> <button type=button style=float:right data-ng-click=cancel()><i class=\"fa fa-times\"></i></button> <h4 class=model-title>Laag toevoegen </h4></div> <div class=modal-content> <div class=row> <div class=col-md-4> <input class=searchbox ng-model=searchTerm ng-change=searchChanged() ng-model-options=\"{debounce: 500}\" placeholder=\"Geef een trefwoord of een url in\">\n" +
+    "<input disabled value=\"https://geodata.antwerpen.be/arcgissql/services/P_SiK/Groeninventaris/MapServer/WMSServer\"> <div ng-if=!searchIsUrl ng-repeat=\"theme in availableThemes\"> <div ng-click=geopuntThemeChanged(theme) ng-class=\"{'greytext': theme.Type != 'wms' &&  theme.Type != 'esri'}\"> {{theme.Naam}}\n" +
     "<i ng-if=\"theme.Added == true\" class=\"fa fa-check-circle\"></i>\n" +
-    "<i ng-if=\"theme.Added == null\" class=\"fa fa-check-circle-o\"></i> </div> </div> </div> <div class=col-md-8> <div ng-if=searchIsUrl> <button ng-click=laadUrl()>Laad url</button> </div> <div ng-if=\"copySelectedTheme !== null && !searchIsUrl\"> <button ng-if=\"copySelectedTheme.Added != false\" data-ng-click=AddOrUpdateTheme()>Update</button> <p>{{copySelectedTheme.Description}}</p> <p><small><a ng-href={{copySelectedTheme.CleanUrl}} target=_blank>Details</a></small></p> <div class=layercontroller-checkbox> <input indeterminate-checkbox child-list=copySelectedTheme.AllLayers property=enabled type=checkbox ng-model=copySelectedTheme.enabled id={{copySelectedTheme.name}}> <label for={{copySelectedTheme.name}}> {{copySelectedTheme.name | limitTo: 99}}</label> <div ng-repeat=\"mainlayer in copySelectedTheme.Layers\"> <div class=layercontroller-checkbox> <input type=checkbox ng-model=mainlayer.enabled id={{mainlayer.name}}{{mainlayer.id}}> <label for={{mainlayer.name}}{{mainlayer.id}}> {{mainlayer.name | limitTo: 99}}</label> </div> </div> <div ng-repeat=\"groupLayer in copySelectedTheme.Groups\"> <div class=layercontroller-checkbox> <input indeterminate-checkbox child-list=groupLayer.Layers property=enabled type=checkbox ng-model=groupLayer.enabled id={{groupLayer.name}}{{groupLayer.id}}> <label for={{groupLayer.name}}{{groupLayer.id}}> {{groupLayer.name | limitTo: 99}}</label> <div ng-repeat=\"layer in groupLayer.Layers\"> <div class=layercontroller-checkbox> <input type=checkbox ng-model=layer.enabled ng-change=layer.chkChanged() id={{layer.name}}{{layer.id}}> <label for={{layer.name}}{{layer.id}}> {{layer.name | limitTo: 99}}</label> </div> </div> </div> </div> </div> <button ng-if=\"copySelectedTheme.Added == false\" data-ng-click=AddOrUpdateTheme()>Toevoegen</button> </div> </div> </div> </div> <div class=modal-footer> <button data-ng-click=ok()>Klaar</button> </div> </div>"
+    "<i ng-if=\"theme.Added == null\" class=\"fa fa-check-circle-o\"></i> </div> </div> <tink-pagination ng-hide=\"numberofrecordsmatched == 0\" tink-items-per-page-values=[5] tink-current-page=currentPage tink-change=pageChanged(page,perPage,next) tink-total-items=numberofrecordsmatched tink-items-per-page=recordsAPage></tink-pagination> </div> <div class=col-md-8> <div ng-if=searchIsUrl> <button ng-click=laadUrl()>Laad url</button> </div> <div ng-if=\"copySelectedTheme !== null\"> <button ng-if=\"copySelectedTheme.Added != false\" data-ng-click=AddOrUpdateTheme()>Update</button> <p>{{copySelectedTheme.Description}}</p> <p><small><a ng-href={{copySelectedTheme.CleanUrl}} target=_blank>Details</a></small></p> <div class=layercontroller-checkbox> <input indeterminate-checkbox child-list=copySelectedTheme.AllLayers property=enabled type=checkbox ng-model=copySelectedTheme.enabled id={{copySelectedTheme.name}}> <label for={{copySelectedTheme.name}}> {{copySelectedTheme.name | limitTo: 99}}</label> <div ng-repeat=\"mainlayer in copySelectedTheme.Layers\"> <div class=layercontroller-checkbox> <input type=checkbox ng-model=mainlayer.enabled id={{mainlayer.name}}{{mainlayer.id}}> <label for={{mainlayer.name}}{{mainlayer.id}}> {{mainlayer.title | limitTo: 99}}</label> </div> </div> <div ng-repeat=\"groupLayer in copySelectedTheme.Groups\"> <div class=layercontroller-checkbox> <input indeterminate-checkbox child-list=groupLayer.Layers property=enabled type=checkbox ng-model=groupLayer.enabled id={{groupLayer.name}}{{groupLayer.id}}> <label for={{groupLayer.name}}{{groupLayer.id}}> {{groupLayer.title | limitTo: 99}}</label> <div ng-repeat=\"layer in groupLayer.Layers\"> <div class=layercontroller-checkbox> <input type=checkbox ng-model=layer.enabled ng-change=layer.chkChanged() id={{layer.name}}{{layer.id}}> <label for={{layer.name}}{{layer.id}}> {{layer.title | limitTo: 99}}</label> </div> </div> </div> </div> </div> <button ng-if=\"copySelectedTheme.Added == false\" data-ng-click=AddOrUpdateTheme()>Toevoegen</button> </div> </div> </div> </div> <div class=modal-footer> <button data-ng-click=ok()>Klaar</button> </div> </div>"
   );
 
 
   $templateCache.put('templates/search/searchResultsTemplate.html',
-    "<div ng-if=\"!srchrsltsctrl.selectedResult && srchrsltsctrl.featureLayers.length > 0\"> <select ng-model=srchrsltsctrl.layerGroupFilter> <option value=geenfilter selected>Geen filter</option> <option ng-repeat=\"feat in srchrsltsctrl.featureLayers\" value={{feat}}>{{feat}}</option> </select> <ul ng-repeat=\"layerGroupName in srchrsltsctrl.featureLayers\"> <tink-accordion ng-if=\"srchrsltsctrl.layerGroupFilter=='geenfilter' || srchrsltsctrl.layerGroupFilter==layerGroupName \" data-start-open=true data-one-at-a-time=false> <tink-accordion-panel> <data-header> <p class=nav-aside-title>{{layerGroupName}}\n" +
+    "<div ng-if=\"!srchrsltsctrl.selectedResult && srchrsltsctrl.featureLayers.length > 0\"> <select ng-model=srchrsltsctrl.layerGroupFilter> <option value=geenfilter selected>Geen filter ({{srchrsltsctrl.features.length}})</option> <option ng-repeat=\"feat in srchrsltsctrl.featureLayers\" value={{feat}}>{{feat}} ({{srchrsltsctrl.aantalFeaturesMetType(feat)}})</option> </select> <ul ng-repeat=\"layerGroupName in srchrsltsctrl.featureLayers\"> <tink-accordion ng-if=\"srchrsltsctrl.layerGroupFilter=='geenfilter' || srchrsltsctrl.layerGroupFilter==layerGroupName \" data-start-open=true data-one-at-a-time=false> <tink-accordion-panel> <data-header> <p class=nav-aside-title>{{layerGroupName}} ({{srchrsltsctrl.aantalFeaturesMetType(layerGroupName)}})\n" +
     "<button prevent-default ng-click=srchrsltsctrl.deleteFeatureGroup(layerGroupName) class=pull-right><i class=\"fa fa-trash\"></i></button> </p>  </data-header> <data-content> <li ng-repeat=\"feature in srchrsltsctrl.features | filter: { layerName:layerGroupName } :true\" ng-mouseover=srchrsltsctrl.HoverOver(feature)>  <a ng-if=!feature.hoverEdit ng-click=srchrsltsctrl.showDetails(feature)>{{ feature.displayValue | limitTo : 23}}<br>DETAILS</a> <div ng-if=feature.hoverEdit> <a ng-click=srchrsltsctrl.showDetails(feature)>{{ feature.displayValue}} <br>DETAILS</a>\n" +
     "<a prevent-default ng-click=srchrsltsctrl.deleteFeature(feature)><i class=\"fa fa-trash\"></i></a> </div> </li> </data-content> </tink-accordion-panel> </tink-accordion> </ul> <a ng-click=srchrsltsctrl.exportToCSV()>Export to CSV</a> </div>"
   );

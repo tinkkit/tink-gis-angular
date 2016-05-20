@@ -83,27 +83,31 @@
                     '</div>' +
                     '<div class="col-sm-8">' +
                     '<div class="col-sm-12"><b>' + straatNaam + '</b></div>' +
-                    // '<div class="row">' +
                     '<div class="col-sm-3">WGS84:</div><div class="col-sm-8" style="text-align: left;">' + latlng.lat.toFixed(6) + ', ' + latlng.lng.toFixed(6) + '</div><div class="col-sm-1"><i class="fa fa-files-o"></i></div>' +
                     '<div class="col-sm-3">Lambert:</div><div class="col-sm-8" style="text-align: left;">' + convertedxy.x.toFixed(1) + ', ' + convertedxy.y.toFixed(1) + '</div><div class="col-sm-1"><i class="fa fa-files-o"></i></div>' +
-                    // '<div class="row">Lambert (x,y):' + convertedxy.x.toFixed(1) + ',' + convertedxy.y.toFixed(1) + '</div>' +
                     '</div>' +
                     '</div>' +
-
                     '</div>';
-                // var html = '<tink-Theme></tink-Theme>'
                 WatIsHierOriginalMarker.bindPopup(html, { minWidth: 300 }).openPopup();
             }
             else {
-                WatIsHierOriginalMarker.bindPopup(
-                    'WGS84 (x,y):' + latlng.lat.toFixed(6) + ',' + latlng.lng.toFixed(6) +
-                    '<br>Lambert (x,y):' + convertedxy.x.toFixed(1) + ',' + convertedxy.y.toFixed(1)).openPopup();
+                var html =
+                    '<div class="container container-low-padding">' +
+                    '<div class="row row-no-padding">' +
+                    '<div class="col-sm-3">WGS84:</div><div class="col-sm-8" style="text-align: left;">' + latlng.lat.toFixed(6) + ', ' + latlng.lng.toFixed(6) + '</div><div class="col-sm-1"><i class="fa fa-files-o"></i></div>' +
+                    '<div class="col-sm-3">Lambert:</div><div class="col-sm-8" style="text-align: left;">' + convertedxy.x.toFixed(1) + ', ' + convertedxy.y.toFixed(1) + '</div><div class="col-sm-1"><i class="fa fa-files-o"></i></div>' +
+                    '</div>' +
+                    '</div>';
+                WatIsHierOriginalMarker.bindPopup(html, { minWidth: 200 }).openPopup();
+                // WatIsHierOriginalMarker.bindPopup(
+                //     'WGS84 (x,y):' + latlng.lat.toFixed(6) + ',' + latlng.lng.toFixed(6) +
+                //     '<br>Lambert (x,y):' + convertedxy.x.toFixed(1) + ',' + convertedxy.y.toFixed(1)).openPopup();
             }
 
 
-            WatIsHierOriginalMarker.on('popupclose', function (event) {
-                _data.CleanWatIsHier();
-            });
+            // WatIsHierOriginalMarker.on('popupclose', function (event) {
+            //     _data.CleanWatIsHier();
+            // });
         };
         var straatNaam = null;
         _data.CreateWatIsHierMarker = function (data) {

@@ -9,11 +9,12 @@
     <meta name="viewport" content="initial-scale=1.0,user-scalable=no,minimum-scale=1.0">
     <!-- bower:css -->
     <link rel='stylesheet' href='bower_components/tink-core/dist/tink.css' />
-    <link rel='stylesheet' href='bower_components/leaflet/dist/leaflet.css' />
     <link rel='stylesheet' href='bower_components/leaflet-dist/leaflet.css' />
     <link rel='stylesheet' href='bower_components/sweetalert/dist/sweetalert.css' />
     <!-- endbower -->
     <link rel="stylesheet" href="styles/tink-gis-angular.css" />
+    <link rel="stylesheet" href="bower_components/Leaflet.awesome-markers/dist/leaflet.awesome-markers.css">
+    <link href='bower_components/leaflet-draw/dist/leaflet.draw.css' rel='stylesheet' />
 
 
 
@@ -39,36 +40,36 @@
     <script src="bower_components/angular-ui-sortable/sortable.js"></script>
     <script src="bower_components/proj4/dist/proj4.js"></script>
     <script src="bower_components/angular-filter/dist/angular-filter.min.js"></script>
-    <script src="bower_components/leaflet-dist/leaflet.js"></script>
     <script src="bower_components/leaflet-draw/dist/leaflet.draw-src.js"></script>
     <script src="bower_components/jxon/index.js"></script>
-    <script src="bower_components/Proj4Leaflet/src/proj4leaflet.js"></script>
     <script src="bower_components/sweetalert/dist/sweetalert.min.js"></script>
+    <script src="bower_components/ng-lodash/build/ng-lodash.js"></script>
+    <script src="bower_components/tink-helper-safe-apply-angular/dist/tink-helper-safe-apply-angular.js"></script>
+    <script src="bower_components/tink-pagination-angular/dist/tink-pagination-angular.js"></script>
     <!-- endbower -->
+    <script src='bower_components/leaflet-geodesy/leaflet-geodesy.js'></script>
+    <script src="bower_components/esri-leaflet/dist/esri-leaflet.js"></script>
+    <script src="bower_components/Leaflet.awesome-markers/dist/leaflet.awesome-markers.js"></script>
 
     <script src="bower_components/tink-modal-angular/dist/tink-modal-angular.js"></script>
 
     <script src="bower_components/angular-filter/dist/angular-filter.js"></script>
-
-    <script src="bower_components/Leaflet.awesome-markers/dist/leaflet.awesome-markers.js"></script>
-    <link rel="stylesheet" href="bower_components/Leaflet.awesome-markers/dist/leaflet.awesome-markers.css">
+    <script src="bower_components/Proj4Leaflet/src/proj4leaflet.js"></script>
 
 
-    <link href='bower_components/leaflet-draw/dist/leaflet.draw.css' rel='stylesheet' />
+
     <!--<script src='bower_components/leaflet-draw/dist/leaflet.draw.js'></script>-->
-    <script src='bower_components/leaflet-geodesy/leaflet-geodesy.js'></script>
-    <script src="bower_components/esri-leaflet/dist/esri-leaflet.js"></script>
 
     <!--<script src="//rawgit.com/kartena/Proj4Leaflet/1.0.0-beta.1/src/proj4leaflet.js"></script>-->
     <!--<script src="https://rawgithub.com/mylen/leaflet.TileLayer.WMTS/master/leaflet-tilelayer-wmts.js"></script>-->
     <script src="scripts/shared/L.TileLayer.BetterWMS.js"></script>
 
 
-    <script src="scripts/services/WMSService.js"></script>
 
     <script src="scripts/moduleInit.js"></script>
 
     <script src="scripts/directives/mapDirective.js"></script>
+    <script src="scripts/services/WMSService.js"></script>
 
     <script src="scripts/services/baseLayersService.js"></script>
     <script src="scripts/services/mapService.js"></script>
@@ -82,6 +83,7 @@
     <script src="scripts/services/layerManagementService.js"></script>
     <script src="scripts/services/drawService.js"></script>
     <script src="scripts/services/externService.js"></script>
+    <script src="scripts/services/geopuntService.js"></script>
     
 
     <script src="scripts/controllers/mapController.js"></script>

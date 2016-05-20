@@ -20,7 +20,7 @@
                 });
                 //https://tech.small-improvements.com/2014/06/11/deep-watching-circular-data-structures-in-angular/
                 function watchChildrenListWithProperty() {
-                    return scope.$eval(childList).map(function(x) { return x[property] });
+                    return scope.$eval(childList).map(function(x) { return x[property]; });
                 }
                 // Watch the children for changes
                 scope.$watch(watchChildrenListWithProperty, function(newValue, oldValue) {

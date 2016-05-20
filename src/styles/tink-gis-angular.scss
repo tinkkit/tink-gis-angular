@@ -35,7 +35,7 @@
 
 .ll {
   position: absolute;
-  z-index: layer('base');
+  z-index: 600;
 }
 
 .interactiebtns {
@@ -176,11 +176,7 @@ button.btn.active {
     display: block;
 }
 
-.modal-dialog{
-    min-width: 800px;
-    background-color: white;
-    text-align: left;
-}
+
 
 .modal-header {
     padding: 15px;
@@ -246,4 +242,25 @@ svg.leaflet-zoom-animated {
 }
 .leaflet-tile-pane {
     z-index: auto;
+}
+
+.modal-dialog{
+    min-width: 1000px;
+    background-color: white;
+    text-align: left;
+    z-index: 9999;
+}
+.modal {
+  z-index: 9998;
+}
+
+.greytext {
+  color: grey;
+}
+
+a.btn.prev,a.btn.next {
+  display: none;
+}
+div.table-sort-pagination {
+      float: left !important;
 }
