@@ -22,8 +22,8 @@
         });
         vm.AddLayers = function() {
             var addLayerInstance = $modal.open({
-                templateUrl: 'templates/modals/addLayerModalTemplate.html',
-                controller: 'addLayerController',
+                templateUrl: 'templates/modals/layerManagerTemplate.html',
+                controller: 'LayerManagerController',
                 resolve: {
                     backdrop: false,
                     keyboard: true,

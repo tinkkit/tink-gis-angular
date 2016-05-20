@@ -1,13 +1,49 @@
 'use strict';
 
 (function (module) {
+    try {
+        var module = angular.module('tink.gis');
+    } catch (e) {
+        var module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi']); //'leaflet-directive'
+    }
+    module = angular.module('tink.gis');
+    module.controller('groupLayerController', function ($scope) {
+        var vm = this;
+        vm.grouplayer = $scope.grouplayer;
+        vm.chkChanged = function () {
+            $scope.$emit('groupCheckboxChangedEvent', $scope.grouplayer); // stuur naar parent ofwel group ofwel theme
+        };
+    });
+})();
+//# sourceMappingURL=groupLayerController.js.map
+;'use strict';
+
+(function (module) {
+    try {
+        var module = angular.module('tink.gis');
+    } catch (e) {
+        var module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi']); //'leaflet-directive'
+    }
+    var theController = module.controller('layerController', function ($scope) {
+        var vm = this;
+        vm.layer = $scope.layer;
+        vm.chkChanged = function () {
+            $scope.$emit('layerCheckboxChangedEvent', $scope.layer); // stuur naar parent ofwel group ofwel theme
+        };
+    });
+    theController.$inject = [];
+})();
+//# sourceMappingURL=layerController.js.map
+;'use strict';
+
+(function (module) {
     var module;
     try {
         module = angular.module('tink.gis');
     } catch (e) {
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
     }
-    module.controller('addLayerController', ['$scope', '$modalInstance', 'ThemeHelper', '$q', 'urls', 'MapService', 'MapData', 'GISService', 'LayerManagementService', 'WMSService', '$window', '$http', 'GeopuntService', function ($scope, $modalInstance, ThemeHelper, $q, urls, MapService, MapData, GISService, LayerManagementService, WMSService, $window, $http, GeopuntService) {
+    module.controller('LayerManagerController', ['$scope', '$modalInstance', 'ThemeHelper', '$q', 'urls', 'MapService', 'MapData', 'GISService', 'LayerManagementService', 'WMSService', '$window', '$http', 'GeopuntService', function ($scope, $modalInstance, ThemeHelper, $q, urls, MapService, MapData, GISService, LayerManagementService, WMSService, $window, $http, GeopuntService) {
         $scope.searchIsUrl = false;
         $scope.pagingCount = null;
         $scope.numberofrecordsmatched = 0;
@@ -174,43 +210,7 @@
         };
     }]);
 })();
-//# sourceMappingURL=addLayerController.js.map
-;'use strict';
-
-(function (module) {
-    try {
-        var module = angular.module('tink.gis');
-    } catch (e) {
-        var module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi']); //'leaflet-directive'
-    }
-    module = angular.module('tink.gis');
-    module.controller('groupLayerController', function ($scope) {
-        var vm = this;
-        vm.grouplayer = $scope.grouplayer;
-        vm.chkChanged = function () {
-            $scope.$emit('groupCheckboxChangedEvent', $scope.grouplayer); // stuur naar parent ofwel group ofwel theme
-        };
-    });
-})();
-//# sourceMappingURL=groupLayerController.js.map
-;'use strict';
-
-(function (module) {
-    try {
-        var module = angular.module('tink.gis');
-    } catch (e) {
-        var module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi']); //'leaflet-directive'
-    }
-    var theController = module.controller('layerController', function ($scope) {
-        var vm = this;
-        vm.layer = $scope.layer;
-        vm.chkChanged = function () {
-            $scope.$emit('layerCheckboxChangedEvent', $scope.layer); // stuur naar parent ofwel group ofwel theme
-        };
-    });
-    theController.$inject = [];
-})();
-//# sourceMappingURL=layerController.js.map
+//# sourceMappingURL=layerManagerController.js.map
 ;'use strict';
 
 (function (module) {
@@ -238,8 +238,8 @@
         });
         vm.AddLayers = function () {
             var addLayerInstance = $modal.open({
-                templateUrl: 'templates/modals/addLayerModalTemplate.html',
-                controller: 'addLayerController',
+                templateUrl: 'templates/modals/layerManagerTemplate.html',
+                controller: 'LayerManagerController',
                 resolve: {
                     backdrop: false,
                     keyboard: true,
@@ -2735,7 +2735,7 @@ L.drawLocal = {
   );
 
 
-  $templateCache.put('templates/modals/addLayerModalTemplate.html',
+  $templateCache.put('templates/modals/layerManagerTemplate.html',
     "<div> <div class=modal-header> <button type=button style=float:right data-ng-click=cancel()><i class=\"fa fa-times\"></i></button> <h4 class=model-title>Laag toevoegen </h4></div> <div class=modal-content> <div class=row> <div class=col-md-4> <input class=searchbox ng-model=searchTerm ng-change=searchChanged() ng-model-options=\"{debounce: 500}\" placeholder=\"Geef een trefwoord of een url in\">\n" +
     "<input disabled value=\"https://geodata.antwerpen.be/arcgissql/services/P_SiK/Groeninventaris/MapServer/WMSServer\"> <div ng-if=!searchIsUrl ng-repeat=\"theme in availableThemes\"> <div ng-click=geopuntThemeChanged(theme) ng-class=\"{'greytext': theme.Type != 'wms' &&  theme.Type != 'esri'}\"> {{theme.Naam}}\n" +
     "<i ng-if=\"theme.Added == true\" class=\"fa fa-check-circle\"></i>\n" +
