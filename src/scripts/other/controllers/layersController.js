@@ -22,14 +22,14 @@
         });
         vm.AddLayers = function() {
             var addLayerInstance = $modal.open({
-                templateUrl: 'templates/modals/layerManagerTemplate.html',
+                templateUrl: 'templates/layermanagement/layerManagerTemplate.html',
                 controller: 'LayerManagerController',
                 resolve: {
                     backdrop: false,
                     keyboard: true,
-                    urls: function() {
-                        return MapData.ThemeUrls;
-                    }
+                    // urls: function() {
+                    //     return MapData.ThemeUrls;
+                    // }
                 }
             });
             addLayerInstance.result.then(function(selectedThemes) {

@@ -1,0 +1,19 @@
+<div style="">
+    <div class="modal-header">
+        <button type="button" style="float:right" data-ng-click="cancel()"><i class="fa fa-times"></i></button>
+        <h4 style="" class="model-title">Laag toevoegen</h5>
+     
+    </div>
+    <div class="modal-content">
+           <ul class="nav-tabs">
+  <li role="presentation" ng-class="{'active': active=='geopunt'}"><a href="#" ng-click="active='geopunt'">GeoPunt</a></li>
+  <li role="presentation" ng-class="{'active': active=='solr'}"><a href="" ng-click="active='solr'">SOLR</a></li>
+  <li role="presentation" ng-class="{'active': active=='url'}"><a href="" ng-click="active='url'">Url</a></li>
+</ul>
+        <geo-punt ng-if="active=='geopunt'"></geo-punt>
+        <gis-solr ng-if="active=='solr'"></geo-punt>
+    </div>
+    <div class="modal-footer">
+        <button data-ng-click="ok()">Klaar</button>
+    </div>
+</div>

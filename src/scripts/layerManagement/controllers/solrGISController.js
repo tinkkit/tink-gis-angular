@@ -6,8 +6,8 @@
     } catch (e) {
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
     }
-    module.controller('LayerManagerController', ['$scope', '$modalInstance', 'ThemeHelper', '$q', 'urls', 'MapService', 'MapData', 'GISService', 'LayerManagementService', 'WMSService', '$window', '$http', 'GeopuntService',
-        function ($scope, $modalInstance, ThemeHelper, $q, urls, MapService, MapData, GISService, LayerManagementService, WMSService, $window, $http, GeopuntService) {
+    module.controller('solrGISController', ['$scope', 'ThemeHelper', '$q', 'MapService', 'MapData', 'GISService', 'LayerManagementService', 'WMSService', '$window', '$http', 'GeopuntService',
+        function ($scope, ThemeHelper, $q,  MapService, MapData, GISService, LayerManagementService, WMSService, $window, $http, GeopuntService) {
             $scope.searchIsUrl = false;
             $scope.pagingCount = null;
             $scope.numberofrecordsmatched = 0;
@@ -34,7 +34,7 @@
                     }
                     else {
                         $scope.searchIsUrl = false;
-                        $scope.QueryGISSOLR($scope.searchTerm);
+                        $scope.QueryGeoPunt($scope.searchTerm,1);
                     }
                 }
                 else {

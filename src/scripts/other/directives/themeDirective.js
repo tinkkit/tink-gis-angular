@@ -7,7 +7,7 @@
             scope: {
                 theme: '='
             },
-            templateUrl: 'templates/themeTemplate.html',
+            templateUrl: 'templates/other/themeTemplate.html',
             controller: 'themeController',
             controllerAs: 'thmctrl'
         };
