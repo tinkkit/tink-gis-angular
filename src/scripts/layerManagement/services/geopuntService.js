@@ -5,7 +5,7 @@
         var _service = {};
         _service.getMetaData = function (searchterm = 'water', startpos = 1, recordsAPage = 10) {
             var url = 'https://metadata.geopunt.be/zoekdienst/srv/dut/csw?service=CSW&version=2.0.2&request=GetRecords&namespace=xmlns%28csw=http://www.opengis.net/cat/csw%29&resultType=results&outputSchema=http://www.opengis.net/cat/csw/2.0.2&outputFormat=application/xml&startPosition=' + startpos + '&maxRecords=' + recordsAPage + '&typeNames=csw:Record&elementSetName=full&constraintLanguage=CQL_TEXT&constraint_language_version=1.1.0&constraint=AnyText+LIKE+%27%25' + searchterm + '%25%27AND%20Type%20=%20%27service%27%20AND%20Servicetype%20=%27view%27&sortBy=title';
-            console.log("GETTING METADATA WITH ULR:", url);
+            console.log('GETTING METADATA WITH ULR:', url);
             var prom = $q.defer();
             $http.get(url).
                 success(function (data, status, headers, config) {
@@ -53,12 +53,12 @@
                 }).
                 error(function (data, status, headers, config) {
                     prom.reject(null);
-                    console.log("ERROR!", data, status, headers, config);
+                    console.log('ERROR!', data, status, headers, config);
                 });
             return prom.promise;
         };
         return _service;
     };
-    module.$inject = ["$http", 'map', 'MapData', '$rootScope', '$q'];
-    module.factory("GeopuntService", service);
+    module.$inject = ['$http', 'map', 'MapData', '$rootScope', '$q'];
+    module.factory('GeopuntService', service);
 })();

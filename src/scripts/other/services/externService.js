@@ -20,8 +20,13 @@
                     var returnlayer = {};
                     // returnlayer.enabled = layer.enabled; // will always be true... since we only export the enabled layers
                     returnlayer.visible = layer.visible;
-                    returnlayer.name = layer.name;
-                    returnlayer.id = layer.id;
+                    if (theme.Type == ThemeType.ESRI) {
+                        returnlayer.name = layer.name;
+                        returnlayer.id = layer.id;
+                    } else {
+                        returnlayer.name = layer.title;
+                        returnlayer.id = layer.title;
+                    }
                     return returnlayer;
                 });
                 return returnitem;
@@ -101,7 +106,7 @@
         _externService.setExtent = function (extent) {
 
             map.fitBounds([[extent._northEast.lat, extent._northEast.lng], [extent._southWest.lat, extent._southWest.lng]]);
-            map.setZoom(map.getZoom() +1);
+            map.setZoom(map.getZoom() + 1);
         };
         _externService.CleanMapAndThemes = function () {
             MapData.CleanMap();

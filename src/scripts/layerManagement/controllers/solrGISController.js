@@ -7,7 +7,7 @@
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
     }
     module.controller('solrGISController', ['$scope', 'ThemeHelper', '$q', 'MapService', 'MapData', 'GISService', 'LayerManagementService', 'WMSService', '$window', '$http', 'GeopuntService',
-        function ($scope, ThemeHelper, $q,  MapService, MapData, GISService, LayerManagementService, WMSService, $window, $http, GeopuntService) {
+        function ($scope, ThemeHelper, $q, MapService, MapData, GISService, LayerManagementService, WMSService, $window, $http, GeopuntService) {
             $scope.searchIsUrl = false;
             $scope.pagingCount = null;
             $scope.numberofrecordsmatched = 0;
@@ -34,7 +34,7 @@
                     }
                     else {
                         $scope.searchIsUrl = false;
-                        $scope.QueryGeoPunt($scope.searchTerm,1);
+                        $scope.QueryGISSOLR($scope.searchTerm, 1);
                     }
                 }
                 else {
@@ -44,25 +44,21 @@
 
 
             };
-            $scope.QueryGISSOLR = function (searchterm) {
-                GISService.QuerySOLRGIS(searchterm);
-            };
-            $scope.QueryGeoPunt = function (searchTerm, page) {
-                var prom = GeopuntService.getMetaData(searchTerm, ((page - 1) * 5) + 1, 5);
-                prom.then(function (metadata) {
-                    $scope.availableThemes = metadata.results;
-                    $scope.currentrecord = metadata.currentrecord;
-                    $scope.nextrecord = metadata.nextrecord;
-                    $scope.numberofrecordsmatched = metadata.numberofrecordsmatched;
-                    // $scope.numberofrecordsreturned = metadata.numberofrecordsreturned;
-                    // $scope.currentPage = Math.ceil($scope.pagingStart / $scope.recordsAPage)
-                    console.log(metadata);
+            $scope.QueryGISSOLR = function (searchterm, page) {
+                var prom = GISService.QuerySOLRGIS(searchterm, ((page - 1) * 5) + 1, 5);
+                prom.then(function (data) {
+                    var items = data.data.response.docs;
+                    $scope.availableThemes = items;
+                    // $scope.currentrecord = metadata.currentrecord;
+                    // $scope.nextrecord = metadata.nextrecord;
+                    // $scope.numberofrecordsmatched = metadata.numberofrecordsmatched;
+                    console.log(data);
                 }, function (reason) {
                     console.log(reason);
                 });
             };
             $scope.pageChanged = function (page, recordsAPage) {
-                $scope.QueryGeoPunt($scope.searchTerm, page);
+                $scope.QueryGISSOLR($scope.searchTerm, page);
             };
             $scope.laadUrl = function () {
                 $scope.searchTerm = $scope.searchTerm.trim().replace('?', '');

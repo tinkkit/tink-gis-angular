@@ -26,13 +26,13 @@
                 });
         };
         _service.QuerySOLRGIS = function (searchterm) {
-            $http.get('http://esb-app1-o.antwerpen.be/v1/giszoek/solr/search?q=*' + searchterm + '*&wt=json&indent=true').
-                success(function (data, status, headers, config) {
-                    console.log(data);
-                }).
-                error(function (data, status, headers, config) {
-                    console.log("ERROR!", status, headers, data);
-                });
+           return $http.get('http://esb-app1-o.antwerpen.be/v1/giszoek/solr/search?q=*' + searchterm + '*&wt=json&indent=true');
+                // success(function (data, status, headers, config) {
+                //     console.log(data);
+                // }).
+                // error(function (data, status, headers, config) {
+                //     console.log("ERROR!", status, headers, data);
+                // });
         };
         _service.GetThemeData = function (url) {
             var prom = $http.get(url);

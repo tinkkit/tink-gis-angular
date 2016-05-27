@@ -44,9 +44,6 @@
 
 
             };
-            $scope.QueryGISSOLR = function (searchterm) {
-                GISService.QuerySOLRGIS(searchterm);
-            };
             $scope.QueryGeoPunt = function (searchTerm, page) {
                 var prom = GeopuntService.getMetaData(searchTerm, ((page - 1) * 5) + 1, 5);
                 prom.then(function (metadata) {

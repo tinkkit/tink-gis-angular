@@ -10,8 +10,8 @@
   <li role="presentation" ng-class="{'active': active=='solr'}"><a href="" ng-click="active='solr'">SOLR</a></li>
   <li role="presentation" ng-class="{'active': active=='url'}"><a href="" ng-click="active='url'">Url</a></li>
 </ul>
-        <geo-punt ng-if="active=='geopunt'"></geo-punt>
-        <gis-solr ng-if="active=='solr'"></geo-punt>
+        <geo-punt ng-show="active=='geopunt'"></geo-punt>
+        <solr-gis ng-show="active=='solr'"></solr-gis>
     </div>
     <div class="modal-footer">
         <button data-ng-click="ok()">Klaar</button>
