@@ -1331,7 +1331,7 @@ var Style = {
                     //lets check what we need to enable and set visiblity of, and also check what we don't find
                     theme.layers.forEach(function (layer) {
                         var realLayer = realTheme.AllLayers.find(function (x) {
-                            return x.name == layer.name;
+                            return x.title == layer.name;
                         });
                         if (realLayer) {
                             realLayer.visible = layer.visible; // aha so there was a layer, lets save this
@@ -1358,7 +1358,7 @@ var Style = {
         _externService.setExtent = function (extent) {
 
             map.fitBounds([[extent._northEast.lat, extent._northEast.lng], [extent._southWest.lat, extent._southWest.lng]]);
-            map.setZoom(map.getZoom() + 1);
+            // map.setZoom(map.getZoom() + 1);
         };
         _externService.CleanMapAndThemes = function () {
             MapData.CleanMap();

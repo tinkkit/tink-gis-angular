@@ -133,7 +133,7 @@
             var tmplayer = feature.mapItem._layers[Object.keys(feature.mapItem._layers)[0]]
             if (tmplayer._latlngs) { // with s so it has bounds etc
                 map.fitBounds(tmplayer.getBounds(), { paddingTopLeft: L.point(25, 25), paddingBottomRight: L.point(25, 25) });
-                map.setZoom(map.getZoom() + 1);
+                // map.setZoom(map.getZoom() + 1);
             }
             else {
                 // map.panTo(tmplayer.getLatLng());
@@ -141,7 +141,7 @@
         };
         _data.GoToLastClickBounds = function () {
             map.fitBounds(_data.LastIdentifyBounds, { paddingTopLeft: L.point(0, 0), paddingBottomRight: L.point(0, 0) });
-            map.setZoom(map.getZoom() + 1);
+            // map.setZoom(map.getZoom() + 1);
         };
         _data.SetZIndexes = function () {
             var counter = _data.Themes.length + 3;
