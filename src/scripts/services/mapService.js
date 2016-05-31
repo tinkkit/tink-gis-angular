@@ -111,7 +111,17 @@
 
         };
         _mapService.WatIsHier = function (event) {
-            GISService.ReverseGeocode(event);
+            var prom = GISService.ReverseGeocode(event);
+            prom.success(function (data, status, headers, config) {
+                if (!data.error) {
+                    MapData.CreateWatIsHierMarker(data);
+                    MapData.CreateOrigineleMarker(event.latlng, true);
+                } else {
+                    MapData.CreateOrigineleMarker(event.latlng, false);
+                }
+            }).error(function (data, status, headers, config) {
+                console.log(data,status,headers,config);
+            });
         };
 
         _mapService.Query = function (event) {

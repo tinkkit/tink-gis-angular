@@ -128,7 +128,7 @@ var ActiveInteractieButton = {
     METEN: 'meten',
     WATISHIER: 'watishier'
 };
-const DrawingOption = {
+var DrawingOption = {
     NIETS: '',
     AFSTAND: 'afstand',
     OPPERVLAKTE: 'oppervlakte',
