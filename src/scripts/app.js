@@ -26,17 +26,10 @@
         };
     });
     JXON.config({
-        // valueKey: '_',                // default: 'keyValue'
-        // attrKey: '$',                 // default: 'keyAttributes'
         attrPrefix: '',              // default: '@'
-        // lowerCaseTags: false,         // default: true
-        // trueIsEmpty: false,           // default: true
         autoDate: false              // default: true
-        // ignorePrefixedNodes: false,   // default: true
-        // parseValues: false            // default: true
     });
     var init = function () {
-        // var abc = _.forEach([], function (x){});
         L.AwesomeMarkers.Icon.prototype.options.prefix = 'fa';
     } ();
     var mapObject = function () {
@@ -67,14 +60,10 @@
                     0.026458386250105836
                 ]
             });
-
-
         var map = L.map('map', {
             crs: crsLambert,
             zoomControl: false,
             drawControl: false
-
-
         }).setView([51.2192159, 4.4028818], 5);
 
         // The min/maxZoom values provided should match the actual cache thats been published. This information can be retrieved from the service endpoint directly.
@@ -110,45 +99,3 @@
     }
     module.factory('map', mapObject);
 })();
-
-//Moet plaats voor zoeken!!! Enums in Angular hmm
-var ThemeStatus = { // http://stijndewitt.com/2014/01/26/enums-in-javascript/
-    UNMODIFIED: 0,
-    NEW: 1,
-    UPDATED: 2,
-    DELETED: 3
-};
-var LayerType = {
-    LAYER: 0,
-    GROUP: 1
-};
-var ActiveInteractieButton = {
-    IDENTIFY: 'identify',
-    SELECT: 'select',
-    METEN: 'meten',
-    WATISHIER: 'watishier'
-};
-var DrawingOption = {
-    NIETS: '',
-    AFSTAND: 'afstand',
-    OPPERVLAKTE: 'oppervlakte',
-    LIJN: 'lijn',
-    VIERKANT: 'vierkant',
-    POLYGON: 'polygon'
-};
-var ThemeType = {
-    ESRI: 'esri',
-    WMS: 'wms'
-};
-var Style = {
-    DEFAULT: {
-        fillOpacity: 0,
-        color: 'blue',
-        weight: 5
-    },
-    HIGHLIGHT: {
-        weight: 7,
-        color: 'red',
-        fillOpacity: 0.5
-    }
-};

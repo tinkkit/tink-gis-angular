@@ -7,7 +7,7 @@
             scope: {
                 grouplayer: '='
             },
-            templateUrl: 'templates/groupLayerTemplate.html',
+            templateUrl: 'templates/other/groupLayerTemplate.html',
             controller: 'groupLayerController',
             controllerAs: 'grplyrctrl'
         };

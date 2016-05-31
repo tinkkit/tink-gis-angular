@@ -4,7 +4,7 @@
     module.directive('tinkLayers', function () {
         return {
             replace: true,
-            templateUrl: 'templates/layersTemplate.html',
+            templateUrl: 'templates/other/layersTemplate.html',
             controller: 'layersController',
             controllerAs: 'lyrsctrl'
         };
