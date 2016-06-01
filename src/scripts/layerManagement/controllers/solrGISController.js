@@ -91,7 +91,7 @@
             $scope.geopuntThemeChanged = function (theme) {
                 // alert(theme.Type != 'WMS' && theme.Type != 'ESRI');
                 // if (theme.Type != 'wms' && theme.Type != 'esri') {
-                var url = theme.Url.trim().replace('?', '');
+                var url = 'http://app10.p.gis.local/arcgissql/rest/' + theme.url.trim().replace('?', '');
                 if (MapData.Themes.find(x => x.CleanUrl == url) == undefined) {
                     var getwms = WMSService.GetCapabilities(url);
                     getwms.success(function (data, status, headers, config) {

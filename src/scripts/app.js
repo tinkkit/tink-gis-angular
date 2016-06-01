@@ -65,7 +65,7 @@
             zoomControl: false,
             drawControl: false
         }).setView([51.2192159, 4.4028818], 5);
-
+        
         // The min/maxZoom values provided should match the actual cache thats been published. This information can be retrieved from the service endpoint directly.
         // L.esri.tiledMapLayer({
         //     url: 'https://geodata.antwerpen.be/arcgissql/rest/services/P_Publiek/P_basemap/MapServer',
@@ -73,11 +73,11 @@
         //     minZoom: 1,
         //     continuousWorld: true
         // }).addTo(map);
-
-
-
-
-
+        
+        
+        
+        
+        
         map.doubleClickZoom.disable();
         // L.control.scale({ imperial: false }).addTo(map);
         var drawnItems = L.featureGroup().addTo(map);

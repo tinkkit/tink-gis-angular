@@ -1,4 +1,5 @@
 <div class="layercontroller-checkbox">
-    <input class="visible-box" type="checkbox" ng-model="lyrctrl.layer.visible" ng-change="lyrctrl.chkChanged()" id="{{layer.name}}{{layer.id}}">
-    <label for="{{layer.name}}{{layer.id}}"> {{layer.title | limitTo: 20}} <span ng-show="lyrctrl.layer.theme.Type == 'wms' && lyrctrl.layer.queryable">(i)</span></label>
+    <input class="visible-box" type="checkbox" ng-model="lyrctrl.layer.visible" ng-change="lyrctrl.chkChanged()" id="{{lyrctrl.layer.name}}{{lyrctrl.layer.id}}">
+    <label for="{{lyrctrl.layer.name}}{{lyrctrl.layer.id}}"> {{lyrctrl.layer.title | limitTo: 20}} <span ng-show="lyrctrl.layer.theme.Type == 'wms' && lyrctrl.layer.queryable">(i)</span></label>
+    <img ng-if="lyrctrl.layer.theme.Type" ng-src="{{layer.theme.CleanUrl}}?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER={{lyrctrl.layer.id}}"><img>
 </div>
