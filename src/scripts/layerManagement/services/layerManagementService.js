@@ -1,14 +1,14 @@
 
 'use strict';
-(function() {
+(function () {
     var module = angular.module('tink.gis');
-    var service = function(MapData, $http, $q, GISService, ThemeHelper) {
+    var service = function (MapData, $http, $q, GISService, ThemeHelper) {
         var _service = {};
         _service.EnabledThemes = [];
         _service.AvailableThemes = [];
-        _service.ProcessUrls = function(urls) {
+        _service.ProcessUrls = function (urls) {
             var promises = [];
-            _.each(urls, function(url) {
+            _.each(urls, function (url) {
                 var AlreadyAddedTheme = null;
                 _service.EnabledThemes.forEach(theme => { // OPTI kan paar loops minder door betere zoek in array te doen
                     if (theme.CleanUrl == url) {
@@ -17,7 +17,7 @@
                 });
                 if (AlreadyAddedTheme == null) { // if we didn t get an alreadyadderdtheme we get the data
                     var prom = GISService.GetThemeData(url + '?f=pjson');
-                    prom.success(function(data, statuscode, functie, getdata) {
+                    prom.success(function (data, statuscode, functie, getdata) {
                         var convertedTheme = ThemeHelper.createThemeFromJson(data, getdata);
                         _service.AvailableThemes.push(convertedTheme);
                         convertedTheme.status = ThemeStatus.NEW;
@@ -34,14 +34,28 @@
             // });
             return $q.all(promises);
         };
-        _service.SetAditionalLayerInfo = function(theme) {
-            var prom = GISService.GetThemeLayerData(theme.CleanUrl);
-            prom.success(function (data, statuscode, functie, getdata) {
+        _service.SetAditionalLayerInfo = function (theme) {
+            var promLayerData = GISService.GetThemeLayerData(theme.CleanUrl);
+            promLayerData.success(function (data, statuscode, functie, getdata) {
                 theme.AllLayers.forEach(layer => {
                     var layerid = layer.id;
-                    var layerInfo = data.layers[layerid];
+                    var layerInfo = data.layers.find(x => x.id == layerid);
                     layer.displayField = layerInfo.displayField;
                     layer.fields = layerInfo.fields;
+                });
+            });
+            var promLegend = GISService.GetLegendData(theme.CleanUrl);
+            promLegend.success(function (data, statuscode, functie, getdata) {
+                theme.AllLayers.forEach(layer => {
+                    var layerid = layer.id;
+                    var layerInfo = data.layers.find(x => x.layerId == layerid);
+                    layer.legend = [];
+                    if (layerInfo) {
+                        layer.legend = layerInfo.legend;
+                        layer.legend.forEach(legenditem => {
+                            legenditem.fullurl = theme.CleanUrl + '/' + layerInfo.layerId + '/images/' + legenditem.url;
+                        });
+                    }
                 });
             });
         };

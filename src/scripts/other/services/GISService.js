@@ -28,21 +28,20 @@
 
         };
         _service.QuerySOLRGIS = function (searchterm) {
-           return $http.get('http://esb-app1-o.antwerpen.be/v1/giszoek/solr/search?q=*' + searchterm + '*&wt=json&indent=true');
-                // success(function (data, status, headers, config) {
-                //     console.log(data);
-                // }).
-                // error(function (data, status, headers, config) {
-                //     console.log('ERROR!', status, headers, data);
-                // });
+            var prom = $http.get('http://esb-app1-o.antwerpen.be/v1/giszoek/solr/search?q=*' + searchterm + '*&wt=json&indent=true');
+            return prom;
         };
         var baseurl = 'http://app10.p.gis.local/arcgissql/rest/';
         _service.GetThemeData = function (mapserver) {
-            var prom = $http.get(baseurl+ mapserver + '?f=pjson');
+            var prom = $http.get(baseurl + mapserver + '?f=pjson');
             return prom;
         };
         _service.GetThemeLayerData = function (cleanurl) {
             var prom = $http.get(cleanurl + '/layers?f=pjson');
+            return prom;
+        };
+        _service.GetLegendData = function (cleanurl) {
+            var prom = $http.get(cleanurl + '/legend?f=pjson');
             return prom;
         };
         return _service;
