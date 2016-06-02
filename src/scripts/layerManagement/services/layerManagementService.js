@@ -24,7 +24,7 @@
                     });
                     promises.push(prom);
                 }
-                else { // ah we already got it then just push it.
+                    else { // ah we already got it then just push it.
                     AlreadyAddedTheme.status = ThemeStatus.UNMODIFIED;
                     _service.AvailableThemes.push(AlreadyAddedTheme);
                 }
@@ -35,15 +35,6 @@
             return $q.all(promises);
         };
         _service.SetAditionalLayerInfo = function (theme) {
-            var promLayerData = GISService.GetThemeLayerData(theme.CleanUrl);
-            promLayerData.success(function (data, statuscode, functie, getdata) {
-                theme.AllLayers.forEach(layer => {
-                    var layerid = layer.id;
-                    var layerInfo = data.layers.find(x => x.id == layerid);
-                    layer.displayField = layerInfo.displayField;
-                    layer.fields = layerInfo.fields;
-                });
-            });
             var promLegend = GISService.GetLegendData(theme.CleanUrl);
             promLegend.success(function (data, statuscode, functie, getdata) {
                 theme.AllLayers.forEach(layer => {
@@ -56,6 +47,15 @@
                             legenditem.fullurl = theme.CleanUrl + '/' + layerInfo.layerId + '/images/' + legenditem.url;
                         });
                     }
+                });
+            });
+            var promLayerData = GISService.GetThemeLayerData(theme.CleanUrl);
+            promLayerData.success(function (data, statuscode, functie, getdata) {
+                theme.AllLayers.forEach(layer => {
+                    var layerid = layer.id;
+                    var layerInfo = data.layers.find(x => x.id == layerid);
+                    layer.displayField = layerInfo.displayField;
+                    layer.fields = layerInfo.fields;
                 });
             });
         };
