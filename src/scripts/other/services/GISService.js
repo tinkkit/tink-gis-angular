@@ -7,7 +7,7 @@
         var _service = {};
         _service.ReverseGeocode = function (event) {
             var lambert72Cords = HelperService.ConvertWSG84ToLambert72(event.latlng);
-            var loc = lambert72Cords.x + "," + lambert72Cords.y;
+            var loc = lambert72Cords.x + ',' + lambert72Cords.y;
             var urlloc = encodeURIComponent(loc);
             MapData.CleanWatIsHier();
 
@@ -23,7 +23,7 @@
                     }
                 }).
                 error(function (data, status, headers, config) {
-                    console.log("ERROR!", status, headers, data);
+                    console.log('ERROR!', status, headers, data);
                 });
 
         };
@@ -33,19 +33,20 @@
                 //     console.log(data);
                 // }).
                 // error(function (data, status, headers, config) {
-                //     console.log("ERROR!", status, headers, data);
+                //     console.log('ERROR!', status, headers, data);
                 // });
         };
-        _service.GetThemeData = function (url) {
-            var prom = $http.get(url);
+        var baseurl = 'http://app10.p.gis.local/arcgissql/rest/';
+        _service.GetThemeData = function (mapserver) {
+            var prom = $http.get(baseurl+ mapserver + '?f=pjson');
             return prom;
         };
-        _service.GetThemeLayerData = function (mapServiceUrl) {
-            var prom = $http.get(mapServiceUrl + 'layers?f=pjson');
+        _service.GetThemeLayerData = function (cleanurl) {
+            var prom = $http.get(cleanurl + '/layers?f=pjson');
             return prom;
         };
         return _service;
     };
-    module.$inject = ["$http", 'map', 'MapData', 'HelperService', '$rootScope'];
-    module.factory("GISService", service);
+    module.$inject = ['$http', 'map', 'MapData', 'HelperService', '$rootScope'];
+    module.factory('GISService', service);
 })();

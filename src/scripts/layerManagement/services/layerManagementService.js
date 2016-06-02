@@ -36,7 +36,7 @@
         };
         _service.SetAditionalLayerInfo = function(theme) {
             var prom = GISService.GetThemeLayerData(theme.CleanUrl);
-            prom.success(function(data, statuscode, functie, getdata) {
+            prom.success(function (data, statuscode, functie, getdata) {
                 theme.AllLayers.forEach(layer => {
                     var layerid = layer.id;
                     var layerInfo = data.layers[layerid];

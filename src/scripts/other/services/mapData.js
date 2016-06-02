@@ -160,7 +160,7 @@
             });
         };
         _data.AddFeatures = function (features, theme, layerId) {
-            if (features.length == 0) {
+            if (features == null || features.features.length == 0) {
                 ResultsData.EmptyResult = true;
             }
             else {

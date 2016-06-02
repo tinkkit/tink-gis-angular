@@ -89,21 +89,26 @@
                 $scope.copySelectedTheme = null;
             };
             $scope.geopuntThemeChanged = function (theme) {
-                // alert(theme.Type != 'WMS' && theme.Type != 'ESRI');
-                // if (theme.Type != 'wms' && theme.Type != 'esri') {
-                var url = 'http://app10.p.gis.local/arcgissql/rest/' + theme.url.trim().replace('?', '');
-                if (MapData.Themes.find(x => x.CleanUrl == url) == undefined) {
-                    var getwms = WMSService.GetCapabilities(url);
-                    getwms.success(function (data, status, headers, config) {
 
-                        $scope.previewTheme(data);
-                    }).error(function (data, status, headers, config) {
-                        $window.alert('error');
-                    });
-                }
-                else {
-                    alert('Deze is al toegevoegd aan de map.');
-                }
+                var url = theme.url.trim().replace('?', '');
+                var lastslash = url.lastIndexOf('/');
+                url = url.substring(0, lastslash); // remove the last unneeded part
+                GISService.GetThemeData(url).success(function (data, statuscode, functie, getdata) {
+                    var convertedTheme = ThemeHelper.createThemeFromJson(data, getdata);
+                    $scope.previewTheme(convertedTheme);
+                });
+                // if (MapData.Themes.find(x => x.CleanUrl == url) == undefined) {
+                //     var getwms = WMSService.GetCapabilities(url);
+                //     getwms.success(function (data, status, headers, config) {
+
+                //         $scope.previewTheme(data);
+                //     }).error(function (data, status, headers, config) {
+                //         $window.alert('error');
+                //     });
+                // }
+                // else {
+                //     alert('Deze is al toegevoegd aan de map.');
+                // }
                 // }
 
 
