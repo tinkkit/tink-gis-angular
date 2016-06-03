@@ -396,6 +396,7 @@ module.exports = function(grunt) {
         karma: {
             unit: {
                 configFile: 'test/karma.conf.js',
+                logLevel: 'DEBUG',
                 singleRun: false
             },
             build: {

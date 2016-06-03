@@ -62,66 +62,63 @@ module.exports = function (config) {
 
             'bower_components/angular-filter/dist/angular-filter.js',
             'bower_components/Proj4Leaflet/src/proj4leaflet.js',
+            'test/scripts/globals.js',
+            'test/scripts/app.js',
+
+            'test/scripts/other/directives/mapDirective.js',
+            'test/scripts/other/services/WMSService.js',
+
+            'test/scripts/other/services/baseLayersService.js',
+            'test/scripts/other/services/mapService.js',
+            'test/scripts/other/services/layersService.js',
+            'test/scripts/other/services/themeHelper.js',
+            'test/scripts/other/services/themeService.js',
+            'test/scripts/other/services/mapData.js',
+            'test/scripts/other/services/GISService.js',
+            'test/scripts/other/services/helperService.js',
+            'test/scripts/other/services/mapEvents.js',
+            'test/scripts/other/services/drawService.js',
+            'test/scripts/other/services/externService.js',
+
+
+            'test/scripts/other/controllers/mapController.js',
+            'test/scripts/other/controllers/layersController.js',
+            'test/scripts/other/controllers/layerController.js',
+            'test/scripts/other/controllers/groupLayerController.js',
+            'test/scripts/other/controllers/themeController.js',
+
+
+            'test/scripts/other/directives/layerDirective.js',
+            'test/scripts/other/directives/layersDirective.js',
+            'test/scripts/other/directives/groupLayerDirective.js',
+            'test/scripts/other/directives/themeDirective.js',
+            'test/scripts/other/directives/indeterminateCheckbox.js',
+
+            'test/scripts/layerManagement/services/geopuntService.js',
+            'test/scripts/layerManagement/services/layerManagementService.js',
+
+            'test/scripts/layerManagement/controllers/layerManagerController.js',
+            'test/scripts/layerManagement/controllers/geoPuntController.js',
+            'test/scripts/layerManagement/controllers/solrGISController.js',
+            'test/scripts/layerManagement/directives/geoPuntDirective.js',
+            'test/scripts/layerManagement/directives/solrGISDirective.js',
 
 
 
-            'scripts/globals.js',
-            'scripts/app.js',
+            'test/scripts/search/services/searchService.js',
+            'test/scripts/search/services/resultsData.js',
 
-            'scripts/other/directives/mapDirective.js',
-            'scripts/other/services/WMSService.js',
-
-            'scripts/other/services/baseLayersService.js',
-            'scripts/other/services/mapService.js',
-            'scripts/other/services/layersService.js',
-            'scripts/other/services/themeHelper.js',
-            'scripts/other/services/themeService.js',
-            'scripts/other/services/mapData.js',
-            'scripts/other/services/GISService.js',
-            'scripts/other/services/helperService.js',
-            'scripts/other/services/mapEvents.js',
-            'scripts/other/services/drawService.js',
-            'scripts/other/services/externService.js',
+            'test/scripts/search/controllers/searchController.js',
+            'test/scripts/search/controllers/searchSelectedController.js',
+            'test/scripts/search/controllers/searchResultsController.js',
+            'test/scripts/search/directives/searchDirective.js',
+            'test/scripts/search/directives/searchResultsDirective.js',
+            'test/scripts/search/directives/searchSelectedDirective.js',
 
 
-            'scripts/other/controllers/mapController.js',
-            'scripts/other/controllers/layersController.js',
-            'scripts/other/controllers/layerController.js',
-            'scripts/other/controllers/groupLayerController.js',
-            'scripts/other/controllers/themeController.js',
-
-
-            'scripts/other/directives/layerDirective.js',
-            'scripts/other/directives/layersDirective.js',
-            'scripts/other/directives/groupLayerDirective.js',
-            'scripts/other/directives/themeDirective.js',
-            'scripts/other/directives/indeterminateCheckbox.js',
-
-            'scripts/layerManagement/services/geopuntService.js',
-            'scripts/layerManagement/services/layerManagementService.js',
-
-            'scripts/layerManagement/controllers/layerManagerController.js',
-            'scripts/layerManagement/controllers/geoPuntController.js',
-            'scripts/layerManagement/controllers/solrGISController.js',
-            'scripts/layerManagement/directives/geoPuntDirective.js',
-            'scripts/layerManagement/directives/solrGISDirective.js',
-
-
-
-            'scripts/search/services/searchService.js',
-            'scripts/search/services/resultsData.js',
-
-            'scripts/search/controllers/searchController.js',
-            'scripts/search/controllers/searchSelectedController.js',
-            'scripts/search/controllers/searchResultsController.js',
-            'scripts/search/directives/searchDirective.js',
-            'scripts/search/directives/searchResultsDirective.js',
-            'scripts/search/directives/searchSelectedDirective.js',
-
-
-            'scripts/shared/logger.js',
-            'scripts/shared/errorhandler.js',
-            'scripts/shared/leafletDrawNL.js',
+            'test/scripts/shared/logger.js',
+            'test/scripts/shared/errorhandler.js',
+            'test/scripts/shared/leafletDrawNL.js',
 
             'test/mock/{,*/}*.js',
             'test/spec/{,*/}*.js'
@@ -171,7 +168,7 @@ module.exports = function (config) {
 
         // level of logging
         // possible values: LOG_DISABLE || LOG_ERROR || LOG_WARN || LOG_INFO || LOG_DEBUG
-        logLevel: config.LOG_INFO,
+        logLevel: config.LOG_DEBUG,
 
         // Uncomment the following lines if you are using grunt's server to run the tests
         // proxies: {
