@@ -3,7 +3,7 @@
 'use strict';
 (function () {
     var module = angular.module('tink.gis');
-    var service = function ($http, map, MapData, HelperService, $rootScope) {
+    var service = function ($http, map, MapData, HelperService) {
         var _service = {};
         _service.ReverseGeocode = function (event) {
             var lambert72Cords = HelperService.ConvertWSG84ToLambert72(event.latlng);

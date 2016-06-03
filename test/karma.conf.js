@@ -3,7 +3,7 @@
 // Generated on 2014-12-01 using
 // generator-karma 0.8.3
 
-module.exports = function(config) {
+module.exports = function (config) {
     'use strict';
 
     config.set({
@@ -19,10 +19,10 @@ module.exports = function(config) {
         // list of files / patterns to load in the browser
         files: [
             'bower_components/jquery/dist/jquery.js',
-            
-               'bower_components/angular/angular.js',
+
+            'bower_components/angular/angular.js',
             'bower_components/leaflet-dist/leaflet.js',
-           
+
             'bower_components/angular-mocks/angular-mocks.js',
             'bower_components/angular-animate/angular-animate.js',
             'bower_components/angular-cookies/angular-cookies.js',
@@ -33,91 +33,98 @@ module.exports = function(config) {
 
 
 
-    'bower_components/lodash/lodash.js',
-    'bower_components/tink-api-javascript/dist/tink-api-javascript.js',
-    'bower_components/tink-api-angular/dist/tink-api-angular.js',
-    'bower_components/tink-navigation-angular/dist/tink-navigation-angular.js',
-    'bower_components/moment/moment.js',
-    'bower_components/sprintf/src/sprintf.js',
-    'bower_components/angular-logger/dist/angular-logger.min.js',
-    'bower_components/leaflet/dist/leaflet-src.js',
-    'bower_components/tink-accordion-angular/dist/tink-accordion-angular.js',
-    'bower_components/jquery-ui/jquery-ui.js',
-    'bower_components/angular-ui-sortable/sortable.js',
-    'bower_components/proj4/dist/proj4.js',
-    'bower_components/angular-filter/dist/angular-filter.min.js',
-    'bower_components/leaflet-draw/dist/leaflet.draw-src.js',
-    'bower_components/jxon/index.js',
-    'bower_components/sweetalert/dist/sweetalert.min.js',
-    'bower_components/ng-lodash/build/ng-lodash.js',
-    'bower_components/tink-helper-safe-apply-angular/dist/tink-helper-safe-apply-angular.js',
-    'bower_components/tink-pagination-angular/dist/tink-pagination-angular.js',
-    
-    'bower_components/leaflet-geodesy/leaflet-geodesy.js',
-    'bower_components/esri-leaflet/dist/esri-leaflet.js',
-    'bower_components/Leaflet.awesome-markers/dist/leaflet.awesome-markers.js',
-     'bower_components/angular-mocks/angular-mocks.js',
+            'bower_components/lodash/lodash.js',
+            'bower_components/tink-api-javascript/dist/tink-api-javascript.js',
+            'bower_components/tink-api-angular/dist/tink-api-angular.js',
+            'bower_components/tink-navigation-angular/dist/tink-navigation-angular.js',
+            'bower_components/moment/moment.js',
+            'bower_components/sprintf/src/sprintf.js',
+            'bower_components/angular-logger/dist/angular-logger.min.js',
+            'bower_components/leaflet/dist/leaflet-src.js',
+            'bower_components/tink-accordion-angular/dist/tink-accordion-angular.js',
+            'bower_components/jquery-ui/jquery-ui.js',
+            'bower_components/angular-ui-sortable/sortable.js',
+            'bower_components/proj4/dist/proj4.js',
+            'bower_components/angular-filter/dist/angular-filter.min.js',
+            'bower_components/leaflet-draw/dist/leaflet.draw-src.js',
+            'bower_components/jxon/index.js',
+            'bower_components/sweetalert/dist/sweetalert.min.js',
+            'bower_components/ng-lodash/build/ng-lodash.js',
+            'bower_components/tink-helper-safe-apply-angular/dist/tink-helper-safe-apply-angular.js',
+            'bower_components/tink-pagination-angular/dist/tink-pagination-angular.js',
 
-    'bower_components/tink-modal-angular/dist/tink-modal-angular.js',
+            'bower_components/leaflet-geodesy/leaflet-geodesy.js',
+            'bower_components/esri-leaflet/dist/esri-leaflet.js',
+            'bower_components/Leaflet.awesome-markers/dist/leaflet.awesome-markers.js',
+            'bower_components/angular-mocks/angular-mocks.js',
 
-    'bower_components/angular-filter/dist/angular-filter.js',
-    'bower_components/Proj4Leaflet/src/proj4leaflet.js',
+            'bower_components/tink-modal-angular/dist/tink-modal-angular.js',
 
-
-
-    'test/scripts/moduleInit.js',
-
-    'test/scripts/directives/mapDirective.js',
-    'test/scripts/services/WMSService.js',
-
-    'test/scripts/services/baseLayersService.js',
-    'test/scripts/services/mapService.js',
-    'test/scripts/services/layersService.js',
-    'test/scripts/services/themeHelper.js',
-    'test/scripts/services/themeService.js',
-    'test/scripts/services/mapData.js',
-    'test/scripts/services/GISService.js',
-    'test/scripts/services/helperService.js',
-    'test/scripts/services/mapEvents.js',
-    'test/scripts/services/layerManagementService.js',
-    'test/scripts/services/drawService.js',
-    'test/scripts/services/externService.js',
-    'test/scripts/services/geopuntService.js',
-    
-
-    'test/scripts/controllers/mapController.js',
-    'test/scripts/controllers/layersController.js',
-    'test/scripts/controllers/layerController.js',
-    'test/scripts/controllers/groupLayerController.js',
-    'test/scripts/controllers/themeController.js',
-    'test/scripts/controllers/addLayerController.js',
-
-
-    'test/scripts/directives/layerDirective.js',
-    'test/scripts/directives/layersDirective.js',
-    'test/scripts/directives/groupLayerDirective.js',
-    'test/scripts/directives/themeDirective.js',
-    'test/scripts/directives/indeterminateCheckbox.js',
-
-   
-    'test/scripts/search/services/searchService.js',
-    'test/scripts/search/services/resultsData.js',
-
-    'test/scripts/search/controllers/searchController.js',
-    'test/scripts/search/controllers/searchSelectedController.js',
-    'test/scripts/search/controllers/searchResultsController.js',
-    'test/scripts/search/directives/searchDirective.js',
-    'test/scripts/search/directives/searchResultsDirective.js',
-    'test/scripts/search/directives/searchSelectedDirective.js',
+            'bower_components/angular-filter/dist/angular-filter.js',
+            'bower_components/Proj4Leaflet/src/proj4leaflet.js',
 
 
 
-    'test/scripts/shared/logger.js',
-    'test/scripts/shared/errorhandler.js',
-    'test/scripts/shared/leafletDrawNL.js',
+            'scripts/globals.js',
+            'scripts/app.js',
 
-'test/mock/{,*/}*.js',
-            'test/spec/{,*/}*.js',
+            'scripts/other/directives/mapDirective.js',
+            'scripts/other/services/WMSService.js',
+
+            'scripts/other/services/baseLayersService.js',
+            'scripts/other/services/mapService.js',
+            'scripts/other/services/layersService.js',
+            'scripts/other/services/themeHelper.js',
+            'scripts/other/services/themeService.js',
+            'scripts/other/services/mapData.js',
+            'scripts/other/services/GISService.js',
+            'scripts/other/services/helperService.js',
+            'scripts/other/services/mapEvents.js',
+            'scripts/other/services/drawService.js',
+            'scripts/other/services/externService.js',
+
+
+            'scripts/other/controllers/mapController.js',
+            'scripts/other/controllers/layersController.js',
+            'scripts/other/controllers/layerController.js',
+            'scripts/other/controllers/groupLayerController.js',
+            'scripts/other/controllers/themeController.js',
+
+
+            'scripts/other/directives/layerDirective.js',
+            'scripts/other/directives/layersDirective.js',
+            'scripts/other/directives/groupLayerDirective.js',
+            'scripts/other/directives/themeDirective.js',
+            'scripts/other/directives/indeterminateCheckbox.js',
+
+            'scripts/layerManagement/services/geopuntService.js',
+            'scripts/layerManagement/services/layerManagementService.js',
+
+            'scripts/layerManagement/controllers/layerManagerController.js',
+            'scripts/layerManagement/controllers/geoPuntController.js',
+            'scripts/layerManagement/controllers/solrGISController.js',
+            'scripts/layerManagement/directives/geoPuntDirective.js',
+            'scripts/layerManagement/directives/solrGISDirective.js',
+
+
+
+            'scripts/search/services/searchService.js',
+            'scripts/search/services/resultsData.js',
+
+            'scripts/search/controllers/searchController.js',
+            'scripts/search/controllers/searchSelectedController.js',
+            'scripts/search/controllers/searchResultsController.js',
+            'scripts/search/directives/searchDirective.js',
+            'scripts/search/directives/searchResultsDirective.js',
+            'scripts/search/directives/searchSelectedDirective.js',
+
+
+            'scripts/shared/logger.js',
+            'scripts/shared/errorhandler.js',
+            'scripts/shared/leafletDrawNL.js',
+
+            'test/mock/{,*/}*.js',
+            'test/spec/{,*/}*.js'
         ],
 
         // list of files / patterns to exclude
