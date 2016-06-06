@@ -1,7 +1,7 @@
 'use strict';
 (function () {
     var module = angular.module('tink.gis');
-    var mapEvents = function (map, MapService, MapData, DrawService) {
+    var mapEvents = function (map, MapService, MapData) {
         var _mapEvents = {};
         map.on('draw:drawstart', function (event) {
             console.log('draw started');
@@ -32,10 +32,8 @@
 
         map.on('zoomend', function (event) {
             console.log('Zoomend!!!');
-            console.log(event);
-            // MapData.Themes.forEach(x => {
-            //     console.log(x.MapData);
-            // });
+            MapData.UpdateDisplayed();
+            MapData.Apply();
         });
 
         map.on('click', function (event) {

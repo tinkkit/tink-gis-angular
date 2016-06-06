@@ -34,7 +34,7 @@
             // });
             return $q.all(promises);
         };
-        _service.SetAditionalLayerInfo = function (theme) {
+        _service.GetAditionalLayerInfo = function (theme) {
             var promLegend = GISService.GetLegendData(theme.CleanUrl);
             promLegend.success(function (data, statuscode, functie, getdata) {
                 theme.AllLayers.forEach(layer => {
@@ -50,7 +50,7 @@
                 });
             });
             var promLayerData = GISService.GetThemeLayerData(theme.CleanUrl);
-            promLayerData.success(function (data, statuscode, functie, getdata) {
+                promLayerData.success(function (data, statuscode, functie, getdata) {
                 theme.AllLayers.forEach(layer => {
                     var layerid = layer.id;
                     var layerInfo = data.layers.find(x => x.id == layerid);

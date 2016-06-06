@@ -12,7 +12,7 @@
         enableDebug: true,
         enableLog: true
     });
-    
+
     module.directive('preventDefault', function () {
         return function (scope, element, attrs) {
             angular.element(element).bind('click', function (event) {
@@ -60,12 +60,15 @@
                     0.026458386250105836
                 ]
             });
+        console.log(crsLambert.scale(2));
+        console.log(crsLambert.scale(3));
+        console.log(crsLambert.scale(4));
         var map = L.map('map', {
             crs: crsLambert,
             zoomControl: false,
             drawControl: false
         }).setView([51.2192159, 4.4028818], 5);
-        
+
         // The min/maxZoom values provided should match the actual cache thats been published. This information can be retrieved from the service endpoint directly.
         // L.esri.tiledMapLayer({
         //     url: 'https://geodata.antwerpen.be/arcgissql/rest/services/P_Publiek/P_basemap/MapServer',
@@ -73,11 +76,11 @@
         //     minZoom: 1,
         //     continuousWorld: true
         // }).addTo(map);
-        
-        
-        
-        
-        
+
+
+
+
+
         map.doubleClickZoom.disable();
         // L.control.scale({ imperial: false }).addTo(map);
         var drawnItems = L.featureGroup().addTo(map);

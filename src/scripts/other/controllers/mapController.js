@@ -1,4 +1,4 @@
-/// <reference path="../services/mapService.js" />
+/// <reference path='../services/mapService.js' />
 
 'use strict';
 (function(module) {
@@ -30,14 +30,6 @@
                     break;
             }
         };
-        // var toggleDrawControls = function(showControls) {
-        //     if (showControls) {
-        //         $('.leaflet-draw.leaflet-control').show();
-        //     }
-        //     else {
-        //         $('.leaflet-draw.leaflet-control').hide();
-        //     }
-        // };
         vm.drawingButtonChanged = function(drawOption) {
             MapData.CleanMap();
             MapData.DrawingType = drawOption; // pff must be possible to be able to sync them...
@@ -53,16 +45,13 @@
             if (oldVal == 0) {
                 vm.MaxLoading = newVal;
             }
-            // if (newVal < oldVal) {
             if (vm.MaxLoading < oldVal) {
                 vm.MaxLoading = oldVal;
             }
-            // }
             if (newVal == 0) {
                 vm.MaxLoading = 0;
             }
-            // $scope.$apply();
-            console.log("MapLoading val: " + newVal + "/" + vm.MaxLoading);
+            console.log('MapLoading val: ' + newVal + '/' + vm.MaxLoading);
         });
         vm.selectpunt = function() {
             MapData.CleanMap();
@@ -71,7 +60,7 @@
         };
         vm.layerChange = function() {
             MapData.CleanMap();
-            // console.log("vm.sel: " + vm.selectedLayer.id + "/ MapData.SelectedLayer: " + MapData.Layer.SelectedLayer.id);
+            // console.log('vm.sel: ' + vm.selectedLayer.id + '/ MapData.SelectedLayer: ' + MapData.Layer.SelectedLayer.id);
             MapData.SelectedLayer = vm.selectedLayer;
         };
         vm.zoomIn = function() {

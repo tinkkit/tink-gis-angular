@@ -8,12 +8,12 @@
             console.log(themesBatch);
             themesBatch.forEach(theme => {
                 var existingTheme = MapData.Themes.find(x => { return x.CleanUrl == theme.CleanUrl });
-                console.log(theme);
-                console.log(theme.status);
+                console.log('addorupdate or del theme, ', theme, theme.status);
                 switch (theme.status) {
                     case ThemeStatus.NEW:
                         if (theme.Type == ThemeType.ESRI) {
-                            LayerManagementService.SetAditionalLayerInfo(theme);
+                            LayerManagementService.GetAditionalLayerInfo(theme);
+                            theme.UpdateDisplayed(MapData.GetScale());
                         }
                         _service.AddNewTheme(theme);
                         break;

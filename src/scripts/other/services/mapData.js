@@ -40,6 +40,12 @@
             _data.CleanWatIsHier();
             _data.CleanSearch();
         };
+        _data.GetZoomLevel = function () {
+            return map.getZoom();
+        };
+        _data.GetScale = function () {
+            return Scales[_data.GetZoomLevel()];
+        };
         _data.CleanWatIsHier = function () {
             if (WatIsHierOriginalMarker) {
                 WatIsHierOriginalMarker.clearAllEventListeners();
@@ -52,6 +58,18 @@
                 WatIsHierMarker = null;
             }
             straatNaam = null;
+        };
+        _data.UpdateDisplayed = function (Themes) {
+            var currentScale = _data.GetScale();
+            _data.Themes.forEach(theme => {
+                if (theme.Type == ThemeType.ESRI) {
+                    theme.UpdateDisplayed(currentScale);
+                }
+            });
+        };
+        _data.Apply = function () {
+            console.log('apply');
+            $rootScope.$apply();
         };
         _data.CreateOrigineleMarker = function (latlng, addressFound) {
             if (addressFound) {
@@ -99,15 +117,10 @@
                     '</div>' +
                     '</div>';
                 WatIsHierOriginalMarker.bindPopup(html, { minWidth: 200 }).openPopup();
-                // WatIsHierOriginalMarker.bindPopup(
-                //     'WGS84 (x,y):' + latlng.lat.toFixed(6) + ',' + latlng.lng.toFixed(6) +
-                //     '<br>Lambert (x,y):' + convertedxy.x.toFixed(1) + ',' + convertedxy.y.toFixed(1)).openPopup();
             }
 
 
-            // WatIsHierOriginalMarker.on('popupclose', function (event) {
-            //     _data.CleanWatIsHier();
-            // });
+
         };
         var straatNaam = null;
         _data.CreateWatIsHierMarker = function (data) {

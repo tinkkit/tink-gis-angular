@@ -42,6 +42,7 @@
                             tmplayer.visible = true;
                             tmplayer.enabled = true;
                             tmplayer.parent = null;
+                            tmplayer.displayed = true;
                             tmplayer.theme = wmstheme;
                             tmplayer.name = layer.name;
                             tmplayer.title = layer.title;

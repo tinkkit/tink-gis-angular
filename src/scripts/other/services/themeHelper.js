@@ -34,8 +34,20 @@
                     x.enabled = true;
                     x.parent = null;
                     x.title = x.name;
-                    x.name = x.name;
                     x.theme = thema;
+                    x.displayed = true;
+                    x.UpdateDisplayed = function (currentScale) {
+                        if (x.maxScale > 0 || x.minScale > 0) {
+                            console.log('MinMaxandCurrentScale', x.maxScale, x.minScale, currentScale);
+                            if (currentScale > x.maxScale && currentScale < x.minScale) {
+                                x.displayed = true;
+                            }
+                            else {
+                                x.displayed = false;
+
+                            }
+                        }
+                    };
                     x.type = LayerType.LAYER;
                     thema.AllLayers.push(x);
                     if (x.parentLayerId === -1) {
@@ -58,6 +70,11 @@
                         });
                     }
                 });
+                thema.UpdateDisplayed = function (currentScale) {
+                    thema.AllLayers.forEach(function (layer) {
+                        layer.UpdateDisplayed(currentScale);
+                    });
+                };
                 thema.UpdateMap = function () {
                     thema.RecalculateVisibleLayerIds();
                     thema.MapData.setLayers(thema.VisibleLayerIds);
@@ -65,7 +82,7 @@
 
                 thema.RecalculateVisibleLayerIds = function () {
                     thema.VisibleLayerIds.length = 0;
-                    _.forEach(thema.VisibleLayers, function (visLayer) {
+                    thema.VisibleLayers.forEach(function (visLayer) {
                         thema.VisibleLayerIds.push(visLayer.id);
                     });
                     if (thema.VisibleLayerIds.length === 0) {
