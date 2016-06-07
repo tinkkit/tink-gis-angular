@@ -30,7 +30,7 @@
                 thema.status = ThemeStatus.NEW;
                 thema.MapData = {};
                 _.each(rawlayers, function (x) {
-                    x.visible = true;
+                    x.visible = x.defaultVisibility;
                     x.enabled = true;
                     x.parent = null;
                     x.title = x.name;
