@@ -92,8 +92,8 @@
             switch (theme.Type) {
                 case ThemeType.ESRI:
                     theme.MapData = L.esri.dynamicMapLayer({
-                        maxZoom: 20,
-                        minZoom: 1,
+                        maxZoom: 19,
+                        minZoom: 0,
                         url: theme.CleanUrl,
                         opacity: 1,
                         layers: theme.VisibleLayerIds,
@@ -131,8 +131,8 @@
                     break;
                 case ThemeType.WMS:
                     theme.MapData = L.tileLayer.betterWms(theme.CleanUrl, {
-                        maxZoom: 20,
-                        minZoom: 1,
+                        maxZoom: 19,
+                        minZoom: 0,
                         format: 'image/png',
                         layers: theme.VisibleLayerIds,
                         transparent: true,

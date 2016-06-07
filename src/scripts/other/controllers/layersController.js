@@ -26,7 +26,7 @@
                 controller: 'LayerManagerController',
                 resolve: {
                     backdrop: false,
-                    keyboard: true,
+                    keyboard: true
                     // urls: function() {
                     //     return MapData.ThemeUrls;
                     // }

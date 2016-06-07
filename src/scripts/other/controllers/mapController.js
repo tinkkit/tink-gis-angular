@@ -1,9 +1,9 @@
 /// <reference path='../services/mapService.js' />
 
 'use strict';
-(function(module) {
+(function (module) {
     module = angular.module('tink.gis');
-    var theController = module.controller('mapController', function($scope, BaseLayersService, MapService, MapData, map, MapEvents, DrawService) {
+    var theController = module.controller('mapController', function ($scope, BaseLayersService, MapService, MapData, map, MapEvents, DrawService) {
         //We need to include MapEvents, even tho we don t call it just to make sure it gets loaded!
         var vm = this;
         vm.layerId = '';
@@ -13,7 +13,7 @@
         vm.drawingType = MapData.DrawingType
         vm.showMetenControls = false;
         vm.showDrawControls = false;
-        vm.interactieButtonChanged = function(ActiveButton) {
+        vm.interactieButtonChanged = function (ActiveButton) {
             MapData.CleanMap();
             MapData.ActiveInteractieKnop = ActiveButton; // If we only could keep the vmactiveInteractieKnop in sync with the one from MapData
             vm.activeInteractieKnop = ActiveButton;
@@ -30,7 +30,27 @@
                     break;
             }
         };
-        vm.drawingButtonChanged = function(drawOption) {
+        vm.zoekLocChanged = function (search) {
+            search = search.trim();
+            if ((search.contains('51.') || search.contains('51,')) && (search.contains('4.') || search.contains('4,'))) {
+                // tis lat lng
+            }
+            var aantalseperators = 0;
+            var aantalkommasenpunten = 0;
+            var firstseperator = null;
+            var middleseperator = null;
+            for (let char of search) {
+                if (firstseperator) {
+                    if (char == ',' || char == '.' || char == ' ') {
+                        middleseperator = char;
+                    }
+                }
+                if (char == ',' || char == '.') {
+                    firstseperator = char; // zoek het eerste punt of comma
+                }
+            }
+        };
+        vm.drawingButtonChanged = function (drawOption) {
             MapData.CleanMap();
             MapData.DrawingType = drawOption; // pff must be possible to be able to sync them...
             vm.drawingType = drawOption;
@@ -40,7 +60,7 @@
         vm.Loading = 0;
         vm.MaxLoading = 0;
 
-        $scope.$watch(function() { return MapData.Loading; }, function(newVal, oldVal) {
+        $scope.$watch(function () { return MapData.Loading; }, function (newVal, oldVal) {
             vm.Loading = newVal;
             if (oldVal == 0) {
                 vm.MaxLoading = newVal;
@@ -53,32 +73,32 @@
             }
             console.log('MapLoading val: ' + newVal + '/' + vm.MaxLoading);
         });
-        vm.selectpunt = function() {
+        vm.selectpunt = function () {
             MapData.CleanMap();
             MapData.DrawingType = DrawingOption.NIETS; // pff must be possible to be able to sync them...
             vm.drawingType = DrawingOption.NIETS;
         };
-        vm.layerChange = function() {
+        vm.layerChange = function () {
             MapData.CleanMap();
             // console.log('vm.sel: ' + vm.selectedLayer.id + '/ MapData.SelectedLayer: ' + MapData.Layer.SelectedLayer.id);
             MapData.SelectedLayer = vm.selectedLayer;
         };
-        vm.zoomIn = function() {
+        vm.zoomIn = function () {
             map.zoomIn();
         };
-        vm.zoomOut = function() {
+        vm.zoomOut = function () {
             map.zoomOut();
         };
-        vm.fullExtent = function() {
+        vm.fullExtent = function () {
             map.setView(new L.LatLng(51.2192159, 4.4028818), 16);
         };
         vm.kaartIsGetoond = true;
-        vm.toonKaart = function() {
+        vm.toonKaart = function () {
             vm.kaartIsGetoond = true;
             map.removeLayer(BaseLayersService.luchtfoto);
             map.addLayer(BaseLayersService.kaart);
         };
-        vm.toonLuchtfoto = function() {
+        vm.toonLuchtfoto = function () {
             vm.kaartIsGetoond = false;
             map.removeLayer(BaseLayersService.kaart);
             map.addLayer(BaseLayersService.luchtfoto);

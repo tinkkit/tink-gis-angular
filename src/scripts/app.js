@@ -60,9 +60,6 @@
                     0.026458386250105836
                 ]
             });
-        console.log(crsLambert.scale(2));
-        console.log(crsLambert.scale(3));
-        console.log(crsLambert.scale(4));
         var map = L.map('map', {
             crs: crsLambert,
             zoomControl: false,
