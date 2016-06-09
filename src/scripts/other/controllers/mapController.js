@@ -3,7 +3,7 @@
 'use strict';
 (function (module) {
     module = angular.module('tink.gis');
-    var theController = module.controller('mapController', function ($scope, BaseLayersService, MapService, MapData, map, MapEvents, DrawService) {
+    var theController = module.controller('mapController', function ($scope, BaseLayersService, MapService, MapData, map, MapEvents, DrawService, HelperService) {
         //We need to include MapEvents, even tho we don t call it just to make sure it gets loaded!
         var vm = this;
         vm.layerId = '';
@@ -30,24 +30,100 @@
                     break;
             }
         };
+        function isCharDigit(n) {
+            return n != ' ' && n > -1;
+        }
         vm.zoekLocChanged = function (search) {
             search = search.trim();
-            if ((search.contains('51.') || search.contains('51,')) && (search.contains('4.') || search.contains('4,'))) {
-                // tis lat lng
+            var lambertCheck = isLambertCordinaat(search);
+            console.log(lambertCheck);
+            if (lambertCheck.hasCordinates) {
+                var xyWGS84 = HelperService.ConvertLambert72ToWSG84({ x: lambertCheck.X, y: lambertCheck.Y });
+                map.setView(L.latLng(xyWGS84.x, xyWGS84.y));
             }
-            var aantalseperators = 0;
-            var aantalkommasenpunten = 0;
-            var firstseperator = null;
-            var middleseperator = null;
+        };
+        var isWGS84Cordinaat = function (search) {
+            if ((search.contains('51.') || search.contains('51,')) && (search.contains('4.') || search.contains('4,'))) {
+                return true;
+            }
+            return false;
+        };
+        var isLambertCordinaat = function (search) {
+            var returnobject = {};
+            returnobject.hasCordinates = false;
+            returnobject.error = null;
+            returnobject.X = null;
+            returnobject.Y = null;
+            var getals = [];
+            var currgetal = '';
+            var samegetal = false;
+            var aantalmet6size = 0;
+            var hasaseperater = false;
             for (let char of search) {
-                if (firstseperator) {
-                    if (char == ',' || char == '.' || char == ' ') {
-                        middleseperator = char;
+                if (isCharDigit(char)) {
+                    if (samegetal) {
+                        currgetal = currgetal + char;
+                    }
+                    else {
+                        currgetal = '' + char;
+                        samegetal = true;
                     }
                 }
-                if (char == ',' || char == '.') {
-                    firstseperator = char; // zoek het eerste punt of comma
+                else {
+                    if (currgetal.length == 6) {
+                        if (currgetal[0] == '1') {
+                            if (currgetal[1] == '3' || currgetal[1] == '4' || currgetal[1] == '5') {
+                                aantalmet6size++;
+                            }
+                            else {
+                                returnobject.error = 'Out of bounds cordinaten voor Antwerpen.';
+                                return returnobject;
+                            }
+                        }
+                        else if (currgetal[0] == '2') {
+                            if (currgetal[1] == '0' || currgetal[1] == '1' || currgetal[1] == '2') {
+                                aantalmet6size++;
+                            } else {
+                                returnobject.error = 'Out of bounds cordinaten voor Antwerpen.';
+                                return returnobject;
+                            }
+                        }
+
+
+                        if ((char == ',' || char == '.') && hasaseperater == false) {
+                            hasaseperater = true;
+                            currgetal = currgetal + char;
+                        } else {
+                            hasaseperater = false;
+                            getals.push(currgetal);
+                            currgetal = '';
+                            samegetal = false;
+                        }
+                    }
+                    else {
+                        if (currgetal != '') {
+                            getals.push(currgetal);
+                        }
+                        hasaseperater = false;
+                        currgetal = '';
+                        samegetal = false;
+                    }
+
                 }
+            }
+            if (currgetal != '') {
+                getals.push(currgetal);
+            }
+
+            if (aantalmet6size == 2 && getals.length == 2) {
+                returnobject.X = getals[0];
+                returnobject.Y = getals[1];
+                returnobject.hasCordinates = true;
+                return returnobject;
+            }
+            else {
+                returnobject.error = 'Incorrect format: Lat,Lng is required';
+                return returnobject;
             }
         };
         vm.drawingButtonChanged = function (drawOption) {
@@ -104,5 +180,5 @@
             map.addLayer(BaseLayersService.luchtfoto);
         };
     });
-    theController.$inject = ['BaseLayersService', 'MapService', 'MapData', 'map', 'MapEvents', 'DrawService'];
+    theController.$inject = ['BaseLayersService', 'MapService', 'MapData', 'map', 'MapEvents', 'DrawService', 'HelperService'];
 })();
