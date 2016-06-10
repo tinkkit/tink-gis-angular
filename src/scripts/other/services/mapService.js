@@ -90,6 +90,7 @@
         };
 
         _mapService.Select = function (event) {
+            
             if (MapData.SelectedLayer.id == '') { // alle layers selected
                 MapData.Themes.filter(x => x.Type == ThemeType.ESRI).forEach(theme => { // dus doen we de qry op alle lagen.
                     ResultsData.Loading++;

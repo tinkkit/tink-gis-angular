@@ -10,7 +10,7 @@
                 ng-change="mapctrl.layerChange()" ng-class="{invisible: mapctrl.activeInteractieKnop!='select' || mapctrl.SelectableLayers.length<=1}"
                 prevent-default></select>
             <input type="text" class="zoekbalk" ng-show="mapctrl.IsKnop1 == false" placeholder="Geef een X,Y / locatie of POI in." ng-change="mapctrl.zoekLocChanged(mapctrl.zoekLoc)"
-                ng-model="mapctrl.zoekLoc" prevent-default/>
+                ng-keyup="$event.keyCode == 13 && mapctrl.zoekEnter(mapctrl.zoekLoc)" ng-model="mapctrl.zoekLoc" prevent-default/>
 
         </div>
         <div class="btn-group btn-group-vertical ll interactiebtns">

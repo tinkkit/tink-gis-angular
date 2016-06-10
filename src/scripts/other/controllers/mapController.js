@@ -30,8 +30,8 @@
                     break;
             }
         };
-      
-        vm.zoekLocChanged = function (search) {
+        vm.zoekEnter = function (search) {
+
             search = search.trim();
             var WGS84Check = HelperService.getWGS84CordsFromString(search);
             if (WGS84Check.hasCordinates) {
@@ -43,6 +43,9 @@
                     map.setView(L.latLng(xyWGS84.x, xyWGS84.y));
                 }
             }
+        };
+        vm.zoekLocChanged = function (search) {
+
         };
 
         vm.drawingButtonChanged = function (drawOption) {

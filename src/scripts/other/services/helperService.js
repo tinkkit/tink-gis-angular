@@ -70,8 +70,8 @@
                 }
             }
             if (aantalmetcorrectesize == 2 && getals.length == 2) {
-                returnobject.X = getals[0];
-                returnobject.Y = getals[1];
+                returnobject.X = getals[0].replace(',', '.');
+                returnobject.Y = getals[1].replace(',', '.');
                 returnobject.hasCordinates = true;
                 return returnobject;
             }
@@ -152,8 +152,8 @@
             }
 
             if (aantalmet6size == 2 && getals.length == 2) {
-                returnobject.X = getals[0];
-                returnobject.Y = getals[1];
+                returnobject.X = getals[0].replace(',', '.');
+                returnobject.Y = getals[1].replace(',', '.');
                 returnobject.hasCordinates = true;
                 return returnobject;
             }
