@@ -30,102 +30,21 @@
                     break;
             }
         };
-        function isCharDigit(n) {
-            return n != ' ' && n > -1;
-        }
+      
         vm.zoekLocChanged = function (search) {
             search = search.trim();
-            var lambertCheck = isLambertCordinaat(search);
-            console.log(lambertCheck);
-            if (lambertCheck.hasCordinates) {
-                var xyWGS84 = HelperService.ConvertLambert72ToWSG84({ x: lambertCheck.X, y: lambertCheck.Y });
-                map.setView(L.latLng(xyWGS84.x, xyWGS84.y));
-            }
-        };
-        var isWGS84Cordinaat = function (search) {
-            if ((search.contains('51.') || search.contains('51,')) && (search.contains('4.') || search.contains('4,'))) {
-                return true;
-            }
-            return false;
-        };
-        var isLambertCordinaat = function (search) {
-            var returnobject = {};
-            returnobject.hasCordinates = false;
-            returnobject.error = null;
-            returnobject.X = null;
-            returnobject.Y = null;
-            var getals = [];
-            var currgetal = '';
-            var samegetal = false;
-            var aantalmet6size = 0;
-            var hasaseperater = false;
-            for (let char of search) {
-                if (isCharDigit(char)) {
-                    if (samegetal) {
-                        currgetal = currgetal + char;
-                    }
-                    else {
-                        currgetal = '' + char;
-                        samegetal = true;
-                    }
-                }
-                else {
-                    if (currgetal.length == 6) {
-                        if (currgetal[0] == '1') {
-                            if (currgetal[1] == '3' || currgetal[1] == '4' || currgetal[1] == '5') {
-                                aantalmet6size++;
-                            }
-                            else {
-                                returnobject.error = 'Out of bounds cordinaten voor Antwerpen.';
-                                return returnobject;
-                            }
-                        }
-                        else if (currgetal[0] == '2') {
-                            if (currgetal[1] == '0' || currgetal[1] == '1' || currgetal[1] == '2') {
-                                aantalmet6size++;
-                            } else {
-                                returnobject.error = 'Out of bounds cordinaten voor Antwerpen.';
-                                return returnobject;
-                            }
-                        }
-
-
-                        if ((char == ',' || char == '.') && hasaseperater == false) {
-                            hasaseperater = true;
-                            currgetal = currgetal + char;
-                        } else {
-                            hasaseperater = false;
-                            getals.push(currgetal);
-                            currgetal = '';
-                            samegetal = false;
-                        }
-                    }
-                    else {
-                        if (currgetal != '') {
-                            getals.push(currgetal);
-                        }
-                        hasaseperater = false;
-                        currgetal = '';
-                        samegetal = false;
-                    }
-
+            var WGS84Check = HelperService.getWGS84CordsFromString(search);
+            if (WGS84Check.hasCordinates) {
+                map.setView(L.latLng(WGS84Check.X, WGS84Check.Y));
+            } else {
+                var lambertCheck = HelperService.getLambartCordsFromString(search);
+                if (lambertCheck.hasCordinates) {
+                    var xyWGS84 = HelperService.ConvertLambert72ToWSG84({ x: lambertCheck.X, y: lambertCheck.Y });
+                    map.setView(L.latLng(xyWGS84.x, xyWGS84.y));
                 }
             }
-            if (currgetal != '') {
-                getals.push(currgetal);
-            }
-
-            if (aantalmet6size == 2 && getals.length == 2) {
-                returnobject.X = getals[0];
-                returnobject.Y = getals[1];
-                returnobject.hasCordinates = true;
-                return returnobject;
-            }
-            else {
-                returnobject.error = 'Incorrect format: Lat,Lng is required';
-                return returnobject;
-            }
         };
+
         vm.drawingButtonChanged = function (drawOption) {
             MapData.CleanMap();
             MapData.DrawingType = drawOption; // pff must be possible to be able to sync them...
