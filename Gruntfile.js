@@ -275,7 +275,7 @@ module.exports = function(grunt) {
         },
         babel: {
             options: {
-                sourceMap: true,
+                sourceMap: false,
                 presets: ['es2015']
             },
             dist: {
@@ -285,6 +285,16 @@ module.exports = function(grunt) {
                     cwd: 'src/scripts',
                     src: ['**/*.js'],
                     dest: 'dist/scripts',
+                    ext: '.js'
+                }]
+            },
+              test: {
+
+                files: [{
+                    expand: true,
+                    cwd: 'src/scripts',
+                    src: ['**/*.js'],
+                    dest: 'test/scripts',
                     ext: '.js'
                 }]
             }
@@ -386,6 +396,7 @@ module.exports = function(grunt) {
         karma: {
             unit: {
                 configFile: 'test/karma.conf.js',
+                logLevel: 'DEBUG',
                 singleRun: false
             },
             build: {
@@ -415,6 +426,7 @@ module.exports = function(grunt) {
         'clean:server',
         'concurrent:test',
         'autoprefixer',
+        'babel:test',
         'connect:test',
         'karma:unit'
     ]);
