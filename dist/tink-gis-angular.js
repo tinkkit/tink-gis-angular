@@ -75,6 +75,7 @@
 })();
 ;'use strict';
 
+/* global ThemeStatus, LayerType */
 var ThemeStatus = { // http://stijndewitt.com/2014/01/26/enums-in-javascript/
     UNMODIFIED: 0,
     NEW: 1,
@@ -115,6 +116,8 @@ var Style = {
         fillOpacity: 0.5
     }
 };
+
+var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500, 10000, 7500, 5000, 2500, 2000, 1500, 1250, 1000, 750, 500, 250, 100];
 ;'use strict';
 
 (function (module) {
@@ -204,6 +207,7 @@ var Style = {
         $scope.geopuntThemeChanged = function (theme) {
             // alert(theme.Type != 'WMS' && theme.Type != 'ESRI');
             // if (theme.Type != 'wms' && theme.Type != 'esri') {
+            console.log(theme);
             var url = theme.Url.trim().replace('?', '');
             if (MapData.Themes.find(function (x) {
                 return x.CleanUrl == url;
@@ -622,7 +626,7 @@ var Style = {
             // });
             return $q.all(promises);
         };
-        _service.SetAditionalLayerInfo = function (theme) {
+        _service.GetAditionalLayerInfo = function (theme) {
             var promLegend = GISService.GetLegendData(theme.CleanUrl);
             promLegend.success(function (data, statuscode, functie, getdata) {
                 theme.AllLayers.forEach(function (layer) {
@@ -722,11 +726,11 @@ var Style = {
                 resolve: {
                     backdrop: false,
                     keyboard: true
+                    // urls: function() {
+                    //     return MapData.ThemeUrls;
+                    // }
                 }
             });
-            // urls: function() {
-            //     return MapData.ThemeUrls;
-            // }
             addLayerInstance.result.then(function (selectedThemes) {
                 ThemeService.AddAndUpdateThemes(selectedThemes);
             }, function (obj) {
@@ -736,13 +740,13 @@ var Style = {
     });
     theController.$inject = ['MapData', 'map', 'ThemeService', '$modal'];
 })();
-;/// <reference path="../services/mapService.js" />
+;/// <reference path='../services/mapService.js' />
 
 'use strict';
 
 (function (module) {
     module = angular.module('tink.gis');
-    var theController = module.controller('mapController', function ($scope, BaseLayersService, MapService, MapData, map, MapEvents, DrawService) {
+    var theController = module.controller('mapController', function ($scope, BaseLayersService, MapService, MapData, map, MapEvents, DrawService, HelperService) {
         //We need to include MapEvents, even tho we don t call it just to make sure it gets loaded!
         var vm = this;
         vm.layerId = '';
@@ -769,14 +773,22 @@ var Style = {
                     break;
             }
         };
-        // var toggleDrawControls = function(showControls) {
-        //     if (showControls) {
-        //         $('.leaflet-draw.leaflet-control').show();
-        //     }
-        //     else {
-        //         $('.leaflet-draw.leaflet-control').hide();
-        //     }
-        // };
+        vm.zoekEnter = function (search) {
+
+            search = search.trim();
+            var WGS84Check = HelperService.getWGS84CordsFromString(search);
+            if (WGS84Check.hasCordinates) {
+                map.setView(L.latLng(WGS84Check.X, WGS84Check.Y));
+            } else {
+                var lambertCheck = HelperService.getLambartCordsFromString(search);
+                if (lambertCheck.hasCordinates) {
+                    var xyWGS84 = HelperService.ConvertLambert72ToWSG84({ x: lambertCheck.X, y: lambertCheck.Y });
+                    map.setView(L.latLng(xyWGS84.x, xyWGS84.y));
+                }
+            }
+        };
+        vm.zoekLocChanged = function (search) {};
+
         vm.drawingButtonChanged = function (drawOption) {
             MapData.CleanMap();
             MapData.DrawingType = drawOption; // pff must be possible to be able to sync them...
@@ -793,16 +805,13 @@ var Style = {
             if (oldVal == 0) {
                 vm.MaxLoading = newVal;
             }
-            // if (newVal < oldVal) {
             if (vm.MaxLoading < oldVal) {
                 vm.MaxLoading = oldVal;
             }
-            // }
             if (newVal == 0) {
                 vm.MaxLoading = 0;
             }
-            // $scope.$apply();
-            console.log("MapLoading val: " + newVal + "/" + vm.MaxLoading);
+            console.log('MapLoading val: ' + newVal + '/' + vm.MaxLoading);
         });
         vm.selectpunt = function () {
             MapData.CleanMap();
@@ -811,7 +820,7 @@ var Style = {
         };
         vm.layerChange = function () {
             MapData.CleanMap();
-            // console.log("vm.sel: " + vm.selectedLayer.id + "/ MapData.SelectedLayer: " + MapData.Layer.SelectedLayer.id);
+            // console.log('vm.sel: ' + vm.selectedLayer.id + '/ MapData.SelectedLayer: ' + MapData.Layer.SelectedLayer.id);
             MapData.SelectedLayer = vm.selectedLayer;
         };
         vm.zoomIn = function () {
@@ -835,7 +844,7 @@ var Style = {
             map.addLayer(BaseLayersService.luchtfoto);
         };
     });
-    theController.$inject = ['BaseLayersService', 'MapService', 'MapData', 'map', 'MapEvents', 'DrawService'];
+    theController.$inject = ['BaseLayersService', 'MapService', 'MapData', 'map', 'MapEvents', 'DrawService', 'HelperService'];
 })();
 ;'use strict';
 
@@ -1108,6 +1117,7 @@ var Style = {
                             tmplayer.visible = true;
                             tmplayer.enabled = true;
                             tmplayer.parent = null;
+                            tmplayer.displayed = true;
                             tmplayer.theme = wmstheme;
                             tmplayer.name = layer.name;
                             tmplayer.title = layer.title;
@@ -1399,6 +1409,176 @@ var Style = {
                 x: result[1]
             };
         };
+        var isCharDigit = function isCharDigit(n) {
+            return n != ' ' && n > -1;
+        };
+        _service.getWGS84CordsFromString = function (search) {
+            var returnobject = {};
+            returnobject.hasCordinates = false;
+            returnobject.error = null;
+            returnobject.X = null;
+            returnobject.Y = null;
+            var currgetal = '';
+            var samegetal = false;
+            var aantalmetcorrectesize = 0;
+            var hasaseperater = false;
+            var getals = [];
+            if ((search.contains('51.') || search.contains('51,')) && (search.contains('4.') || search.contains('4,'))) {
+                var _iteratorNormalCompletion = true;
+                var _didIteratorError = false;
+                var _iteratorError = undefined;
+
+                try {
+                    for (var _iterator = search[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                        var char = _step.value;
+
+                        if (isCharDigit(char)) {
+                            if (samegetal) {
+                                currgetal = currgetal + char;
+                            } else {
+                                currgetal = '' + char;
+                                samegetal = true;
+                            }
+                        } else {
+                            if ((currgetal == '51' || currgetal == '4') && (char == '.' || char == ',') && hasaseperater == false) {
+                                currgetal = currgetal + char;
+                                aantalmetcorrectesize++;
+                                hasaseperater = true;
+                            } else {
+                                if (currgetal != '') {
+                                    getals.push(currgetal);
+                                }
+                                currgetal = '';
+                                samegetal = false;
+                                hasaseperater = false;
+                            }
+                        }
+                    }
+                } catch (err) {
+                    _didIteratorError = true;
+                    _iteratorError = err;
+                } finally {
+                    try {
+                        if (!_iteratorNormalCompletion && _iterator.return) {
+                            _iterator.return();
+                        }
+                    } finally {
+                        if (_didIteratorError) {
+                            throw _iteratorError;
+                        }
+                    }
+                }
+
+                if (currgetal != '') {
+                    getals.push(currgetal);
+                }
+            }
+            if (aantalmetcorrectesize == 2 && getals.length == 2) {
+                returnobject.X = getals[0].replace(',', '.');
+                returnobject.Y = getals[1].replace(',', '.');
+                returnobject.hasCordinates = true;
+                return returnobject;
+            } else {
+                returnobject.error = 'Incorrect format: X,Y is required';
+                return returnobject;
+            }
+        };
+        _service.getLambartCordsFromString = function (search) {
+            var returnobject = {};
+            returnobject.hasCordinates = false;
+            returnobject.error = null;
+            returnobject.X = null;
+            returnobject.Y = null;
+            var getals = [];
+            var currgetal = '';
+            var samegetal = false;
+            var aantalmet6size = 0;
+            var hasaseperater = false;
+            var _iteratorNormalCompletion2 = true;
+            var _didIteratorError2 = false;
+            var _iteratorError2 = undefined;
+
+            try {
+                for (var _iterator2 = search[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+                    var char = _step2.value;
+
+                    if (isCharDigit(char)) {
+                        if (samegetal) {
+                            currgetal = currgetal + char;
+                        } else {
+                            currgetal = '' + char;
+                            samegetal = true;
+                        }
+                    } else {
+                        if (currgetal.length == 6) {
+                            if (currgetal[0] == '1') {
+                                if (currgetal[1] == '3' || currgetal[1] == '4' || currgetal[1] == '5') {
+                                    aantalmet6size++;
+                                } else {
+                                    returnobject.error = 'Out of bounds cordinaten voor Antwerpen.';
+                                    return returnobject;
+                                }
+                            } else if (currgetal[0] == '2') {
+                                if (currgetal[1] == '0' || currgetal[1] == '1' || currgetal[1] == '2') {
+                                    aantalmet6size++;
+                                } else {
+                                    returnobject.error = 'Out of bounds cordinaten voor Antwerpen.';
+                                    return returnobject;
+                                }
+                            }
+
+                            if ((char == ',' || char == '.') && hasaseperater == false) {
+                                hasaseperater = true;
+                                currgetal = currgetal + char;
+                            } else {
+                                hasaseperater = false;
+                                getals.push(currgetal);
+                                currgetal = '';
+                                samegetal = false;
+                            }
+                        } else {
+                            if (currgetal != '') {
+
+                                getals.push(currgetal);
+                            }
+                            hasaseperater = false;
+                            currgetal = '';
+                            samegetal = false;
+                        }
+                    }
+                }
+            } catch (err) {
+                _didIteratorError2 = true;
+                _iteratorError2 = err;
+            } finally {
+                try {
+                    if (!_iteratorNormalCompletion2 && _iterator2.return) {
+                        _iterator2.return();
+                    }
+                } finally {
+                    if (_didIteratorError2) {
+                        throw _iteratorError2;
+                    }
+                }
+            }
+
+            if (currgetal != '') {
+                if (currgetal.length == 6) {
+                    aantalmet6size++;
+                }
+                getals.push(currgetal);
+            }
+
+            if (aantalmet6size == 2 && getals.length == 2) {
+                returnobject.X = getals[0].replace(',', '.');
+                returnobject.Y = getals[1].replace(',', '.');
+                returnobject.hasCordinates = true;
+                return returnobject;
+            } else {
+                returnobject.error = 'Incorrect format: Lat,Lng is required';
+                return returnobject;
+            }
+        };
 
         return _service;
     };
@@ -1460,6 +1640,12 @@ var Style = {
             _data.CleanWatIsHier();
             _data.CleanSearch();
         };
+        _data.GetZoomLevel = function () {
+            return map.getZoom();
+        };
+        _data.GetScale = function () {
+            return Scales[_data.GetZoomLevel()];
+        };
         _data.CleanWatIsHier = function () {
             if (WatIsHierOriginalMarker) {
                 WatIsHierOriginalMarker.clearAllEventListeners();
@@ -1472,6 +1658,18 @@ var Style = {
                 WatIsHierMarker = null;
             }
             straatNaam = null;
+        };
+        _data.UpdateDisplayed = function (Themes) {
+            var currentScale = _data.GetScale();
+            _data.Themes.forEach(function (theme) {
+                if (theme.Type == ThemeType.ESRI) {
+                    theme.UpdateDisplayed(currentScale);
+                }
+            });
+        };
+        _data.Apply = function () {
+            console.log('apply');
+            $rootScope.$apply();
         };
         _data.CreateOrigineleMarker = function (latlng, addressFound) {
             if (addressFound) {
@@ -1497,14 +1695,7 @@ var Style = {
             } else {
                 var html = '<div class="container container-low-padding">' + '<div class="row row-no-padding">' + '<div class="col-sm-3">WGS84:</div><div class="col-sm-8" style="text-align: left;">' + latlng.lat.toFixed(6) + ', ' + latlng.lng.toFixed(6) + '</div><div class="col-sm-1"><i class="fa fa-files-o"></i></div>' + '<div class="col-sm-3">Lambert:</div><div class="col-sm-8" style="text-align: left;">' + convertedxy.x.toFixed(1) + ', ' + convertedxy.y.toFixed(1) + '</div><div class="col-sm-1"><i class="fa fa-files-o"></i></div>' + '</div>' + '</div>';
                 WatIsHierOriginalMarker.bindPopup(html, { minWidth: 200 }).openPopup();
-                // WatIsHierOriginalMarker.bindPopup(
-                //     'WGS84 (x,y):' + latlng.lat.toFixed(6) + ',' + latlng.lng.toFixed(6) +
-                //     '<br>Lambert (x,y):' + convertedxy.x.toFixed(1) + ',' + convertedxy.y.toFixed(1)).openPopup();
             }
-
-            // WatIsHierOriginalMarker.on('popupclose', function (event) {
-            //     _data.CleanWatIsHier();
-            // });
         };
         var straatNaam = null;
         _data.CreateWatIsHierMarker = function (data) {
@@ -1606,7 +1797,7 @@ var Style = {
 
 (function () {
     var module = angular.module('tink.gis');
-    var mapEvents = function mapEvents(map, MapService, MapData, DrawService) {
+    var mapEvents = function mapEvents(map, MapService, MapData) {
         var _mapEvents = {};
         map.on('draw:drawstart', function (event) {
             console.log('draw started');
@@ -1637,48 +1828,48 @@ var Style = {
 
         map.on('zoomend', function (event) {
             console.log('Zoomend!!!');
-            console.log(event);
-            // MapData.Themes.forEach(x => {
-            //     console.log(x.MapData);
-            // });
+            MapData.UpdateDisplayed();
+            MapData.Apply();
         });
 
         map.on('click', function (event) {
-            console.log('click op map! Is drawing: ' + MapData.IsDrawing);
-            if (!MapData.IsDrawing) {
-                MapData.CleanMap();
-                switch (MapData.ActiveInteractieKnop) {
-                    case ActiveInteractieButton.IDENTIFY:
-                        MapData.LastIdentifyBounds = map.getBounds();
-                        MapService.Identify(event, 10);
-                        break;
-                    case ActiveInteractieButton.SELECT:
-                        if (MapData.DrawingType === DrawingOption.NIETS) {
-                            MapService.Select(event);
-                        } // else a drawing finished
-                        break;
-                    case ActiveInteractieButton.WATISHIER:
-                        MapService.WatIsHier(event);
-                        break;
-                    case ActiveInteractieButton.METEN:
+            if (event.originalEvent instanceof MouseEvent) {
+                console.log('click op map! Is drawing: ' + MapData.IsDrawing);
+                if (!MapData.IsDrawing) {
+                    MapData.CleanMap();
+                    switch (MapData.ActiveInteractieKnop) {
+                        case ActiveInteractieButton.IDENTIFY:
+                            MapData.LastIdentifyBounds = map.getBounds();
+                            MapService.Identify(event, 10);
+                            break;
+                        case ActiveInteractieButton.SELECT:
+                            if (MapData.DrawingType === DrawingOption.NIETS) {
+                                MapService.Select(event);
+                            } // else a drawing finished
+                            break;
+                        case ActiveInteractieButton.WATISHIER:
+                            MapService.WatIsHier(event);
+                            break;
+                        case ActiveInteractieButton.METEN:
 
-                        break;
-                    default:
-                        console.log('MAG NIET!!!!!!!!');
-                        break;
-                }
-            } else {
-                // MapData.DrawingObject = event;
-                console.log("DrawingObject: ");
-                console.log(MapData.DrawingObject);
-                switch (MapData.DrawingType) {
-                    case DrawingOption.AFSTAND:
-                        break;
-                    case DrawingOption.OPPERVLAKTE:
-                        break;
-                    default:
-                        console.log("Aant drawen zonder een gekent type!!!!!!");
-                        break;
+                            break;
+                        default:
+                            console.log('MAG NIET!!!!!!!!');
+                            break;
+                    }
+                } else {
+                    // MapData.DrawingObject = event;
+                    console.log("DrawingObject: ");
+                    console.log(MapData.DrawingObject);
+                    switch (MapData.DrawingType) {
+                        case DrawingOption.AFSTAND:
+                            break;
+                        case DrawingOption.OPPERVLAKTE:
+                            break;
+                        default:
+                            console.log("Aant drawen zonder een gekent type!!!!!!");
+                            break;
+                    }
                 }
             }
         });
@@ -1833,6 +2024,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         };
 
         _mapService.Select = function (event) {
+
             if (MapData.SelectedLayer.id == '') {
                 // alle layers selected
                 MapData.Themes.filter(function (x) {
@@ -1963,12 +2155,22 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 thema.status = ThemeStatus.NEW;
                 thema.MapData = {};
                 _.each(rawlayers, function (x) {
-                    x.visible = true;
+                    x.visible = x.defaultVisibility;
                     x.enabled = true;
                     x.parent = null;
                     x.title = x.name;
-                    x.name = x.name;
                     x.theme = thema;
+                    x.displayed = true;
+                    x.UpdateDisplayed = function (currentScale) {
+                        if (x.maxScale > 0 || x.minScale > 0) {
+                            console.log('MinMaxandCurrentScale', x.maxScale, x.minScale, currentScale);
+                            if (currentScale > x.maxScale && currentScale < x.minScale) {
+                                x.displayed = true;
+                            } else {
+                                x.displayed = false;
+                            }
+                        }
+                    };
                     x.type = LayerType.LAYER;
                     thema.AllLayers.push(x);
                     if (x.parentLayerId === -1) {
@@ -1991,6 +2193,11 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                         });
                     }
                 });
+                thema.UpdateDisplayed = function (currentScale) {
+                    thema.AllLayers.forEach(function (layer) {
+                        layer.UpdateDisplayed(currentScale);
+                    });
+                };
                 thema.UpdateMap = function () {
                     thema.RecalculateVisibleLayerIds();
                     thema.MapData.setLayers(thema.VisibleLayerIds);
@@ -1998,7 +2205,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
                 thema.RecalculateVisibleLayerIds = function () {
                     thema.VisibleLayerIds.length = 0;
-                    _.forEach(thema.VisibleLayers, function (visLayer) {
+                    thema.VisibleLayers.forEach(function (visLayer) {
                         thema.VisibleLayerIds.push(visLayer.id);
                     });
                     if (thema.VisibleLayerIds.length === 0) {
@@ -2030,12 +2237,12 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 var existingTheme = MapData.Themes.find(function (x) {
                     return x.CleanUrl == theme.CleanUrl;
                 });
-                console.log(theme);
-                console.log(theme.status);
+                console.log('addorupdate or del theme, ', theme, theme.status);
                 switch (theme.status) {
                     case ThemeStatus.NEW:
                         if (theme.Type == ThemeType.ESRI) {
-                            LayerManagementService.SetAditionalLayerInfo(theme);
+                            LayerManagementService.GetAditionalLayerInfo(theme);
+                            theme.UpdateDisplayed(MapData.GetScale());
                         }
                         _service.AddNewTheme(theme);
                         break;
@@ -2110,8 +2317,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             switch (theme.Type) {
                 case ThemeType.ESRI:
                     theme.MapData = L.esri.dynamicMapLayer({
-                        maxZoom: 20,
-                        minZoom: 1,
+                        maxZoom: 19,
+                        minZoom: 0,
                         url: theme.CleanUrl,
                         opacity: 1,
                         layers: theme.VisibleLayerIds,
@@ -2147,8 +2354,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                     break;
                 case ThemeType.WMS:
                     theme.MapData = L.tileLayer.betterWms(theme.CleanUrl, {
-                        maxZoom: 20,
-                        minZoom: 1,
+                        maxZoom: 19,
+                        minZoom: 0,
                         format: 'image/png',
                         layers: theme.VisibleLayerIds,
                         transparent: true,
@@ -3076,7 +3283,7 @@ L.drawLocal = {
     "<div class=layercontroller-checkbox>\n" +
     "<img style=\"width:20px; height:20px\" ng-if=\"lyrctrl.layer.theme.Type == 'esri' && lyrctrl.layer.legend.length == 1\" ng-src={{lyrctrl.layer.legend[0].fullurl}}>\n" +
     "<input class=visible-box type=checkbox ng-model=lyrctrl.layer.visible ng-change=lyrctrl.chkChanged() id={{lyrctrl.layer.name}}{{lyrctrl.layer.id}}>\n" +
-    "<label for={{lyrctrl.layer.name}}{{lyrctrl.layer.id}}> {{lyrctrl.layer.title | limitTo: 20}} <span ng-show=\"lyrctrl.layer.theme.Type == 'wms' && lyrctrl.layer.queryable\">(i)</span></label>\n" +
+    "<label ng-class=\"{'greytext': lyrctrl.layer.displayed == false}\" for={{lyrctrl.layer.name}}{{lyrctrl.layer.id}}> {{lyrctrl.layer.title | limitTo: 23}}<span ng-show=\"lyrctrl.layer.theme.Type == 'wms' && lyrctrl.layer.queryable\">(i)</span></label>\n" +
     "<img ng-if=\"lyrctrl.layer.theme.Type == 'wms'\" ng-src=\"{{layer.theme.CleanUrl}}?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER={{lyrctrl.layer.id}}\"><img>\n" +
     "<div ng-if=\"lyrctrl.layer.theme.Type == 'esri' && lyrctrl.layer.legend.length > 1\" ng-repeat=\"legend in lyrctrl.layer.legend\">\n" +
     "<img style=\"width:20px; height:20px\" ng-src={{legend.fullurl}}><img><span> {{legend.label}}</span>\n" +
@@ -3106,8 +3313,13 @@ L.drawLocal = {
     "<div class=tink-map>\n" +
     "<div id=map class=leafletmap>\n" +
     "<div class=\"btn-group ll searchbtns\">\n" +
-    "<button type=button class=btn prevent-default><i class=\"fa fa-map-marker\"></i></button>\n" +
-    "<button type=button class=btn prevent-default><i class=\"fa fa-download\"></i></button>\n" +
+    "<button type=button class=btn ng-class=\"{active: mapctrl.IsKnop1==true}\" ng-click=\"mapctrl.IsKnop1=true\" prevent-default><i class=\"fa fa-map-marker\"></i></button>\n" +
+    "<button type=button class=btn ng-class=\"{active: mapctrl.IsKnop1==false}\" ng-click=\"mapctrl.IsKnop1=false\" prevent-default><i class=\"fa fa-download\"></i></button>\n" +
+    "</div>\n" +
+    "<div class=\"ll zoekbalken\">\n" +
+    "<input class=zoekbalk ng-show=\"mapctrl.IsKnop1 == true\" placeholder=\"Zoek in je lagen?\" prevent-default>\n" +
+    "<select ng-options=\"layer as layer.name for layer in mapctrl.SelectableLayers\" ng-model=mapctrl.selectedLayer ng-show=\"mapctrl.IsKnop1 == true\" ng-change=mapctrl.layerChange() ng-class=\"{invisible: mapctrl.activeInteractieKnop!='select' || mapctrl.SelectableLayers.length<=1}\" prevent-default></select>\n" +
+    "<input class=zoekbalk ng-show=\"mapctrl.IsKnop1 == false\" placeholder=\"Geef een X,Y / locatie of POI in.\" ng-change=mapctrl.zoekLocChanged(mapctrl.zoekLoc) ng-keyup=\"$event.keyCode == 13 && mapctrl.zoekEnter(mapctrl.zoekLoc)\" ng-model=mapctrl.zoekLoc prevent-default>\n" +
     "</div>\n" +
     "<div class=\"btn-group btn-group-vertical ll interactiebtns\">\n" +
     "<button type=button class=btn ng-click=\"mapctrl.interactieButtonChanged('identify')\" ng-class=\"{active: mapctrl.activeInteractieKnop=='identify'}\" prevent-default><i class=\"fa fa-info\"></i></button>\n" +
@@ -3124,10 +3336,6 @@ L.drawLocal = {
     "<button ng-click=\"mapctrl.drawingButtonChanged('lijn')\" ng-class=\"{active: mapctrl.drawingType=='lijn'}\" type=button class=btn prevent-default><i class=\"fa fa-minus\"></i></button>\n" +
     "<button ng-click=\"mapctrl.drawingButtonChanged('vierkant')\" ng-class=\"{active: mapctrl.drawingType=='vierkant'}\" type=button class=btn prevent-default><i class=\"fa fa-square-o\"></i></button>\n" +
     "<button ng-click=\"mapctrl.drawingButtonChanged('polygon')\" ng-class=\"{active: mapctrl.drawingType=='polygon'}\" type=button class=btn prevent-default><i class=\"fa fa-star-o\"></i></button>\n" +
-    "</div>\n" +
-    "<div class=\"ll zoekbalken\">\n" +
-    "<input class=zoekbalk placeholder=\"Welke locatie of adres zoek je?\" prevent-default>\n" +
-    "<select ng-options=\"layer as layer.name for layer in mapctrl.SelectableLayers\" ng-model=mapctrl.selectedLayer ng-change=mapctrl.layerChange() ng-class=\"{invisible: mapctrl.activeInteractieKnop!='select' || mapctrl.SelectableLayers.length<=1}\" prevent-default></select>\n" +
     "</div>\n" +
     "<div class=\"ll btn-group kaarttypes\">\n" +
     "<button class=btn ng-class=\"{active: mapctrl.kaartIsGetoond==true}\" ng-click=mapctrl.toonKaart() prevent-default>Kaart</button>\n" +

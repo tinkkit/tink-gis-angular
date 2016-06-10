@@ -370,7 +370,7 @@ svg.leaflet-zoom-animated {
   z-index: 9998; }
 
 .greytext {
-  color: grey; }
+  color: lightgrey !important; }
 
 a.btn.prev, a.btn.next {
   display: none; }

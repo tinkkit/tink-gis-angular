@@ -7,7 +7,7 @@
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
     }
     module.controller('geoPuntController', ['$scope', 'ThemeHelper', '$q', 'MapService', 'MapData', 'GISService', 'LayerManagementService', 'WMSService', '$window', '$http', 'GeopuntService',
-        function ($scope, ThemeHelper, $q,  MapService, MapData, GISService, LayerManagementService, WMSService, $window, $http, GeopuntService) {
+        function ($scope, ThemeHelper, $q, MapService, MapData, GISService, LayerManagementService, WMSService, $window, $http, GeopuntService) {
             $scope.searchIsUrl = false;
             $scope.pagingCount = null;
             $scope.numberofrecordsmatched = 0;
@@ -34,7 +34,7 @@
                     }
                     else {
                         $scope.searchIsUrl = false;
-                        $scope.QueryGeoPunt($scope.searchTerm,1);
+                        $scope.QueryGeoPunt($scope.searchTerm, 1);
                     }
                 }
                 else {
@@ -92,6 +92,7 @@
             $scope.geopuntThemeChanged = function (theme) {
                 // alert(theme.Type != 'WMS' && theme.Type != 'ESRI');
                 // if (theme.Type != 'wms' && theme.Type != 'esri') {
+                console.log(theme);
                 var url = theme.Url.trim().replace('?', '');
                 if (MapData.Themes.find(x => x.CleanUrl == url) == undefined) {
                     var getwms = WMSService.GetCapabilities(url);
