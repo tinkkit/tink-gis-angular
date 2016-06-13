@@ -5,13 +5,12 @@
             <button type="button" class="btn" ng-class="{active: mapctrl.IsKnop1==false}" ng-click="mapctrl.IsKnop1=false" prevent-default><i class="fa fa-download"></i></button>
         </div>
         <div class="ll zoekbalken">
-            <input type="text" class="zoekbalk" ng-show="mapctrl.IsKnop1 == true" placeholder="Zoek in je lagen?" prevent-default/>
+            <input type="text" class="zoekbalk" ng-show="mapctrl.IsKnop1 == true" placeholder="Geef een X,Y / locatie of POI in." ng-change="mapctrl.zoekLocChanged(mapctrl.zoekLoc)"
+                ng-keyup="$event.keyCode == 13 && mapctrl.zoekEnter(mapctrl.zoekLoc)" ng-model="mapctrl.zoekLoc" prevent-default/>
+            <input type="text" class="zoekbalk" ng-show="mapctrl.IsKnop1 == false" placeholder="Zoek in je lagen?" prevent-default/>
             <select ng-options="layer as layer.name for layer in mapctrl.SelectableLayers" ng-model="mapctrl.selectedLayer" ng-show="mapctrl.IsKnop1 == true"
                 ng-change="mapctrl.layerChange()" ng-class="{invisible: mapctrl.activeInteractieKnop!='select' || mapctrl.SelectableLayers.length<=1}"
                 prevent-default></select>
-            <input type="text" class="zoekbalk" ng-show="mapctrl.IsKnop1 == false" placeholder="Geef een X,Y / locatie of POI in." ng-change="mapctrl.zoekLocChanged(mapctrl.zoekLoc)"
-                ng-keyup="$event.keyCode == 13 && mapctrl.zoekEnter(mapctrl.zoekLoc)" ng-model="mapctrl.zoekLoc" prevent-default/>
-
         </div>
         <div class="btn-group btn-group-vertical ll interactiebtns">
             <button type="button" class="btn" ng-click="mapctrl.interactieButtonChanged('identify')" ng-class="{active: mapctrl.activeInteractieKnop=='identify'}"

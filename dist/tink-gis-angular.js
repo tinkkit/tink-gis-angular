@@ -24,6 +24,14 @@
                 event.preventDefault();
                 event.stopPropagation();
             });
+            angular.element(element).bind('ondrag', function (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            });
+            angular.element(element).bind('ondragstart', function (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            });
         };
     });
     JXON.config({
@@ -774,16 +782,15 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             }
         };
         vm.zoekEnter = function (search) {
-
             search = search.trim();
             var WGS84Check = HelperService.getWGS84CordsFromString(search);
             if (WGS84Check.hasCordinates) {
-                map.setView(L.latLng(WGS84Check.X, WGS84Check.Y));
+                map.setView(L.latLng(WGS84Check.X, WGS84Check.Y), 12);
             } else {
                 var lambertCheck = HelperService.getLambartCordsFromString(search);
                 if (lambertCheck.hasCordinates) {
                     var xyWGS84 = HelperService.ConvertLambert72ToWSG84({ x: lambertCheck.X, y: lambertCheck.Y });
-                    map.setView(L.latLng(xyWGS84.x, xyWGS84.y));
+                    map.setView(L.latLng(xyWGS84.x, xyWGS84.y), 12);
                 }
             }
         };
@@ -3317,9 +3324,9 @@ L.drawLocal = {
     "<button type=button class=btn ng-class=\"{active: mapctrl.IsKnop1==false}\" ng-click=\"mapctrl.IsKnop1=false\" prevent-default><i class=\"fa fa-download\"></i></button>\n" +
     "</div>\n" +
     "<div class=\"ll zoekbalken\">\n" +
-    "<input class=zoekbalk ng-show=\"mapctrl.IsKnop1 == true\" placeholder=\"Zoek in je lagen?\" prevent-default>\n" +
+    "<input class=zoekbalk ng-show=\"mapctrl.IsKnop1 == true\" placeholder=\"Geef een X,Y / locatie of POI in.\" ng-change=mapctrl.zoekLocChanged(mapctrl.zoekLoc) ng-keyup=\"$event.keyCode == 13 && mapctrl.zoekEnter(mapctrl.zoekLoc)\" ng-model=mapctrl.zoekLoc prevent-default>\n" +
+    "<input class=zoekbalk ng-show=\"mapctrl.IsKnop1 == false\" placeholder=\"Zoek in je lagen?\" prevent-default>\n" +
     "<select ng-options=\"layer as layer.name for layer in mapctrl.SelectableLayers\" ng-model=mapctrl.selectedLayer ng-show=\"mapctrl.IsKnop1 == true\" ng-change=mapctrl.layerChange() ng-class=\"{invisible: mapctrl.activeInteractieKnop!='select' || mapctrl.SelectableLayers.length<=1}\" prevent-default></select>\n" +
-    "<input class=zoekbalk ng-show=\"mapctrl.IsKnop1 == false\" placeholder=\"Geef een X,Y / locatie of POI in.\" ng-change=mapctrl.zoekLocChanged(mapctrl.zoekLoc) ng-keyup=\"$event.keyCode == 13 && mapctrl.zoekEnter(mapctrl.zoekLoc)\" ng-model=mapctrl.zoekLoc prevent-default>\n" +
     "</div>\n" +
     "<div class=\"btn-group btn-group-vertical ll interactiebtns\">\n" +
     "<button type=button class=btn ng-click=\"mapctrl.interactieButtonChanged('identify')\" ng-class=\"{active: mapctrl.activeInteractieKnop=='identify'}\" prevent-default><i class=\"fa fa-info\"></i></button>\n" +

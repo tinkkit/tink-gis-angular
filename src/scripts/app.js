@@ -23,6 +23,14 @@
                 event.preventDefault();
                 event.stopPropagation();
             });
+            angular.element(element).bind('ondrag', function (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            });
+            angular.element(element).bind('ondragstart', function (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            });          
         };
     });
     JXON.config({

@@ -10,7 +10,7 @@
         vm.activeInteractieKnop = MapData.ActiveInteractieKnop;
         vm.SelectableLayers = MapData.VisibleLayers;
         vm.selectedLayer = MapData.SelectedLayer;
-        vm.drawingType = MapData.DrawingType
+        vm.drawingType = MapData.DrawingType;
         vm.showMetenControls = false;
         vm.showDrawControls = false;
         vm.interactieButtonChanged = function (ActiveButton) {
@@ -31,16 +31,15 @@
             }
         };
         vm.zoekEnter = function (search) {
-
             search = search.trim();
             var WGS84Check = HelperService.getWGS84CordsFromString(search);
             if (WGS84Check.hasCordinates) {
-                map.setView(L.latLng(WGS84Check.X, WGS84Check.Y));
+                map.setView(L.latLng(WGS84Check.X, WGS84Check.Y), 12);
             } else {
                 var lambertCheck = HelperService.getLambartCordsFromString(search);
                 if (lambertCheck.hasCordinates) {
                     var xyWGS84 = HelperService.ConvertLambert72ToWSG84({ x: lambertCheck.X, y: lambertCheck.Y });
-                    map.setView(L.latLng(xyWGS84.x, xyWGS84.y));
+                    map.setView(L.latLng(xyWGS84.x, xyWGS84.y), 12);
                 }
             }
         };
