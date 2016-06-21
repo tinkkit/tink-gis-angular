@@ -791,6 +791,8 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 if (lambertCheck.hasCordinates) {
                     var xyWGS84 = HelperService.ConvertLambert72ToWSG84({ x: lambertCheck.X, y: lambertCheck.Y });
                     map.setView(L.latLng(xyWGS84.x, xyWGS84.y), 12);
+                } else {
+                    console.log("NIET GEVONDEN");
                 }
             }
         };
@@ -1518,37 +1520,20 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                         }
                     } else {
                         if (currgetal.length == 6) {
-                            if (currgetal[0] == '1') {
-                                if (currgetal[1] == '3' || currgetal[1] == '4' || currgetal[1] == '5') {
-                                    aantalmet6size++;
-                                } else {
-                                    returnobject.error = 'Out of bounds cordinaten voor Antwerpen.';
-                                    return returnobject;
-                                }
-                            } else if (currgetal[0] == '2') {
-                                if (currgetal[1] == '0' || currgetal[1] == '1' || currgetal[1] == '2') {
-                                    aantalmet6size++;
-                                } else {
-                                    returnobject.error = 'Out of bounds cordinaten voor Antwerpen.';
-                                    return returnobject;
-                                }
-                            }
-
-                            if ((char == ',' || char == '.') && hasaseperater == false) {
-                                hasaseperater = true;
-                                currgetal = currgetal + char;
+                            if (currgetal > 125000 && currgetal < 175000 || currgetal > 180000 && currgetal < 240000) {
+                                aantalmet6size++;
                             } else {
-                                hasaseperater = false;
-                                getals.push(currgetal);
-                                currgetal = '';
-                                samegetal = false;
+                                returnobject.error = 'Out of bounds cordinaten voor Antwerpen.';
+                                return returnobject;
                             }
-                        } else {
-                            if (currgetal != '') {
+                        }
 
-                                getals.push(currgetal);
-                            }
+                        if ((char == ',' || char == '.') && hasaseperater == false) {
+                            hasaseperater = true;
+                            currgetal = currgetal + char;
+                        } else {
                             hasaseperater = false;
+                            getals.push(currgetal);
                             currgetal = '';
                             samegetal = false;
                         }
@@ -2576,6 +2561,11 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         vm.vorige = function () {
             ResultsData.SelectedFeature = vm.prevResult;
         };
+        vm.buffer = 1;
+        vm.doordruk = function () {
+            console.log(vm.buffer);
+            console.log(ResultsData.SelectedFeature);
+        };
         vm.delete = function () {
             var prev = SearchService.GetPrevResult();
             var next = SearchService.GetNextResult();
@@ -3437,10 +3427,11 @@ L.drawLocal = {
     "</div>\n" +
     "<div class=row>\n" +
     "<div class=col-md-6>\n" +
-    "<button class=\"pull-left srchbtn\" ng-click=\"srchslctdctrl.toonFeatureOpKaart() \">Tonen</button>\n" +
+    "<button class=\"pull-left srchbtn\" ng-click=srchslctdctrl.toonFeatureOpKaart()>Tonen</button>\n" +
     "</div>\n" +
-    "<div class=col-md-6 ng-show=\"srchslctdctrl.selectedResult.theme.Type === 'esri'\">\n" +
-    "<button class=\"pull-right srchbtn\" ng-click=\" \">Buffer</button>\n" +
+    "<div class=col-md-6>\n" +
+    "<button class=\"pull-right srchbtn\" ng-click=srchslctdctrl.doordruk()>Buffer</button>\n" +
+    "<input type=number class=pull-left ng-model=srchslctdctrl.buffer>\n" +
     "</div>\n" +
     "</div>\n" +
     "<button class=srchbtn ng-click=\"srchslctdctrl.close(srchslctdctrl.selectedResult) \">Terug naar resultaten</button>\n" +

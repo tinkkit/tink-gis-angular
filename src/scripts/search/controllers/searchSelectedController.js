@@ -2,7 +2,7 @@
 (function (module) {
     module = angular.module('tink.gis');
     var theController = module.controller('searchSelectedController',
-        function ($scope, ResultsData, MapData, SearchService) {
+        function ($scope, ResultsData, MapData, SearchService, GeometryService) {
             var vm = this;
             vm.selectedResult = null;
             vm.prevResult = null;
@@ -42,7 +42,7 @@
                     MapData.GoToLastClickBounds();
                 }
 
-              
+
 
             };
             vm.volgende = function () {
@@ -51,6 +51,40 @@
             vm.vorige = function () {
                 ResultsData.SelectedFeature = vm.prevResult;
 
+            };
+            vm.buffer = 1;
+            vm.doordruk = function () {
+                console.log(ResultsData.SelectedFeature);
+                // var reader = new jsts.io.GeoJSONReader();
+                // var geom = reader.read(ResultsData.SelectedFeature.geometry);
+                // var buffered = geom.buffer(vm.buffer);
+                // var writer = new jsts.io.GeoJSONWriter();
+                // buffered = writer.write(buffered);
+                // console.log(buffered);
+                // buffered.coordinates.forEach(latlngs => {
+                //     var polygon = L.polygon(latlngs, { color: 'red' }).addTo(map);
+                //     map.setView(polygon.getCenter());
+                // });
+                // var buffertometer = vm.buffer / 1000;
+                // var reader = new jsts.io.GeoJSONReader();
+                ResultsData.SelectedFeature.mapItem.toGeoJSON().features.forEach(feature => {
+                    GeometryService.Buffer(feature, vm.buffer);
+                    // var input = reader.read(feature);
+                    // console.log(input);
+                    // var geom = input.geometry.buffer(buffertometer);
+                    // console.log(geom);
+                    // var buffered = new jsts.io.GeoJSONWriter().write(geom);
+                    // var item = L.geoJson(buffered, { color: 'purple' }).addTo(map);
+                    // console.log(item);
+
+                    // map.setView(item.getCenter());
+
+                    // buffered.coordinates.forEach(latlngs => {
+                    //     var polygon = L.polygon(latlngs, { color: 'red' }).addTo(map);
+
+                    //     map.setView(polygon.getCenter());
+                    // });
+                });
             };
             vm.delete = function () {
                 var prev = SearchService.GetPrevResult();
@@ -74,5 +108,5 @@
             };
 
         });
-    theController.$inject = ['$scope', 'ResultsData',];
+    theController.$inject = ['$scope', 'ResultsData', 'GeometryService'];
 })();

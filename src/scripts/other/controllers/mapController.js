@@ -41,6 +41,9 @@
                     var xyWGS84 = HelperService.ConvertLambert72ToWSG84({ x: lambertCheck.X, y: lambertCheck.Y });
                     map.setView(L.latLng(xyWGS84.x, xyWGS84.y), 12);
                 }
+                else {
+                    console.log("NIET GEVONDEN");
+                }
             }
         };
         vm.zoekLocChanged = function (search) {

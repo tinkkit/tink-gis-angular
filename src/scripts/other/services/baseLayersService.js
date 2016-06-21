@@ -10,6 +10,7 @@
         _baseLayersService.kaart =
             L.esri.tiledMapLayer({
                 url: 'http://geodata.antwerpen.be/arcgissql/rest/services/P_Publiek/P_basemap/MapServer',
+                // url: 'http://geodata.antwerpen.be/arcgissql/rest/services/P_Publiek/P_basemap_wgs84/MapServer',
                 maxZoom: 19,
                 minZoom: 0,
                 continuousWorld: true
@@ -28,5 +29,5 @@
         return _baseLayersService;
     };
 
-    module.factory("BaseLayersService", baseLayersService);
+    module.factory('BaseLayersService', baseLayersService);
 })();

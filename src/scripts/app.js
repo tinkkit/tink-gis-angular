@@ -30,7 +30,7 @@
             angular.element(element).bind('ondragstart', function (event) {
                 event.preventDefault();
                 event.stopPropagation();
-            });          
+            });
         };
     });
     JXON.config({

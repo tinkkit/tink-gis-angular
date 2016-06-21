@@ -35,7 +35,7 @@
                                     ResultsData.Loading++;
                                     theme.MapData.getFeatureInfo(event.latlng, lay.name).success(function (data, status, xhr) {
                                         ResultsData.Loading--;
-                                        console.log("minus");
+                                        console.log('minus');
                                         var xmlstring = JXON.xmlToString(data);
                                         var returnjson = JXON.stringToJs(xmlstring);
                                         var processedjson = null;
@@ -43,13 +43,13 @@
                                             processedjson = returnjson.featureinforesponse.fields;
                                         }
                                         var returnitem = {
-                                            type: "FeatureCollection",
+                                            type: 'FeatureCollection',
                                             features: []
-                                        }
+                                        };
                                         if (processedjson) {
                                             var featureArr = [];
-                                            if (typeof processedjson === "object") {
-                                                featureArr.push(processedjson)
+                                            if (typeof processedjson === 'object') {
+                                                featureArr.push(processedjson);
                                             } else {
                                                 featureArr = processedjson;
                                             }
@@ -60,11 +60,11 @@
                                                     name: lay.name,
                                                     layerId: lay.name,
                                                     properties: feat,
-                                                    type: "Feature"
-                                                }
+                                                    type: 'Feature'
+                                                };
                                                 returnitem.features.push(tmpitem);
                                             });
-                                            console.log(lay.name + " item info: ");
+                                            console.log(lay.name + ' item info: ');
                                             console.log(returnitem);
                                             MapData.AddFeatures(returnitem, theme);
                                         }
@@ -79,7 +79,7 @@
                             });
                             break;
                         default:
-                            console.log("UNKNOW TYPE!!!!:");
+                            console.log('UNKNOW TYPE!!!!:');
                             console.log(Theme.Type);
                             break;
                     }
@@ -90,7 +90,7 @@
         };
 
         _mapService.Select = function (event) {
-            
+            console.log(event);
             if (MapData.SelectedLayer.id == '') { // alle layers selected
                 MapData.Themes.filter(x => x.Type == ThemeType.ESRI).forEach(theme => { // dus doen we de qry op alle lagen.
                     ResultsData.Loading++;
@@ -121,7 +121,7 @@
                     MapData.CreateOrigineleMarker(event.latlng, false);
                 }
             }).error(function (data, status, headers, config) {
-                console.log(data,status,headers,config);
+                console.log(data, status, headers, config);
             });
         };
 
