@@ -6,10 +6,10 @@
     } catch (e) {
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', ['ui.sortable']]); //'leaflet-directive'
     }
-    var layersService = function ($http, map) {
+    var layersService = function () {
         var _layersService = {};
         return _layersService;
     };
-    module.$inject = ["$http", 'map'];
-    module.factory("LayersService", layersService);
+    module.$inject = [];
+    module.factory('LayersService', layersService);
 })();

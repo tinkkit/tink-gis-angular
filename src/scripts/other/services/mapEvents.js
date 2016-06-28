@@ -82,7 +82,6 @@
 
         map.on('draw:created', function (e) {
             console.log('draw created');
-            console.log(e)
             switch (MapData.ActiveInteractieKnop) {
                 case ActiveInteractieButton.SELECT:
                     switch (MapData.DrawingType) {
@@ -95,14 +94,7 @@
                         default:
                             break;
                     }
-                    MapService.Query(e);
-
-                    // if (MapData.SelectedLayer.id == '') {
-                    //     console.log('Geen layer selected! kan dus niet opvragen');
-                    // }
-                    // else {
-                    //     MapService.Query(event);
-                    // }
+                    MapService.Query(e.layer);
                     break;
                 case ActiveInteractieButton.METEN:
                     switch (MapData.DrawingType) {

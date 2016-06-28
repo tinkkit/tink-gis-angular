@@ -3,10 +3,11 @@
 'use strict';
 (function (module) {
     module = angular.module('tink.gis');
-    var theController = module.controller('mapController', function ($scope, BaseLayersService, MapService, MapData, map, MapEvents, DrawService, HelperService) {
+    var theController = module.controller('mapController', function ($scope, BaseLayersService, MapService, MapData, map, MapEvents, DrawService, HelperService, GISService) {
         //We need to include MapEvents, even tho we don t call it just to make sure it gets loaded!
         var vm = this;
         vm.layerId = '';
+        vm.IsKnop1 = true;
         vm.activeInteractieKnop = MapData.ActiveInteractieKnop;
         vm.SelectableLayers = MapData.VisibleLayers;
         vm.selectedLayer = MapData.SelectedLayer;
@@ -47,7 +48,10 @@
             }
         };
         vm.zoekLocChanged = function (search) {
-
+            var prom = GISService.QuerySOLRLocatie(search);
+            prom.success(function (data, status, headers) {
+                console.log(data);
+            });
         };
 
         vm.drawingButtonChanged = function (drawOption) {
@@ -104,5 +108,5 @@
             map.addLayer(BaseLayersService.luchtfoto);
         };
     });
-    theController.$inject = ['BaseLayersService', 'MapService', 'MapData', 'map', 'MapEvents', 'DrawService', 'HelperService'];
+    theController.$inject = ['BaseLayersService', 'MapService', 'MapData', 'map', 'MapEvents', 'DrawService', 'HelperService', 'GISService'];
 })();

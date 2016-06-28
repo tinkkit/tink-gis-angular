@@ -125,7 +125,7 @@
             });
         };
 
-        _mapService.Query = function (event) {
+        _mapService.Query = function (layer) {
             if (MapData.SelectedLayer.id == '') { // alle layers selected
                 MapData.Themes.forEach(theme => { // dus doen we de qry op alle lagen.
                     if (theme.Type === ThemeType.ESRI) {
@@ -133,7 +133,7 @@
                             ResultsData.Loading++;
                             theme.MapData.query()
                                 .layer(lay.id)
-                                .intersects(event.layer)
+                                .intersects(layer)
                                 .run(function (error, featureCollection, response) {
                                     ResultsData.Loading--;
                                     MapData.AddFeatures(featureCollection, theme, lay.id);
@@ -146,7 +146,7 @@
                 ResultsData.Loading++;
                 MapData.SelectedLayer.theme.MapData.query()
                     .layer(MapData.SelectedLayer.id)
-                    .intersects(event.layer)
+                    .intersects(layer)
                     .run(function (error, featureCollection, response) {
                         ResultsData.Loading--;
                         MapData.AddFeatures(featureCollection, MapData.SelectedLayer.theme, MapData.SelectedLayer.id);

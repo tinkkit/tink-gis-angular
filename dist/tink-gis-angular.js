@@ -122,6 +122,13 @@ var Style = {
         weight: 7,
         color: 'red',
         fillOpacity: 0.5
+    },
+    BUFFER: {
+        fillColor: '#00cc00',
+        color: '#00cc00',
+        weight: 1,
+        opacity: 0.9,
+        fillOpacity: 0.3
     }
 };
 
@@ -754,10 +761,11 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
 
 (function (module) {
     module = angular.module('tink.gis');
-    var theController = module.controller('mapController', function ($scope, BaseLayersService, MapService, MapData, map, MapEvents, DrawService, HelperService) {
+    var theController = module.controller('mapController', function ($scope, BaseLayersService, MapService, MapData, map, MapEvents, DrawService, HelperService, GISService) {
         //We need to include MapEvents, even tho we don t call it just to make sure it gets loaded!
         var vm = this;
         vm.layerId = '';
+        vm.IsKnop1 = true;
         vm.activeInteractieKnop = MapData.ActiveInteractieKnop;
         vm.SelectableLayers = MapData.VisibleLayers;
         vm.selectedLayer = MapData.SelectedLayer;
@@ -796,7 +804,12 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 }
             }
         };
-        vm.zoekLocChanged = function (search) {};
+        vm.zoekLocChanged = function (search) {
+            var prom = GISService.QuerySOLRLocatie(search);
+            prom.success(function (data, status, headers) {
+                console.log(data);
+            });
+        };
 
         vm.drawingButtonChanged = function (drawOption) {
             MapData.CleanMap();
@@ -853,7 +866,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             map.addLayer(BaseLayersService.luchtfoto);
         };
     });
-    theController.$inject = ['BaseLayersService', 'MapService', 'MapData', 'map', 'MapEvents', 'DrawService', 'HelperService'];
+    theController.$inject = ['BaseLayersService', 'MapService', 'MapData', 'map', 'MapEvents', 'DrawService', 'HelperService', 'GISService'];
 })();
 ;'use strict';
 
@@ -1063,6 +1076,10 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             var prom = $http.get('http://esb-app1-o.antwerpen.be/v1/giszoek/solr/search?q=*' + searchterm + '*&wt=json&indent=true');
             return prom;
         };
+        _service.QuerySOLRLocatie = function (search) {
+            var prom = $http.get('http://solr.o.antwerpen.be:8080/solr/gislocaties/select?q=*' + search + '*&wt=json&indent=true');
+            return prom;
+        };
         var baseurl = 'http://app10.p.gis.local/arcgissql/rest/';
         _service.GetThemeData = function (mapserver) {
             var prom = $http.get(baseurl + mapserver + '?f=pjson');
@@ -1080,6 +1097,144 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
     };
     module.$inject = ['$http', 'map', 'MapData', 'HelperService', '$rootScope'];
     module.factory('GISService', service);
+})();
+;'use strict';
+
+(function () {
+    var module = angular.module('tink.gis');
+    var service = function service($http, MapService, MapData) {
+        var _service = {};
+
+        _service.Buffer = function (location, distance) {
+            MapData.CleanMap();
+
+            var geo = getGeo(location.geometry);
+            delete geo.geometry.spatialReference;
+            geo.geometries = geo.geometry;
+            delete geo.geometry;
+            var sergeo = serialize(geo);
+            var url = 'http://app10.p.gis.local/arcgissql/rest/services/Utilities/Geometry/GeometryServer/buffer';
+            var body = 'inSR=4326&outSR=4326&bufferSR=31370&distances=' + distance * 100 + '&unit=109006&unionResults=true&geodesic=false&geometries=%7B' + sergeo + '%7D&f=json';
+            var prom = $http({
+                method: 'POST',
+                url: url,
+                data: body,
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8;'
+                }
+            });
+            prom.success(function (response) {
+                var buffer = MapData.CreateBuffer(response);
+                MapService.Query(buffer);
+            });
+            return prom;
+        };
+        _service.Doordruk = function (location) {
+            MapData.CleanMap();
+            console.log(location);
+            MapService.Query(location);
+        };
+
+        _service.BufferEnDoordruk = function (location, distance) {
+            if (distance === 0) {
+                _service.Doordruk(location);
+            } else {
+                _service.Buffer(location, distance);
+            }
+        };
+
+        var getGeo = function getGeo(geometry) {
+            var geoconverted = {};
+            // geoconverted.inSr = 4326;
+
+            // convert bounds to extent and finish
+            if (geometry instanceof L.LatLngBounds) {
+                // set geometry + geometryType
+                geoconverted.geometry = L.esri.Util.boundsToExtent(geometry);
+                geoconverted.geometryType = 'esriGeometryEnvelope';
+                return geoconverted;
+            }
+
+            // convert L.Marker > L.LatLng
+            if (geometry.getLatLng) {
+                geometry = geometry.getLatLng();
+            }
+
+            // convert L.LatLng to a geojson point and continue;
+            if (geometry instanceof L.LatLng) {
+                geometry = {
+                    type: 'Point',
+                    coordinates: [geometry.lng, geometry.lat]
+                };
+            }
+
+            // handle L.GeoJSON, pull out the first geometry
+            if (geometry instanceof L.GeoJSON) {
+                // reassign geometry to the GeoJSON value  (we are assuming that only one feature is present)
+                geometry = geometry.getLayers()[0].feature.geometry;
+                geoconverted.geometry = L.esri.Util.geojsonToArcGIS(geometry);
+                geoconverted.geometryType = L.esri.Util.geojsonTypeToArcGIS(geometry.type);
+            }
+
+            // Handle L.Polyline and L.Polygon
+            if (geometry.toGeoJSON) {
+                geometry = geometry.toGeoJSON();
+            }
+
+            // handle GeoJSON feature by pulling out the geometry
+            if (geometry.type === 'Feature') {
+                // get the geometry of the geojson feature
+                geometry = geometry.geometry;
+            } else {
+                geoconverted.geometry = L.esri.Util.geojsonToArcGIS(geometry);
+                geoconverted.geometryType = L.esri.Util.geojsonTypeToArcGIS(geometry.type);
+            }
+
+            // confirm that our GeoJSON is a point, line or polygon
+            // if (geometry.type === 'Point' || geometry.type === 'LineString' || geometry.type === 'Polygon' || geometry.type === 'MultiLineString') {
+
+            return geoconverted;
+            // }
+
+            // warn the user if we havn't found an appropriate object
+
+            // return geoconverted;
+        };
+        var serialize = function serialize(params) {
+            var data = '';
+            for (var key in params) {
+                if (params.hasOwnProperty(key)) {
+                    var param = params[key];
+                    var type = Object.prototype.toString.call(param);
+                    var value;
+
+                    if (data.length) {
+                        data += ',';
+                    }
+
+                    if (type === '[object Array]') {
+                        value = Object.prototype.toString.call(param[0]) === '[object Object]' ? JSON.stringify(param) : param.join(',');
+                    } else if (type === '[object Object]') {
+                        value = JSON.stringify(param);
+                    } else if (type === '[object Date]') {
+                        value = param.valueOf();
+                    } else {
+                        value = '"' + param + '"';
+                    }
+                    if (key == 'geometries') {
+                        data += encodeURIComponent('"' + key + '"') + ':' + encodeURIComponent('[' + value + ']');
+                    } else {
+                        data += encodeURIComponent('"' + key + '"') + ':' + encodeURIComponent(value);
+                    }
+                }
+            }
+
+            return data;
+        };
+        return _service;
+    };
+    module.$inject = ['$http', 'MapService', 'MapData'];
+    module.factory('GeometryService', service);
 })();
 ;'use strict';
 
@@ -1199,6 +1354,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         var _baseLayersService = {};
         _baseLayersService.kaart = L.esri.tiledMapLayer({
             url: 'http://geodata.antwerpen.be/arcgissql/rest/services/P_Publiek/P_basemap/MapServer',
+            // url: 'http://geodata.antwerpen.be/arcgissql/rest/services/P_Publiek/P_basemap_wgs84/MapServer',
             maxZoom: 19,
             minZoom: 0,
             continuousWorld: true
@@ -1215,7 +1371,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         return _baseLayersService;
     };
 
-    module.factory("BaseLayersService", baseLayersService);
+    module.factory('BaseLayersService', baseLayersService);
 })();
 ;'use strict';
 
@@ -1267,6 +1423,157 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
     // module.$inject = ['MapData', 'map'];
 
     module.factory("DrawService", service);
+})();
+;'use strict';
+
+var esri2geo = {};
+(function () {
+    function toGeoJSON(data, cb) {
+        if (typeof data === 'string') {
+            if (cb) {
+                ajax(data, function (err, d) {
+                    toGeoJSON(d, cb);
+                });
+                return;
+            } else {
+                throw new TypeError('callback needed for url');
+            }
+        }
+        var outPut = { 'type': 'FeatureCollection', 'features': [] };
+        var fl = data.geometries.length;
+        var i = 0;
+        while (fl > i) {
+            var ft = data.geometries[i];
+            /* as only ESRI based products care if all the features are the same type of geometry, check for geometry type at a feature level*/
+            var outFT = {
+                'type': 'Feature',
+                'properties': prop(ft.attributes)
+            };
+            if (ft.x) {
+                //check if it's a point
+                outFT.geometry = point(ft);
+            } else if (ft.points) {
+                //check if it is a multipoint
+                outFT.geometry = points(ft);
+            } else if (ft.paths) {
+                //check if a line (or 'ARC' in ESRI terms)
+                outFT.geometry = line(ft);
+            } else if (ft.rings) {
+                //check if a poly.
+                outFT.geometry = poly(ft);
+            }
+            outPut.features.push(outFT);
+            i++;
+        }
+        return outPut;
+        // cb(null, outPut);
+    }
+    function point(geometry) {
+        //this one is easy
+        return { 'type': 'Point', 'coordinates': [geometry.x, geometry.y] };
+    }
+    function points(geometry) {
+        //checks if the multipoint only has one point, if so exports as point instead
+        if (geometry.points.length === 1) {
+            return { 'type': 'Point', 'coordinates': geometry.points[0] };
+        } else {
+            return { 'type': 'MultiPoint', 'coordinates': geometry.points };
+        }
+    }
+    function line(geometry) {
+        //checks if their are multiple paths or just one
+        if (geometry.paths.length === 1) {
+            return { 'type': 'LineString', 'coordinates': geometry.paths[0] };
+        } else {
+            return { 'type': 'MultiLineString', 'coordinates': geometry.paths };
+        }
+    }
+    function poly(geometry) {
+        //first we check for some easy cases, like if their is only one ring
+        if (geometry.rings.length === 1) {
+            return { 'type': 'Polygon', 'coordinates': geometry.rings };
+        } else {
+            /*if it isn't that easy then we have to start checking ring direction, basically the ring goes clockwise its part of the polygon,
+            if it goes counterclockwise it is a hole in the polygon, but geojson does it by haveing an array with the first element be the polygons 
+            and the next elements being holes in it*/
+            return decodePolygon(geometry.rings);
+        }
+    }
+    function decodePolygon(a) {
+        //returns the feature
+        var coords = [],
+            type;
+        var len = a.length;
+        var i = 0;
+        var len2 = coords.length - 1;
+        while (len > i) {
+            if (ringIsClockwise(a[i])) {
+                coords.push([a[i]]);
+                len2++;
+            } else {
+                coords[len2].push(a[i]);
+            }
+            i++;
+        }
+        if (coords.length === 1) {
+            type = 'Polygon';
+        } else {
+            type = 'MultiPolygon';
+        }
+        return { 'type': type, 'coordinates': coords.length === 1 ? coords[0] : coords };
+    }
+    /*determine if polygon ring coordinates are clockwise. clockwise signifies outer ring, counter-clockwise an inner ring
+    or hole. this logic was found at http://stackoverflow.com/questions/1165647/how-to-determine-if-a-list-of-polygon-
+    points-are-in-clockwise-order
+    this code taken from http://esri.github.com/geojson-utils/src/jsonConverters.js by James Cardona (MIT lisense)
+    */
+    function ringIsClockwise(ringToTest) {
+        var total = 0,
+            i = 0,
+            rLength = ringToTest.length,
+            pt1 = ringToTest[i],
+            pt2;
+        for (i; i < rLength - 1; i++) {
+            pt2 = ringToTest[i + 1];
+            total += (pt2[0] - pt1[0]) * (pt2[1] + pt1[1]);
+            pt1 = pt2;
+        }
+        return total >= 0;
+    }
+    function prop(a) {
+        var p = {};
+        for (var k in a) {
+            if (a[k]) {
+                p[k] = a[k];
+            }
+        }
+        return p;
+    }
+
+    function ajax(url, cb) {
+        if (typeof module !== 'undefined') {
+            var request = require('request');
+            request(url, { json: true }, function (e, r, b) {
+                cb(e, b);
+            });
+            return;
+        }
+        // the following is from JavaScript: The Definitive Guide
+        var response;
+        var req = new XMLHttpRequest();
+        req.onreadystatechange = function () {
+            if (req.readyState === 4 && req.status === 200) {
+                cb(null, JSON.parse(req.responseText));
+            }
+        };
+        req.open('GET', url);
+        req.send();
+    }
+    if (typeof module !== 'undefined') {
+        module.exports = toGeoJSON;
+    } else {
+        esri2geo.toGeoJSON = toGeoJSON;
+    }
 })();
 ;'use strict';
 
@@ -1586,12 +1893,12 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
     } catch (e) {
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', ['ui.sortable']]); //'leaflet-directive'
     }
-    var layersService = function layersService($http, map) {
+    var layersService = function layersService() {
         var _layersService = {};
         return _layersService;
     };
-    module.$inject = ["$http", 'map'];
-    module.factory("LayersService", layersService);
+    module.$inject = [];
+    module.factory('LayersService', layersService);
 })();
 ;'use strict';
 
@@ -1631,6 +1938,21 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             _data.CleanDrawings();
             _data.CleanWatIsHier();
             _data.CleanSearch();
+            _data.ClearBuffer();
+        };
+        _data.bufferLaag = null;
+        _data.CreateBuffer = function (gisBufferData) {
+            var esrigj = esri2geo.toGeoJSON(gisBufferData);
+            var gj = new L.GeoJSON(esrigj, { style: Style.BUFFER });
+            _data.bufferLaag = gj.addTo(map);
+            map.fitBounds(_data.bufferLaag.getBounds());
+            return _data.bufferLaag;
+        };
+        _data.ClearBuffer = function () {
+            if (_data.bufferLaag) {
+                map.removeLayer(_data.bufferLaag);
+                _data.bufferLaag = null;
+            }
         };
         _data.GetZoomLevel = function () {
             return map.getZoom();
@@ -1661,7 +1983,12 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         };
         _data.Apply = function () {
             console.log('apply');
-            $rootScope.$apply();
+            if (!$rootScope.$$phase) {
+                //$digest or $apply
+                $rootScope.$apply();
+            } else {
+                console.log('apply NOT needed');
+            }
         };
         _data.CreateOrigineleMarker = function (latlng, addressFound) {
             if (addressFound) {
@@ -1868,7 +2195,6 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
 
         map.on('draw:created', function (e) {
             console.log('draw created');
-            console.log(e);
             switch (MapData.ActiveInteractieKnop) {
                 case ActiveInteractieButton.SELECT:
                     switch (MapData.DrawingType) {
@@ -1881,14 +2207,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                         default:
                             break;
                     }
-                    MapService.Query(e);
-
-                    // if (MapData.SelectedLayer.id == '') {
-                    //     console.log('Geen layer selected! kan dus niet opvragen');
-                    // }
-                    // else {
-                    //     MapService.Query(event);
-                    // }
+                    MapService.Query(e.layer);
                     break;
                 case ActiveInteractieButton.METEN:
                     switch (MapData.DrawingType) {
@@ -1966,7 +2285,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                                     ResultsData.Loading++;
                                     theme.MapData.getFeatureInfo(event.latlng, lay.name).success(function (data, status, xhr) {
                                         ResultsData.Loading--;
-                                        console.log("minus");
+                                        console.log('minus');
                                         var xmlstring = JXON.xmlToString(data);
                                         var returnjson = JXON.stringToJs(xmlstring);
                                         var processedjson = null;
@@ -1974,12 +2293,12 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                                             processedjson = returnjson.featureinforesponse.fields;
                                         }
                                         var returnitem = {
-                                            type: "FeatureCollection",
+                                            type: 'FeatureCollection',
                                             features: []
                                         };
                                         if (processedjson) {
                                             var featureArr = [];
-                                            if ((typeof processedjson === 'undefined' ? 'undefined' : _typeof(processedjson)) === "object") {
+                                            if ((typeof processedjson === 'undefined' ? 'undefined' : _typeof(processedjson)) === 'object') {
                                                 featureArr.push(processedjson);
                                             } else {
                                                 featureArr = processedjson;
@@ -1991,11 +2310,11 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                                                     name: lay.name,
                                                     layerId: lay.name,
                                                     properties: feat,
-                                                    type: "Feature"
+                                                    type: 'Feature'
                                                 };
                                                 returnitem.features.push(tmpitem);
                                             });
-                                            console.log(lay.name + " item info: ");
+                                            console.log(lay.name + ' item info: ');
                                             console.log(returnitem);
                                             MapData.AddFeatures(returnitem, theme);
                                         } else {
@@ -2007,7 +2326,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                             });
                             break;
                         default:
-                            console.log("UNKNOW TYPE!!!!:");
+                            console.log('UNKNOW TYPE!!!!:');
                             console.log(Theme.Type);
                             break;
                     }
@@ -2016,7 +2335,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         };
 
         _mapService.Select = function (event) {
-
+            console.log(event);
             if (MapData.SelectedLayer.id == '') {
                 // alle layers selected
                 MapData.Themes.filter(function (x) {
@@ -2051,7 +2370,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             });
         };
 
-        _mapService.Query = function (event) {
+        _mapService.Query = function (layer) {
             if (MapData.SelectedLayer.id == '') {
                 // alle layers selected
                 MapData.Themes.forEach(function (theme) {
@@ -2059,7 +2378,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                     if (theme.Type === ThemeType.ESRI) {
                         theme.VisibleLayers.forEach(function (lay) {
                             ResultsData.Loading++;
-                            theme.MapData.query().layer(lay.id).intersects(event.layer).run(function (error, featureCollection, response) {
+                            theme.MapData.query().layer(lay.id).intersects(layer).run(function (error, featureCollection, response) {
                                 ResultsData.Loading--;
                                 MapData.AddFeatures(featureCollection, theme, lay.id);
                             });
@@ -2068,7 +2387,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 });
             } else {
                 ResultsData.Loading++;
-                MapData.SelectedLayer.theme.MapData.query().layer(MapData.SelectedLayer.id).intersects(event.layer).run(function (error, featureCollection, response) {
+                MapData.SelectedLayer.theme.MapData.query().layer(MapData.SelectedLayer.id).intersects(layer).run(function (error, featureCollection, response) {
                     ResultsData.Loading--;
                     MapData.AddFeatures(featureCollection, MapData.SelectedLayer.theme, MapData.SelectedLayer.id);
                 });
@@ -2509,7 +2828,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 (function (module) {
     module = angular.module('tink.gis');
-    var theController = module.controller('searchSelectedController', function ($scope, ResultsData, MapData, SearchService) {
+    var theController = module.controller('searchSelectedController', function ($scope, ResultsData, MapData, SearchService, GeometryService) {
         var vm = this;
         vm.selectedResult = null;
         vm.prevResult = null;
@@ -2563,8 +2882,10 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         };
         vm.buffer = 1;
         vm.doordruk = function () {
-            console.log(vm.buffer);
             console.log(ResultsData.SelectedFeature);
+            ResultsData.SelectedFeature.mapItem.toGeoJSON().features.forEach(function (feature) {
+                GeometryService.BufferEnDoordruk(feature, vm.buffer);
+            });
         };
         vm.delete = function () {
             var prev = SearchService.GetPrevResult();
@@ -2585,7 +2906,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             ResultsData.SelectedFeature = null;
         };
     });
-    theController.$inject = ['$scope', 'ResultsData'];
+    theController.$inject = ['$scope', 'ResultsData', 'GeometryService'];
 })();
 ;'use strict';
 
@@ -2640,8 +2961,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         _data.Loading = 0;
         _data.EmptyResult = false;
         _data.CleanSearch = function () {
-            _data.JsonFeatures.length = 0;
             _data.SelectedFeature = null;
+            _data.JsonFeatures.length = 0;
         };
         return _data;
     };

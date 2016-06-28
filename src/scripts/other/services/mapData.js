@@ -39,6 +39,21 @@
             _data.CleanDrawings();
             _data.CleanWatIsHier();
             _data.CleanSearch();
+            _data.ClearBuffer();
+        };
+        _data.bufferLaag = null;
+        _data.CreateBuffer = function (gisBufferData) {
+            var esrigj = esri2geo.toGeoJSON(gisBufferData);
+            var gj = new L.GeoJSON(esrigj, { style: Style.BUFFER });
+            _data.bufferLaag = gj.addTo(map);
+            map.fitBounds(_data.bufferLaag.getBounds());
+            return _data.bufferLaag;
+        };
+        _data.ClearBuffer = function () {
+            if (_data.bufferLaag) {
+                map.removeLayer(_data.bufferLaag);
+                _data.bufferLaag = null;
+            }
         };
         _data.GetZoomLevel = function () {
             return map.getZoom();
@@ -69,7 +84,13 @@
         };
         _data.Apply = function () {
             console.log('apply');
-            $rootScope.$apply();
+            if (!$rootScope.$$phase) {
+                //$digest or $apply
+                $rootScope.$apply();
+            }
+            else {
+                console.log('apply NOT needed');
+            }
         };
         _data.CreateOrigineleMarker = function (latlng, addressFound) {
             if (addressFound) {

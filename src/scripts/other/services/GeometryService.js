@@ -1,30 +1,63 @@
 'use strict';
 (function () {
     var module = angular.module('tink.gis');
-    var service = function ($http, map, MapData) {
+    var service = function ($http, MapService, MapData) {
         var _service = {};
 
         _service.Buffer = function (location, distance) {
-            var geo = getGeo(location);
+            MapData.CleanMap();
+
+            var geo = getGeo(location.geometry);
+            delete geo.geometry.spatialReference;
+            geo.geometries = geo.geometry;
+            delete geo.geometry;
             var sergeo = serialize(geo);
-            var url = 'http://geodata.antwerpen.be/arcgissql/rest/services/Utilities/Geometry/GeometryServer/buffer?geometries=' + sergeo + '&outSR=4326&bufferSR=&distances=' + distance + '&unit=&unionResults=true&geodesic=false&inSR=4326&f=pjson';
-            console.log(url);
-            var prom = $http.get(url);
+            var url = 'http://app10.p.gis.local/arcgissql/rest/services/Utilities/Geometry/GeometryServer/buffer';
+            var body = 'inSR=4326&outSR=4326&bufferSR=31370&distances=' + distance * 100 + '&unit=109006&unionResults=true&geodesic=false&geometries=%7B' + sergeo + '%7D&f=json';
+            var prom = $http({
+                method: 'POST',
+                url: url,
+                data: body,
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8;'
+                }
+            });
             prom.success(function (response) {
-                console.log(response);
-                var out = L.esri.Util.responseToFeatureCollection(response);
-                console.log(out);
+                var buffer = MapData.CreateBuffer(response);
+                MapService.Query(buffer);
             });
             return prom;
         };
+        _service.Doordruk = function (location) {
+            MapData.CleanMap();
+            console.log(location);
+            MapService.Query(location);
+        };
+
+
+
+        _service.BufferEnDoordruk = function (location, distance) {
+            if (distance === 0) {
+                _service.Doordruk(location);
+            }
+            else {
+                _service.Buffer(location, distance);
+
+            }
+
+        };
+
 
         var getGeo = function (geometry) {
-            var geo = null;
+            var geoconverted = {};
+            // geoconverted.inSr = 4326;
+
             // convert bounds to extent and finish
             if (geometry instanceof L.LatLngBounds) {
                 // set geometry + geometryType
-                geo = L.esri.Util.boundsToExtent(geometry);
-                return geo;
+                geoconverted.geometry = L.esri.Util.boundsToExtent(geometry);
+                geoconverted.geometryType = 'esriGeometryEnvelope';
+                return geoconverted;
             }
 
             // convert L.Marker > L.LatLng
@@ -44,7 +77,8 @@
             if (geometry instanceof L.GeoJSON) {
                 // reassign geometry to the GeoJSON value  (we are assuming that only one feature is present)
                 geometry = geometry.getLayers()[0].feature.geometry;
-                geo = L.esri.Util.geojsonToArcGIS(geometry);
+                geoconverted.geometry = L.esri.Util.geojsonToArcGIS(geometry);
+                geoconverted.geometryType = L.esri.Util.geojsonTypeToArcGIS(geometry.type);
             }
 
             // Handle L.Polyline and L.Polygon
@@ -57,20 +91,23 @@
                 // get the geometry of the geojson feature
                 geometry = geometry.geometry;
             }
+            else {
+                geoconverted.geometry = L.esri.Util.geojsonToArcGIS(geometry);
+                geoconverted.geometryType = L.esri.Util.geojsonTypeToArcGIS(geometry.type);
+            }
 
             // confirm that our GeoJSON is a point, line or polygon
-            // if (geometry.type === 'Point' || geometry.type === 'LineString' || geometry.type === 'Polygon') {
-            geo = L.esri.Util.geojsonToArcGIS(geometry);
+            // if (geometry.type === 'Point' || geometry.type === 'LineString' || geometry.type === 'Polygon' || geometry.type === 'MultiLineString') {
+
+            return geoconverted;
             // }
 
+            // warn the user if we havn't found an appropriate object
 
-            return geo;
+            // return geoconverted;
         };
         var serialize = function (params) {
             var data = '';
-
-            // params.f = params.f || 'json';
-
             for (var key in params) {
                 if (params.hasOwnProperty(key)) {
                     var param = params[key];
@@ -78,7 +115,7 @@
                     var value;
 
                     if (data.length) {
-                        data += '&';
+                        data += ',';
                     }
 
                     if (type === '[object Array]') {
@@ -88,11 +125,13 @@
                     } else if (type === '[object Date]') {
                         value = param.valueOf();
                     } else {
-                        value = param;
+                        value = '"' + param + '"';
                     }
-
-                    // data += encodeURIComponent(key) + '=' + encodeURIComponent(value);
-                    data += encodeURIComponent(value);
+                    if (key == 'geometries') {
+                        data += encodeURIComponent('"' + key + '"') + ':' + encodeURIComponent('[' + value + ']');
+                    } else {
+                        data += encodeURIComponent('"' + key + '"') + ':' + encodeURIComponent(value);
+                    }
                 }
             }
 
@@ -100,6 +139,6 @@
         };
         return _service;
     };
-    module.$inject = ['$http', 'map', 'MapData'];
+    module.$inject = ['$http', 'MapService', 'MapData'];
     module.factory('GeometryService', service);
 })();

@@ -37,6 +37,13 @@ var Style = {
         weight: 7,
         color: 'red',
         fillOpacity: 0.5
+    },
+    BUFFER: {
+        fillColor: '#00cc00',
+        color: '#00cc00',
+        weight: 1,
+        opacity: 0.9,
+        fillOpacity: 0.3
     }
 };
 
