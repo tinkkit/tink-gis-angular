@@ -164,14 +164,9 @@
             _data.VisibleFeatures.length = 0;
         };
         _data.PanToFeature = function (feature) {
-            var tmplayer = feature.mapItem._layers[Object.keys(feature.mapItem._layers)[0]]
-            if (tmplayer._latlngs) { // with s so it has bounds etc
-                map.fitBounds(tmplayer.getBounds(), { paddingTopLeft: L.point(25, 25), paddingBottomRight: L.point(25, 25) });
-                // map.setZoom(map.getZoom() + 1);
-            }
-            else {
-                // map.panTo(tmplayer.getLatLng());
-            }
+            // var tmplayer = feature.mapItem._layers[Object.keys(feature.mapItem._layers)[0]]
+            var featureBounds = feature.getBounds();
+            map.fitBounds(featureBounds);
         };
         _data.GoToLastClickBounds = function () {
             map.fitBounds(_data.LastIdentifyBounds, { paddingTopLeft: L.point(0, 0), paddingBottomRight: L.point(0, 0) });
@@ -223,6 +218,15 @@
                             }
                         });
                         featureItem.displayValue = featureItem.properties[layer.displayField];
+                        if (!featureItem.displayValue) {
+                            var displayFieldProperties = layer.fields.find(x => x.name == layer.displayField);
+                            if (displayFieldProperties) {
+                                featureItem.displayValue = featureItem.properties[displayFieldProperties.alias];
+                            } else {
+                                featureItem.displayValue = 'LEEG';
+                            }
+
+                        }
                         var mapItem = L.geoJson(featureItem, { style: Style.DEFAULT }).addTo(map);
                         _data.VisibleFeatures.push(mapItem);
                         featureItem.mapItem = mapItem;

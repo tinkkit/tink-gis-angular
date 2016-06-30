@@ -153,6 +153,37 @@
                     });
             }
         };
+
+        _mapService.Find = function (query) {
+            if (MapData.SelectedLayer.id == '') { // alle layers selected
+                MapData.Themes.forEach(theme => { // dus doen we de qry op alle lagen.
+                    if (theme.Type === ThemeType.ESRI) {
+                        theme.VisibleLayers.forEach(lay => {
+                            ResultsData.Loading++;
+                            theme.MapData.find()
+                                .fields(lay.displayField)
+                                .layers(lay.id)
+                                .text(query)
+                                .run(function (error, featureCollection, response) {
+                                    ResultsData.Loading--;
+                                    MapData.AddFeatures(featureCollection, theme, lay.id);
+                                });
+                        });
+                    }
+                });
+            }
+            else {
+                ResultsData.Loading++;
+                MapData.SelectedLayer.theme.MapData.find()
+                    .fields(MapData.SelectedLayer.displayField)
+                    .layers(MapData.SelectedLayer.id)
+                    .text(query)
+                    .run(function (error, featureCollection, response) {
+                        ResultsData.Loading--;
+                        MapData.AddFeatures(featureCollection, MapData.SelectedLayer.theme, MapData.SelectedLayer.id);
+                    });
+            }
+        };
         _mapService.UpdateThemeStatus = function (theme) {
             _.each(theme.Groups, function (layerGroup) {
                 _mapService.UpdateGroupLayerStatus(layerGroup, theme);

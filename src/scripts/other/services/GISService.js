@@ -27,12 +27,12 @@
                 });
 
         };
-        _service.QuerySOLRGIS = function (searchterm) {
-            var prom = $http.get('http://esb-app1-o.antwerpen.be/v1/giszoek/solr/search?q=*' + searchterm + '*&wt=json&indent=true');
+        _service.QuerySOLRGIS = function (search) {
+            var prom = $http.get('http://esb-app1-o.antwerpen.be/v1/giszoek/solr/search?q=*' + search + '*&wt=json&indent=true&solrtype=gis');
             return prom;
         };
         _service.QuerySOLRLocatie = function (search) {
-            var prom = $http.get('http://solr.o.antwerpen.be:8080/solr/gislocaties/select?q=*' + search + '*&wt=json&indent=true');
+            var prom = $http.get('http://esb-app1-o.antwerpen.be/v1/giszoek/solr/search?q=*' + search + '*&wt=json&indent=true&solrtype=gislocaties');
             return prom;
         };
         var baseurl = 'http://app10.p.gis.local/arcgissql/rest/';

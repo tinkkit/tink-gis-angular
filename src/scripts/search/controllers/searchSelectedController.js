@@ -36,7 +36,7 @@
             });
             vm.toonFeatureOpKaart = function () {
                 if (vm.selectedResult.theme.Type === 'esri') {
-                    MapData.PanToFeature(vm.selectedResult);
+                    MapData.PanToFeature(vm.selectedResult.mapItem);
                 }
                 else { // wms we go to the last identifybounds
                     MapData.GoToLastClickBounds();

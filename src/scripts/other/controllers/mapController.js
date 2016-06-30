@@ -7,7 +7,7 @@
         //We need to include MapEvents, even tho we don t call it just to make sure it gets loaded!
         var vm = this;
         vm.layerId = '';
-        vm.IsKnop1 = true;
+        vm.ZoekenOpLocatie = true;
         vm.activeInteractieKnop = MapData.ActiveInteractieKnop;
         vm.SelectableLayers = MapData.VisibleLayers;
         vm.selectedLayer = MapData.SelectedLayer;
@@ -31,7 +31,11 @@
                     break;
             }
         };
-        vm.zoekEnter = function (search) {
+        vm.zoekLaag = function (search) {
+            MapData.CleanMap();
+            MapService.Find(search);
+        };
+        vm.zoekLocatie = function (search) {
             search = search.trim();
             var WGS84Check = HelperService.getWGS84CordsFromString(search);
             if (WGS84Check.hasCordinates) {
@@ -43,10 +47,11 @@
                     map.setView(L.latLng(xyWGS84.x, xyWGS84.y), 12);
                 }
                 else {
-                    console.log("NIET GEVONDEN");
+                    console.log('NIET GEVONDEN');
                 }
             }
         };
+
         vm.zoekLocChanged = function (search) {
             var prom = GISService.QuerySOLRLocatie(search);
             prom.success(function (data, status, headers) {

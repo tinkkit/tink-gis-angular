@@ -765,7 +765,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         //We need to include MapEvents, even tho we don t call it just to make sure it gets loaded!
         var vm = this;
         vm.layerId = '';
-        vm.IsKnop1 = true;
+        vm.ZoekenOpLocatie = true;
         vm.activeInteractieKnop = MapData.ActiveInteractieKnop;
         vm.SelectableLayers = MapData.VisibleLayers;
         vm.selectedLayer = MapData.SelectedLayer;
@@ -789,7 +789,11 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                     break;
             }
         };
-        vm.zoekEnter = function (search) {
+        vm.zoekLaag = function (search) {
+            MapData.CleanMap();
+            MapService.Find(search);
+        };
+        vm.zoekLocatie = function (search) {
             search = search.trim();
             var WGS84Check = HelperService.getWGS84CordsFromString(search);
             if (WGS84Check.hasCordinates) {
@@ -800,10 +804,11 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                     var xyWGS84 = HelperService.ConvertLambert72ToWSG84({ x: lambertCheck.X, y: lambertCheck.Y });
                     map.setView(L.latLng(xyWGS84.x, xyWGS84.y), 12);
                 } else {
-                    console.log("NIET GEVONDEN");
+                    console.log('NIET GEVONDEN');
                 }
             }
         };
+
         vm.zoekLocChanged = function (search) {
             var prom = GISService.QuerySOLRLocatie(search);
             prom.success(function (data, status, headers) {
@@ -1072,12 +1077,12 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 console.log('ERROR!', status, headers, data);
             });
         };
-        _service.QuerySOLRGIS = function (searchterm) {
-            var prom = $http.get('http://esb-app1-o.antwerpen.be/v1/giszoek/solr/search?q=*' + searchterm + '*&wt=json&indent=true');
+        _service.QuerySOLRGIS = function (search) {
+            var prom = $http.get('http://esb-app1-o.antwerpen.be/v1/giszoek/solr/search?q=*' + search + '*&wt=json&indent=true&solrtype=gis');
             return prom;
         };
         _service.QuerySOLRLocatie = function (search) {
-            var prom = $http.get('http://solr.o.antwerpen.be:8080/solr/gislocaties/select?q=*' + search + '*&wt=json&indent=true');
+            var prom = $http.get('http://esb-app1-o.antwerpen.be/v1/giszoek/solr/search?q=*' + search + '*&wt=json&indent=true&solrtype=gislocaties');
             return prom;
         };
         var baseurl = 'http://app10.p.gis.local/arcgissql/rest/';
@@ -2035,14 +2040,9 @@ var esri2geo = {};
             _data.VisibleFeatures.length = 0;
         };
         _data.PanToFeature = function (feature) {
-            var tmplayer = feature.mapItem._layers[Object.keys(feature.mapItem._layers)[0]];
-            if (tmplayer._latlngs) {
-                // with s so it has bounds etc
-                map.fitBounds(tmplayer.getBounds(), { paddingTopLeft: L.point(25, 25), paddingBottomRight: L.point(25, 25) });
-                // map.setZoom(map.getZoom() + 1);
-            } else {
-                    // map.panTo(tmplayer.getLatLng());
-                }
+            // var tmplayer = feature.mapItem._layers[Object.keys(feature.mapItem._layers)[0]]
+            var featureBounds = feature.getBounds();
+            map.fitBounds(featureBounds);
         };
         _data.GoToLastClickBounds = function () {
             map.fitBounds(_data.LastIdentifyBounds, { paddingTopLeft: L.point(0, 0), paddingBottomRight: L.point(0, 0) });
@@ -2096,6 +2096,16 @@ var esri2geo = {};
                             }
                         });
                         featureItem.displayValue = featureItem.properties[layer.displayField];
+                        if (!featureItem.displayValue) {
+                            var displayFieldProperties = layer.fields.find(function (x) {
+                                return x.name == layer.displayField;
+                            });
+                            if (displayFieldProperties) {
+                                featureItem.displayValue = featureItem.properties[displayFieldProperties.alias];
+                            } else {
+                                featureItem.displayValue = 'LEEG';
+                            }
+                        }
                         var mapItem = L.geoJson(featureItem, { style: Style.DEFAULT }).addTo(map);
                         _data.VisibleFeatures.push(mapItem);
                         featureItem.mapItem = mapItem;
@@ -2388,6 +2398,30 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             } else {
                 ResultsData.Loading++;
                 MapData.SelectedLayer.theme.MapData.query().layer(MapData.SelectedLayer.id).intersects(layer).run(function (error, featureCollection, response) {
+                    ResultsData.Loading--;
+                    MapData.AddFeatures(featureCollection, MapData.SelectedLayer.theme, MapData.SelectedLayer.id);
+                });
+            }
+        };
+
+        _mapService.Find = function (query) {
+            if (MapData.SelectedLayer.id == '') {
+                // alle layers selected
+                MapData.Themes.forEach(function (theme) {
+                    // dus doen we de qry op alle lagen.
+                    if (theme.Type === ThemeType.ESRI) {
+                        theme.VisibleLayers.forEach(function (lay) {
+                            ResultsData.Loading++;
+                            theme.MapData.find().fields(lay.displayField).layers(lay.id).text(query).run(function (error, featureCollection, response) {
+                                ResultsData.Loading--;
+                                MapData.AddFeatures(featureCollection, theme, lay.id);
+                            });
+                        });
+                    }
+                });
+            } else {
+                ResultsData.Loading++;
+                MapData.SelectedLayer.theme.MapData.find().fields(MapData.SelectedLayer.displayField).layers(MapData.SelectedLayer.id).text(query).run(function (error, featureCollection, response) {
                     ResultsData.Loading--;
                     MapData.AddFeatures(featureCollection, MapData.SelectedLayer.theme, MapData.SelectedLayer.id);
                 });
@@ -2868,7 +2902,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         });
         vm.toonFeatureOpKaart = function () {
             if (vm.selectedResult.theme.Type === 'esri') {
-                MapData.PanToFeature(vm.selectedResult);
+                MapData.PanToFeature(vm.selectedResult.mapItem);
             } else {
                 // wms we go to the last identifybounds
                 MapData.GoToLastClickBounds();
@@ -3631,13 +3665,13 @@ L.drawLocal = {
     "<div class=tink-map>\n" +
     "<div id=map class=leafletmap>\n" +
     "<div class=\"btn-group ll searchbtns\">\n" +
-    "<button type=button class=btn ng-class=\"{active: mapctrl.IsKnop1==true}\" ng-click=\"mapctrl.IsKnop1=true\" prevent-default><i class=\"fa fa-map-marker\"></i></button>\n" +
-    "<button type=button class=btn ng-class=\"{active: mapctrl.IsKnop1==false}\" ng-click=\"mapctrl.IsKnop1=false\" prevent-default><i class=\"fa fa-download\"></i></button>\n" +
+    "<button type=button class=btn ng-class=\"{active: mapctrl.ZoekenOpLocatie==true}\" ng-click=\"mapctrl.ZoekenOpLocatie=true\" prevent-default><i class=\"fa fa-map-marker\"></i></button>\n" +
+    "<button type=button class=btn ng-class=\"{active: mapctrl.ZoekenOpLocatie==false}\" ng-click=\"mapctrl.ZoekenOpLocatie=false\" prevent-default><i class=\"fa fa-download\"></i></button>\n" +
     "</div>\n" +
     "<div class=\"ll zoekbalken\">\n" +
-    "<input class=zoekbalk ng-show=\"mapctrl.IsKnop1 == true\" placeholder=\"Geef een X,Y / locatie of POI in.\" ng-change=mapctrl.zoekLocChanged(mapctrl.zoekLoc) ng-keyup=\"$event.keyCode == 13 && mapctrl.zoekEnter(mapctrl.zoekLoc)\" ng-model=mapctrl.zoekLoc prevent-default>\n" +
-    "<input class=zoekbalk ng-show=\"mapctrl.IsKnop1 == false\" placeholder=\"Zoek in je lagen?\" prevent-default>\n" +
-    "<select ng-options=\"layer as layer.name for layer in mapctrl.SelectableLayers\" ng-model=mapctrl.selectedLayer ng-show=\"mapctrl.IsKnop1 == true\" ng-change=mapctrl.layerChange() ng-class=\"{invisible: mapctrl.activeInteractieKnop!='select' || mapctrl.SelectableLayers.length<=1}\" prevent-default></select>\n" +
+    "<input type=search class=zoekbalk ng-show=\"mapctrl.ZoekenOpLocatie == true\" placeholder=\"Geef een X,Y / locatie of POI in.\" ng-change=mapctrl.zoekLocChanged(mapctrl.zoekLoc) ng-keyup=\"$event.keyCode == 13 && mapctrl.zoekLocatie(mapctrl.zoekLoc)\" ng-model=mapctrl.zoekLoc prevent-default>\n" +
+    "<input type=search class=zoekbalk ng-show=\"mapctrl.ZoekenOpLocatie == false\" placeholder=\"Geef een zoekterm\" prevent-default ng-keyup=\"$event.keyCode == 13 && mapctrl.zoekLaag(mapctrl.laagquery)\" ng-model=mapctrl.laagquery>\n" +
+    "<select ng-options=\"layer as layer.name for layer in mapctrl.SelectableLayers\" ng-model=mapctrl.selectedLayer ng-show=\"mapctrl.ZoekenOpLocatie == false\" ng-change=mapctrl.layerChange() ng-class=\"{invisible: mapctrl.SelectableLayers.length<=1}\" prevent-default></select>\n" +
     "</div>\n" +
     "<div class=\"btn-group btn-group-vertical ll interactiebtns\">\n" +
     "<button type=button class=btn ng-click=\"mapctrl.interactieButtonChanged('identify')\" ng-class=\"{active: mapctrl.activeInteractieKnop=='identify'}\" prevent-default><i class=\"fa fa-info\"></i></button>\n" +
