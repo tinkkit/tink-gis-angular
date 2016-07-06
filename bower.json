@@ -60,6 +60,7 @@
     "proj4": "^2.3.12",
     "esri-leaflet": "^2.0.0",
     "ng-lodash": "^0.5.0",
-    "leaflet": "^1.0.0-rc.1"
+    "leaflet": "^1.0.0-rc.1",
+    "jsts": "^1.1.2"
   }
 }

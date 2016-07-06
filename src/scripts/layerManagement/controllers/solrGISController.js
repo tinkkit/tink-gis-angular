@@ -47,6 +47,9 @@
             $scope.QueryGISSOLR = function (searchterm, page) {
                 var prom = GISService.QuerySOLRGIS(searchterm, ((page - 1) * 5) + 1, 5);
                 prom.then(function (data) {
+                    var allitems = data.data.facet_counts.facet_fields.parent;
+                    var dematches = data.data.grouped.parent.matches;
+                    var itemsmetvoorbeelden = data.data.grouped.parent.groups;
                     var items = data.data.response.docs;
                     $scope.availableThemes = items;
                     // $scope.currentrecord = metadata.currentrecord;
