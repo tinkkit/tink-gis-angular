@@ -48,10 +48,90 @@
                 var prom = GISService.QuerySOLRGIS(searchterm, ((page - 1) * 5) + 1, 5);
                 prom.then(function (data) {
                     var allitems = data.data.facet_counts.facet_fields.parent;
-                    var dematches = data.data.grouped.parent.matches;
-                    var itemsmetvoorbeelden = data.data.grouped.parent.groups;
-                    var items = data.data.response.docs;
-                    $scope.availableThemes = items;
+                    var itemsMetData = data.data.grouped.parent.groups;
+
+                    var aantalitems = allitems.length;
+                    var x = 0;
+                    var themes = [];
+                    // var lagenMetFeatures = [];
+                    itemsMetData.forEach(itemMetData => {
+
+
+                        switch (itemMetData.doclist.docs[0].type) {
+                            case "Feature":
+                                // var theme = {
+                                //     layers: [],
+                                //     layersCount: itemMetData.doclist.numFound,
+                                //     name: themeName,
+                                //     cleanUrl: 'http://app10.p.gis.local/arcgissql/rest/services/' + themeName + '/MapServer    '
+                                // }
+                                // itemMetData.doclist.docs.forEach(item => {
+
+                                // });
+                                // var feature = {
+                                //     naam: item.key,
+                                //     id: item.id
+                                // };
+                                // themeOfLayer.features.push(feature);
+                                break;
+                            case "Layer":
+                                var themeName = itemMetData.groupValue;
+                                var theme = {
+                                    layers: [],
+                                    layersCount: itemMetData.doclist.numFound,
+                                    name: themeName,
+                                    cleanUrl: 'http://app10.p.gis.local/arcgissql/rest/services/' + themeName + '/MapServer',
+                                    url: 'services/' + themeName + '/MapServer'
+                                }
+                                itemMetData.doclist.docs.forEach(item => {
+                                    var layer = {
+                                        naam: item.titel[0],
+                                        id: item.key
+                                    };
+                                    theme.layers.push(layer);
+                                });
+                                themes.push(theme);
+
+                                break;
+                            default:
+                                console.log("UNKOWN TYPE:", item)
+                                break;
+                        }
+
+                    })
+                    // while (x < aantalitems) {
+                    //     let count = allitems[x + 1];
+                    //     if (count > 0) {
+                    //         let isLayer = false;
+
+                    //         if (allitems[x].split('/').length == 3) {
+                    //             isLayer = true;
+                    //         }
+                    //         var themeOfLayer = {
+                    //             url: allitems[x],
+                    //             cleanUrl: 'http://app10.p.gis.local/arcgissql/rest/services/' + allitems[x],
+                    //             count: count,
+                    //             naam: allitems[x],
+                    //             features: [],
+                    //             layers: []
+                    //         }
+                    //         var children = itemsmetData.find(x => x.groupValue == themeOfLayer.url);
+                    //         if (children) {
+                    //             children
+                    //         }
+                    //         themes.push(themeOfLayer);
+                    //     }
+                    //     x++;
+                    //     x++;
+                    // }
+                    // itemsmetvoorbeelden.forEach(themewithfeatures => {
+                    //     console.log(themewithfeatures);
+                    // });
+
+                    // var dematches = data.data.grouped.parent.matches;
+
+                    // var items = data.data.response.docs;
+                    $scope.availableThemes = themes;
                     // $scope.currentrecord = metadata.currentrecord;
                     // $scope.nextrecord = metadata.nextrecord;
                     // $scope.numberofrecordsmatched = metadata.numberofrecordsmatched;
@@ -91,12 +171,12 @@
                 $scope.selectedTheme = null;
                 $scope.copySelectedTheme = null;
             };
-            $scope.geopuntThemeChanged = function (theme) {
+            $scope.solrThemeChanged = function (theme) {
 
-                var url = theme.url.trim().replace('?', '');
-                var lastslash = url.lastIndexOf('/');
-                url = url.substring(0, lastslash); // remove the last unneeded part
-                GISService.GetThemeData(url).success(function (data, statuscode, functie, getdata) {
+                // var url = theme.url.trim().replace('?', '');
+                // var lastslash = url.lastIndexOf('/');
+                // url = url.substring(0, lastslash); // remove the last unneeded part
+                GISService.GetThemeData(theme.url).success(function (data, statuscode, functie, getdata) {
                     var convertedTheme = ThemeHelper.createThemeFromJson(data, getdata);
                     $scope.previewTheme(convertedTheme);
                 });

@@ -29,7 +29,7 @@
         };
         _service.QuerySOLRGIS = function (search) {
             // select?q=school&wt=json&indent=true&facet=true&facet.field=parent&group=true&group.field=parent&group.limit=2
-            var prom = $http.get('http://esb-app1-o.antwerpen.be/v1/giszoek/solr/search?q=*' + search + '*&wt=json&indent=true&facet=true&facet.field=parent&group=true&group.field=parent&group.limit=2&solrtype=gis');
+            var prom = $http.get('http://esb-app1-o.antwerpen.be/v1/giszoek/solr/search?q=*' + search + '*&wt=json&indent=true&facet=true&rows=999&facet.field=parent&group=true&group.field=parent&group.limit=2&solrtype=gis');
             return prom;
         };
         _service.QuerySOLRLocatie = function (search) {
