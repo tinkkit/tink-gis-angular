@@ -16,14 +16,10 @@
             LayerManagementService.AvailableThemes.length = 0;
             LayerManagementService.EnabledThemes = angular.copy(MapData.Themes);
             $scope.availableThemes = [];
+            $scope.allThemes = [];
             var init = function () {
-                // $scope.searchTerm = 'Laden...';
-                // var qwhenready = LayerManagementService.ProcessUrls(urls);
-                // qwhenready.then(function(allelagen) {
-                // $scope.searchTerm = 'http://mesonet.agron.iastate.edu/cgi-bin/wms/nexrad/n0r.cgi';
                 $scope.searchTerm = '';
                 $scope.searchIsUrl = false;
-                // });
             } ();
 
             $scope.searchChanged = function () {
@@ -47,9 +43,9 @@
             $scope.QueryGISSOLR = function (searchterm, page) {
                 var prom = GISService.QuerySOLRGIS(searchterm, ((page - 1) * 5) + 1, 5);
                 prom.then(function (data) {
+                    $scope.currentPage = 1;
                     var allitems = data.data.facet_counts.facet_fields.parent;
                     var itemsMetData = data.data.grouped.parent.groups;
-
                     var aantalitems = allitems.length;
                     var x = 0;
                     var themes = [];
@@ -70,16 +66,18 @@
                                     }
                                     themes.push(theme);
                                 }
-
                                 var layer = theme.layers.find(x => x.id == layerId);
                                 if (!layer) {
                                     layer = {
                                         naam: layerName,
                                         id: layerId,
                                         features: [],
+                                        featuresCount: itemMetData.doclist.numFound,
                                         isMatch: false
                                     };
                                     theme.layers.push(layer);
+                                } else {
+                                    layer.featuresCount = itemMetData.doclist.numFound;
                                 }
                                 itemMetData.doclist.docs.forEach(item => {
                                     var feature = item.titel.join(' ');
@@ -101,17 +99,26 @@
                                     themes.push(theme);
                                 }
                                 else {
-                                    theme.isMatch = true;
+                                    theme.layersCount = itemMetData.doclist.numFound;
+                                    // theme.isMatch = true;
                                 }
 
                                 itemMetData.doclist.docs.forEach(item => {
-                                    var layer = {
-                                        naam: item.titel[0],
-                                        id: item.key,
-                                        isMatch: true,
-                                        features: []
-                                    };
-                                    theme.layers.push(layer);
+                                    var layer = theme.layers.find(x => x.id == item.key);
+                                    if (!layer) {
+                                        layer = {
+                                            naam: item.titel[0],
+                                            id: item.key,
+                                            isMatch: true,
+                                            featuresCount: 0,
+                                            features: []
+                                        };
+                                        theme.layers.push(layer);
+                                    }
+                                    else {
+                                        layer.isMatch = true;
+                                    }
+
                                 });
 
                                 break;
@@ -120,15 +127,20 @@
                                 break;
                         }
 
-                    })
-                    $scope.availableThemes = themes;
+                    });
+                    $scope.availableThemes = themes.slice(0, 5);
+                    $scope.allThemes = themes;
+                    $scope.numberofrecordsmatched = themes.length;
                     console.log(data);
                 }, function (reason) {
                     console.log(reason);
                 });
             };
             $scope.pageChanged = function (page, recordsAPage) {
-                $scope.QueryGISSOLR($scope.searchTerm, page);
+                let startItem = ((page - 1) * recordsAPage);
+                $scope.availableThemes = $scope.allThemes.slice(startItem, startItem + recordsAPage)
+                // console.log(page, recordsAPage);
+                // $scope.QueryGISSOLR($scope.searchTerm, page);
             };
             $scope.laadUrl = function () {
                 $scope.searchTerm = $scope.searchTerm.trim().replace('?', '');
@@ -159,29 +171,14 @@
                 $scope.copySelectedTheme = null;
             };
             $scope.solrThemeChanged = function (theme) {
-
-                // var url = theme.url.trim().replace('?', '');
-                // var lastslash = url.lastIndexOf('/');
-                // url = url.substring(0, lastslash); // remove the last unneeded part
                 GISService.GetThemeData(theme.url).success(function (data, statuscode, functie, getdata) {
-                    var convertedTheme = ThemeHelper.createThemeFromJson(data, getdata);
-                    $scope.previewTheme(convertedTheme);
+                    if (!data.error) {
+                        var convertedTheme = ThemeHelper.createThemeFromJson(data, getdata);
+                        $scope.previewTheme(convertedTheme);
+                    } else {
+                        console.log('ERROR:', data.error);
+                    }
                 });
-                // if (MapData.Themes.find(x => x.CleanUrl == url) == undefined) {
-                //     var getwms = WMSService.GetCapabilities(url);
-                //     getwms.success(function (data, status, headers, config) {
-
-                //         $scope.previewTheme(data);
-                //     }).error(function (data, status, headers, config) {
-                //         $window.alert('error');
-                //     });
-                // }
-                // else {
-                //     alert('Deze is al toegevoegd aan de map.');
-                // }
-                // }
-
-
             };
             $scope.AddOrUpdateTheme = function () {
                 console.log('AddOrUpdateTheme');

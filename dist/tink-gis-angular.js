@@ -344,14 +344,10 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         LayerManagementService.AvailableThemes.length = 0;
         LayerManagementService.EnabledThemes = angular.copy(MapData.Themes);
         $scope.availableThemes = [];
+        $scope.allThemes = [];
         var init = function () {
-            // $scope.searchTerm = 'Laden...';
-            // var qwhenready = LayerManagementService.ProcessUrls(urls);
-            // qwhenready.then(function(allelagen) {
-            // $scope.searchTerm = 'http://mesonet.agron.iastate.edu/cgi-bin/wms/nexrad/n0r.cgi';
             $scope.searchTerm = '';
             $scope.searchIsUrl = false;
-            // });
         }();
 
         $scope.searchChanged = function () {
@@ -371,9 +367,9 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         $scope.QueryGISSOLR = function (searchterm, page) {
             var prom = GISService.QuerySOLRGIS(searchterm, (page - 1) * 5 + 1, 5);
             prom.then(function (data) {
+                $scope.currentPage = 1;
                 var allitems = data.data.facet_counts.facet_fields.parent;
                 var itemsMetData = data.data.grouped.parent.groups;
-
                 var aantalitems = allitems.length;
                 var x = 0;
                 var themes = [];
@@ -396,7 +392,6 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                                 };
                                 themes.push(theme);
                             }
-
                             var layer = theme.layers.find(function (x) {
                                 return x.id == layerId;
                             });
@@ -405,9 +400,12 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                                     naam: layerName,
                                     id: layerId,
                                     features: [],
+                                    featuresCount: itemMetData.doclist.numFound,
                                     isMatch: false
                                 };
                                 theme.layers.push(layer);
+                            } else {
+                                layer.featuresCount = itemMetData.doclist.numFound;
                             }
                             itemMetData.doclist.docs.forEach(function (item) {
                                 var feature = item.titel.join(' ');
@@ -430,17 +428,26 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                                 };
                                 themes.push(theme);
                             } else {
-                                theme.isMatch = true;
+                                theme.layersCount = itemMetData.doclist.numFound;
+                                // theme.isMatch = true;
                             }
 
                             itemMetData.doclist.docs.forEach(function (item) {
-                                var layer = {
-                                    naam: item.titel[0],
-                                    id: item.key,
-                                    isMatch: true,
-                                    features: []
-                                };
-                                theme.layers.push(layer);
+                                var layer = theme.layers.find(function (x) {
+                                    return x.id == item.key;
+                                });
+                                if (!layer) {
+                                    layer = {
+                                        naam: item.titel[0],
+                                        id: item.key,
+                                        isMatch: true,
+                                        featuresCount: 0,
+                                        features: []
+                                    };
+                                    theme.layers.push(layer);
+                                } else {
+                                    layer.isMatch = true;
+                                }
                             });
 
                             break;
@@ -449,14 +456,19 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                             break;
                     }
                 });
-                $scope.availableThemes = themes;
+                $scope.availableThemes = themes.slice(0, 5);
+                $scope.allThemes = themes;
+                $scope.numberofrecordsmatched = themes.length;
                 console.log(data);
             }, function (reason) {
                 console.log(reason);
             });
         };
         $scope.pageChanged = function (page, recordsAPage) {
-            $scope.QueryGISSOLR($scope.searchTerm, page);
+            var startItem = (page - 1) * recordsAPage;
+            $scope.availableThemes = $scope.allThemes.slice(startItem, startItem + recordsAPage);
+            // console.log(page, recordsAPage);
+            // $scope.QueryGISSOLR($scope.searchTerm, page);
         };
         $scope.laadUrl = function () {
             $scope.searchTerm = $scope.searchTerm.trim().replace('?', '');
@@ -486,27 +498,14 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             $scope.copySelectedTheme = null;
         };
         $scope.solrThemeChanged = function (theme) {
-
-            // var url = theme.url.trim().replace('?', '');
-            // var lastslash = url.lastIndexOf('/');
-            // url = url.substring(0, lastslash); // remove the last unneeded part
             GISService.GetThemeData(theme.url).success(function (data, statuscode, functie, getdata) {
-                var convertedTheme = ThemeHelper.createThemeFromJson(data, getdata);
-                $scope.previewTheme(convertedTheme);
+                if (!data.error) {
+                    var convertedTheme = ThemeHelper.createThemeFromJson(data, getdata);
+                    $scope.previewTheme(convertedTheme);
+                } else {
+                    console.log('ERROR:', data.error);
+                }
             });
-            // if (MapData.Themes.find(x => x.CleanUrl == url) == undefined) {
-            //     var getwms = WMSService.GetCapabilities(url);
-            //     getwms.success(function (data, status, headers, config) {
-
-            //         $scope.previewTheme(data);
-            //     }).error(function (data, status, headers, config) {
-            //         $window.alert('error');
-            //     });
-            // }
-            // else {
-            //     alert('Deze is al toegevoegd aan de map.');
-            // }
-            // }
         };
         $scope.AddOrUpdateTheme = function () {
             console.log('AddOrUpdateTheme');
@@ -619,7 +618,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             var startpos = arguments.length <= 1 || arguments[1] === undefined ? 1 : arguments[1];
             var recordsAPage = arguments.length <= 2 || arguments[2] === undefined ? 10 : arguments[2];
 
-            var url = 'https://metadata.geopunt.be/zoekdienst/srv/dut/csw?service=CSW&version=2.0.2&request=GetRecords&namespace=xmlns%28csw=http://www.opengis.net/cat/csw%29&resultType=results&outputSchema=http://www.opengis.net/cat/csw/2.0.2&outputFormat=application/xml&startPosition=' + startpos + '&maxRecords=' + recordsAPage + '&typeNames=csw:Record&elementSetName=full&constraintLanguage=CQL_TEXT&constraint_language_version=1.1.0&constraint=AnyText+LIKE+%27%25' + searchterm + '%25%27AND%20Type%20=%20%27service%27%20AND%20Servicetype%20=%27view%27&sortBy=title';
+            var url = 'https://metadata.geopunt.be/zoekdienst/srv/dut/csw?service=CSW&version=2.0.2&request=GetRecords&namespace=xmlns%28csw=http://www.opengis.net/cat/csw%29&resultType=results&outputSchema=http://www.opengis.net/cat/csw/2.0.2&outputFormat=application/xml&startPosition=' + startpos + '&maxRecords=' + recordsAPage + '&typeNames=csw:Record&elementSetName=full&constraintLanguage=CQL_TEXT&constraint_language_version=1.1.0&constraint=AnyText+LIKE+%27%25' + searchterm + '%25%27AND%20Type%20=%20%27service%27%20AND%20Servicetype%20=%27view%27&SortBy=dc:title';
             console.log('GETTING METADATA WITH ULR:', url);
             var prom = $q.defer();
             $http.get(url).success(function (data, status, headers, config) {
@@ -3643,7 +3642,7 @@ L.drawLocal = {
     "<div ng-click=solrThemeChanged(theme) class=greytext>\n" +
     "{{theme.name}}\n" +
     "<div style=\"margin-left: 20px\" ng-repeat=\"layer in theme.layers\">\n" +
-    "<span ng-class=\"{'blacktext': layer.isMatch}\">{{layer.naam}}</span>\n" +
+    "<span ng-class=\"{'blacktext': layer.isMatch}\">{{layer.naam}}<span ng-show=\"layer.featuresCount > 0\"> ({{layer.featuresCount}})</span> </span>\n" +
     "<div class=\"blacktext featureinsolr\">\n" +
     "{{layer.features.join(', ')}}\n" +
     "</div>\n" +

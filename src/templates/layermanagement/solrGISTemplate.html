@@ -9,7 +9,7 @@
                 <!-- ng-class="{'greytext': theme.Type != 'wms' &&  theme.Type != 'esri'}"-->
                 {{theme.name}}
                 <div style="margin-left: 20px;" ng-repeat="layer in theme.layers">
-                    <span ng-class="{'blacktext': layer.isMatch}">{{layer.naam}}</span>
+                    <span ng-class="{'blacktext': layer.isMatch}">{{layer.naam}}<span ng-show="layer.featuresCount > 0"> ({{layer.featuresCount}})</span>                    </span>
                     <div class="blacktext featureinsolr">
                         {{layer.features.join(', ')}}
                     </div>
