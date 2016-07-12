@@ -53,44 +53,66 @@
                     var aantalitems = allitems.length;
                     var x = 0;
                     var themes = [];
-                    // var lagenMetFeatures = [];
                     itemsMetData.forEach(itemMetData => {
-
-
                         switch (itemMetData.doclist.docs[0].type) {
                             case "Feature":
-                                // var theme = {
-                                //     layers: [],
-                                //     layersCount: itemMetData.doclist.numFound,
-                                //     name: themeName,
-                                //     cleanUrl: 'http://app10.p.gis.local/arcgissql/rest/services/' + themeName + '/MapServer    '
-                                // }
-                                // itemMetData.doclist.docs.forEach(item => {
+                                var themeName = itemMetData.groupValue.split('/').slice(1, 2).join('/');
+                                var layerId = itemMetData.groupValue.split('/')[2];
+                                var layerName = itemMetData.doclist.docs[0].parentname;
+                                var theme = themes.find(x => x.name == themeName)
+                                if (!theme) {
+                                    var theme = {
+                                        layers: [],
+                                        layersCount: 0,
+                                        name: themeName,
+                                        cleanUrl: 'http://app10.p.gis.local/arcgissql/rest/services/P_Stad/' + themeName + '/MapServer',
+                                        url: 'services/P_Stad/' + themeName + '/MapServer'
+                                    }
+                                    themes.push(theme);
+                                }
 
-                                // });
-                                // var feature = {
-                                //     naam: item.key,
-                                //     id: item.id
-                                // };
-                                // themeOfLayer.features.push(feature);
+                                var layer = theme.layers.find(x => x.id == layerId);
+                                if (!layer) {
+                                    layer = {
+                                        naam: layerName,
+                                        id: layerId,
+                                        features: [],
+                                        isMatch: false
+                                    };
+                                    theme.layers.push(layer);
+                                }
+                                itemMetData.doclist.docs.forEach(item => {
+                                    var feature = item.titel.join(' ');
+                                    // id: item.id
+                                    layer.features.push(feature);
+                                });
                                 break;
                             case "Layer":
-                                var themeName = itemMetData.groupValue;
-                                var theme = {
-                                    layers: [],
-                                    layersCount: itemMetData.doclist.numFound,
-                                    name: themeName,
-                                    cleanUrl: 'http://app10.p.gis.local/arcgissql/rest/services/' + themeName + '/MapServer',
-                                    url: 'services/' + themeName + '/MapServer'
+                                var themeName = itemMetData.groupValue.split('/')[1];
+                                var theme = themes.find(x => x.name == themeName)
+                                if (!theme) {
+                                    theme = {
+                                        layers: [],
+                                        layersCount: itemMetData.doclist.numFound,
+                                        name: themeName,
+                                        cleanUrl: 'http://app10.p.gis.local/arcgissql/rest/services/P_Stad/' + themeName + '/MapServer',
+                                        url: 'services/P_Stad/' + themeName + '/MapServer'
+                                    }
+                                    themes.push(theme);
                                 }
+                                else {
+                                    theme.isMatch = true;
+                                }
+
                                 itemMetData.doclist.docs.forEach(item => {
                                     var layer = {
                                         naam: item.titel[0],
-                                        id: item.key
+                                        id: item.key,
+                                        isMatch: true,
+                                        features: []
                                     };
                                     theme.layers.push(layer);
                                 });
-                                themes.push(theme);
 
                                 break;
                             default:
@@ -99,42 +121,7 @@
                         }
 
                     })
-                    // while (x < aantalitems) {
-                    //     let count = allitems[x + 1];
-                    //     if (count > 0) {
-                    //         let isLayer = false;
-
-                    //         if (allitems[x].split('/').length == 3) {
-                    //             isLayer = true;
-                    //         }
-                    //         var themeOfLayer = {
-                    //             url: allitems[x],
-                    //             cleanUrl: 'http://app10.p.gis.local/arcgissql/rest/services/' + allitems[x],
-                    //             count: count,
-                    //             naam: allitems[x],
-                    //             features: [],
-                    //             layers: []
-                    //         }
-                    //         var children = itemsmetData.find(x => x.groupValue == themeOfLayer.url);
-                    //         if (children) {
-                    //             children
-                    //         }
-                    //         themes.push(themeOfLayer);
-                    //     }
-                    //     x++;
-                    //     x++;
-                    // }
-                    // itemsmetvoorbeelden.forEach(themewithfeatures => {
-                    //     console.log(themewithfeatures);
-                    // });
-
-                    // var dematches = data.data.grouped.parent.matches;
-
-                    // var items = data.data.response.docs;
                     $scope.availableThemes = themes;
-                    // $scope.currentrecord = metadata.currentrecord;
-                    // $scope.nextrecord = metadata.nextrecord;
-                    // $scope.numberofrecordsmatched = metadata.numberofrecordsmatched;
                     console.log(data);
                 }, function (reason) {
                     console.log(reason);

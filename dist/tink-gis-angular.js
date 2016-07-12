@@ -277,8 +277,8 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 if (allChecked) {
                     $scope.selectedTheme.Added = true; // here we can set the Added to true when they are all added
                 } else {
-                        $scope.selectedTheme.Added = null; // if not all added then we put it to null
-                    }
+                    $scope.selectedTheme.Added = null; // if not all added then we put it to null
+                }
                 if (alreadyAdded == false) {
                     // it is a new theme!
                     LayerManagementService.EnabledThemes.push($scope.selectedTheme);
@@ -371,11 +371,85 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         $scope.QueryGISSOLR = function (searchterm, page) {
             var prom = GISService.QuerySOLRGIS(searchterm, (page - 1) * 5 + 1, 5);
             prom.then(function (data) {
-                var items = data.data.response.docs;
-                $scope.availableThemes = items;
-                // $scope.currentrecord = metadata.currentrecord;
-                // $scope.nextrecord = metadata.nextrecord;
-                // $scope.numberofrecordsmatched = metadata.numberofrecordsmatched;
+                var allitems = data.data.facet_counts.facet_fields.parent;
+                var itemsMetData = data.data.grouped.parent.groups;
+
+                var aantalitems = allitems.length;
+                var x = 0;
+                var themes = [];
+                itemsMetData.forEach(function (itemMetData) {
+                    switch (itemMetData.doclist.docs[0].type) {
+                        case "Feature":
+                            var themeName = itemMetData.groupValue.split('/').slice(1, 2).join('/');
+                            var layerId = itemMetData.groupValue.split('/')[2];
+                            var layerName = itemMetData.doclist.docs[0].parentname;
+                            var theme = themes.find(function (x) {
+                                return x.name == themeName;
+                            });
+                            if (!theme) {
+                                var theme = {
+                                    layers: [],
+                                    layersCount: 0,
+                                    name: themeName,
+                                    cleanUrl: 'http://app10.p.gis.local/arcgissql/rest/services/P_Stad/' + themeName + '/MapServer',
+                                    url: 'services/P_Stad/' + themeName + '/MapServer'
+                                };
+                                themes.push(theme);
+                            }
+
+                            var layer = theme.layers.find(function (x) {
+                                return x.id == layerId;
+                            });
+                            if (!layer) {
+                                layer = {
+                                    naam: layerName,
+                                    id: layerId,
+                                    features: [],
+                                    isMatch: false
+                                };
+                                theme.layers.push(layer);
+                            }
+                            itemMetData.doclist.docs.forEach(function (item) {
+                                var feature = item.titel.join(' ');
+                                // id: item.id
+                                layer.features.push(feature);
+                            });
+                            break;
+                        case "Layer":
+                            var themeName = itemMetData.groupValue.split('/')[1];
+                            var theme = themes.find(function (x) {
+                                return x.name == themeName;
+                            });
+                            if (!theme) {
+                                theme = {
+                                    layers: [],
+                                    layersCount: itemMetData.doclist.numFound,
+                                    name: themeName,
+                                    cleanUrl: 'http://app10.p.gis.local/arcgissql/rest/services/P_Stad/' + themeName + '/MapServer',
+                                    url: 'services/P_Stad/' + themeName + '/MapServer'
+                                };
+                                themes.push(theme);
+                            } else {
+                                theme.isMatch = true;
+                            }
+
+                            itemMetData.doclist.docs.forEach(function (item) {
+                                var layer = {
+                                    naam: item.titel[0],
+                                    id: item.key,
+                                    isMatch: true,
+                                    features: []
+                                };
+                                theme.layers.push(layer);
+                            });
+
+                            break;
+                        default:
+                            console.log("UNKOWN TYPE:", item);
+                            break;
+                    }
+                });
+                $scope.availableThemes = themes;
                 console.log(data);
             }, function (reason) {
                 console.log(reason);
@@ -411,12 +485,12 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             $scope.selectedTheme = null;
             $scope.copySelectedTheme = null;
         };
-        $scope.geopuntThemeChanged = function (theme) {
+        $scope.solrThemeChanged = function (theme) {
 
-            var url = theme.url.trim().replace('?', '');
-            var lastslash = url.lastIndexOf('/');
-            url = url.substring(0, lastslash); // remove the last unneeded part
-            GISService.GetThemeData(url).success(function (data, statuscode, functie, getdata) {
+            // var url = theme.url.trim().replace('?', '');
+            // var lastslash = url.lastIndexOf('/');
+            // url = url.substring(0, lastslash); // remove the last unneeded part
+            GISService.GetThemeData(theme.url).success(function (data, statuscode, functie, getdata) {
                 var convertedTheme = ThemeHelper.createThemeFromJson(data, getdata);
                 $scope.previewTheme(convertedTheme);
             });
@@ -472,8 +546,8 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 if (allChecked) {
                     $scope.selectedTheme.Added = true; // here we can set the Added to true when they are all added
                 } else {
-                        $scope.selectedTheme.Added = null; // if not all added then we put it to null
-                    }
+                    $scope.selectedTheme.Added = null; // if not all added then we put it to null
+                }
                 if (alreadyAdded == false) {
                     // it is a new theme!
                     LayerManagementService.EnabledThemes.push($scope.selectedTheme);
@@ -588,9 +662,9 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                     prom.resolve(returnObject);
                     // console.log(getResults['csw:record']);
                 } else {
-                        prom.reject(null);
-                        console.log('EMPTY RESULT');
-                    }
+                    prom.reject(null);
+                    console.log('EMPTY RESULT');
+                }
             }).error(function (data, status, headers, config) {
                 prom.reject(null);
                 console.log('ERROR!', data, status, headers, config);
@@ -1078,7 +1152,8 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             });
         };
         _service.QuerySOLRGIS = function (search) {
-            var prom = $http.get('http://esb-app1-o.antwerpen.be/v1/giszoek/solr/search?q=*' + search + '*&wt=json&indent=true&solrtype=gis');
+            // select?q=school&wt=json&indent=true&facet=true&facet.field=parent&group=true&group.field=parent&group.limit=2
+            var prom = $http.get('http://esb-app1-o.antwerpen.be/v1/giszoek/solr/search?q=*' + search + '*&wt=json&indent=true&facet=true&rows=999&facet.field=parent&group=true&group.field=parent&group.limit=2&solrtype=gis');
             return prom;
         };
         _service.QuerySOLRLocatie = function (search) {
@@ -1658,8 +1733,8 @@ var esri2geo = {};
                     if (realTheme.AllLayers.length == theme.layers.length) {
                         realTheme.Added = true; //all are added
                     } else {
-                            realTheme.Added = null; // some are added, never false because else we woudn't save it.
-                        }
+                        realTheme.Added = null; // some are added, never false because else we woudn't save it.
+                    }
                     realTheme.AllLayers.forEach(function (layer) {
                         layer.enabled = false; // lets disable all layers first
                     });
@@ -3160,15 +3235,6 @@ L.TileLayer.BetterWMS = L.TileLayer.WMS.extend({
 
 });
 
-// showGetFeatureInfo: function(err, latlng, content) {
-//     if (err) { console.log(err); return; } // do nothing if there's an error
-
-//     // Otherwise show the content in a popup, or something.
-//     L.popup({ maxWidth: 800 })
-//         .setLatLng(latlng)
-//         .setContent(content)
-//         .openOn(this._map);
-// }
 L.tileLayer.betterWms = function (url, options) {
     return new L.TileLayer.BetterWMS(url, options);
 };
@@ -3571,13 +3637,17 @@ L.drawLocal = {
   $templateCache.put('templates/layermanagement/solrGISTemplate.html',
     "<div class=row>\n" +
     "<div class=col-md-4>\n" +
-    "<input class=searchbox ng-model=searchTerm ng-change=searchChanged() ng-model-options=\"{debounce: 500}\" placeholder=\"Geef een trefwoord of een url in\">\n" +
+    "<input class=searchbox ng-model=searchTerm ng-change=searchChanged() ng-model-options=\"{debounce: 250}\" placeholder=\"Geef een trefwoord of een url in\">\n" +
     "<input disabled value=https://geodata.antwerpen.be/arcgissql/services/P_SiK/Groeninventaris/MapServer/WMSServer>\n" +
     "<div ng-if=!searchIsUrl ng-repeat=\"theme in availableThemes\">\n" +
-    "<div ng-click=geopuntThemeChanged(theme) ng-class=\"{'greytext': theme.Type != 'wms' &&  theme.Type != 'esri'}\">\n" +
-    "{{theme.key}}\n" +
-    "<i ng-if=\"theme.Added == true\" class=\"fa fa-check-circle\"></i>\n" +
-    "<i ng-if=\"theme.Added == null\" class=\"fa fa-check-circle-o\"></i>\n" +
+    "<div ng-click=solrThemeChanged(theme) class=greytext>\n" +
+    "{{theme.name}}\n" +
+    "<div style=\"margin-left: 20px\" ng-repeat=\"layer in theme.layers\">\n" +
+    "<span ng-class=\"{'blacktext': layer.isMatch}\">{{layer.naam}}</span>\n" +
+    "<div class=\"blacktext featureinsolr\">\n" +
+    "{{layer.features.join(', ')}}\n" +
+    "</div>\n" +
+    "</div>\n" +
     "</div>\n" +
     "</div>\n" +
     "<tink-pagination ng-hide=\"numberofrecordsmatched == 0\" tink-items-per-page-values=[5] tink-current-page=currentPage tink-change=pageChanged(page,perPage,next) tink-total-items=numberofrecordsmatched tink-items-per-page=recordsAPage></tink-pagination>\n" +
@@ -3636,7 +3706,7 @@ L.drawLocal = {
     "<img style=\"width:20px; height:20px\" ng-if=\"lyrctrl.layer.theme.Type == 'esri' && lyrctrl.layer.legend.length == 1\" ng-src={{lyrctrl.layer.legend[0].fullurl}}>\n" +
     "<input class=visible-box type=checkbox ng-model=lyrctrl.layer.visible ng-change=lyrctrl.chkChanged() id={{lyrctrl.layer.name}}{{lyrctrl.layer.id}}>\n" +
     "<label ng-class=\"{'greytext': lyrctrl.layer.displayed == false}\" for={{lyrctrl.layer.name}}{{lyrctrl.layer.id}}> {{lyrctrl.layer.title | limitTo: 23}}<span ng-show=\"lyrctrl.layer.theme.Type == 'wms' && lyrctrl.layer.queryable\">(i)</span></label>\n" +
-    "<img ng-if=\"lyrctrl.layer.theme.Type == 'wms'\" ng-src=\"{{layer.theme.CleanUrl}}?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER={{lyrctrl.layer.id}}\"><img>\n" +
+    "<img ng-if=\"lyrctrl.layer.theme.Type == 'wms'\" ng-src=\"{{layer.theme.CleanUrl}}?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&LAYER={{lyrctrl.layer.id}}\"><img>\n" +
     "<div ng-if=\"lyrctrl.layer.theme.Type == 'esri' && lyrctrl.layer.legend.length > 1\" ng-repeat=\"legend in lyrctrl.layer.legend\">\n" +
     "<img style=\"width:20px; height:20px\" ng-src={{legend.fullurl}}><img><span> {{legend.label}}</span>\n" +
     "</div>\n" +

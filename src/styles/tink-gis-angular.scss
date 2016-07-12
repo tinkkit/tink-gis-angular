@@ -257,6 +257,9 @@ svg.leaflet-zoom-animated {
 .greytext {
   color: lightgrey !important;
 }
+.blacktext {
+  color: black !important;
+}
 
 a.btn.prev,a.btn.next {
   display: none;
@@ -266,4 +269,9 @@ div.table-sort-pagination {
 }
 .nav-tabs {
   margin:  5px 0px 5px 0px;
+}
+//Lagenbeheer
+.featureinsolr {
+  font-style: italic;
+  font-size: 10px;
 }
