@@ -2,7 +2,7 @@
 (function (module) {
     module = angular.module('tink.gis');
     var theController = module.controller('searchSelectedController',
-        function ($scope, ResultsData, MapData, SearchService, GeometryService) {
+        function ($scope, ResultsData, MapData, SearchService, GeometryService, $modal) {
             var vm = this;
             vm.selectedResult = null;
             vm.prevResult = null;
@@ -71,9 +71,9 @@
                         // }
                     }
                 });
-                bufferInstance.result.then(function (buffer, theme) {
+                bufferInstance.result.then(function (buffer, layer) {
                     ResultsData.SelectedFeature.mapItem.toGeoJSON().features.forEach(feature => {
-                        GeometryService.BufferEnDoordruk(feature, vm.buffer);
+                        GeometryService.BufferEnDoordruk(feature, buffer, layer);
                     });
                 }, function (obj) {
                     console.log('Modal dismissed at: ' + new Date()); // The contoller is closed by the use of the $dismiss call
@@ -102,5 +102,5 @@
             };
 
         });
-    theController.$inject = ['$scope', 'ResultsData', 'GeometryService'];
+    theController.$inject = ['$scope', 'ResultsData', 'GeometryService', '$modal'];
 })();

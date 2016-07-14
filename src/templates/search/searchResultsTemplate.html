@@ -15,11 +15,11 @@
                 </data-header>
                 <data-content>
                     <li ng-repeat="feature in srchrsltsctrl.features | filter: { layerName:layerGroupName } :true" ng-mouseover="srchrsltsctrl.HoverOver(feature)"> <!-- ng-mouseleave="feature.hoverEdit = false -->
-                        <a ng-if="!feature.hoverEdit" ng-click="srchrsltsctrl.showDetails(feature)">{{ feature.displayValue | limitTo : 23}}<br/>DETAILS</a>
+                        <a ng-if="!feature.hoverEdit" ng-click="srchrsltsctrl.showDetails(feature)">{{ feature.displayValue | limitTo : 23}}</a>
                         <div ng-if="feature.hoverEdit">
                             <a ng-click="srchrsltsctrl.showDetails(feature)">{{ feature.displayValue}}
-                                 <br/>DETAILS</a>
-                            <a prevent-default ng-click="srchrsltsctrl.deleteFeature(feature)"  ><i class="fa fa-trash"></i></a>
+                                 </a>
+                            <a class="pull-right" prevent-default ng-click="srchrsltsctrl.deleteFeature(feature)"><i class="fa fa-trash"></i></a>
                         </div>
                     </li>
                 </data-content>

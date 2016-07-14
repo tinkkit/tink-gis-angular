@@ -5,9 +5,9 @@
     </div>
     <div class="modal-content">
         Selecteer de laag:
-        <select ng-options="layer as layer.name for layer in mapctrl.SelectableLayers" ng-model="mapctrl.selectedLayer" ng-change="mapctrl.layerChange()"
-            ng-class="{invisible: mapctrl.SelectableLayers.length<=1}" prevent-default></select> Geef de bufferafstand:
-        <input type="number" ng-model="srchslctdctrl.buffer"></input>
+        <select ng-options="layer as layer.name for layer in SelectableLayers" ng-model="selectedLayer" 
+             prevent-default></select> Geef de bufferafstand:
+        <input type="number" ng-model="buffer"></input>
     </div>
     <div class="modal-footer">
         <button data-ng-click="ok()">Klaar</button>

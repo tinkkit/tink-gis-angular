@@ -618,7 +618,8 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             var startpos = arguments.length <= 1 || arguments[1] === undefined ? 1 : arguments[1];
             var recordsAPage = arguments.length <= 2 || arguments[2] === undefined ? 10 : arguments[2];
 
-            var url = 'https://metadata.geopunt.be/zoekdienst/srv/dut/csw?service=CSW&version=2.0.2&request=GetRecords&namespace=xmlns%28csw=http://www.opengis.net/cat/csw%29&resultType=results&outputSchema=http://www.opengis.net/cat/csw/2.0.2&outputFormat=application/xml&startPosition=' + startpos + '&maxRecords=' + recordsAPage + '&typeNames=csw:Record&elementSetName=full&constraintLanguage=CQL_TEXT&constraint_language_version=1.1.0&constraint=AnyText+LIKE+%27%25' + searchterm + '%25%27AND%20Type%20=%20%27service%27%20AND%20Servicetype%20=%27view%27&SortBy=dc:title';
+            var url = 'https://metadata.geopunt.be/zoekdienst/srv/dut/csw?service=CSW&version=2.0.2&SortBy=title&request=GetRecords&namespace=xmlns%28csw=http://www.opengis.net/cat/csw%29&resultType=results&outputSchema=http://www.opengis.net/cat/csw/2.0.2&outputFormat=application/xml&startPosition=' + startpos + '&maxRecords=' + recordsAPage + '&typeNames=csw:Record&elementSetName=full&constraintLanguage=CQL_TEXT&constraint_language_version=1.1.0&constraint=AnyText+LIKE+%27%25' + searchterm + '%25%27AND%20Type%20=%20%27service%27%20AND%20Servicetype%20=%27view%27';
+            // var url = 'https://metadata.geopunt.be/zoekdienst/srv/dut/q?fast=index&from=' + startpos + '&to=' + recordsAPage + '&any=*' + searchterm + '*&sortBy=title&sortOrder=reverse&hitsperpage=' + recordsAPage;
             console.log('GETTING METADATA WITH ULR:', url);
             var prom = $q.defer();
             $http.get(url).success(function (data, status, headers, config) {
@@ -901,6 +902,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         $scope.$watch(function () {
             return MapData.Loading;
         }, function (newVal, oldVal) {
+            console.log('MapData.Loading at start', MapData.Loading);
             vm.Loading = newVal;
             if (oldVal == 0) {
                 vm.MaxLoading = newVal;
@@ -912,6 +914,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 vm.MaxLoading = 0;
             }
             console.log('MapLoading val: ' + newVal + '/' + vm.MaxLoading);
+            console.log('MapData.Loading at the end', MapData.Loading);
         });
         vm.selectpunt = function () {
             MapData.CleanMap();
@@ -1184,7 +1187,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
     var service = function service($http, MapService, MapData) {
         var _service = {};
 
-        _service.Buffer = function (location, distance) {
+        _service.Buffer = function (location, distance, selectedlayer) {
             MapData.CleanMap();
 
             var geo = getGeo(location.geometry);
@@ -1204,7 +1207,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             });
             prom.success(function (response) {
                 var buffer = MapData.CreateBuffer(response);
-                MapService.Query(buffer);
+                MapService.Query(buffer, selectedlayer);
             });
             return prom;
         };
@@ -2454,15 +2457,18 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             });
         };
 
-        _mapService.Query = function (layer) {
-            if (MapData.SelectedLayer.id == '') {
+        _mapService.Query = function (box, layer) {
+            if (!layer) {
+                layer = MapData.SelectedLayer;
+            }
+            if (layer.id == '') {
                 // alle layers selected
                 MapData.Themes.forEach(function (theme) {
                     // dus doen we de qry op alle lagen.
                     if (theme.Type === ThemeType.ESRI) {
                         theme.VisibleLayers.forEach(function (lay) {
                             ResultsData.Loading++;
-                            theme.MapData.query().layer(lay.id).intersects(layer).run(function (error, featureCollection, response) {
+                            theme.MapData.query().layer(lay.id).intersects(box).run(function (error, featureCollection, response) {
                                 ResultsData.Loading--;
                                 MapData.AddFeatures(featureCollection, theme, lay.id);
                             });
@@ -2471,9 +2477,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 });
             } else {
                 ResultsData.Loading++;
-                MapData.SelectedLayer.theme.MapData.query().layer(MapData.SelectedLayer.id).intersects(layer).run(function (error, featureCollection, response) {
+                layer.theme.MapData.query().layer(layer.id).intersects(box).run(function (error, featureCollection, response) {
                     ResultsData.Loading--;
-                    MapData.AddFeatures(featureCollection, MapData.SelectedLayer.theme, MapData.SelectedLayer.id);
+                    MapData.AddFeatures(featureCollection, layer.theme, layer.id);
                 });
             }
         };
@@ -2856,6 +2862,29 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 ;'use strict';
 
 (function (module) {
+    var module;
+    try {
+        module = angular.module('tink.gis');
+    } catch (e) {
+        module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
+    }
+    module.controller('BufferController', ['$scope', '$modalInstance', 'MapData', function ($scope, $modalInstance, MapData) {
+        var vm = this;
+        $scope.buffer = 100;
+        $scope.SelectableLayers = angular.copy(MapData.VisibleLayers);
+        $scope.SelectableLayers.shift();
+        $scope.selectedLayer = $scope.SelectableLayers[0];
+        $scope.ok = function () {
+            $modalInstance.$close($scope.buffer, $scope.selectedLayer); // return the themes.
+        };
+        $scope.cancel = function () {
+            $modalInstance.$dismiss('cancel is pressed'); // To close the controller with a dismiss message
+        };
+    }]);
+})();
+;'use strict';
+
+(function (module) {
     module = angular.module('tink.gis');
     var theController = module.controller('searchController', function ($scope, ResultsData, map) {
         var vm = this;
@@ -2936,7 +2965,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 (function (module) {
     module = angular.module('tink.gis');
-    var theController = module.controller('searchSelectedController', function ($scope, ResultsData, MapData, SearchService, GeometryService) {
+    var theController = module.controller('searchSelectedController', function ($scope, ResultsData, MapData, SearchService, GeometryService, $modal) {
         var vm = this;
         vm.selectedResult = null;
         vm.prevResult = null;
@@ -2992,7 +3021,27 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         vm.doordruk = function () {
             console.log(ResultsData.SelectedFeature);
             ResultsData.SelectedFeature.mapItem.toGeoJSON().features.forEach(function (feature) {
-                GeometryService.BufferEnDoordruk(feature, vm.buffer);
+                GeometryService.BufferEnDoordruk(feature, 0);
+            });
+        };
+        vm.buffer = function () {
+            var bufferInstance = $modal.open({
+                templateUrl: 'templates/search/bufferTemplate.html',
+                controller: 'BufferController',
+                resolve: {
+                    backdrop: false,
+                    keyboard: true
+                    // urls: function() {
+                    //     return MapData.ThemeUrls;
+                    // }
+                }
+            });
+            bufferInstance.result.then(function (buffer, layer) {
+                ResultsData.SelectedFeature.mapItem.toGeoJSON().features.forEach(function (feature) {
+                    GeometryService.BufferEnDoordruk(feature, buffer, layer);
+                });
+            }, function (obj) {
+                console.log('Modal dismissed at: ' + new Date()); // The contoller is closed by the use of the $dismiss call
             });
         };
         vm.delete = function () {
@@ -3014,7 +3063,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             ResultsData.SelectedFeature = null;
         };
     });
-    theController.$inject = ['$scope', 'ResultsData', 'GeometryService'];
+    theController.$inject = ['$scope', 'ResultsData', 'GeometryService', '$modal'];
 })();
 ;'use strict';
 
@@ -3797,6 +3846,24 @@ L.drawLocal = {
   );
 
 
+  $templateCache.put('templates/search/bufferTemplate.html',
+    "<div>\n" +
+    "<div class=modal-header>\n" +
+    "<button type=button style=float:right data-ng-click=cancel()><i class=\"fa fa-times\"></i></button>\n" +
+    "<h4 class=model-title>Buffer instellen</h4>\n" +
+    "</div>\n" +
+    "<div class=modal-content>\n" +
+    "Selecteer de laag:\n" +
+    "<select ng-options=\"layer as layer.name for layer in SelectableLayers\" ng-model=selectedLayer prevent-default></select> Geef de bufferafstand:\n" +
+    "<input type=number ng-model=buffer>\n" +
+    "</div>\n" +
+    "<div class=modal-footer>\n" +
+    "<button data-ng-click=ok()>Klaar</button>\n" +
+    "</div>\n" +
+    "</div>"
+  );
+
+
   $templateCache.put('templates/search/searchResultsTemplate.html',
     "<div ng-if=\"!srchrsltsctrl.selectedResult && srchrsltsctrl.featureLayers.length > 0\">\n" +
     "<select ng-model=srchrsltsctrl.layerGroupFilter>\n" +
@@ -3813,11 +3880,11 @@ L.drawLocal = {
     "</data-header>\n" +
     "<data-content>\n" +
     "<li ng-repeat=\"feature in srchrsltsctrl.features | filter: { layerName:layerGroupName } :true\" ng-mouseover=srchrsltsctrl.HoverOver(feature)>\n" +
-    "<a ng-if=!feature.hoverEdit ng-click=srchrsltsctrl.showDetails(feature)>{{ feature.displayValue | limitTo : 23}}<br>DETAILS</a>\n" +
+    "<a ng-if=!feature.hoverEdit ng-click=srchrsltsctrl.showDetails(feature)>{{ feature.displayValue | limitTo : 23}}</a>\n" +
     "<div ng-if=feature.hoverEdit>\n" +
     "<a ng-click=srchrsltsctrl.showDetails(feature)>{{ feature.displayValue}}\n" +
-    "<br>DETAILS</a>\n" +
-    "<a prevent-default ng-click=srchrsltsctrl.deleteFeature(feature)><i class=\"fa fa-trash\"></i></a>\n" +
+    "</a>\n" +
+    "<a class=pull-right prevent-default ng-click=srchrsltsctrl.deleteFeature(feature)><i class=\"fa fa-trash\"></i></a>\n" +
     "</div>\n" +
     "</li>\n" +
     "</data-content>\n" +
@@ -3854,8 +3921,8 @@ L.drawLocal = {
     "<button class=\"pull-left srchbtn\" ng-click=srchslctdctrl.toonFeatureOpKaart()>Tonen</button>\n" +
     "</div>\n" +
     "<div class=col-md-6>\n" +
-    "<button class=\"pull-right srchbtn\" ng-click=srchslctdctrl.doordruk()>Buffer</button>\n" +
-    "<input type=number class=pull-left ng-model=srchslctdctrl.buffer>\n" +
+    "<button class=\"pull-left srchbtn\" ng-click=srchslctdctrl.doordruk()>Doordruk</button>\n" +
+    "<button class=\"pull-left srchbtn\" ng-click=srchslctdctrl.buffer()>Buffer</button>\n" +
     "</div>\n" +
     "</div>\n" +
     "<button class=srchbtn ng-click=\"srchslctdctrl.close(srchslctdctrl.selectedResult) \">Terug naar resultaten</button>\n" +
