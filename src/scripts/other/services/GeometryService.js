@@ -4,7 +4,7 @@
     var service = function ($http, MapService, MapData) {
         var _service = {};
 
-        _service.Buffer = function (location, distance) {
+        _service.Buffer = function (location, distance, selectedlayer) {
             MapData.CleanMap();
 
             var geo = getGeo(location.geometry);
@@ -24,7 +24,7 @@
             });
             prom.success(function (response) {
                 var buffer = MapData.CreateBuffer(response);
-                MapService.Query(buffer);
+                MapService.Query(buffer, selectedlayer);
             });
             return prom;
         };

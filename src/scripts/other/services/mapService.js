@@ -125,15 +125,18 @@
             });
         };
 
-        _mapService.Query = function (layer) {
-            if (MapData.SelectedLayer.id == '') { // alle layers selected
+        _mapService.Query = function (box, layer) {
+            if (!layer) {
+                layer = MapData.SelectedLayer;
+            }
+            if (layer.id == '') { // alle layers selected
                 MapData.Themes.forEach(theme => { // dus doen we de qry op alle lagen.
                     if (theme.Type === ThemeType.ESRI) {
                         theme.VisibleLayers.forEach(lay => {
                             ResultsData.Loading++;
                             theme.MapData.query()
                                 .layer(lay.id)
-                                .intersects(layer)
+                                .intersects(box)
                                 .run(function (error, featureCollection, response) {
                                     ResultsData.Loading--;
                                     MapData.AddFeatures(featureCollection, theme, lay.id);
@@ -144,12 +147,12 @@
             }
             else {
                 ResultsData.Loading++;
-                MapData.SelectedLayer.theme.MapData.query()
-                    .layer(MapData.SelectedLayer.id)
-                    .intersects(layer)
+                layer.theme.MapData.query()
+                    .layer(layer.id)
+                    .intersects(box)
                     .run(function (error, featureCollection, response) {
                         ResultsData.Loading--;
-                        MapData.AddFeatures(featureCollection, MapData.SelectedLayer.theme, MapData.SelectedLayer.id);
+                        MapData.AddFeatures(featureCollection, layer.theme, layer.id);
                     });
             }
         };
