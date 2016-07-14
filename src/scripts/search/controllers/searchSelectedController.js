@@ -56,9 +56,29 @@
             vm.doordruk = function () {
                 console.log(ResultsData.SelectedFeature);
                 ResultsData.SelectedFeature.mapItem.toGeoJSON().features.forEach(feature => {
-                    GeometryService.BufferEnDoordruk(feature, vm.buffer);
-
+                    GeometryService.BufferEnDoordruk(feature, 0);
                 });
+            };
+            vm.buffer = function () {
+                var bufferInstance = $modal.open({
+                    templateUrl: 'templates/search/bufferTemplate.html',
+                    controller: 'BufferController',
+                    resolve: {
+                        backdrop: false,
+                        keyboard: true
+                        // urls: function() {
+                        //     return MapData.ThemeUrls;
+                        // }
+                    }
+                });
+                bufferInstance.result.then(function (buffer, theme) {
+                    ResultsData.SelectedFeature.mapItem.toGeoJSON().features.forEach(feature => {
+                        GeometryService.BufferEnDoordruk(feature, vm.buffer);
+                    });
+                }, function (obj) {
+                    console.log('Modal dismissed at: ' + new Date()); // The contoller is closed by the use of the $dismiss call
+                });
+
             };
             vm.delete = function () {
                 var prev = SearchService.GetPrevResult();

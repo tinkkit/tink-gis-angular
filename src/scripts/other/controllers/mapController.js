@@ -70,6 +70,7 @@
         vm.MaxLoading = 0;
 
         $scope.$watch(function () { return MapData.Loading; }, function (newVal, oldVal) {
+            console.log('MapData.Loading at start', MapData.Loading);
             vm.Loading = newVal;
             if (oldVal == 0) {
                 vm.MaxLoading = newVal;
@@ -81,6 +82,8 @@
                 vm.MaxLoading = 0;
             }
             console.log('MapLoading val: ' + newVal + '/' + vm.MaxLoading);
+            console.log('MapData.Loading at the end', MapData.Loading);
+
         });
         vm.selectpunt = function () {
             MapData.CleanMap();

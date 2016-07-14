@@ -1,0 +1,15 @@
+<div style="">
+    <div class="modal-header">
+        <button type="button" style="float:right" data-ng-click="cancel()"><i class="fa fa-times"></i></button>
+        <h4 style="" class="model-title">Buffer instellen</h4>
+    </div>
+    <div class="modal-content">
+        Selecteer de laag:
+        <select ng-options="layer as layer.name for layer in mapctrl.SelectableLayers" ng-model="mapctrl.selectedLayer" ng-change="mapctrl.layerChange()"
+            ng-class="{invisible: mapctrl.SelectableLayers.length<=1}" prevent-default></select> Geef de bufferafstand:
+        <input type="number" ng-model="srchslctdctrl.buffer"></input>
+    </div>
+    <div class="modal-footer">
+        <button data-ng-click="ok()">Klaar</button>
+    </div>
+</div>
