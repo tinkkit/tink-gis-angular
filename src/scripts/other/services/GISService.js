@@ -38,7 +38,10 @@
         };
         var baseurl = 'http://app10.p.gis.local/arcgissql/rest/';
         _service.GetThemeData = function (mapserver) {
-            var prom = $http.get(baseurl + mapserver + '?f=pjson');
+            if (!mapserver.contains('http://app10.p.gis.local/arcgissql/rest/')) {
+                mapserver = baseurl + mapserver;
+            }
+            var prom = $http.get(mapserver + '?f=pjson');
             return prom;
         };
         _service.GetThemeLayerData = function (cleanurl) {
