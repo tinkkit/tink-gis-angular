@@ -6,12 +6,12 @@
     </div>
     <div class="modal-content">
         <ul class="nav-tabs">
+            <li role="presentation" ng-class="{'active': active=='solr'}"><a href="" ng-click="active='solr'">Stad</a></li>
             <li role="presentation" ng-class="{'active': active=='geopunt'}"><a href="#" ng-click="active='geopunt'">GeoPunt</a></li>
-            <li role="presentation" ng-class="{'active': active=='solr'}"><a href="" ng-click="active='solr'">SOLR</a></li>
-            <li role="presentation" ng-class="{'active': active=='url'}"><a href="" ng-click="active='url'">Url</a></li>
+            <li role="presentation" ng-class="{'active': active=='Beheer'}"><a href="" ng-click="active='beheer'">Beheer</a></li>
         </ul>
-        <geo-punt ng-show="active=='geopunt'"></geo-punt>
         <solr-gis ng-show="active=='solr'"></solr-gis>
+        <geo-punt ng-show="active=='geopunt'"></geo-punt>
     </div>
     <div class="modal-footer">
         <button data-ng-click="ok()">Klaar</button>

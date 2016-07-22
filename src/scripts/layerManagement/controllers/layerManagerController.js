@@ -8,8 +8,7 @@
     }
     module.controller('LayerManagerController', ['$scope', '$modalInstance', 'LayerManagementService',
         function ($scope, $modalInstance, LayerManagementService ) {
-            
-
+            $scope.active = 'solr';
 
 
             $scope.ok = function () {

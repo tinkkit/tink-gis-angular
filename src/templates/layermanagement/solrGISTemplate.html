@@ -1,9 +1,7 @@
 <div class="row">
     <div class="col-md-4">
         <input class="searchbox" type="text" ng-model="searchTerm" ng-change="searchChanged()" ng-model-options="{debounce: 250}"
-            placeholder="Geef een trefwoord of een url in" />
-        <input type="text" disabled="disabled" value="https://geodata.antwerpen.be/arcgissql/services/P_SiK/Groeninventaris/MapServer/WMSServer"
-        />
+            placeholder="Geef een trefwoord" />
         <div ng-if="!searchIsUrl" ng-repeat="theme in availableThemes">
             <div ng-click="solrThemeChanged(theme)" class="greytext">
                 <!-- ng-class="{'greytext': theme.Type != 'wms' &&  theme.Type != 'esri'}"-->
@@ -23,9 +21,7 @@
             tink-total-items="numberofrecordsmatched" tink-items-per-page="recordsAPage"></tink-pagination>
     </div>
     <div class="col-md-8">
-        <div ng-if="searchIsUrl">
-            <button ng-click="laadUrl()">Laad url</button>
-        </div>
+   
         <div ng-if="copySelectedTheme !== null">
             <button ng-if="copySelectedTheme.Added != false" data-ng-click="AddOrUpdateTheme()">Update</button>
             <p>{{copySelectedTheme.Description}}</p>

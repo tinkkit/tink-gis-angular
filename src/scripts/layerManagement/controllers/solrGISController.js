@@ -8,7 +8,6 @@
     }
     module.controller('solrGISController', ['$scope', 'ThemeHelper', '$q', 'MapService', 'MapData', 'GISService', 'LayerManagementService', 'WMSService', '$window', '$http', 'GeopuntService',
         function ($scope, ThemeHelper, $q, MapService, MapData, GISService, LayerManagementService, WMSService, $window, $http, GeopuntService) {
-            $scope.searchIsUrl = false;
             $scope.pagingCount = null;
             $scope.numberofrecordsmatched = 0;
             // $scope.currentPage = 1;
@@ -19,26 +18,17 @@
             $scope.allThemes = [];
             var init = function () {
                 $scope.searchTerm = '';
-                $scope.searchIsUrl = false;
             } ();
-
             $scope.searchChanged = function () {
                 if ($scope.searchTerm != null && $scope.searchTerm != '' && $scope.searchTerm.length > 2) {
                     $scope.clearPreview();
-                    if ($scope.searchTerm.startsWith('http')) {
-                        $scope.searchIsUrl = true;
-                    }
-                    else {
-                        $scope.searchIsUrl = false;
-                        $scope.QueryGISSOLR($scope.searchTerm, 1);
-                    }
+
+                    $scope.QueryGISSOLR($scope.searchTerm, 1);
                 }
                 else {
                     $scope.availableThemes.length = 0;
                     $scope.numberofrecordsmatched = 0;
                 }
-
-
             };
             $scope.QueryGISSOLR = function (searchterm, page) {
                 var prom = GISService.QuerySOLRGIS(searchterm, ((page - 1) * 5) + 1, 5);
@@ -141,22 +131,6 @@
                 $scope.availableThemes = $scope.allThemes.slice(startItem, startItem + recordsAPage)
                 // console.log(page, recordsAPage);
                 // $scope.QueryGISSOLR($scope.searchTerm, page);
-            };
-            $scope.laadUrl = function () {
-                $scope.searchTerm = $scope.searchTerm.trim().replace('?', '');
-                if (MapData.Themes.find(x => x.CleanUrl == $scope.searchTerm) == undefined) {
-                    var getwms = WMSService.GetCapabilities($scope.searchTerm);
-                    getwms.success(function (data, status, headers, config) {
-                        $scope.previewTheme(data);
-                    }).error(function (data, status, headers, config) {
-                        $window.alert('error');
-                    });
-                }
-                else {
-                    alert('Deze is al toegevoegd aan de map.');
-                }
-
-
             };
             $scope.selectedTheme = null;
             $scope.copySelectedTheme = null;

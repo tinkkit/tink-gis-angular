@@ -45,7 +45,7 @@
 
             project.themes.forEach(theme => {
                 if (theme.type == ThemeType.ESRI) {
-                    let prom = GISService.GetThemeData(theme.cleanUrl + '?f=pjson');
+                    let prom = GISService.GetThemeData(theme.cleanUrl);
                     promises.push(prom);
                     prom.success(function (data, statuscode, functie, getdata) {
                         themesArray.push(ThemeHelper.createThemeFromJson(data, getdata));
