@@ -317,6 +317,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
     }
     module.controller('LayerManagerController', ['$scope', '$modalInstance', 'LayerManagementService', function ($scope, $modalInstance, LayerManagementService) {
+        $scope.active = 'solr';
 
         $scope.ok = function () {
             $modalInstance.$close(LayerManagementService.EnabledThemes); // return the themes.
@@ -336,7 +337,6 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
     }
     module.controller('solrGISController', ['$scope', 'ThemeHelper', '$q', 'MapService', 'MapData', 'GISService', 'LayerManagementService', 'WMSService', '$window', '$http', 'GeopuntService', function ($scope, ThemeHelper, $q, MapService, MapData, GISService, LayerManagementService, WMSService, $window, $http, GeopuntService) {
-        $scope.searchIsUrl = false;
         $scope.pagingCount = null;
         $scope.numberofrecordsmatched = 0;
         // $scope.currentPage = 1;
@@ -347,18 +347,12 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         $scope.allThemes = [];
         var init = function () {
             $scope.searchTerm = '';
-            $scope.searchIsUrl = false;
         }();
-
         $scope.searchChanged = function () {
             if ($scope.searchTerm != null && $scope.searchTerm != '' && $scope.searchTerm.length > 2) {
                 $scope.clearPreview();
-                if ($scope.searchTerm.startsWith('http')) {
-                    $scope.searchIsUrl = true;
-                } else {
-                    $scope.searchIsUrl = false;
-                    $scope.QueryGISSOLR($scope.searchTerm, 1);
-                }
+
+                $scope.QueryGISSOLR($scope.searchTerm, 1);
             } else {
                 $scope.availableThemes.length = 0;
                 $scope.numberofrecordsmatched = 0;
@@ -469,21 +463,6 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             $scope.availableThemes = $scope.allThemes.slice(startItem, startItem + recordsAPage);
             // console.log(page, recordsAPage);
             // $scope.QueryGISSOLR($scope.searchTerm, page);
-        };
-        $scope.laadUrl = function () {
-            $scope.searchTerm = $scope.searchTerm.trim().replace('?', '');
-            if (MapData.Themes.find(function (x) {
-                return x.CleanUrl == $scope.searchTerm;
-            }) == undefined) {
-                var getwms = WMSService.GetCapabilities($scope.searchTerm);
-                getwms.success(function (data, status, headers, config) {
-                    $scope.previewTheme(data);
-                }).error(function (data, status, headers, config) {
-                    $window.alert('error');
-                });
-            } else {
-                alert('Deze is al toegevoegd aan de map.');
-            }
         };
         $scope.selectedTheme = null;
         $scope.copySelectedTheme = null;
@@ -1155,7 +1134,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         };
         _service.QuerySOLRGIS = function (search) {
             // select?q=school&wt=json&indent=true&facet=true&facet.field=parent&group=true&group.field=parent&group.limit=2
-            var prom = $http.get('http://esb-app1-o.antwerpen.be/v1/giszoek/solr/search?q=*' + search + '*&wt=json&indent=true&facet=true&rows=999&facet.field=parent&group=true&group.field=parent&group.limit=2&solrtype=gis');
+            var prom = $http.get('http://esb-app1-o.antwerpen.be/v1/giszoek/solr/search?q=*' + search + '*&wt=json&indent=true&facet=true&rows=999&facet.field=parent&group=true&group.field=parent&group.limit=5&solrtype=gis');
             return prom;
         };
         _service.QuerySOLRLocatie = function (search) {
@@ -1164,7 +1143,10 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         };
         var baseurl = 'http://app10.p.gis.local/arcgissql/rest/';
         _service.GetThemeData = function (mapserver) {
-            var prom = $http.get(baseurl + mapserver + '?f=pjson');
+            if (!mapserver.contains(baseurl)) {
+                mapserver = baseurl + mapserver;
+            }
+            var prom = $http.get(mapserver + '?f=pjson');
             return prom;
         };
         _service.GetThemeLayerData = function (cleanurl) {
@@ -1707,7 +1689,7 @@ var esri2geo = {};
 
             project.themes.forEach(function (theme) {
                 if (theme.type == ThemeType.ESRI) {
-                    var prom = GISService.GetThemeData(theme.cleanUrl + '?f=pjson');
+                    var prom = GISService.GetThemeData(theme.cleanUrl);
                     promises.push(prom);
                     prom.success(function (data, statuscode, functie, getdata) {
                         themesArray.push(ThemeHelper.createThemeFromJson(data, getdata));
@@ -3668,12 +3650,12 @@ L.drawLocal = {
     "</h4></div>\n" +
     "<div class=modal-content>\n" +
     "<ul class=nav-tabs>\n" +
+    "<li role=presentation ng-class=\"{'active': active=='solr'}\"><a href=\"\" ng-click=\"active='solr'\">Stad</a></li>\n" +
     "<li role=presentation ng-class=\"{'active': active=='geopunt'}\"><a href=# ng-click=\"active='geopunt'\">GeoPunt</a></li>\n" +
-    "<li role=presentation ng-class=\"{'active': active=='solr'}\"><a href=\"\" ng-click=\"active='solr'\">SOLR</a></li>\n" +
-    "<li role=presentation ng-class=\"{'active': active=='url'}\"><a href=\"\" ng-click=\"active='url'\">Url</a></li>\n" +
+    "<li role=presentation ng-class=\"{'active': active=='Beheer'}\"><a href=\"\" ng-click=\"active='beheer'\">Beheer</a></li>\n" +
     "</ul>\n" +
-    "<geo-punt ng-show=\"active=='geopunt'\"></geo-punt>\n" +
     "<solr-gis ng-show=\"active=='solr'\"></solr-gis>\n" +
+    "<geo-punt ng-show=\"active=='geopunt'\"></geo-punt>\n" +
     "</div>\n" +
     "<div class=modal-footer>\n" +
     "<button data-ng-click=ok()>Klaar</button>\n" +
@@ -3685,8 +3667,7 @@ L.drawLocal = {
   $templateCache.put('templates/layermanagement/solrGISTemplate.html',
     "<div class=row>\n" +
     "<div class=col-md-4>\n" +
-    "<input class=searchbox ng-model=searchTerm ng-change=searchChanged() ng-model-options=\"{debounce: 250}\" placeholder=\"Geef een trefwoord of een url in\">\n" +
-    "<input disabled value=https://geodata.antwerpen.be/arcgissql/services/P_SiK/Groeninventaris/MapServer/WMSServer>\n" +
+    "<input class=searchbox ng-model=searchTerm ng-change=searchChanged() ng-model-options=\"{debounce: 250}\" placeholder=\"Geef een trefwoord\">\n" +
     "<div ng-if=!searchIsUrl ng-repeat=\"theme in availableThemes\">\n" +
     "<div ng-click=solrThemeChanged(theme) class=greytext>\n" +
     "{{theme.name}}\n" +
@@ -3701,9 +3682,6 @@ L.drawLocal = {
     "<tink-pagination ng-hide=\"numberofrecordsmatched == 0\" tink-items-per-page-values=[5] tink-current-page=currentPage tink-change=pageChanged(page,perPage,next) tink-total-items=numberofrecordsmatched tink-items-per-page=recordsAPage></tink-pagination>\n" +
     "</div>\n" +
     "<div class=col-md-8>\n" +
-    "<div ng-if=searchIsUrl>\n" +
-    "<button ng-click=laadUrl()>Laad url</button>\n" +
-    "</div>\n" +
     "<div ng-if=\"copySelectedTheme !== null\">\n" +
     "<button ng-if=\"copySelectedTheme.Added != false\" data-ng-click=AddOrUpdateTheme()>Update</button>\n" +
     "<p>{{copySelectedTheme.Description}}</p>\n" +
@@ -3766,13 +3744,13 @@ L.drawLocal = {
     "<div data-tink-nav-aside=\"\" id=rightaside data-auto-select=true data-toggle-id=asideNavRight class=\"nav-aside nav-right\">\n" +
     "<aside>\n" +
     "<div class=nav-aside-section>\n" +
+    "<button class=\"btn btn-primary addlayerbtn\" ng-click=lyrsctrl.AddLayers()>Lagenbeheer</button>\n" +
     "<ul id=sortableThemes ui-sortable=lyrsctrl.sortableOptions ng-model=lyrsctrl.themes>\n" +
     "<div ng-repeat=\"theme in lyrsctrl.themes\">\n" +
     "<tink-theme theme=theme>\n" +
     "</tink-theme>\n" +
     "</div>\n" +
     "</ul>\n" +
-    "<button class=\"btn btn-primary addlayerbtn\" ng-click=lyrsctrl.AddLayers()>Voeg laag toe</button>\n" +
     "</div>\n" +
     "</aside>\n" +
     "</div>"
