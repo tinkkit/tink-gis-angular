@@ -16,7 +16,7 @@
             return proxyurl;
         };
         _service.UnwrapProxiedData = function (data) {
-            if (data.startsWith('{"listOfString":')) {
+            if (typeof data == 'string' && data.startsWith('{"listOfString":')) {
                 data = $.parseJSON(data).listOfString;
             }
             return data;
