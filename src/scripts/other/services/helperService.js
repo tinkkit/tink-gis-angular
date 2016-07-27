@@ -1,12 +1,26 @@
 'use strict';
 (function () {
-    var module = angular.module('tink.gis');
+    var module;
+    try {
+        module = angular.module('tink.gis');
+    } catch (e) {
+        module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter', 'tink.pagination']); //'leaflet-directive'
+    }
     var service = function () {
         var _service = {};
         proj4.defs('EPSG:31370', '+proj=lcc +lat_1=51.16666723333334 +lat_2=49.83333389999999 +lat_0=90 +lon_0=4.367486666666666 +x_0=150000.013 +y_0=5400088.438'
             + ' +ellps=intl +towgs84=-99.1,53.3,-112.5,0.419,-0.83,1.885,-1.0 +units=m +no_defs');
         // proj4.defs('EPSG:31370', '+proj=lcc +lat_1=51.16666723333333 +lat_2=49.8333339 +lat_0=90 +lon_0=4.367486666666666 +x_0=150000.013 +y_0=5400088.438 +ellps=intl +towgs84=106.869,-52.2978,103.724,-0.33657,0.456955,-1.84218,1 +units=m +no_defs');
-
+        _service.CreateProxyUrl = function (url) {
+            var proxyurl = "https://localhost/Digipolis.StadInKaart.Api/Proxy/go?url=" + encodeURIComponent(url);
+            return proxyurl;
+        };
+        _service.UnwrapProxiedData = function (data) {
+            if (data.startsWith('{"listOfString":')) {
+                data = $.parseJSON(data).listOfString;
+            }
+            return data;
+        }
         _service.ConvertWSG84ToLambert72 = function (coordinates) {
             var result = proj4('EPSG:31370', [(coordinates.lng || coordinates.x), (coordinates.lat || coordinates.y)]);
             return {

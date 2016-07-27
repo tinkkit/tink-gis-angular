@@ -1,24 +1,24 @@
 'use strict';
 (function () {
-    var module;
-    try {
-        module = angular.module('tink.gis');
-    } catch (e) {
-        module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
-    }
-    var service = function ($http, $window, map) {
+    // try {
+    var module = angular.module('tink.gis');
+    // } catch (e) {
+    //     module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
+    // }
+    var service = function ($http, $window, map, helperService) {
         var _service = {};
 
         _service.GetCapabilities = function (url) {
-            var posturl = '?request=GetCapabilities&service=WMS&callback=foo';
+            var fullurl = url + '?request=GetCapabilities&service=WMS&callback=foo';
             var prom = $http({
                 method: 'GET',
-                url: url + posturl,
+                url: helperService.CreateProxyUrl(fullurl),
                 timeout: 10000,
                 // params: {},  // Query Parameters (GET)
                 transformResponse: function (data) {
                     var wmstheme = {};
                     if (data) {
+                        data = helperService.UnwrapProxiedData(data);
                         var returnjson = JXON.stringToJs(data).wms_capabilities;
                         console.log(returnjson);
                         wmstheme.Version = returnjson['version'];
@@ -105,5 +105,7 @@
 
         return _service;
     };
-    module.factory('WMSService', service);
+    // module.$inject = ['HelperService'];
+
+    module.service('WMSService', ['$http', '$window', 'map', 'HelperService', service]);
 })();

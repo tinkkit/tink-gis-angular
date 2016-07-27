@@ -590,7 +590,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
 
 (function () {
     var module = angular.module('tink.gis');
-    var service = function service($http, map, MapData, $rootScope, $q) {
+    var service = function service($http, map, MapData, $rootScope, $q, helperService) {
         var _service = {};
         _service.getMetaData = function () {
             var searchterm = arguments.length <= 0 || arguments[0] === undefined ? 'water' : arguments[0];
@@ -599,10 +599,10 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
 
             var url = 'https://metadata.geopunt.be/zoekdienst/srv/dut/csw?service=CSW&version=2.0.2&SortBy=title&request=GetRecords&namespace=xmlns%28csw=http://www.opengis.net/cat/csw%29&resultType=results&outputSchema=http://www.opengis.net/cat/csw/2.0.2&outputFormat=application/xml&startPosition=' + startpos + '&maxRecords=' + recordsAPage + '&typeNames=csw:Record&elementSetName=full&constraintLanguage=CQL_TEXT&constraint_language_version=1.1.0&constraint=AnyText+LIKE+%27%25' + searchterm + '%25%27AND%20Type%20=%20%27service%27%20AND%20Servicetype%20=%27view%27';
             // var url = 'https://metadata.geopunt.be/zoekdienst/srv/dut/q?fast=index&from=' + startpos + '&to=' + recordsAPage + '&any=*' + searchterm + '*&sortBy=title&sortOrder=reverse&hitsperpage=' + recordsAPage;
-            console.log('GETTING METADATA WITH ULR:', url);
             var prom = $q.defer();
-            $http.get(url).success(function (data, status, headers, config) {
+            $http.get(helperService.CreateProxyUrl(url)).success(function (data, status, headers, config) {
                 if (data) {
+                    data = helperService.UnwrapProxiedData(data);
                     var returnjson = JXON.stringToJs(data);
                     var getResults = returnjson['csw:getrecordsresponse']['csw:searchresults'];
                     var returnObject = {};
@@ -652,8 +652,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         };
         return _service;
     };
-    module.$inject = ['$http', 'map', 'MapData', '$rootScope', '$q'];
-    module.factory('GeopuntService', service);
+    module.factory('GeopuntService', ['$http', 'map', 'MapData', '$rootScope', '$q', 'HelperService', service]);
 })();
 ;
 'use strict';
@@ -1303,25 +1302,25 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
 ;'use strict';
 
 (function () {
-    var module;
-    try {
-        module = angular.module('tink.gis');
-    } catch (e) {
-        module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
-    }
-    var service = function service($http, $window, map) {
+    // try {
+    var module = angular.module('tink.gis');
+    // } catch (e) {
+    //     module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
+    // }
+    var service = function service($http, $window, map, helperService) {
         var _service = {};
 
         _service.GetCapabilities = function (url) {
-            var posturl = '?request=GetCapabilities&service=WMS&callback=foo';
+            var fullurl = url + '?request=GetCapabilities&service=WMS&callback=foo';
             var prom = $http({
                 method: 'GET',
-                url: url + posturl,
+                url: helperService.CreateProxyUrl(fullurl),
                 timeout: 10000,
                 // params: {},  // Query Parameters (GET)
                 transformResponse: function transformResponse(data) {
                     var wmstheme = {};
                     if (data) {
+                        data = helperService.UnwrapProxiedData(data);
                         var returnjson = JXON.stringToJs(data).wms_capabilities;
                         console.log(returnjson);
                         wmstheme.Version = returnjson['version'];
@@ -1404,7 +1403,9 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
 
         return _service;
     };
-    module.factory('WMSService', service);
+    // module.$inject = ['HelperService'];
+
+    module.service('WMSService', ['$http', '$window', 'map', 'HelperService', service]);
 })();
 ;'use strict';
 
@@ -1767,12 +1768,26 @@ var esri2geo = {};
 ;'use strict';
 
 (function () {
-    var module = angular.module('tink.gis');
+    var module;
+    try {
+        module = angular.module('tink.gis');
+    } catch (e) {
+        module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter', 'tink.pagination']); //'leaflet-directive'
+    }
     var service = function service() {
         var _service = {};
         proj4.defs('EPSG:31370', '+proj=lcc +lat_1=51.16666723333334 +lat_2=49.83333389999999 +lat_0=90 +lon_0=4.367486666666666 +x_0=150000.013 +y_0=5400088.438' + ' +ellps=intl +towgs84=-99.1,53.3,-112.5,0.419,-0.83,1.885,-1.0 +units=m +no_defs');
         // proj4.defs('EPSG:31370', '+proj=lcc +lat_1=51.16666723333333 +lat_2=49.8333339 +lat_0=90 +lon_0=4.367486666666666 +x_0=150000.013 +y_0=5400088.438 +ellps=intl +towgs84=106.869,-52.2978,103.724,-0.33657,0.456955,-1.84218,1 +units=m +no_defs');
-
+        _service.CreateProxyUrl = function (url) {
+            var proxyurl = "https://localhost/Digipolis.StadInKaart.Api/Proxy/go?url=" + encodeURIComponent(url);
+            return proxyurl;
+        };
+        _service.UnwrapProxiedData = function (data) {
+            if (data.startsWith('{"listOfString":')) {
+                data = $.parseJSON(data).listOfString;
+            }
+            return data;
+        };
         _service.ConvertWSG84ToLambert72 = function (coordinates) {
             var result = proj4('EPSG:31370', [coordinates.lng || coordinates.x, coordinates.lat || coordinates.y]);
             return {
@@ -2323,7 +2338,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     } catch (e) {
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'tink.modal']); //'leaflet-directive'
     }
-    var mapService = function mapService($rootScope, MapData, map, ThemeHelper, $q, GISService, WMSService, ResultsData) {
+    var mapService = function mapService($rootScope, MapData, map, ThemeHelper, $q, GISService, ResultsData) {
         var _mapService = {};
         _mapService.Identify = function (event, tolerance) {
             if (typeof tolerance === 'undefined') {
@@ -2526,7 +2541,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         };
         return _mapService;
     };
-    module.$inject = ['$rootScope', 'MapData', 'map', 'ThemeHelper', '$q', 'GISService', 'WMSService', 'ResultsData'];
+    module.$inject = ['$rootScope', 'MapData', 'map', 'ThemeHelper', '$q', 'GISService', 'ResultsData'];
     module.factory('MapService', mapService);
 })();
 ;'use strict';

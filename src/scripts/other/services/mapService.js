@@ -6,7 +6,7 @@
     } catch (e) {
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'tink.modal']); //'leaflet-directive'
     }
-    var mapService = function ($rootScope, MapData, map, ThemeHelper, $q, GISService, WMSService, ResultsData) {
+    var mapService = function ($rootScope, MapData, map, ThemeHelper, $q, GISService, ResultsData) {
         var _mapService = {};
         _mapService.Identify = function (event, tolerance) {
             if (typeof tolerance === 'undefined') { tolerance = 10; }
@@ -225,7 +225,7 @@
         };
         return _mapService;
     };
-    module.$inject = ['$rootScope', 'MapData', 'map', 'ThemeHelper', '$q', 'GISService', 'WMSService', 'ResultsData'];
+    module.$inject = ['$rootScope', 'MapData', 'map', 'ThemeHelper', '$q', 'GISService', 'ResultsData'];
     module.factory('MapService', mapService);
 })();
 
