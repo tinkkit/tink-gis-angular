@@ -19,6 +19,9 @@
             if (typeof data == 'string' && data.startsWith('{"listOfString":')) {
                 data = $.parseJSON(data).listOfString;
             }
+            else if (typeof data == 'object' && data.listOfString) {
+                data = data.listOfString;
+            }
             return data;
         }
         _service.ConvertWSG84ToLambert72 = function (coordinates) {
