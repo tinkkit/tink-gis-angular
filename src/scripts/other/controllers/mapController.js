@@ -54,7 +54,7 @@
 
         vm.zoekLocChanged = function (search) {
             var prom = GISService.QuerySOLRLocatie(search);
-            prom.success(function (data, status, headers) {
+            prom.then(function (data) {
                 console.log(data);
             });
         };

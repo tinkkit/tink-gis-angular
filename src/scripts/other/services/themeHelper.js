@@ -8,19 +8,18 @@
     }
     var service = function () {
         var themeHelper = {};
-        themeHelper.createThemeFromJson = function (rawdata, getData) {
+        themeHelper.createThemeFromJson = function (rawdata, themeData) {
             var thema = {};
             try {
                 var rawlayers = rawdata.layers;
-                var cleanUrl = getData.url.substring(0, getData.url.indexOf('?'));
                 thema.Naam = rawdata.documentInfo.Title;
                 thema.name = rawdata.documentInfo.Title;
                 thema.Description = rawdata.documentInfo.Subject;
                 thema.Layers = []; // de layers direct onder het theme zonder sublayers
                 thema.AllLayers = []; // alle Layers die hij heeft including subgrouplayers
                 thema.Groups = []; // layergroups die nog eens layers zelf hebben
-                thema.CleanUrl = cleanUrl;
-                thema.Url = getData.url;
+                thema.CleanUrl = themeData.cleanUrl;
+                thema.Url = themeData.url;
                 thema.VisibleLayers = [];
                 thema.VisibleLayerIds = [];
                 thema.Visible = true;
@@ -92,7 +91,7 @@
                 thema.RecalculateVisibleLayerIds();
             }
             catch (ex) {
-                console.log('Error when creating theme from url: ' + getData.url + ' Exeption: ' + ex + ' Data: ');
+                console.log('Error when creating theme from url: ' + themeData.url + ' Exeption: ' + ex + ' Data: ');
                 console.log(rawdata);
             }
             return thema;

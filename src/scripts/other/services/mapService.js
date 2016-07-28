@@ -6,7 +6,7 @@
     } catch (e) {
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'tink.modal']); //'leaflet-directive'
     }
-    var mapService = function ($rootScope, MapData, map, ThemeHelper, $q, GISService, ResultsData) {
+    var mapService = function ($rootScope, MapData, map, ThemeHelper, $q, GISService, ResultsData, HelperService) {
         var _mapService = {};
         _mapService.Identify = function (event, tolerance) {
             if (typeof tolerance === 'undefined') { tolerance = 10; }
@@ -34,10 +34,12 @@
 
                                     ResultsData.Loading++;
                                     theme.MapData.getFeatureInfo(event.latlng, lay.name).success(function (data, status, xhr) {
+                                        data = HelperService.UnwrapProxiedData(data);
                                         ResultsData.Loading--;
                                         console.log('minus');
-                                        var xmlstring = JXON.xmlToString(data);
-                                        var returnjson = JXON.stringToJs(xmlstring);
+                                        // data = data.replace('<?xml version="1.0" encoding="UTF-8"?>', '').trim();
+                                        // var xmlstring = JXON.xmlToString(data);
+                                        var returnjson = JXON.stringToJs(data);
                                         var processedjson = null;
                                         if (returnjson.featureinforesponse) {
                                             processedjson = returnjson.featureinforesponse.fields;
@@ -225,7 +227,7 @@
         };
         return _mapService;
     };
-    module.$inject = ['$rootScope', 'MapData', 'map', 'ThemeHelper', '$q', 'GISService', 'ResultsData'];
+    module.$inject = ['$rootScope', 'MapData', 'map', 'ThemeHelper', '$q', 'GISService', 'ResultsData', 'HelperService'];
     module.factory('MapService', mapService);
 })();
 

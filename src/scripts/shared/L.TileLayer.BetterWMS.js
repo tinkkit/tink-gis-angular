@@ -15,13 +15,14 @@ L.TileLayer.BetterWMS = L.TileLayer.WMS.extend({
     //     map.off('click', this.getFeatureInfo, this);
     // },
 
-    getFeatureInfo: function(latlng, layers) {
+    getFeatureInfo: function (latlng, layers) {
         // Make an AJAX request to the server and hope for the best
+        var HelperService = angular.element(document).injector().get('HelperService');
         var url = this.getFeatureInfoUrl(latlng, layers);
-            // showResults = L.Util.bind(this.showGetFeatureInfo, this);
+        // showResults = L.Util.bind(this.showGetFeatureInfo, this);
         var prom = $.ajax({
-            url: url,
-            success: function(data, status, xhr) {
+            url: HelperService.CreateProxyUrl(url),
+            success: function (data, status, xhr) {
                 // var err = typeof data === 'string' ? null : data;
                 // showResults(err, latlng, data);
                 // console.log(data);
@@ -31,14 +32,14 @@ L.TileLayer.BetterWMS = L.TileLayer.WMS.extend({
 
                 // console.log(returnjson);
             },
-            error: function(xhr, status, error) {
+            error: function (xhr, status, error) {
                 // showResults(error);
             }
         });
         return prom;
     },
 
-    getFeatureInfoUrl: function(latlng, layers) {
+    getFeatureInfoUrl: function (latlng, layers) {
         // Construct a GetFeatureInfo request URL given a point
         var point = this._map.latLngToContainerPoint(latlng, this._map.getZoom()),
             size = this._map.getSize(),
@@ -77,6 +78,6 @@ L.TileLayer.BetterWMS = L.TileLayer.WMS.extend({
     // }
 });
 
-L.tileLayer.betterWms = function(url, options) {
+L.tileLayer.betterWms = function (url, options) {
     return new L.TileLayer.BetterWMS(url, options);
 };

@@ -12,7 +12,7 @@
             </div>
 
         </div>
-        <tink-pagination ng-hide="numberofrecordsmatched == 0" tink-items-per-page-values="[5]" tink-current-page="currentPage" tink-change="pageChanged(page,perPage,next)"
+        <tink-pagination ng-hide="numberofrecordsmatched <= 5" tink-items-per-page-values="[5]" tink-current-page="currentPage" tink-change="pageChanged(page,perPage,next)"
             tink-total-items="numberofrecordsmatched" tink-items-per-page="recordsAPage"></tink-pagination>
     </div>
     <div class="col-md-8">

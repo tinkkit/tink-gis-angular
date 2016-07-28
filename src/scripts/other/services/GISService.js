@@ -3,16 +3,17 @@
 'use strict';
 (function () {
     var module = angular.module('tink.gis');
-    var service = function ($http, map, MapData, HelperService) {
+    var service = function ($http, map, MapData, HelperService, $q) {
         var _service = {};
         _service.ReverseGeocode = function (event) {
             var lambert72Cords = HelperService.ConvertWSG84ToLambert72(event.latlng);
             var loc = lambert72Cords.x + ',' + lambert72Cords.y;
             var urlloc = encodeURIComponent(loc);
             MapData.CleanWatIsHier();
-
-            $http.get('http://app10.p.gis.local/arcgissql/rest/services/COMLOC_CRAB_NAVTEQ/GeocodeServer/reverseGeocode?location=' + urlloc + '&distance=50&outSR=&f=json').
+            var url = 'http://app10.p.gis.local/arcgissql/rest/services/COMLOC_CRAB_NAVTEQ/GeocodeServer/reverseGeocode?location=' + urlloc + '&distance=50&outSR=&f=json';
+            $http.get(HelperService.CreateProxyUrl(url)).
                 success(function (data, status, headers, config) {
+                    data = HelperService.UnwrapProxiedData(data);
                     if (!data.error) {
                         MapData.CreateWatIsHierMarker(data);
                         console.log(data);
@@ -28,32 +29,79 @@
 
         };
         _service.QuerySOLRGIS = function (search) {
+            var prom = $q.defer();
             // select?q=school&wt=json&indent=true&facet=true&facet.field=parent&group=true&group.field=parent&group.limit=2
-            var prom = $http.get('http://esb-app1-o.antwerpen.be/v1/giszoek/solr/search?q=*' + search + '*&wt=json&indent=true&facet=true&rows=999&facet.field=parent&group=true&group.field=parent&group.limit=5&solrtype=gis');
-            return prom;
+            var url = 'http://esb-app1-o.antwerpen.be/v1/giszoek/solr/search?q=*' + search + '*&wt=json&indent=true&facet=true&rows=999&facet.field=parent&group=true&group.field=parent&group.limit=5&solrtype=gis';
+            $http.get(HelperService.CreateProxyUrl(url))
+                .success(function (data, status, headers, config) {
+                    data = HelperService.UnwrapProxiedData(data);
+                    prom.resolve(data);
+                }).error(function (data, status, headers, config) {
+                    prom.reject(null);
+                    console.log('ERROR!', data, status, headers, config);
+                });
+            return prom.promise;
         };
         _service.QuerySOLRLocatie = function (search) {
-            var prom = $http.get('http://esb-app1-o.antwerpen.be/v1/giszoek/solr/search?q=*' + search + '*&wt=json&indent=true&solrtype=gislocaties');
-            return prom;
+            var prom = $q.defer();
+            var url = 'http://esb-app1-o.antwerpen.be/v1/giszoek/solr/search?q=*' + search + '*&wt=json&indent=true&solrtype=gislocaties';
+            $http.get(HelperService.CreateProxyUrl(url))
+                .success(function (data, status, headers, config) {
+                    data = HelperService.UnwrapProxiedData(data);
+                    prom.resolve(data);
+                }).error(function (data, status, headers, config) {
+                    prom.reject(null);
+                    console.log('ERROR!', data, status, headers, config);
+                });
+            return prom.promise;
         };
         var baseurl = 'http://app10.p.gis.local/arcgissql/rest/';
         _service.GetThemeData = function (mapserver) {
+            var prom = $q.defer();
             if (!mapserver.contains(baseurl)) {
                 mapserver = baseurl + mapserver;
             }
-            var prom = $http.get(mapserver + '?f=pjson');
-            return prom;
+            var url = mapserver + '?f=pjson';
+            $http.get(HelperService.CreateProxyUrl(url))
+                .success(function (data, status, headers, config) {
+                    data = HelperService.UnwrapProxiedData(data);
+                    prom.resolve(data);
+                }).error(function (data, status, headers, config) {
+                    prom.reject(null);
+                    console.log('ERROR!', data, status, headers, config);
+                });
+            return prom.promise;
         };
         _service.GetThemeLayerData = function (cleanurl) {
-            var prom = $http.get(cleanurl + '/layers?f=pjson');
-            return prom;
+            var prom = $q.defer();
+            
+            var url = cleanurl + '/layers?f=pjson';
+            $http.get(HelperService.CreateProxyUrl(url))
+                .success(function (data, status, headers, config) {
+                    data = HelperService.UnwrapProxiedData(data);
+                    prom.resolve(data);
+                }).error(function (data, status, headers, config) {
+                    prom.reject(null);
+                    console.log('ERROR!', data, status, headers, config);
+                });
+            return prom.promise;
         };
         _service.GetLegendData = function (cleanurl) {
-            var prom = $http.get(cleanurl + '/legend?f=pjson');
-            return prom;
+            var prom = $q.defer();
+            
+            var url = cleanurl + '/legend?f=pjson';
+            $http.get(HelperService.CreateProxyUrl(url))
+                .success(function (data, status, headers, config) {
+                    data = HelperService.UnwrapProxiedData(data);
+                    prom.resolve(data);
+                }).error(function (data, status, headers, config) {
+                    prom.reject(null);
+                    console.log('ERROR!', data, status, headers, config);
+                });
+            return prom.promise;
         };
         return _service;
     };
-    module.$inject = ['$http', 'map', 'MapData', 'HelperService', '$rootScope'];
+    module.$inject = ['$http', 'map', 'MapData', 'HelperService', '$q'];
     module.factory('GISService', service);
 })();

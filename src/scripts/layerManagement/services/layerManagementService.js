@@ -17,14 +17,14 @@
                 });
                 if (AlreadyAddedTheme == null) { // if we didn t get an alreadyadderdtheme we get the data
                     var prom = GISService.GetThemeData(url + '?f=pjson');
-                    prom.success(function (data, statuscode, functie, getdata) {
+                    prom.then(function (data) {
                         var convertedTheme = ThemeHelper.createThemeFromJson(data, getdata);
                         _service.AvailableThemes.push(convertedTheme);
                         convertedTheme.status = ThemeStatus.NEW;
                     });
                     promises.push(prom);
                 }
-                    else { // ah we already got it then just push it.
+                else { // ah we already got it then just push it.
                     AlreadyAddedTheme.status = ThemeStatus.UNMODIFIED;
                     _service.AvailableThemes.push(AlreadyAddedTheme);
                 }
@@ -36,7 +36,7 @@
         };
         _service.GetAditionalLayerInfo = function (theme) {
             var promLegend = GISService.GetLegendData(theme.CleanUrl);
-            promLegend.success(function (data, statuscode, functie, getdata) {
+            promLegend.then(function (data) {
                 theme.AllLayers.forEach(layer => {
                     var layerid = layer.id;
                     var layerInfo = data.layers.find(x => x.layerId == layerid);
@@ -50,7 +50,7 @@
                 });
             });
             var promLayerData = GISService.GetThemeLayerData(theme.CleanUrl);
-                promLayerData.success(function (data, statuscode, functie, getdata) {
+            promLayerData.then(function (data) {
                 theme.AllLayers.forEach(layer => {
                     var layerid = layer.id;
                     var layerInfo = data.layers.find(x => x.id == layerid);

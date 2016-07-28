@@ -93,7 +93,11 @@
                 // alert(theme.Type != 'WMS' && theme.Type != 'ESRI');
                 // if (theme.Type != 'wms' && theme.Type != 'esri') {
                 console.log(theme);
-                var url = theme.Url.trim().replace('?', '');
+                var questionmarkPos = theme.Url.trim().indexOf('?');
+                var url = theme.Url.trim().substring(0, questionmarkPos);
+
+                // var url = theme.Url.trim().replace('?', '');
+
                 if (MapData.Themes.find(x => x.CleanUrl == url) == undefined) {
                     var getwms = WMSService.GetCapabilities(url);
                     getwms.success(function (data, status, headers, config) {

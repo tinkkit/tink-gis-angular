@@ -12,7 +12,7 @@
             + ' +ellps=intl +towgs84=-99.1,53.3,-112.5,0.419,-0.83,1.885,-1.0 +units=m +no_defs');
         // proj4.defs('EPSG:31370', '+proj=lcc +lat_1=51.16666723333333 +lat_2=49.8333339 +lat_0=90 +lon_0=4.367486666666666 +x_0=150000.013 +y_0=5400088.438 +ellps=intl +towgs84=106.869,-52.2978,103.724,-0.33657,0.456955,-1.84218,1 +units=m +no_defs');
         _service.CreateProxyUrl = function (url) {
-            var proxyurl = "https://localhost/Digipolis.StadInKaart.Api/Proxy/go?url=" + encodeURIComponent(url);
+            var proxyurl = "https://stadinkaart-o.antwerpen.be/digipolis.stadinkaart.api/Proxy/go?url=" + encodeURIComponent(url);
             return proxyurl;
         };
         _service.UnwrapProxiedData = function (data) {
@@ -21,6 +21,9 @@
             }
             else if (typeof data == 'object' && data.listOfString) {
                 data = data.listOfString;
+            }
+            if (typeof data == 'string' && data.startsWith('{')) {
+                data = JSON.parse(data);
             }
             return data;
         }

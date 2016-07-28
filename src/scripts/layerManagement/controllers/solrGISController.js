@@ -34,8 +34,8 @@
                 var prom = GISService.QuerySOLRGIS(searchterm, ((page - 1) * 5) + 1, 5);
                 prom.then(function (data) {
                     $scope.currentPage = 1;
-                    var allitems = data.data.facet_counts.facet_fields.parent;
-                    var itemsMetData = data.data.grouped.parent.groups;
+                    var allitems = data.facet_counts.facet_fields.parent;
+                    var itemsMetData = data.grouped.parent.groups;
                     var aantalitems = allitems.length;
                     var x = 0;
                     var themes = [];
@@ -145,9 +145,9 @@
                 $scope.copySelectedTheme = null;
             };
             $scope.solrThemeChanged = function (theme) {
-                GISService.GetThemeData(theme.url).success(function (data, statuscode, functie, getdata) {
+                GISService.GetThemeData(theme.url).then(function (data, statuscode, functie, getdata) {
                     if (!data.error) {
-                        var convertedTheme = ThemeHelper.createThemeFromJson(data, getdata);
+                        var convertedTheme = ThemeHelper.createThemeFromJson(data, theme);
                         $scope.previewTheme(convertedTheme);
                     } else {
                         console.log('ERROR:', data.error);

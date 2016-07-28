@@ -223,7 +223,11 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             // alert(theme.Type != 'WMS' && theme.Type != 'ESRI');
             // if (theme.Type != 'wms' && theme.Type != 'esri') {
             console.log(theme);
-            var url = theme.Url.trim().replace('?', '');
+            var questionmarkPos = theme.Url.trim().indexOf('?');
+            var url = theme.Url.trim().substring(0, questionmarkPos);
+
+            // var url = theme.Url.trim().replace('?', '');
+
             if (MapData.Themes.find(function (x) {
                 return x.CleanUrl == url;
             }) == undefined) {
@@ -362,8 +366,8 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             var prom = GISService.QuerySOLRGIS(searchterm, (page - 1) * 5 + 1, 5);
             prom.then(function (data) {
                 $scope.currentPage = 1;
-                var allitems = data.data.facet_counts.facet_fields.parent;
-                var itemsMetData = data.data.grouped.parent.groups;
+                var allitems = data.facet_counts.facet_fields.parent;
+                var itemsMetData = data.grouped.parent.groups;
                 var aantalitems = allitems.length;
                 var x = 0;
                 var themes = [];
@@ -477,9 +481,9 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             $scope.copySelectedTheme = null;
         };
         $scope.solrThemeChanged = function (theme) {
-            GISService.GetThemeData(theme.url).success(function (data, statuscode, functie, getdata) {
+            GISService.GetThemeData(theme.url).then(function (data, statuscode, functie, getdata) {
                 if (!data.error) {
-                    var convertedTheme = ThemeHelper.createThemeFromJson(data, getdata);
+                    var convertedTheme = ThemeHelper.createThemeFromJson(data, theme);
                     $scope.previewTheme(convertedTheme);
                 } else {
                     console.log('ERROR:', data.error);
@@ -615,29 +619,16 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                     returnObject.results = [];
                     if (returnObject.numberofrecordsmatched != 0) {
                         // only foreach when there are items
-                        getResults['csw:record'].forEach(function (record) {
-                            if (record['dc:uri'] instanceof Array == false) {
-                                var tmpdata = record['dc:uri'];
-                                record['dc:uri'] = [];
-                                record['dc:uri'].push(tmpdata);
-                            }
-                            var tmptheme = {};
-                            tmptheme.Added = false;
-                            tmptheme.Naam = record['dc:title'];
-                            var wmsinfo = record['dc:uri'].find(function (x) {
-                                return x.protocol == 'WMS' || x.protocol == 'OGC:WMS';
+                        if (returnObject.numberofrecordsmatched == 1) {
+                            var processedTheme = procesTheme(getResults['csw:record']);
+                            returnObject.results.push(processedTheme);
+                        } else {
+                            getResults['csw:record'].forEach(function (record) {
+                                var processedTheme = procesTheme(record);
+                                returnObject.results.push(processedTheme);
                             });
-                            if (wmsinfo) {
-                                tmptheme.Url = wmsinfo.keyValue;
-                                tmptheme.Type = ThemeType.WMS;
-                            } else {
-                                tmptheme.Type = 'DONTKNOW';
-                            }
-                            tmptheme.TMPMETADATA = record;
-                            returnObject.results.push(tmptheme);
-                        });
+                        }
                     }
-
                     prom.resolve(returnObject);
                     // console.log(getResults['csw:record']);
                 } else {
@@ -649,6 +640,27 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 console.log('ERROR!', data, status, headers, config);
             });
             return prom.promise;
+        };
+        var procesTheme = function procesTheme(record) {
+            if (record['dc:uri'] instanceof Array == false) {
+                var tmpdata = record['dc:uri'];
+                record['dc:uri'] = [];
+                record['dc:uri'].push(tmpdata);
+            }
+            var tmptheme = {};
+            tmptheme.Added = false;
+            tmptheme.Naam = record['dc:title'];
+            var wmsinfo = record['dc:uri'].find(function (x) {
+                return x.protocol == 'WMS' || x.protocol == 'OGC:WMS';
+            });
+            if (wmsinfo) {
+                tmptheme.Url = wmsinfo.keyValue;
+                tmptheme.Type = ThemeType.WMS;
+            } else {
+                tmptheme.Type = 'DONTKNOW';
+            }
+            tmptheme.TMPMETADATA = record;
+            return tmptheme;
         };
         return _service;
     };
@@ -676,7 +688,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 if (AlreadyAddedTheme == null) {
                     // if we didn t get an alreadyadderdtheme we get the data
                     var prom = GISService.GetThemeData(url + '?f=pjson');
-                    prom.success(function (data, statuscode, functie, getdata) {
+                    prom.then(function (data) {
                         var convertedTheme = ThemeHelper.createThemeFromJson(data, getdata);
                         _service.AvailableThemes.push(convertedTheme);
                         convertedTheme.status = ThemeStatus.NEW;
@@ -695,7 +707,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         };
         _service.GetAditionalLayerInfo = function (theme) {
             var promLegend = GISService.GetLegendData(theme.CleanUrl);
-            promLegend.success(function (data, statuscode, functie, getdata) {
+            promLegend.then(function (data) {
                 theme.AllLayers.forEach(function (layer) {
                     var layerid = layer.id;
                     var layerInfo = data.layers.find(function (x) {
@@ -711,7 +723,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 });
             });
             var promLayerData = GISService.GetThemeLayerData(theme.CleanUrl);
-            promLayerData.success(function (data, statuscode, functie, getdata) {
+            promLayerData.then(function (data) {
                 theme.AllLayers.forEach(function (layer) {
                     var layerid = layer.id;
                     var layerInfo = data.layers.find(function (x) {
@@ -863,7 +875,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
 
         vm.zoekLocChanged = function (search) {
             var prom = GISService.QuerySOLRLocatie(search);
-            prom.success(function (data, status, headers) {
+            prom.then(function (data) {
                 console.log(data);
             });
         };
@@ -1111,15 +1123,16 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
 
 (function () {
     var module = angular.module('tink.gis');
-    var service = function service($http, map, MapData, HelperService) {
+    var service = function service($http, map, MapData, HelperService, $q) {
         var _service = {};
         _service.ReverseGeocode = function (event) {
             var lambert72Cords = HelperService.ConvertWSG84ToLambert72(event.latlng);
             var loc = lambert72Cords.x + ',' + lambert72Cords.y;
             var urlloc = encodeURIComponent(loc);
             MapData.CleanWatIsHier();
-
-            $http.get('http://app10.p.gis.local/arcgissql/rest/services/COMLOC_CRAB_NAVTEQ/GeocodeServer/reverseGeocode?location=' + urlloc + '&distance=50&outSR=&f=json').success(function (data, status, headers, config) {
+            var url = 'http://app10.p.gis.local/arcgissql/rest/services/COMLOC_CRAB_NAVTEQ/GeocodeServer/reverseGeocode?location=' + urlloc + '&distance=50&outSR=&f=json';
+            $http.get(HelperService.CreateProxyUrl(url)).success(function (data, status, headers, config) {
+                data = HelperService.UnwrapProxiedData(data);
                 if (!data.error) {
                     MapData.CreateWatIsHierMarker(data);
                     console.log(data);
@@ -1132,33 +1145,75 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             });
         };
         _service.QuerySOLRGIS = function (search) {
+            var prom = $q.defer();
             // select?q=school&wt=json&indent=true&facet=true&facet.field=parent&group=true&group.field=parent&group.limit=2
-            var prom = $http.get('http://esb-app1-o.antwerpen.be/v1/giszoek/solr/search?q=*' + search + '*&wt=json&indent=true&facet=true&rows=999&facet.field=parent&group=true&group.field=parent&group.limit=5&solrtype=gis');
-            return prom;
+            var url = 'http://esb-app1-o.antwerpen.be/v1/giszoek/solr/search?q=*' + search + '*&wt=json&indent=true&facet=true&rows=999&facet.field=parent&group=true&group.field=parent&group.limit=5&solrtype=gis';
+            $http.get(HelperService.CreateProxyUrl(url)).success(function (data, status, headers, config) {
+                data = HelperService.UnwrapProxiedData(data);
+                prom.resolve(data);
+            }).error(function (data, status, headers, config) {
+                prom.reject(null);
+                console.log('ERROR!', data, status, headers, config);
+            });
+            return prom.promise;
         };
         _service.QuerySOLRLocatie = function (search) {
-            var prom = $http.get('http://esb-app1-o.antwerpen.be/v1/giszoek/solr/search?q=*' + search + '*&wt=json&indent=true&solrtype=gislocaties');
-            return prom;
+            var prom = $q.defer();
+            var url = 'http://esb-app1-o.antwerpen.be/v1/giszoek/solr/search?q=*' + search + '*&wt=json&indent=true&solrtype=gislocaties';
+            $http.get(HelperService.CreateProxyUrl(url)).success(function (data, status, headers, config) {
+                data = HelperService.UnwrapProxiedData(data);
+                prom.resolve(data);
+            }).error(function (data, status, headers, config) {
+                prom.reject(null);
+                console.log('ERROR!', data, status, headers, config);
+            });
+            return prom.promise;
         };
         var baseurl = 'http://app10.p.gis.local/arcgissql/rest/';
         _service.GetThemeData = function (mapserver) {
+            var prom = $q.defer();
             if (!mapserver.contains(baseurl)) {
                 mapserver = baseurl + mapserver;
             }
-            var prom = $http.get(mapserver + '?f=pjson');
-            return prom;
+            var url = mapserver + '?f=pjson';
+            $http.get(HelperService.CreateProxyUrl(url)).success(function (data, status, headers, config) {
+                data = HelperService.UnwrapProxiedData(data);
+                prom.resolve(data);
+            }).error(function (data, status, headers, config) {
+                prom.reject(null);
+                console.log('ERROR!', data, status, headers, config);
+            });
+            return prom.promise;
         };
         _service.GetThemeLayerData = function (cleanurl) {
-            var prom = $http.get(cleanurl + '/layers?f=pjson');
-            return prom;
+            var prom = $q.defer();
+
+            var url = cleanurl + '/layers?f=pjson';
+            $http.get(HelperService.CreateProxyUrl(url)).success(function (data, status, headers, config) {
+                data = HelperService.UnwrapProxiedData(data);
+                prom.resolve(data);
+            }).error(function (data, status, headers, config) {
+                prom.reject(null);
+                console.log('ERROR!', data, status, headers, config);
+            });
+            return prom.promise;
         };
         _service.GetLegendData = function (cleanurl) {
-            var prom = $http.get(cleanurl + '/legend?f=pjson');
-            return prom;
+            var prom = $q.defer();
+
+            var url = cleanurl + '/legend?f=pjson';
+            $http.get(HelperService.CreateProxyUrl(url)).success(function (data, status, headers, config) {
+                data = HelperService.UnwrapProxiedData(data);
+                prom.resolve(data);
+            }).error(function (data, status, headers, config) {
+                prom.reject(null);
+                console.log('ERROR!', data, status, headers, config);
+            });
+            return prom.promise;
         };
         return _service;
     };
-    module.$inject = ['$http', 'map', 'MapData', 'HelperService', '$rootScope'];
+    module.$inject = ['$http', 'map', 'MapData', 'HelperService', '$q'];
     module.factory('GISService', service);
 })();
 ;'use strict';
@@ -1321,69 +1376,73 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                     var wmstheme = {};
                     if (data) {
                         data = helperService.UnwrapProxiedData(data);
-                        var returnjson = JXON.stringToJs(data).wms_capabilities;
-                        console.log(returnjson);
-                        wmstheme.Version = returnjson['version'];
-                        wmstheme.name = returnjson.service.title;
-                        wmstheme.Naam = returnjson.service.title;
-                        // wmstheme.Title = returnjson.service.title;
-                        wmstheme.enabled = true;
-                        wmstheme.Visible = true;
-                        wmstheme.Layers = [];
-                        wmstheme.AllLayers = [];
-                        wmstheme.Groups = []; // layergroups die nog eens layers zelf hebben
-                        wmstheme.CleanUrl = url;
-                        wmstheme.Added = false;
-                        wmstheme.status = ThemeStatus.NEW;
-                        wmstheme.Description = returnjson.service.abstract;
-                        wmstheme.Type = ThemeType.WMS;
-                        wmstheme.VisibleLayerIds = [];
-                        wmstheme.VisibleLayers = [];
-                        var createLayer = function createLayer(layer) {
-                            var tmplayer = {};
-                            tmplayer.visible = true;
-                            tmplayer.enabled = true;
-                            tmplayer.parent = null;
-                            tmplayer.displayed = true;
-                            tmplayer.theme = wmstheme;
-                            tmplayer.name = layer.name;
-                            tmplayer.title = layer.title;
-                            tmplayer.queryable = layer.queryable;
-                            tmplayer.type = LayerType.LAYER;
-                            tmplayer.id = layer.name; //names are the ids of the layer in wms
-                            wmstheme.Layers.push(tmplayer);
-                            wmstheme.AllLayers.push(tmplayer);
-                        };
-                        var layers = returnjson.capability.layer.layer;
-                        if (layers) {
-                            if (layers.length != undefined) {
-                                // array, it has a length
-                                layers.forEach(function (layer) {
-                                    createLayer(layer);
-                                });
-                            } else {
-                                createLayer(layers);
-                            }
+                        if (data.listOfHttpError) {
+                            console.log(data.listOfHttpError, fullurl);
                         } else {
-                            createLayer(returnjson.capability.layer);
-                        }
-
-                        wmstheme.UpdateMap = function () {
-                            wmstheme.RecalculateVisibleLayerIds();
-                            map.removeLayer(wmstheme.MapData);
-                            map.addLayer(wmstheme.MapData);
-                        };
-
-                        wmstheme.RecalculateVisibleLayerIds = function () {
-                            wmstheme.VisibleLayerIds.length = 0;
-                            _.forEach(wmstheme.VisibleLayers, function (visLayer) {
-                                wmstheme.VisibleLayerIds.push(visLayer.id);
-                            });
-                            if (wmstheme.VisibleLayerIds.length === 0) {
-                                wmstheme.VisibleLayerIds.push(-1); //als we niet doen dan zoekt hij op alle lagen!
+                            var returnjson = JXON.stringToJs(data).wms_capabilities;
+                            console.log(returnjson);
+                            wmstheme.Version = returnjson['version'];
+                            wmstheme.name = returnjson.service.title;
+                            wmstheme.Naam = returnjson.service.title;
+                            // wmstheme.Title = returnjson.service.title;
+                            wmstheme.enabled = true;
+                            wmstheme.Visible = true;
+                            wmstheme.Layers = [];
+                            wmstheme.AllLayers = [];
+                            wmstheme.Groups = []; // layergroups die nog eens layers zelf hebben
+                            wmstheme.CleanUrl = url;
+                            wmstheme.Added = false;
+                            wmstheme.status = ThemeStatus.NEW;
+                            wmstheme.Description = returnjson.service.abstract;
+                            wmstheme.Type = ThemeType.WMS;
+                            wmstheme.VisibleLayerIds = [];
+                            wmstheme.VisibleLayers = [];
+                            var createLayer = function createLayer(layer) {
+                                var tmplayer = {};
+                                tmplayer.visible = true;
+                                tmplayer.enabled = true;
+                                tmplayer.parent = null;
+                                tmplayer.displayed = true;
+                                tmplayer.theme = wmstheme;
+                                tmplayer.name = layer.name;
+                                tmplayer.title = layer.title;
+                                tmplayer.queryable = layer.queryable;
+                                tmplayer.type = LayerType.LAYER;
+                                tmplayer.id = layer.name; //names are the ids of the layer in wms
+                                wmstheme.Layers.push(tmplayer);
+                                wmstheme.AllLayers.push(tmplayer);
+                            };
+                            var layers = returnjson.capability.layer.layer;
+                            if (layers) {
+                                if (layers.length != undefined) {
+                                    // array, it has a length
+                                    layers.forEach(function (layer) {
+                                        createLayer(layer);
+                                    });
+                                } else {
+                                    createLayer(layers);
+                                }
+                            } else {
+                                createLayer(returnjson.capability.layer);
                             }
-                        };
-                        wmstheme.RecalculateVisibleLayerIds();
+
+                            wmstheme.UpdateMap = function () {
+                                wmstheme.RecalculateVisibleLayerIds();
+                                map.removeLayer(wmstheme.MapData);
+                                map.addLayer(wmstheme.MapData);
+                            };
+
+                            wmstheme.RecalculateVisibleLayerIds = function () {
+                                wmstheme.VisibleLayerIds.length = 0;
+                                _.forEach(wmstheme.VisibleLayers, function (visLayer) {
+                                    wmstheme.VisibleLayerIds.push(visLayer.id);
+                                });
+                                if (wmstheme.VisibleLayerIds.length === 0) {
+                                    wmstheme.VisibleLayerIds.push(-1); //als we niet doen dan zoekt hij op alle lagen!
+                                }
+                            };
+                            wmstheme.RecalculateVisibleLayerIds();
+                        }
                     }
 
                     return wmstheme;
@@ -1418,7 +1477,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
     var baseLayersService = function baseLayersService(map) {
         var _baseLayersService = {};
         _baseLayersService.kaart = L.esri.tiledMapLayer({
-            url: 'http://geodata.antwerpen.be/arcgissql/rest/services/P_Publiek/P_basemap/MapServer',
+            url: 'https://geodata.antwerpen.be/arcgissql/rest/services/P_Publiek/P_basemap/MapServer',
             // url: 'http://geodata.antwerpen.be/arcgissql/rest/services/P_Publiek/P_basemap_wgs84/MapServer',
             maxZoom: 19,
             minZoom: 0,
@@ -1426,7 +1485,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         });
 
         _baseLayersService.luchtfoto = L.esri.tiledMapLayer({
-            url: 'http://geodata.antwerpen.be/arcgissql/rest/services/P_Publiek/Luchtfoto_2015/MapServer',
+            url: 'https://geodata.antwerpen.be/arcgissql/rest/services/P_Publiek/Luchtfoto_2015/MapServer',
             maxZoom: 19,
             minZoom: 0,
             continuousWorld: true
@@ -1781,7 +1840,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         proj4.defs('EPSG:31370', '+proj=lcc +lat_1=51.16666723333334 +lat_2=49.83333389999999 +lat_0=90 +lon_0=4.367486666666666 +x_0=150000.013 +y_0=5400088.438' + ' +ellps=intl +towgs84=-99.1,53.3,-112.5,0.419,-0.83,1.885,-1.0 +units=m +no_defs');
         // proj4.defs('EPSG:31370', '+proj=lcc +lat_1=51.16666723333333 +lat_2=49.8333339 +lat_0=90 +lon_0=4.367486666666666 +x_0=150000.013 +y_0=5400088.438 +ellps=intl +towgs84=106.869,-52.2978,103.724,-0.33657,0.456955,-1.84218,1 +units=m +no_defs');
         _service.CreateProxyUrl = function (url) {
-            var proxyurl = "https://localhost/Digipolis.StadInKaart.Api/Proxy/go?url=" + encodeURIComponent(url);
+            var proxyurl = "https://stadinkaart-o.antwerpen.be/digipolis.stadinkaart.api/Proxy/go?url=" + encodeURIComponent(url);
             return proxyurl;
         };
         _service.UnwrapProxiedData = function (data) {
@@ -1789,6 +1848,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 data = $.parseJSON(data).listOfString;
             } else if ((typeof data === 'undefined' ? 'undefined' : _typeof(data)) == 'object' && data.listOfString) {
                 data = data.listOfString;
+            }
+            if (typeof data == 'string' && data.startsWith('{')) {
+                data = JSON.parse(data);
             }
             return data;
         };
@@ -2342,7 +2404,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     } catch (e) {
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'tink.modal']); //'leaflet-directive'
     }
-    var mapService = function mapService($rootScope, MapData, map, ThemeHelper, $q, GISService, ResultsData) {
+    var mapService = function mapService($rootScope, MapData, map, ThemeHelper, $q, GISService, ResultsData, HelperService) {
         var _mapService = {};
         _mapService.Identify = function (event, tolerance) {
             if (typeof tolerance === 'undefined') {
@@ -2372,10 +2434,12 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
                                     ResultsData.Loading++;
                                     theme.MapData.getFeatureInfo(event.latlng, lay.name).success(function (data, status, xhr) {
+                                        data = HelperService.UnwrapProxiedData(data);
                                         ResultsData.Loading--;
                                         console.log('minus');
-                                        var xmlstring = JXON.xmlToString(data);
-                                        var returnjson = JXON.stringToJs(xmlstring);
+                                        // data = data.replace('<?xml version="1.0" encoding="UTF-8"?>', '').trim();
+                                        // var xmlstring = JXON.xmlToString(data);
+                                        var returnjson = JXON.stringToJs(data);
                                         var processedjson = null;
                                         if (returnjson.featureinforesponse) {
                                             processedjson = returnjson.featureinforesponse.fields;
@@ -2545,7 +2609,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         };
         return _mapService;
     };
-    module.$inject = ['$rootScope', 'MapData', 'map', 'ThemeHelper', '$q', 'GISService', 'ResultsData'];
+    module.$inject = ['$rootScope', 'MapData', 'map', 'ThemeHelper', '$q', 'GISService', 'ResultsData', 'HelperService'];
     module.factory('MapService', mapService);
 })();
 ;'use strict';
@@ -2559,19 +2623,18 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     }
     var service = function service() {
         var themeHelper = {};
-        themeHelper.createThemeFromJson = function (rawdata, getData) {
+        themeHelper.createThemeFromJson = function (rawdata, themeData) {
             var thema = {};
             try {
                 var rawlayers = rawdata.layers;
-                var cleanUrl = getData.url.substring(0, getData.url.indexOf('?'));
                 thema.Naam = rawdata.documentInfo.Title;
                 thema.name = rawdata.documentInfo.Title;
                 thema.Description = rawdata.documentInfo.Subject;
                 thema.Layers = []; // de layers direct onder het theme zonder sublayers
                 thema.AllLayers = []; // alle Layers die hij heeft including subgrouplayers
                 thema.Groups = []; // layergroups die nog eens layers zelf hebben
-                thema.CleanUrl = cleanUrl;
-                thema.Url = getData.url;
+                thema.CleanUrl = themeData.cleanUrl;
+                thema.Url = themeData.url;
                 thema.VisibleLayers = [];
                 thema.VisibleLayerIds = [];
                 thema.Visible = true;
@@ -2640,7 +2703,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 };
                 thema.RecalculateVisibleLayerIds();
             } catch (ex) {
-                console.log('Error when creating theme from url: ' + getData.url + ' Exeption: ' + ex + ' Data: ');
+                console.log('Error when creating theme from url: ' + themeData.url + ' Exeption: ' + ex + ' Data: ');
                 console.log(rawdata);
             }
             return thema;
@@ -3235,10 +3298,11 @@ L.TileLayer.BetterWMS = L.TileLayer.WMS.extend({
 
     getFeatureInfo: function getFeatureInfo(latlng, layers) {
         // Make an AJAX request to the server and hope for the best
+        var HelperService = angular.element(document).injector().get('HelperService');
         var url = this.getFeatureInfoUrl(latlng, layers);
         // showResults = L.Util.bind(this.showGetFeatureInfo, this);
         var prom = $.ajax({
-            url: url,
+            url: HelperService.CreateProxyUrl(url),
             success: function success(data, status, xhr) {
                 // var err = typeof data === 'string' ? null : data;
                 // showResults(err, latlng, data);
@@ -3622,7 +3686,7 @@ L.drawLocal = {
     "<i ng-if=\"theme.Added == null\" class=\"fa fa-check-circle-o\"></i>\n" +
     "</div>\n" +
     "</div>\n" +
-    "<tink-pagination ng-hide=\"numberofrecordsmatched == 0\" tink-items-per-page-values=[5] tink-current-page=currentPage tink-change=pageChanged(page,perPage,next) tink-total-items=numberofrecordsmatched tink-items-per-page=recordsAPage></tink-pagination>\n" +
+    "<tink-pagination ng-hide=\"numberofrecordsmatched <= 5\" tink-items-per-page-values=[5] tink-current-page=currentPage tink-change=pageChanged(page,perPage,next) tink-total-items=numberofrecordsmatched tink-items-per-page=recordsAPage></tink-pagination>\n" +
     "</div>\n" +
     "<div class=col-md-8>\n" +
     "<div ng-if=searchIsUrl>\n" +
@@ -3698,7 +3762,7 @@ L.drawLocal = {
     "</div>\n" +
     "</div>\n" +
     "</div>\n" +
-    "<tink-pagination ng-hide=\"numberofrecordsmatched == 0\" tink-items-per-page-values=[5] tink-current-page=currentPage tink-change=pageChanged(page,perPage,next) tink-total-items=numberofrecordsmatched tink-items-per-page=recordsAPage></tink-pagination>\n" +
+    "<tink-pagination ng-hide=\"numberofrecordsmatched <= 5\" tink-items-per-page-values=[5] tink-current-page=currentPage tink-change=pageChanged(page,perPage,next) tink-total-items=numberofrecordsmatched tink-items-per-page=recordsAPage></tink-pagination>\n" +
     "</div>\n" +
     "<div class=col-md-8>\n" +
     "<div ng-if=\"copySelectedTheme !== null\">\n" +
