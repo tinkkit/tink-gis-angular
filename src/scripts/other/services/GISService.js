@@ -1,4 +1,3 @@
-//http://app10.p.gis.local/arcgissql/rest/services/COMLOC_CRAB_NAVTEQ/GeocodeServer/reverseGeocode
 //http://proj4js.org/
 'use strict';
 (function () {
@@ -10,10 +9,10 @@
             var loc = lambert72Cords.x + ',' + lambert72Cords.y;
             var urlloc = encodeURIComponent(loc);
             MapData.CleanWatIsHier();
-            var url = 'http://app10.p.gis.local/arcgissql/rest/services/COMLOC_CRAB_NAVTEQ/GeocodeServer/reverseGeocode?location=' + urlloc + '&distance=50&outSR=&f=json';
-            $http.get(HelperService.CreateProxyUrl(url)).
+            var url = 'https://app10.p.gis.local/arcgissql/rest/services/COMLOC_CRAB_NAVTEQ/GeocodeServer/reverseGeocode?location=' + urlloc + '&distance=50&outSR=&f=json';
+            $http.get(url).
                 success(function (data, status, headers, config) {
-                    data = HelperService.UnwrapProxiedData(data);
+                    // data = HelperService.UnwrapProxiedData(data);
                     if (!data.error) {
                         MapData.CreateWatIsHierMarker(data);
                         console.log(data);
@@ -55,16 +54,16 @@
                 });
             return prom.promise;
         };
-        var baseurl = 'http://app10.p.gis.local/arcgissql/rest/';
+        var baseurl = 'https://app10.p.gis.local/arcgissql/rest/';
         _service.GetThemeData = function (mapserver) {
             var prom = $q.defer();
-            if (!mapserver.contains(baseurl)) {
+            if (!mapserver.contains('://app10.p.gis.local/arcgissql/rest/')) {
                 mapserver = baseurl + mapserver;
             }
             var url = mapserver + '?f=pjson';
-            $http.get(HelperService.CreateProxyUrl(url))
+            $http.get(url)
                 .success(function (data, status, headers, config) {
-                    data = HelperService.UnwrapProxiedData(data);
+                    // data = HelperService.UnwrapProxiedData(data);
                     prom.resolve(data);
                 }).error(function (data, status, headers, config) {
                     prom.reject(null);
@@ -76,9 +75,9 @@
             var prom = $q.defer();
             
             var url = cleanurl + '/layers?f=pjson';
-            $http.get(HelperService.CreateProxyUrl(url))
+            $http.get(url)
                 .success(function (data, status, headers, config) {
-                    data = HelperService.UnwrapProxiedData(data);
+                    // data = HelperService.UnwrapProxiedData(data);
                     prom.resolve(data);
                 }).error(function (data, status, headers, config) {
                     prom.reject(null);
@@ -90,9 +89,9 @@
             var prom = $q.defer();
             
             var url = cleanurl + '/legend?f=pjson';
-            $http.get(HelperService.CreateProxyUrl(url))
+            $http.get(url)
                 .success(function (data, status, headers, config) {
-                    data = HelperService.UnwrapProxiedData(data);
+                    // data = HelperService.UnwrapProxiedData(data);
                     prom.resolve(data);
                 }).error(function (data, status, headers, config) {
                     prom.reject(null);

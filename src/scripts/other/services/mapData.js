@@ -9,12 +9,6 @@
         _data.VisibleFeatures = [];
         _data.Loading = 0;
         _data.IsDrawing = false;
-        _data.ThemeUrls = ['http://app11.p.gis.local/arcgissql/rest/services/P_Stad/Afval/MapServer/',
-            'http://app11.p.gis.local/arcgissql/rest/services/P_Stad/Cultuur/MapServer/',
-            'http://app11.p.gis.local/arcgissql/rest/services/P_Stad/Jeugd/MapServer/',
-            'http://app11.p.gis.local/arcgissql/rest/services/P_Stad/Onderwijs/MapServer/',
-            'http://app11.p.gis.local/arcgissql/rest/services/P_Stad/stad/MapServer/'
-        ];
         _data.Themes = [];
         _data.defaultlayer = { id: '', name: 'Alle Layers' };
         _data.SelectedLayer = _data.defaultlayer;
