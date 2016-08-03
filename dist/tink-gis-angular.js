@@ -3307,7 +3307,7 @@ L.TileLayer.BetterWMS = L.TileLayer.WMS.extend({
 
     getFeatureInfo: function getFeatureInfo(latlng, layers) {
         // Make an AJAX request to the server and hope for the best
-        var HelperService = angular.element(document).injector().get('HelperService');
+        var HelperService = angular.element(document.body).injector().get('HelperService');
         var url = this.getFeatureInfoUrl(latlng, layers);
         // showResults = L.Util.bind(this.showGetFeatureInfo, this);
         var prom = $.ajax({
