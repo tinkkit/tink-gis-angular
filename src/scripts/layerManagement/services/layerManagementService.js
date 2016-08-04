@@ -18,7 +18,7 @@
                 if (AlreadyAddedTheme == null) { // if we didn t get an alreadyadderdtheme we get the data
                     var prom = GISService.GetThemeData(url + '?f=pjson');
                     prom.then(function (data) {
-                        var convertedTheme = ThemeHelper.createThemeFromJson(data, getdata);
+                        var convertedTheme = ThemeHelper.createThemeFromJson(data, theme);
                         _service.AvailableThemes.push(convertedTheme);
                         convertedTheme.status = ThemeStatus.NEW;
                     });

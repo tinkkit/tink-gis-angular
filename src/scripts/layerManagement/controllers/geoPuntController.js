@@ -18,12 +18,8 @@
             $scope.availableThemes = [];
             var init = function () {
                 // $scope.searchTerm = 'Laden...';
-                // var qwhenready = LayerManagementService.ProcessUrls(urls);
-                // qwhenready.then(function(allelagen) {
-                // $scope.searchTerm = 'http://mesonet.agron.iastate.edu/cgi-bin/wms/nexrad/n0r.cgi';
                 $scope.searchTerm = '';
                 $scope.searchIsUrl = false;
-                // });
             } ();
 
             $scope.searchChanged = function () {

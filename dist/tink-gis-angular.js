@@ -153,12 +153,8 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         $scope.availableThemes = [];
         var init = function () {
             // $scope.searchTerm = 'Laden...';
-            // var qwhenready = LayerManagementService.ProcessUrls(urls);
-            // qwhenready.then(function(allelagen) {
-            // $scope.searchTerm = 'http://mesonet.agron.iastate.edu/cgi-bin/wms/nexrad/n0r.cgi';
             $scope.searchTerm = '';
             $scope.searchIsUrl = false;
-            // });
         }();
 
         $scope.searchChanged = function () {
@@ -689,7 +685,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                     // if we didn t get an alreadyadderdtheme we get the data
                     var prom = GISService.GetThemeData(url + '?f=pjson');
                     prom.then(function (data) {
-                        var convertedTheme = ThemeHelper.createThemeFromJson(data, getdata);
+                        var convertedTheme = ThemeHelper.createThemeFromJson(data, theme);
                         _service.AvailableThemes.push(convertedTheme);
                         convertedTheme.status = ThemeStatus.NEW;
                     });
@@ -1171,6 +1167,9 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         var baseurl = 'https://app10.p.gis.local/arcgissql/rest/';
         _service.GetThemeData = function (mapserver) {
             var prom = $q.defer();
+            if (mapserver.contains('http://app10')) {
+                console.log('APP10SERVER USED WITHOUT HTTPS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
+            }
             if (!mapserver.contains('://app10.p.gis.local/arcgissql/rest/')) {
                 mapserver = baseurl + mapserver;
             }
@@ -1750,8 +1749,8 @@ var esri2geo = {};
                 if (theme.type == ThemeType.ESRI) {
                     var prom = GISService.GetThemeData(theme.cleanUrl);
                     promises.push(prom);
-                    prom.success(function (data, statuscode, functie, getdata) {
-                        themesArray.push(ThemeHelper.createThemeFromJson(data, getdata));
+                    prom.then(function (data) {
+                        themesArray.push(ThemeHelper.createThemeFromJson(data, theme));
                     });
                 } else {
                     // wms

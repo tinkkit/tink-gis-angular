@@ -47,8 +47,8 @@
                 if (theme.type == ThemeType.ESRI) {
                     let prom = GISService.GetThemeData(theme.cleanUrl);
                     promises.push(prom);
-                    prom.success(function (data, statuscode, functie, getdata) {
-                        themesArray.push(ThemeHelper.createThemeFromJson(data, getdata));
+                    prom.then(function (data) {
+                        themesArray.push(ThemeHelper.createThemeFromJson(data, theme));
                     });
                 } else {
                     // wms
