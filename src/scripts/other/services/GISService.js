@@ -9,7 +9,7 @@
             var loc = lambert72Cords.x + ',' + lambert72Cords.y;
             var urlloc = encodeURIComponent(loc);
             MapData.CleanWatIsHier();
-            var url = 'https://app10.p.gis.local/arcgissql/rest/services/COMLOC_CRAB_NAVTEQ/GeocodeServer/reverseGeocode?location=' + urlloc + '&distance=50&outSR=&f=json';
+            var url = Gis.BaseUrl + 'arcgissql/rest/services/COMLOC_CRAB_NAVTEQ/GeocodeServer/reverseGeocode?location=' + urlloc + '&distance=50&outSR=&f=json';
             $http.get(url).
                 success(function (data, status, headers, config) {
                     // data = HelperService.UnwrapProxiedData(data);
@@ -54,13 +54,13 @@
                 });
             return prom.promise;
         };
-        var baseurl = 'https://app10.p.gis.local/arcgissql/rest/';
+        var baseurl = Gis.BaseUrl + 'arcgissql/rest/';
         _service.GetThemeData = function (mapserver) {
             var prom = $q.defer();
             if (mapserver.contains('http://app10')) {
                 console.log('APP10SERVER USED WITHOUT HTTPS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
             }
-            if (!mapserver.contains('://app10.p.gis.local/arcgissql/rest/')) {
+            if (!mapserver.contains('://app11.a.gis.local/arcgissql/rest/')) {
                 mapserver = baseurl + mapserver;
             }
             var url = mapserver + '?f=pjson';

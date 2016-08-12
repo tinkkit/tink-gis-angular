@@ -100,6 +100,9 @@ var ActiveInteractieButton = {
     METEN: 'meten',
     WATISHIER: 'watishier'
 };
+var Gis = {
+    BaseUrl: 'https://geoint.antwerpen.be/'
+};
 var DrawingOption = {
     NIETS: '',
     AFSTAND: 'afstand',
@@ -381,7 +384,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                                     layers: [],
                                     layersCount: 0,
                                     name: themeName,
-                                    cleanUrl: 'https://app10.p.gis.local/arcgissql/rest/services/P_Stad/' + themeName + '/MapServer',
+                                    cleanUrl: Gis.BaseUrl + '/arcgissql/rest/services/P_Stad/' + themeName + '/MapServer',
                                     url: 'services/P_Stad/' + themeName + '/MapServer'
                                 };
                                 themes.push(theme);
@@ -417,7 +420,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                                     layers: [],
                                     layersCount: itemMetData.doclist.numFound,
                                     name: themeName,
-                                    cleanUrl: 'https://app10.p.gis.local/arcgissql/rest/services/P_Stad/' + themeName + '/MapServer',
+                                    cleanUrl: Gis.BaseUrl + '/arcgissql/rest/services/P_Stad/' + themeName + '/MapServer',
                                     url: 'services/P_Stad/' + themeName + '/MapServer'
                                 };
                                 themes.push(theme);
@@ -1125,7 +1128,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             var loc = lambert72Cords.x + ',' + lambert72Cords.y;
             var urlloc = encodeURIComponent(loc);
             MapData.CleanWatIsHier();
-            var url = 'https://app10.p.gis.local/arcgissql/rest/services/COMLOC_CRAB_NAVTEQ/GeocodeServer/reverseGeocode?location=' + urlloc + '&distance=50&outSR=&f=json';
+            var url = Gis.BaseUrl + 'arcgissql/rest/services/COMLOC_CRAB_NAVTEQ/GeocodeServer/reverseGeocode?location=' + urlloc + '&distance=50&outSR=&f=json';
             $http.get(url).success(function (data, status, headers, config) {
                 // data = HelperService.UnwrapProxiedData(data);
                 if (!data.error) {
@@ -1164,13 +1167,13 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             });
             return prom.promise;
         };
-        var baseurl = 'https://app10.p.gis.local/arcgissql/rest/';
+        var baseurl = Gis.BaseUrl + 'arcgissql/rest/';
         _service.GetThemeData = function (mapserver) {
             var prom = $q.defer();
             if (mapserver.contains('http://app10')) {
                 console.log('APP10SERVER USED WITHOUT HTTPS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
             }
-            if (!mapserver.contains('://app10.p.gis.local/arcgissql/rest/')) {
+            if (!mapserver.contains('://app11.a.gis.local/arcgissql/rest/')) {
                 mapserver = baseurl + mapserver;
             }
             var url = mapserver + '?f=pjson';
@@ -1229,7 +1232,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             geo.geometries = geo.geometry;
             delete geo.geometry;
             var sergeo = serialize(geo);
-            var url = 'https://app10.p.gis.local/arcgissql/rest/services/Utilities/Geometry/GeometryServer/buffer';
+            var url = Gis.BaseUrl + 'arcgissql/rest/services/Utilities/Geometry/GeometryServer/buffer';
             var body = 'inSR=4326&outSR=4326&bufferSR=31370&distances=' + distance * 100 + '&unit=109006&unionResults=true&geodesic=false&geometries=%7B' + sergeo + '%7D&f=json';
             var prom = $http({
                 method: 'POST',

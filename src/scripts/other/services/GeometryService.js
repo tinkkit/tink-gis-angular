@@ -12,7 +12,7 @@
             geo.geometries = geo.geometry;
             delete geo.geometry;
             var sergeo = serialize(geo);
-            var url = 'https://app10.p.gis.local/arcgissql/rest/services/Utilities/Geometry/GeometryServer/buffer';
+            var url = Gis.BaseUrl + 'arcgissql/rest/services/Utilities/Geometry/GeometryServer/buffer';
             var body = 'inSR=4326&outSR=4326&bufferSR=31370&distances=' + distance * 100 + '&unit=109006&unionResults=true&geodesic=false&geometries=%7B' + sergeo + '%7D&f=json';
             var prom = $http({
                 method: 'POST',

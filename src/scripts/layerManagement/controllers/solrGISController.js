@@ -51,7 +51,7 @@
                                         layers: [],
                                         layersCount: 0,
                                         name: themeName,
-                                        cleanUrl: 'https://app10.p.gis.local/arcgissql/rest/services/P_Stad/' + themeName + '/MapServer',
+                                        cleanUrl: Gis.BaseUrl + '/arcgissql/rest/services/P_Stad/' + themeName + '/MapServer',
                                         url: 'services/P_Stad/' + themeName + '/MapServer'
                                     }
                                     themes.push(theme);
@@ -83,7 +83,7 @@
                                         layers: [],
                                         layersCount: itemMetData.doclist.numFound,
                                         name: themeName,
-                                        cleanUrl: 'https://app10.p.gis.local/arcgissql/rest/services/P_Stad/' + themeName + '/MapServer',
+                                        cleanUrl: Gis.BaseUrl + '/arcgissql/rest/services/P_Stad/' + themeName + '/MapServer',
                                         url: 'services/P_Stad/' + themeName + '/MapServer'
                                     }
                                     themes.push(theme);

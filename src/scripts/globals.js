@@ -15,6 +15,9 @@ var ActiveInteractieButton = {
     METEN: 'meten',
     WATISHIER: 'watishier'
 };
+var Gis = {
+    BaseUrl: 'https://geoint.antwerpen.be/'
+}
 const DrawingOption = {
     NIETS: '',
     AFSTAND: 'afstand',
