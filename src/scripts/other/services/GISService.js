@@ -54,16 +54,17 @@
                 });
             return prom.promise;
         };
-        var baseurl = Gis.BaseUrl + 'arcgissql/rest/';
+        var completeUrl = function (url) {
+            var baseurl = Gis.BaseUrl + 'arcgissql/rest/';
+            if (!url.contains('arcgissql/rest/')) {
+                url = baseurl + url;
+            }
+            return url
+        }
         _service.GetThemeData = function (mapserver) {
             var prom = $q.defer();
-            if (mapserver.contains('http://app10')) {
-                console.log('APP10SERVER USED WITHOUT HTTPS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
-            }
-            if (!mapserver.contains('://app11.a.gis.local/arcgissql/rest/')) {
-                mapserver = baseurl + mapserver;
-            }
-            var url = mapserver + '?f=pjson';
+
+            var url = completeUrl(mapserver) + '?f=pjson';
             $http.get(url)
                 .success(function (data, status, headers, config) {
                     // data = HelperService.UnwrapProxiedData(data);
@@ -77,7 +78,7 @@
         _service.GetThemeLayerData = function (cleanurl) {
             var prom = $q.defer();
 
-            var url = cleanurl + '/layers?f=pjson';
+            var url = completeUrl(cleanurl) + '/layers?f=pjson';
             $http.get(url)
                 .success(function (data, status, headers, config) {
                     // data = HelperService.UnwrapProxiedData(data);
@@ -91,7 +92,7 @@
         _service.GetLegendData = function (cleanurl) {
             var prom = $q.defer();
 
-            var url = cleanurl + '/legend?f=pjson';
+            var url = completeUrl(cleanurl) + '/legend?f=pjson';
             $http.get(url)
                 .success(function (data, status, headers, config) {
                     // data = HelperService.UnwrapProxiedData(data);

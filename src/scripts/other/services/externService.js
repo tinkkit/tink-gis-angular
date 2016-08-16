@@ -13,7 +13,7 @@
             var arr = MapData.Themes.map(theme => {
                 let returnitem = {};
                 returnitem.Naam = theme.Naam;
-                returnitem.CleanUrl = theme.CleanUrl;
+                returnitem.CleanUrl = theme.Url;
                 returnitem.Type = theme.Type;
                 returnitem.Visible = theme.Visible;
                 returnitem.Layers = theme.AllLayers.filter(x => { return x.enabled == true; }).map(layer => {
@@ -45,6 +45,7 @@
 
             project.themes.forEach(theme => {
                 if (theme.type == ThemeType.ESRI) {
+                    theme.cleanUrl = Gis.BaseUrl + 'arcgissql/rest/' + theme.cleanUrl;
                     let prom = GISService.GetThemeData(theme.cleanUrl);
                     promises.push(prom);
                     prom.then(function (data) {

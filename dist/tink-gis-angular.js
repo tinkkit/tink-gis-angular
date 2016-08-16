@@ -1167,16 +1167,17 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             });
             return prom.promise;
         };
-        var baseurl = Gis.BaseUrl + 'arcgissql/rest/';
+        var completeUrl = function completeUrl(url) {
+            var baseurl = Gis.BaseUrl + 'arcgissql/rest/';
+            if (!url.contains('arcgissql/rest/')) {
+                url = baseurl + url;
+            }
+            return url;
+        };
         _service.GetThemeData = function (mapserver) {
             var prom = $q.defer();
-            if (mapserver.contains('http://app10')) {
-                console.log('APP10SERVER USED WITHOUT HTTPS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
-            }
-            if (!mapserver.contains('://app11.a.gis.local/arcgissql/rest/')) {
-                mapserver = baseurl + mapserver;
-            }
-            var url = mapserver + '?f=pjson';
+
+            var url = completeUrl(mapserver) + '?f=pjson';
             $http.get(url).success(function (data, status, headers, config) {
                 // data = HelperService.UnwrapProxiedData(data);
                 prom.resolve(data);
@@ -1189,7 +1190,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         _service.GetThemeLayerData = function (cleanurl) {
             var prom = $q.defer();
 
-            var url = cleanurl + '/layers?f=pjson';
+            var url = completeUrl(cleanurl) + '/layers?f=pjson';
             $http.get(url).success(function (data, status, headers, config) {
                 // data = HelperService.UnwrapProxiedData(data);
                 prom.resolve(data);
@@ -1202,7 +1203,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         _service.GetLegendData = function (cleanurl) {
             var prom = $q.defer();
 
-            var url = cleanurl + '/legend?f=pjson';
+            var url = completeUrl(cleanurl) + '/legend?f=pjson';
             $http.get(url).success(function (data, status, headers, config) {
                 // data = HelperService.UnwrapProxiedData(data);
                 prom.resolve(data);
@@ -1716,7 +1717,7 @@ var esri2geo = {};
             var arr = MapData.Themes.map(function (theme) {
                 var returnitem = {};
                 returnitem.Naam = theme.Naam;
-                returnitem.CleanUrl = theme.CleanUrl;
+                returnitem.CleanUrl = theme.Url;
                 returnitem.Type = theme.Type;
                 returnitem.Visible = theme.Visible;
                 returnitem.Layers = theme.AllLayers.filter(function (x) {
@@ -1750,6 +1751,7 @@ var esri2geo = {};
 
             project.themes.forEach(function (theme) {
                 if (theme.type == ThemeType.ESRI) {
+                    theme.cleanUrl = Gis.BaseUrl + 'arcgissql/rest/' + theme.cleanUrl;
                     var prom = GISService.GetThemeData(theme.cleanUrl);
                     promises.push(prom);
                     prom.then(function (data) {
