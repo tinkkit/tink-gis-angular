@@ -13,7 +13,12 @@
             var arr = MapData.Themes.map(theme => {
                 let returnitem = {};
                 returnitem.Naam = theme.Naam;
-                returnitem.CleanUrl = theme.Url;
+                if (theme.Type == ThemeType.ESRI) {
+                    returnitem.CleanUrl = theme.Url;
+                }
+                else {
+                    returnitem.CleanUrl = theme.CleanUrl;
+                }
                 returnitem.Type = theme.Type;
                 returnitem.Visible = theme.Visible;
                 returnitem.Layers = theme.AllLayers.filter(x => { return x.enabled == true; }).map(layer => {
