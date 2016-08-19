@@ -35,18 +35,24 @@
             MapData.CleanMap();
             MapService.Find(search);
         };
+        var setViewAndPutDot = function (loc) {
+            map.setView(L.latLng(loc.x, loc.y), 12);
+            MapData.CreateDot(loc);
+
+        };
         vm.zoekLocatie = function (search) {
             search = search.trim();
             var WGS84Check = HelperService.getWGS84CordsFromString(search);
             if (WGS84Check.hasCordinates) {
-                map.setView(L.latLng(WGS84Check.X, WGS84Check.Y), 12);
+                setViewAndPutDot(WGS84Check);
+                // map.setView(L.latLng(WGS84Check.X, WGS84Check.Y), 12);
+
             } else {
                 var lambertCheck = HelperService.getLambartCordsFromString(search);
                 if (lambertCheck.hasCordinates) {
-                    var xyWGS84 = HelperService.ConvertLambert72ToWSG84({ x: lambertCheck.X, y: lambertCheck.Y });
-                    map.setView(L.latLng(xyWGS84.x, xyWGS84.y), 12);
-                }
-                else {
+                    var xyWGS84 = HelperService.ConvertLambert72ToWSG84({ x: lambertCheck.x, y: lambertCheck.y });
+                    setViewAndPutDot(xyWGS84);
+                } else {
                     console.log('NIET GEVONDEN');
                 }
             }

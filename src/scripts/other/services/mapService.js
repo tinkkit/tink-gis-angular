@@ -116,9 +116,11 @@
         _mapService.WatIsHier = function (event) {
             var prom = GISService.ReverseGeocode(event);
             prom.success(function (data, status, headers, config) {
+                MapData.CleanWatIsHier();
                 if (!data.error) {
-                    MapData.CreateWatIsHierMarker(data);
-                    MapData.CreateOrigineleMarker(event.latlng, true);
+                    var converted = HelperService.ConvertLambert72ToWSG84(data.location);
+                    MapData.CreateDot(converted);
+                    MapData.CreateOrigineleMarker(event.latlng, true, data.address.Street + ' (' + data.address.Postal + ')');
                 } else {
                     MapData.CreateOrigineleMarker(event.latlng, false);
                 }

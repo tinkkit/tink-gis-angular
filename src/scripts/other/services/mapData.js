@@ -66,7 +66,6 @@
                 map.removeLayer(WatIsHierMarker);
                 WatIsHierMarker = null;
             }
-            straatNaam = null;
         };
         _data.UpdateDisplayed = function (Themes) {
             var currentScale = _data.GetScale();
@@ -86,7 +85,7 @@
                 console.log('apply NOT needed');
             }
         };
-        _data.CreateOrigineleMarker = function (latlng, addressFound) {
+        _data.CreateOrigineleMarker = function (latlng, addressFound, straatNaam) {
             if (addressFound) {
                 var foundMarker = L.AwesomeMarkers.icon({
                     icon: 'fa-map-marker',
@@ -107,7 +106,7 @@
             var convertedxy = HelperService.ConvertWSG84ToLambert72(latlng);
             if (straatNaam) {
                 var html =
-                    '<div class="container container-low-padding">' +
+                    '<div class="container container-low-padding" ng-controller="tooltipcontroller">' +
                     '<div class="row row-no-padding">' +
                     '<div class="col-sm-4">' +
                     '<a href="templates/external/streetView.html?lat=' + latlng.lat + '&lng=' + latlng.lng + '" + target="_blank" >' +
@@ -115,8 +114,8 @@
                     '</a>' +
                     '</div>' +
                     '<div class="col-sm-8">' +
-                    '<div class="col-sm-12"><b>' + straatNaam + '</b></div>' +
-                    '<div class="col-sm-3">WGS84:</div><div class="col-sm-8" style="text-align: left;">' + latlng.lat.toFixed(6) + ', ' + latlng.lng.toFixed(6) + '</div><div class="col-sm-1"><i class="fa fa-files-o"></i></div>' +
+                    '<div class="col-sm-12"><b ng-if="1 == 0">' + straatNaam + '</b></div>' +
+                    '<div class="col-sm-3" >WGS84:</div><div class="col-sm-8" style="text-align: left;">' + latlng.lat.toFixed(6) + ', ' + latlng.lng.toFixed(6) + '</div><div class="col-sm-1"><i class="fa fa-files-o"></i></div>' +
                     '<div class="col-sm-3">Lambert:</div><div class="col-sm-8" style="text-align: left;">' + convertedxy.x.toFixed(1) + ', ' + convertedxy.y.toFixed(1) + '</div><div class="col-sm-1"><i class="fa fa-files-o"></i></div>' +
                     '</div>' +
                     '</div>' +
@@ -137,19 +136,19 @@
 
 
         };
-        var straatNaam = null;
-        _data.CreateWatIsHierMarker = function (data) {
-            var convertedBackToWSG84 = HelperService.ConvertLambert72ToWSG84(data.location)
-            straatNaam = data.address.Street + ' (' + data.address.Postal + ')';
-            var greenIcon = L.icon({
+        // _data.CreateWatIsHierMarker = function (data) {
+        //     var convertedBackToWSG84 = HelperService.ConvertLambert72ToWSG84(data.location)
+        //     _data.CreateDot(convertedBackToWSG84);
+        // };
+
+        _data.CreateDot = function (loc) {
+            _data.CleanWatIsHier();
+            var dotIcon = L.icon({
                 iconUrl: 'styles/fa-dot-circle-o_24_0_000000_none.png',
                 iconSize: [24, 24]
             });
-
-
-            WatIsHierMarker = L.marker([convertedBackToWSG84.x, convertedBackToWSG84.y], { icon: greenIcon }).addTo(map);
-
-        };
+            WatIsHierMarker = L.marker([loc.x, loc.y], { icon: dotIcon }).addTo(map);
+        }
         _data.CleanSearch = function () {
             ResultsData.CleanSearch();
             for (var x = 0; x < _data.VisibleFeatures.length; x++) {

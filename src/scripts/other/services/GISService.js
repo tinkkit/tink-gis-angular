@@ -8,23 +8,14 @@
             var lambert72Cords = HelperService.ConvertWSG84ToLambert72(event.latlng);
             var loc = lambert72Cords.x + ',' + lambert72Cords.y;
             var urlloc = encodeURIComponent(loc);
-            MapData.CleanWatIsHier();
             var url = Gis.BaseUrl + 'arcgissql/rest/services/COMLOC_CRAB_NAVTEQ/GeocodeServer/reverseGeocode?location=' + urlloc + '&distance=50&outSR=&f=json';
-            $http.get(url).
-                success(function (data, status, headers, config) {
-                    // data = HelperService.UnwrapProxiedData(data);
-                    if (!data.error) {
-                        MapData.CreateWatIsHierMarker(data);
-                        console.log(data);
-                        MapData.CreateOrigineleMarker(event.latlng, true);
-                    }
-                    else {
-                        MapData.CreateOrigineleMarker(event.latlng, false);
-                    }
-                }).
-                error(function (data, status, headers, config) {
-                    console.log('ERROR!', status, headers, data);
-                });
+            var prom = $http.get(url);
+            prom.success(function (data, status, headers, config) {
+                // nothing we just give back the prom do the stuff not here!
+            }).error(function (data, status, headers, config) {
+                console.log('ERROR!', status, headers, data);
+            });
+            return prom;
 
         };
         _service.QuerySOLRGIS = function (search) {
