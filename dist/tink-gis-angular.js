@@ -856,16 +856,21 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             MapData.CleanMap();
             MapService.Find(search);
         };
+        var setViewAndPutDot = function setViewAndPutDot(loc) {
+            map.setView(L.latLng(loc.x, loc.y), 12);
+            MapData.CreateDot(loc);
+        };
         vm.zoekLocatie = function (search) {
             search = search.trim();
             var WGS84Check = HelperService.getWGS84CordsFromString(search);
             if (WGS84Check.hasCordinates) {
-                map.setView(L.latLng(WGS84Check.X, WGS84Check.Y), 12);
+                setViewAndPutDot(WGS84Check);
+                // map.setView(L.latLng(WGS84Check.X, WGS84Check.Y), 12);
             } else {
                 var lambertCheck = HelperService.getLambartCordsFromString(search);
                 if (lambertCheck.hasCordinates) {
-                    var xyWGS84 = HelperService.ConvertLambert72ToWSG84({ x: lambertCheck.X, y: lambertCheck.Y });
-                    map.setView(L.latLng(xyWGS84.x, xyWGS84.y), 12);
+                    var xyWGS84 = HelperService.ConvertLambert72ToWSG84({ x: lambertCheck.x, y: lambertCheck.y });
+                    setViewAndPutDot(xyWGS84);
                 } else {
                     console.log('NIET GEVONDEN');
                 }
@@ -1127,20 +1132,14 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             var lambert72Cords = HelperService.ConvertWSG84ToLambert72(event.latlng);
             var loc = lambert72Cords.x + ',' + lambert72Cords.y;
             var urlloc = encodeURIComponent(loc);
-            MapData.CleanWatIsHier();
             var url = Gis.BaseUrl + 'arcgissql/rest/services/COMLOC_CRAB_NAVTEQ/GeocodeServer/reverseGeocode?location=' + urlloc + '&distance=50&outSR=&f=json';
-            $http.get(url).success(function (data, status, headers, config) {
-                // data = HelperService.UnwrapProxiedData(data);
-                if (!data.error) {
-                    MapData.CreateWatIsHierMarker(data);
-                    console.log(data);
-                    MapData.CreateOrigineleMarker(event.latlng, true);
-                } else {
-                    MapData.CreateOrigineleMarker(event.latlng, false);
-                }
+            var prom = $http.get(url);
+            prom.success(function (data, status, headers, config) {
+                // nothing we just give back the prom do the stuff not here!
             }).error(function (data, status, headers, config) {
                 console.log('ERROR!', status, headers, data);
             });
+            return prom;
         };
         _service.QuerySOLRGIS = function (search) {
             var prom = $q.defer();
@@ -1953,8 +1952,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 }
             }
             if (aantalmetcorrectesize == 2 && getals.length == 2) {
-                returnobject.X = getals[0].replace(',', '.');
-                returnobject.Y = getals[1].replace(',', '.');
+                returnobject.x = getals[0].replace(',', '.');
+                returnobject.y = getals[1].replace(',', '.');
                 returnobject.hasCordinates = true;
                 return returnobject;
             } else {
@@ -1966,8 +1965,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             var returnobject = {};
             returnobject.hasCordinates = false;
             returnobject.error = null;
-            returnobject.X = null;
-            returnobject.Y = null;
+            returnobject.x = null;
+            returnobject.y = null;
             var getals = [];
             var currgetal = '';
             var samegetal = false;
@@ -2133,7 +2132,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 map.removeLayer(WatIsHierMarker);
                 WatIsHierMarker = null;
             }
-            straatNaam = null;
         };
         _data.UpdateDisplayed = function (Themes) {
             var currentScale = _data.GetScale();
@@ -2152,7 +2150,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 console.log('apply NOT needed');
             }
         };
-        _data.CreateOrigineleMarker = function (latlng, addressFound) {
+        _data.CreateOrigineleMarker = function (latlng, addressFound, straatNaam) {
             if (addressFound) {
                 var foundMarker = L.AwesomeMarkers.icon({
                     icon: 'fa-map-marker',
@@ -2171,23 +2169,25 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             }
             var convertedxy = HelperService.ConvertWSG84ToLambert72(latlng);
             if (straatNaam) {
-                var html = '<div class="container container-low-padding">' + '<div class="row row-no-padding">' + '<div class="col-sm-4">' + '<a href="templates/external/streetView.html?lat=' + latlng.lat + '&lng=' + latlng.lng + '" + target="_blank" >' + '<img src="https://maps.googleapis.com/maps/api/streetview?size=100x50&location=' + latlng.lat + ',' + latlng.lng + '&pitch=-0.76" />' + '</a>' + '</div>' + '<div class="col-sm-8">' + '<div class="col-sm-12"><b>' + straatNaam + '</b></div>' + '<div class="col-sm-3">WGS84:</div><div class="col-sm-8" style="text-align: left;">' + latlng.lat.toFixed(6) + ', ' + latlng.lng.toFixed(6) + '</div><div class="col-sm-1"><i class="fa fa-files-o"></i></div>' + '<div class="col-sm-3">Lambert:</div><div class="col-sm-8" style="text-align: left;">' + convertedxy.x.toFixed(1) + ', ' + convertedxy.y.toFixed(1) + '</div><div class="col-sm-1"><i class="fa fa-files-o"></i></div>' + '</div>' + '</div>' + '</div>';
+                var html = '<div class="container container-low-padding" ng-controller="tooltipcontroller">' + '<div class="row row-no-padding">' + '<div class="col-sm-4">' + '<a href="templates/external/streetView.html?lat=' + latlng.lat + '&lng=' + latlng.lng + '" + target="_blank" >' + '<img src="https://maps.googleapis.com/maps/api/streetview?size=100x50&location=' + latlng.lat + ',' + latlng.lng + '&pitch=-0.76" />' + '</a>' + '</div>' + '<div class="col-sm-8">' + '<div class="col-sm-12"><b ng-if="1 == 0">' + straatNaam + '</b></div>' + '<div class="col-sm-3" >WGS84:</div><div class="col-sm-8" style="text-align: left;">' + latlng.lat.toFixed(6) + ', ' + latlng.lng.toFixed(6) + '</div><div class="col-sm-1"><i class="fa fa-files-o"></i></div>' + '<div class="col-sm-3">Lambert:</div><div class="col-sm-8" style="text-align: left;">' + convertedxy.x.toFixed(1) + ', ' + convertedxy.y.toFixed(1) + '</div><div class="col-sm-1"><i class="fa fa-files-o"></i></div>' + '</div>' + '</div>' + '</div>';
                 WatIsHierOriginalMarker.bindPopup(html, { minWidth: 300 }).openPopup();
             } else {
                 var html = '<div class="container container-low-padding">' + '<div class="row row-no-padding">' + '<div class="col-sm-3">WGS84:</div><div class="col-sm-8" style="text-align: left;">' + latlng.lat.toFixed(6) + ', ' + latlng.lng.toFixed(6) + '</div><div class="col-sm-1"><i class="fa fa-files-o"></i></div>' + '<div class="col-sm-3">Lambert:</div><div class="col-sm-8" style="text-align: left;">' + convertedxy.x.toFixed(1) + ', ' + convertedxy.y.toFixed(1) + '</div><div class="col-sm-1"><i class="fa fa-files-o"></i></div>' + '</div>' + '</div>';
                 WatIsHierOriginalMarker.bindPopup(html, { minWidth: 200 }).openPopup();
             }
         };
-        var straatNaam = null;
-        _data.CreateWatIsHierMarker = function (data) {
-            var convertedBackToWSG84 = HelperService.ConvertLambert72ToWSG84(data.location);
-            straatNaam = data.address.Street + ' (' + data.address.Postal + ')';
-            var greenIcon = L.icon({
+        // _data.CreateWatIsHierMarker = function (data) {
+        //     var convertedBackToWSG84 = HelperService.ConvertLambert72ToWSG84(data.location)
+        //     _data.CreateDot(convertedBackToWSG84);
+        // };
+
+        _data.CreateDot = function (loc) {
+            _data.CleanWatIsHier();
+            var dotIcon = L.icon({
                 iconUrl: 'styles/fa-dot-circle-o_24_0_000000_none.png',
                 iconSize: [24, 24]
             });
-
-            WatIsHierMarker = L.marker([convertedBackToWSG84.x, convertedBackToWSG84.y], { icon: greenIcon }).addTo(map);
+            WatIsHierMarker = L.marker([loc.x, loc.y], { icon: dotIcon }).addTo(map);
         };
         _data.CleanSearch = function () {
             ResultsData.CleanSearch();
@@ -2528,9 +2528,11 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         _mapService.WatIsHier = function (event) {
             var prom = GISService.ReverseGeocode(event);
             prom.success(function (data, status, headers, config) {
+                MapData.CleanWatIsHier();
                 if (!data.error) {
-                    MapData.CreateWatIsHierMarker(data);
-                    MapData.CreateOrigineleMarker(event.latlng, true);
+                    var converted = HelperService.ConvertLambert72ToWSG84(data.location);
+                    MapData.CreateDot(converted);
+                    MapData.CreateOrigineleMarker(event.latlng, true, data.address.Street + ' (' + data.address.Postal + ')');
                 } else {
                     MapData.CreateOrigineleMarker(event.latlng, false);
                 }
