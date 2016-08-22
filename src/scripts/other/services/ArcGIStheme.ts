@@ -1,4 +1,6 @@
 'use strict';
+import * as _ from 'lodash';
+import * as angular from 'angular';
 class LayerRAW {
     id: number;
     name: string;
@@ -8,7 +10,7 @@ class LayerRAW {
     minScale: number;
     maxScale: number;
     constructor(layerJSON: any) {
-        Object.assign(this, layerJSON);
+        Object.assign<LayerRAW, any>(this, layerJSON);
     }
 }
 class Layer extends LayerRAW {
@@ -23,6 +25,7 @@ class Layer extends LayerRAW {
 
     constructor(info: LayerRAW, parenttheme: Theme) {
         super(LayerRAW);
+        //o
         this.visible = info.defaultVisibility;
         this.enabled = true;
         this.parent = null;

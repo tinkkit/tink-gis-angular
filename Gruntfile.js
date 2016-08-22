@@ -1,6 +1,6 @@
 'use strict';
 
-module.exports = function(grunt) {
+module.exports = function (grunt) {
 
     // Load grunt tasks automatically
     require('load-grunt-tasks')(grunt);
@@ -32,6 +32,18 @@ module.exports = function(grunt) {
 
         // Project settings
         yeoman: appConfig,
+        ts: {
+            default: {
+                src: ['<%= yeoman.app %>/scripts/**/*.ts'],
+                reference: "src/typings/index.d.ts",
+                tsconfig: './src/tsconfig.json',
+                options: {
+                    inlineSources: true,
+                    inlineSourceMap: true,
+                    livereload: '<%= connect.options.livereload %>'
+                }
+            }
+        },
         watch: {
             bower: {
                 files: ['bower.json'],
@@ -40,6 +52,13 @@ module.exports = function(grunt) {
             js: {
                 files: ['<%= yeoman.app %>/scripts/**/*.js'],
                 tasks: ['newer:jshint:all'],
+                options: {
+                    livereload: '<%= connect.options.livereload %>'
+                }
+            },
+            ts: {
+                files: ['<%= yeoman.app %>/scripts/**/*.ts'],
+                tasks: ['ts'],
                 options: {
                     livereload: '<%= connect.options.livereload %>'
                 }
@@ -140,7 +159,7 @@ module.exports = function(grunt) {
             livereload: {
                 options: {
                     open: true,
-                    middleware: function(connect) {
+                    middleware: function (connect) {
                         return [
                             serveStatic('.tmp'),
                             connect().use(
@@ -155,7 +174,7 @@ module.exports = function(grunt) {
             test: {
                 options: {
                     port: 9001,
-                    middleware: function(connect) {
+                    middleware: function (connect) {
                         return [
                             serveStatic('.tmp'),
                             serveStatic('test'),
@@ -211,7 +230,7 @@ module.exports = function(grunt) {
         wiredep: {
             app: {
                 src: ['<%= yeoman.app %>/index.html'],
-                   exclude: ['bower_components/leaflet-dist/leaflet.js', 'bower_components/leaflet/dist/leaflet.css'],
+                exclude: ['bower_components/leaflet-dist/leaflet.js', 'bower_components/leaflet/dist/leaflet.css'],
                 ignorePath: /\.\.\//
             },
             sass: {
@@ -288,7 +307,7 @@ module.exports = function(grunt) {
                     ext: '.js'
                 }]
             },
-              test: {
+            test: {
 
                 files: [{
                     expand: true,
@@ -407,7 +426,7 @@ module.exports = function(grunt) {
     });
 
 
-    grunt.registerTask('serve', 'Compile then start a connect web server', function(target) {
+    grunt.registerTask('serve', 'Compile then start a connect web server', function (target) {
         if (target === 'dist') {
             return grunt.task.run(['build', 'connect:dist:keepalive']);
         }
@@ -433,6 +452,7 @@ module.exports = function(grunt) {
 
     grunt.registerTask('build', [
         'clean',
+        'ts',
         'babel',
         'karma:build',
         'ngtemplates',
