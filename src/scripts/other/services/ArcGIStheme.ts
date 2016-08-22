@@ -1,6 +1,6 @@
 'use strict';
-import * as _ from 'lodash';
-import * as angular from 'angular';
+// import * as _ from 'lodash';
+// import * as angular from 'angular';
 class LayerRAW {
     id: number;
     name: string;
@@ -10,7 +10,7 @@ class LayerRAW {
     minScale: number;
     maxScale: number;
     constructor(layerJSON: any) {
-        Object.assign<LayerRAW, any>(this, layerJSON);
+        Object.assign(this, layerJSON);
     }
 }
 class Layer extends LayerRAW {
@@ -24,8 +24,8 @@ class Layer extends LayerRAW {
     Layers: Array<Layer>;
 
     constructor(info: LayerRAW, parenttheme: Theme) {
-        super(LayerRAW);
-        //o
+        super(info);
+        //osdf
         this.visible = info.defaultVisibility;
         this.enabled = true;
         this.parent = null;
@@ -39,7 +39,7 @@ class Layer extends LayerRAW {
             this.type = LayerType.LAYER;
         }
     }
-    UpdateDisplayed(currentScale) {
+    UpdateDisplayed = (currentScale) => {
         if (this.maxScale > 0 || this.minScale > 0) {
             console.log('MinMaxandCurrentScale', this.maxScale, this.minScale, currentScale);
             if (currentScale > this.maxScale && currentScale < this.minScale) {
@@ -73,18 +73,18 @@ abstract class Theme {
 
     MapData: any;
 
-    UpdateDisplayed(currentScale) {
-        this.AllLayers.forEach(function (layer) {
+    UpdateDisplayed = (currentScale) => {
+        this.AllLayers.forEach(layer => {
             layer.UpdateDisplayed(currentScale);
         });
     }
-    UpdateMap() {
+    UpdateMap = () => {
         this.RecalculateVisibleLayerIds();
         this.MapData.setLayers(this.VisibleLayerIds);
     };
-    RecalculateVisibleLayerIds() {
+    RecalculateVisibleLayerIds = () => {
         this.VisibleLayerIds.length = 0;
-        this.VisibleLayers.forEach(function (visLayer) {
+        this.VisibleLayers.forEach(visLayer => {
             this.VisibleLayerIds.push(visLayer.id);
         });
         if (this.VisibleLayerIds.length === 0) {
@@ -96,7 +96,7 @@ abstract class Theme {
 class ArcGIStheme extends Theme {
     constructor(rawdata: any, themeData: any) {
         super();
-        var rawlayers = rawdata.layers;
+        let rawlayers = rawdata.layers;
         this.Naam = rawdata.documentInfo.Title;
         this.name = rawdata.documentInfo.Title;
         this.Description = rawdata.documentInfo.Subject;
@@ -113,7 +113,7 @@ class ArcGIStheme extends Theme {
         this.Type = ThemeType.ESRI;
         this.status = ThemeStatus.NEW;
         this.MapData = {};
-        _.each(rawlayers, function (layerInfo: LayerRAW) {
+        rawlayers.forEach((layerInfo) => {
             let layer = new Layer(layerInfo, this);
             this.AllLayers.push(layer);
             if (layer.parentLayerId === -1) {
@@ -124,21 +124,19 @@ class ArcGIStheme extends Theme {
                 }
             }
         });
-        _.each(this.Groups, function (layerGroup: Layer) {
+        this.Groups.forEach((layerGroup) => {
             if (layerGroup.subLayerIds !== null) {
                 layerGroup.Layers = [];
-                _.each(rawlayers, function (rawlayer) {
-                    if (layerGroup.id === rawlayer.parentLayerId) {
-                        rawlayer.parent = layerGroup;
-                        layerGroup.Layers.push(rawlayer);
+                this.AllLayers.forEach((layer) => {
+                    if (layerGroup.id === layer.parentLayerId) {
+                        layer.parent = layerGroup;
+                        layerGroup.Layers.push(layer);
                     }
                 });
             }
         });
         this.RecalculateVisibleLayerIds();
     }
-
-
 }
 (function () {
     var module = angular.module('tink.gis');

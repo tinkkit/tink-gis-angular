@@ -35,7 +35,7 @@ module.exports = function (grunt) {
         ts: {
             default: {
                 src: ['<%= yeoman.app %>/scripts/**/*.ts'],
-                reference: "src/typings/index.d.ts",
+                reference: 'src/typings/index.d.ts',
                 tsconfig: './src/tsconfig.json',
                 options: {
                     inlineSources: true,

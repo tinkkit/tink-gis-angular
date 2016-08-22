@@ -21,7 +21,7 @@
             tink-total-items="numberofrecordsmatched" tink-items-per-page="recordsAPage"></tink-pagination>
     </div>
     <div class="col-md-8">
-   
+
         <div ng-if="copySelectedTheme !== null">
             <button ng-if="copySelectedTheme.Added != false" data-ng-click="AddOrUpdateTheme()">Update</button>
             <p>{{copySelectedTheme.Description}}</p>
@@ -41,10 +41,8 @@
                         <input indeterminate-checkbox child-list="groupLayer.Layers" property="enabled" type="checkbox" ng-model="groupLayer.enabled"
                             id="{{groupLayer.name}}{{groupLayer.id}}">
                         <label for="{{groupLayer.name}}{{groupLayer.id}}"> {{groupLayer.title | limitTo: 99}}</label>
-
                         <div ng-repeat="layer in groupLayer.Layers">
                             <div class="layercontroller-checkbox">
-
                                 <input type="checkbox" ng-model="layer.enabled" ng-change="layer.chkChanged()" id="{{layer.name}}{{layer.id}}">
                                 <label for="{{layer.name}}{{layer.id}}"> {{layer.title | limitTo: 99}}</label>
                             </div>

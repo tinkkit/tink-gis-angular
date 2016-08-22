@@ -83,8 +83,7 @@
 })();
 ;'use strict';
 
-/* global ThemeStatus, LayerType */
-var ThemeStatus = { // http://stijndewitt.com/2014/01/26/enums-in-javascript/
+var ThemeStatus = {
     UNMODIFIED: 0,
     NEW: 1,
     UPDATED: 2,
@@ -134,7 +133,6 @@ var Style = {
         fillOpacity: 0.3
     }
 };
-
 var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500, 10000, 7500, 5000, 2500, 2000, 1500, 1250, 1000, 750, 500, 250, 100];
 ;'use strict';
 
@@ -1120,6 +1118,146 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             controllerAs: 'thmctrl'
         };
     });
+})();
+;'use strict';
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var LayerRAW = function LayerRAW(layerJSON) {
+    _classCallCheck(this, LayerRAW);
+
+    Object.assign(this, layerJSON);
+};
+
+var Layer = function (_LayerRAW) {
+    _inherits(Layer, _LayerRAW);
+
+    function Layer(info, parenttheme) {
+        _classCallCheck(this, Layer);
+
+        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Layer).call(this, info));
+
+        _this.UpdateDisplayed = function (currentScale) {
+            if (_this.maxScale > 0 || _this.minScale > 0) {
+                console.log('MinMaxandCurrentScale', _this.maxScale, _this.minScale, currentScale);
+                if (currentScale > _this.maxScale && currentScale < _this.minScale) {
+                    _this.displayed = true;
+                } else {
+                    _this.displayed = false;
+                }
+            }
+        };
+        _this.visible = info.defaultVisibility;
+        _this.enabled = true;
+        _this.parent = null;
+        _this.title = info.name;
+        _this.theme = parenttheme;
+        _this.displayed = true;
+        if (_this.parentLayerId === -1 && _this.subLayerIds !== null) {
+            _this.type = LayerType.GROUP;
+        } else {
+            _this.type = LayerType.LAYER;
+        }
+        return _this;
+    }
+
+    return Layer;
+}(LayerRAW);
+
+var Theme = function Theme() {
+    var _this2 = this;
+
+    _classCallCheck(this, Theme);
+
+    this.UpdateDisplayed = function (currentScale) {
+        _this2.AllLayers.forEach(function (layer) {
+            layer.UpdateDisplayed(currentScale);
+        });
+    };
+    this.UpdateMap = function () {
+        _this2.RecalculateVisibleLayerIds();
+        _this2.MapData.setLayers(_this2.VisibleLayerIds);
+    };
+    this.RecalculateVisibleLayerIds = function () {
+        _this2.VisibleLayerIds.length = 0;
+        _this2.VisibleLayers.forEach(function (visLayer) {
+            _this2.VisibleLayerIds.push(visLayer.id);
+        });
+        if (_this2.VisibleLayerIds.length === 0) {
+            _this2.VisibleLayerIds.push(-1);
+        }
+    };
+};
+
+var ArcGIStheme = function (_Theme) {
+    _inherits(ArcGIStheme, _Theme);
+
+    function ArcGIStheme(rawdata, themeData) {
+        _classCallCheck(this, ArcGIStheme);
+
+        var _this3 = _possibleConstructorReturn(this, Object.getPrototypeOf(ArcGIStheme).call(this));
+
+        var rawlayers = rawdata.layers;
+        _this3.Naam = rawdata.documentInfo.Title;
+        _this3.name = rawdata.documentInfo.Title;
+        _this3.Description = rawdata.documentInfo.Subject;
+        _this3.Layers = [];
+        _this3.AllLayers = [];
+        _this3.Groups = [];
+        _this3.CleanUrl = themeData.cleanUrl;
+        _this3.Url = themeData.url;
+        _this3.VisibleLayers = [];
+        _this3.VisibleLayerIds = [];
+        _this3.Visible = true;
+        _this3.Added = false;
+        _this3.enabled = true;
+        _this3.Type = ThemeType.ESRI;
+        _this3.status = ThemeStatus.NEW;
+        _this3.MapData = {};
+        rawlayers.forEach(function (layerInfo) {
+            var layer = new Layer(layerInfo, _this3);
+            _this3.AllLayers.push(layer);
+            if (layer.parentLayerId === -1) {
+                if (layer.subLayerIds === null) {
+                    _this3.Layers.push(layer);
+                } else {
+                    _this3.Groups.push(layer);
+                }
+            }
+        });
+        _this3.Groups.forEach(function (layerGroup) {
+            if (layerGroup.subLayerIds !== null) {
+                layerGroup.Layers = [];
+                _this3.AllLayers.forEach(function (layer) {
+                    if (layerGroup.id === layer.parentLayerId) {
+                        layer.parent = layerGroup;
+                        layerGroup.Layers.push(layer);
+                    }
+                });
+            }
+        });
+        _this3.RecalculateVisibleLayerIds();
+        return _this3;
+    }
+
+    return ArcGIStheme;
+}(Theme);
+
+(function () {
+    var module = angular.module('tink.gis');
+    var service = function service() {
+        var themeHelper = {};
+        themeHelper.createThemeFromJson = function (rawdata, themeData) {
+            var theme = new ArcGIStheme(rawdata, themeData);
+            return theme;
+        };
+        return themeHelper;
+    };
+    module.factory('ThemeHelper', service);
 })();
 ;//http://proj4js.org/
 'use strict';
