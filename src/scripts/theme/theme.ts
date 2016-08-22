@@ -1,6 +1,6 @@
-import {Layer} from './layer';
+// import {Layer} from './layer';
 'use strict';
-export abstract class Theme {
+abstract class Theme {
     Naam: string;
     name: string;
     Description: string;

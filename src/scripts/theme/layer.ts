@@ -1,7 +1,7 @@
 'use strict';
-import {Theme} from './theme';
+// import {Theme} from './theme';
 
-export class LayerRAW {
+class LayerRAW {
     id: number;
     name: string;
     parentLayerId: number;
@@ -15,7 +15,7 @@ export class LayerRAW {
 }
 
 
-export class Layer extends LayerRAW {
+class Layer extends LayerRAW {
     visible: boolean;
     enabled: boolean;
     parent: any;

@@ -44,6 +44,11 @@ module.exports = function (grunt) {
                 }
             }
         },
+        browserify: {
+            main: {
+                src: '<%= yeoman.app %>/scripts/**/*.js',
+            }
+        },
         watch: {
             bower: {
                 files: ['bower.json'],
@@ -464,6 +469,7 @@ module.exports = function (grunt) {
         'autoprefixer',
         'cssUrlEmbed',
         'usemin',
+        'browserify',
         'copy:styles',
         'cssmin',
         'clean:server'

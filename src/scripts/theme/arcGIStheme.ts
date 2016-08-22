@@ -1,10 +1,10 @@
-import {Theme} from './theme';
-import {Layer} from './layer';
+// import {Theme} from './theme';
+// import {Layer} from './layer';
 'use strict';
-export class ArcGIStheme extends Theme {
+class ArcGIStheme extends Theme {
     constructor(rawdata: any, themeData: any) {
         super();
-        let rawlayers = rawdata.layers;
+        let rawlayers = rawdata.layers; 
         this.Naam = rawdata.documentInfo.Title;
         this.name = rawdata.documentInfo.Title;
         this.Description = rawdata.documentInfo.Subject;

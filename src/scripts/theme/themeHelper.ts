@@ -1,5 +1,5 @@
-import * as angular from 'angular';
-import {ArcGIStheme} from './arcGIStheme';
+// import * as angular from 'angular';
+// import {ArcGIStheme} from './arcGIStheme';
 'use strict';
 (function () {
     var module = angular.module('tink.gis');
