@@ -1,0 +1,17 @@
+"use strict";
+const angular = require('angular');
+const arcGIStheme_1 = require('./arcGIStheme');
+'use strict';
+(function () {
+    var module = angular.module('tink.gis');
+    var service = function () {
+        var themeHelper = {};
+        themeHelper.createThemeFromJson = function (rawdata, themeData) {
+            let theme = new arcGIStheme_1.ArcGIStheme(rawdata, themeData);
+            return theme;
+        };
+        return themeHelper;
+    };
+    module.factory('ThemeHelper', service);
+})();
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoidGhlbWVIZWxwZXIuanMiLCJzb3VyY2VSb290IjoiIiwic291cmNlcyI6WyJ0aGVtZUhlbHBlci50cyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiO0FBQUEsTUFBWSxPQUFPLFdBQU0sU0FBUyxDQUFDLENBQUE7QUFDbkMsOEJBQTBCLGVBQWUsQ0FBQyxDQUFBO0FBQzFDLFlBQVksQ0FBQztBQUNiLENBQUM7SUFDRyxJQUFJLE1BQU0sR0FBRyxPQUFPLENBQUMsTUFBTSxDQUFDLFVBQVUsQ0FBQyxDQUFDO0lBQ3hDLElBQUksT0FBTyxHQUFHO1FBQ1YsSUFBSSxXQUFXLEdBQVEsRUFBRSxDQUFDO1FBQzFCLFdBQVcsQ0FBQyxtQkFBbUIsR0FBRyxVQUFVLE9BQU8sRUFBRSxTQUFTO1lBQzFELElBQUksS0FBSyxHQUFnQixJQUFJLHlCQUFXLENBQUMsT0FBTyxFQUFFLFNBQVMsQ0FBQyxDQUFBO1lBQzVELE1BQU0sQ0FBQyxLQUFLLENBQUM7UUFDakIsQ0FBQyxDQUFDO1FBQ0YsTUFBTSxDQUFDLFdBQVcsQ0FBQztJQUN2QixDQUFDLENBQUM7SUFDRixNQUFNLENBQUMsT0FBTyxDQUFDLGFBQWEsRUFBRSxPQUFPLENBQUMsQ0FBQztBQUMzQyxDQUFDLENBQUMsRUFBRSxDQUFDIiwic291cmNlc0NvbnRlbnQiOlsiaW1wb3J0ICogYXMgYW5ndWxhciBmcm9tICdhbmd1bGFyJztcclxuaW1wb3J0IHtBcmNHSVN0aGVtZX0gZnJvbSAnLi9hcmNHSVN0aGVtZSc7XHJcbid1c2Ugc3RyaWN0JztcclxuKGZ1bmN0aW9uICgpIHtcclxuICAgIHZhciBtb2R1bGUgPSBhbmd1bGFyLm1vZHVsZSgndGluay5naXMnKTtcclxuICAgIHZhciBzZXJ2aWNlID0gZnVuY3Rpb24gKCkge1xyXG4gICAgICAgIHZhciB0aGVtZUhlbHBlcjogYW55ID0ge307XHJcbiAgICAgICAgdGhlbWVIZWxwZXIuY3JlYXRlVGhlbWVGcm9tSnNvbiA9IGZ1bmN0aW9uIChyYXdkYXRhLCB0aGVtZURhdGEpIHtcclxuICAgICAgICAgICAgbGV0IHRoZW1lOiBBcmNHSVN0aGVtZSA9IG5ldyBBcmNHSVN0aGVtZShyYXdkYXRhLCB0aGVtZURhdGEpXHJcbiAgICAgICAgICAgIHJldHVybiB0aGVtZTtcclxuICAgICAgICB9O1xyXG4gICAgICAgIHJldHVybiB0aGVtZUhlbHBlcjtcclxuICAgIH07XHJcbiAgICBtb2R1bGUuZmFjdG9yeSgnVGhlbWVIZWxwZXInLCBzZXJ2aWNlKTtcclxufSkoKTtcclxuIl19
