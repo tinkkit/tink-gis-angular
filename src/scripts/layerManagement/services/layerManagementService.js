@@ -2,7 +2,7 @@
 'use strict';
 (function () {
     var module = angular.module('tink.gis');
-    var service = function (MapData, $http, $q, GISService, ThemeHelper) {
+    var service = function (MapData, $http, $q, GISService, ThemeCreater) {
         var _service = {};
         _service.EnabledThemes = [];
         _service.AvailableThemes = [];
@@ -33,6 +33,6 @@
         };
         return _service;
     };
-    module.$inject = ['MapData', '$http', '$q', 'GISService', 'ThemeHelper'];
+    module.$inject = ['MapData', '$http', '$q', 'GISService', 'ThemeCreater'];
     module.factory('LayerManagementService', service);
 })();

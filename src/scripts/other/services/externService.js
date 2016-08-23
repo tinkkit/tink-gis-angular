@@ -6,7 +6,7 @@
     } catch (e) {
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'tink.modal']); //'leaflet-directive'
     }
-    var externService = function (MapData, map, GISService, ThemeHelper, WMSService, ThemeService, $q) {
+    var externService = function (MapData, map, GISService, ThemeCreater, WMSService, ThemeService, $q) {
         var _externService = {};
         _externService.Export = function () {
             var exportObject = {};
@@ -54,14 +54,16 @@
                     let prom = GISService.GetThemeData(theme.cleanUrl);
                     promises.push(prom);
                     prom.then(function (data) {
-                        themesArray.push(ThemeHelper.createThemeFromJson(data, theme));
+                        let arcgistheme = ThemeCreater.createARCGISThemeFromJson(data, theme);
+                        themesArray.push(arcgistheme);
                     });
                 } else {
                     // wms
-                    let prom = WMSService.GetCapabilities(theme.cleanUrl);
+                    let prom = WMSService.GetThemeData(theme.cleanUrl);
                     promises.push(prom);
                     prom.success(function (data, status, headers, config) {
-                        themesArray.push(data);
+                        let wmstheme = ThemeCreater.createWMSThemeFromJSON(data, theme.cleanUrl);
+                        themesArray.push(wmstheme);
                     }).error(function (data, status, headers, config) {
                         console.log('error!!!!!!!', data, status, headers, config);
 
@@ -110,9 +112,7 @@
 
         };
         _externService.setExtent = function (extent) {
-
             map.fitBounds([[extent._northEast.lat, extent._northEast.lng], [extent._southWest.lat, extent._southWest.lng]]);
-            // map.setZoom(map.getZoom() + 1);
         };
         _externService.CleanMapAndThemes = function () {
             MapData.CleanMap();
@@ -122,6 +122,6 @@
 
         return _externService;
     };
-    module.$inject = ['MapData', 'map', 'GISService', 'ThemeHelper', 'WMSService', 'ThemeService', '$q'];
+    module.$inject = ['MapData', 'map', 'GISService', 'ThemeCreater', 'WMSService', 'ThemeService', '$q'];
     module.factory('ExternService', externService);
 })();

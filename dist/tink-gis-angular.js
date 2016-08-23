@@ -143,7 +143,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
     } catch (e) {
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
     }
-    module.controller('geoPuntController', ['$scope', 'ThemeHelper', '$q', 'MapService', 'MapData', 'GISService', 'LayerManagementService', 'WMSService', '$window', '$http', 'GeopuntService', function ($scope, ThemeHelper, $q, MapService, MapData, GISService, LayerManagementService, WMSService, $window, $http, GeopuntService) {
+    module.controller('geoPuntController', ['$scope', 'ThemeCreater', '$q', 'MapService', 'MapData', 'GISService', 'LayerManagementService', 'WMSService', '$window', '$http', 'GeopuntService', function ($scope, ThemeCreater, $q, MapService, MapData, GISService, LayerManagementService, WMSService, $window, $http, GeopuntService) {
         $scope.searchIsUrl = false;
         $scope.pagingCount = null;
         $scope.numberofrecordsmatched = 0;
@@ -191,12 +191,22 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         };
         $scope.laadUrl = function () {
             $scope.searchTerm = $scope.searchTerm.trim().replace('?', '');
+            createWMS($scope.searchTerm);
+        };
+        $scope.geopuntThemeChanged = function (theme) {
+            var questionmarkPos = theme.Url.trim().indexOf('?');
+            var url = theme.Url.trim().substring(0, questionmarkPos);
+            createWMS(url);
+        };
+
+        var createWMS = function createWMS(url) {
             if (MapData.Themes.find(function (x) {
-                return x.CleanUrl == $scope.searchTerm;
+                return x.CleanUrl == url;
             }) == undefined) {
-                var getwms = WMSService.GetCapabilities($scope.searchTerm);
+                var getwms = WMSService.GetThemeData(url);
                 getwms.success(function (data, status, headers, config) {
-                    $scope.previewTheme(data);
+                    var wmstheme = ThemeCreater.createWMSThemeFromJSON(data, url);
+                    $scope.previewTheme(wmstheme);
                 }).error(function (data, status, headers, config) {
                     $window.alert('error');
                 });
@@ -216,30 +226,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             $scope.selectedTheme = null;
             $scope.copySelectedTheme = null;
         };
-        $scope.geopuntThemeChanged = function (theme) {
-            // alert(theme.Type != 'WMS' && theme.Type != 'ESRI');
-            // if (theme.Type != 'wms' && theme.Type != 'esri') {
-            console.log(theme);
-            var questionmarkPos = theme.Url.trim().indexOf('?');
-            var url = theme.Url.trim().substring(0, questionmarkPos);
 
-            // var url = theme.Url.trim().replace('?', '');
-
-            if (MapData.Themes.find(function (x) {
-                return x.CleanUrl == url;
-            }) == undefined) {
-                var getwms = WMSService.GetCapabilities(url);
-                getwms.success(function (data, status, headers, config) {
-
-                    $scope.previewTheme(data);
-                }).error(function (data, status, headers, config) {
-                    $window.alert('error');
-                });
-            } else {
-                alert('Deze is al toegevoegd aan de map.');
-            }
-            // }
-        };
         $scope.AddOrUpdateTheme = function () {
             console.log('AddOrUpdateTheme');
             var allChecked = true;
@@ -337,7 +324,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
     } catch (e) {
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
     }
-    module.controller('solrGISController', ['$scope', 'ThemeHelper', '$q', 'MapService', 'MapData', 'GISService', 'LayerManagementService', 'WMSService', '$window', '$http', 'GeopuntService', function ($scope, ThemeHelper, $q, MapService, MapData, GISService, LayerManagementService, WMSService, $window, $http, GeopuntService) {
+    module.controller('solrGISController', ['$scope', 'ThemeCreater', '$q', 'MapService', 'MapData', 'GISService', 'LayerManagementService', 'WMSService', '$window', '$http', 'GeopuntService', function ($scope, ThemeCreater, $q, MapService, MapData, GISService, LayerManagementService, WMSService, $window, $http, GeopuntService) {
         $scope.pagingCount = null;
         $scope.numberofrecordsmatched = 0;
         // $scope.currentPage = 1;
@@ -480,7 +467,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         $scope.solrThemeChanged = function (theme) {
             GISService.GetThemeData(theme.url).then(function (data, statuscode, functie, getdata) {
                 if (!data.error) {
-                    var convertedTheme = ThemeHelper.createThemeFromJson(data, theme);
+                    var convertedTheme = ThemeCreater.createARCGISThemeFromJson(data, theme);
                     $scope.previewTheme(convertedTheme);
                 } else {
                     console.log('ERROR:', data.error);
@@ -668,40 +655,10 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
 
 (function () {
     var module = angular.module('tink.gis');
-    var service = function service(MapData, $http, $q, GISService, ThemeHelper) {
+    var service = function service(MapData, $http, $q, GISService, ThemeCreater) {
         var _service = {};
         _service.EnabledThemes = [];
         _service.AvailableThemes = [];
-        _service.ProcessUrls = function (urls) {
-            var promises = [];
-            _.each(urls, function (url) {
-                var AlreadyAddedTheme = null;
-                _service.EnabledThemes.forEach(function (theme) {
-                    // OPTI kan paar loops minder door betere zoek in array te doen
-                    if (theme.CleanUrl == url) {
-                        AlreadyAddedTheme = theme;
-                    }
-                });
-                if (AlreadyAddedTheme == null) {
-                    // if we didn t get an alreadyadderdtheme we get the data
-                    var prom = GISService.GetThemeData(url + '?f=pjson');
-                    prom.then(function (data) {
-                        var convertedTheme = ThemeHelper.createThemeFromJson(data, theme);
-                        _service.AvailableThemes.push(convertedTheme);
-                        convertedTheme.status = ThemeStatus.NEW;
-                    });
-                    promises.push(prom);
-                } else {
-                    // ah we already got it then just push it.
-                    AlreadyAddedTheme.status = ThemeStatus.UNMODIFIED;
-                    _service.AvailableThemes.push(AlreadyAddedTheme);
-                }
-            });
-            // $q.all(promises).then(function(lagen) {
-            //     console.log(lagen);
-            // });
-            return $q.all(promises);
-        };
         _service.GetAditionalLayerInfo = function (theme) {
             var promLegend = GISService.GetLegendData(theme.CleanUrl);
             promLegend.then(function (data) {
@@ -733,7 +690,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         };
         return _service;
     };
-    module.$inject = ['MapData', '$http', '$q', 'GISService', 'ThemeHelper'];
+    module.$inject = ['MapData', '$http', '$q', 'GISService', 'ThemeCreater'];
     module.factory('LayerManagementService', service);
 })();
 ;'use strict';
@@ -1353,122 +1310,42 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
     module.$inject = ['$http', 'MapService', 'MapData'];
     module.factory('GeometryService', service);
 })();
-;// 'use strict';
-// (function () {
-//     // try {
-//     var module = angular.module('tink.gis');
-//     // } catch (e) {
-//     //     module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
-//     // }
-//     var service = function ($http, $window, map, helperService) {
-//         var _service = {};
+;//http://proj4js.org/
+'use strict';
 
-//         _service.GetCapabilities = function (url) {
-//             var fullurl = url + '?request=GetCapabilities&service=WMS&callback=foo';
-//             var prom = $http({
-//                 method: 'GET',
-//                 url: helperService.CreateProxyUrl(fullurl),
-//                 timeout: 10000,
-//                 // params: {},  // Query Parameters (GET)
-//                 transformResponse: function (data) {
-//                     var wmstheme = {};
-//                     if (data) {
-//                         data = helperService.UnwrapProxiedData(data);
-//                         if (data.listOfHttpError) {
-//                             console.log(data.listOfHttpError, fullurl);
-//                         }
-//                         else {
-//                             var returnjson = JXON.stringToJs(data).wms_capabilities;
-//                             console.log(returnjson);
-//                             wmstheme.Version = returnjson['version'];
-//                             wmstheme.name = returnjson.service.title;
-//                             wmstheme.Naam = returnjson.service.title;
-//                             // wmstheme.Title = returnjson.service.title;
-//                             wmstheme.enabled = true;
-//                             wmstheme.Visible = true;
-//                             wmstheme.Layers = [];
-//                             wmstheme.AllLayers = [];
-//                             wmstheme.Groups = []; // layergroups die nog eens layers zelf hebben
-//                             wmstheme.CleanUrl = url;
-//                             wmstheme.Added = false;
-//                             wmstheme.status = ThemeStatus.NEW;
-//                             wmstheme.Description = returnjson.service.abstract;
-//                             wmstheme.Type = ThemeType.WMS;
-//                             wmstheme.VisibleLayerIds = [];
-//                             wmstheme.VisibleLayers = [];
-//                             var createLayer = function (layer) {
-//                                 var tmplayer = {};
-//                                 tmplayer.visible = true;
-//                                 tmplayer.enabled = true;
-//                                 tmplayer.parent = null;
-//                                 tmplayer.displayed = true;
-//                                 tmplayer.theme = wmstheme;
-//                                 tmplayer.name = layer.name;
-//                                 tmplayer.title = layer.title;
-//                                 tmplayer.queryable = layer.queryable;
-//                                 tmplayer.type = LayerType.LAYER;
-//                                 tmplayer.id = layer.name; //names are the ids of the layer in wms
-//                                 wmstheme.Layers.push(tmplayer);
-//                                 wmstheme.AllLayers.push(tmplayer);
-//                             };
-//                             var layers = returnjson.capability.layer.layer;
-//                             if (layers) {
-//                                 if (layers.length != undefined) { // array, it has a length
-//                                     layers.forEach(layer => {
-//                                         createLayer(layer);
-//                                     });
-//                                 }
-//                                 else {
-//                                     createLayer(layers);
-
-//                                 }
-
-//                             } else {
-//                                 createLayer(returnjson.capability.layer);
-//                             }
-
-//                             wmstheme.UpdateMap = function () {
-//                                 wmstheme.RecalculateVisibleLayerIds();
-//                                 map.removeLayer(wmstheme.MapData);
-//                                 map.addLayer(wmstheme.MapData);
-//                             };
-
-//                             wmstheme.RecalculateVisibleLayerIds = function () {
-//                                 wmstheme.VisibleLayerIds.length = 0;
-//                                 _.forEach(wmstheme.VisibleLayers, function (visLayer) {
-//                                     wmstheme.VisibleLayerIds.push(visLayer.id);
-//                                 });
-//                                 if (wmstheme.VisibleLayerIds.length === 0) {
-//                                     wmstheme.VisibleLayerIds.push(-1); //als we niet doen dan zoekt hij op alle lagen!
-//                                 }
-//                             };
-//                             wmstheme.RecalculateVisibleLayerIds();
-
-//                         }
-//                     }
-
-//                     return wmstheme;
-//                 }
-//             }).success(function (data, status, headers, config) {
-//                 console.dir(data);  // XML document object
-//             }).error(function (data, status, headers, config) {
-//                 console.log('error: data, status, headers, config:');
-//                 console.log(data);
-//                 console.log(status);
-//                 console.log(headers);
-//                 console.log(config);
-//                 $window.alert('error');
-//             });
-//             return prom;
-//         };
-
-//         return _service;
-//     };
-//     // module.$inject = ['HelperService'];
-
-//     module.service('WMSService', ['$http', '$window', 'map', 'HelperService', service]);
-// })();
-"use strict";
+(function () {
+    var module = angular.module('tink.gis');
+    var service = function service($http, HelperService, $q) {
+        var _service = {};
+        _service.GetThemeData = function (url) {
+            var fullurl = url + '?request=GetCapabilities&service=WMS&callback=foo';
+            var prom = $http({
+                method: 'GET',
+                url: HelperService.CreateProxyUrl(fullurl),
+                timeout: 10000,
+                transformResponse: function transformResponse(data) {
+                    if (data) {
+                        data = HelperService.UnwrapProxiedData(data);
+                        if (data.listOfHttpError) {
+                            console.log(data.listOfHttpError, fullurl);
+                        } else {
+                            data = JXON.stringToJs(data).wms_capabilities;
+                        }
+                    }
+                    return data;
+                }
+            }).success(function (data, status, headers, config) {
+                // console.dir(data);  // XML document object
+            }).error(function (data, status, headers, config) {
+                console.log('error: data, status, headers, config:', data, status, headers, config);
+            });
+            return prom;
+        };
+        return _service;
+    };
+    module.$inject = ['$http', 'HelperService', '$q'];
+    module.factory('WMSService', service);
+})();
 ;'use strict';
 
 (function () {
@@ -1711,7 +1588,7 @@ var esri2geo = {};
     } catch (e) {
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'tink.modal']); //'leaflet-directive'
     }
-    var externService = function externService(MapData, map, GISService, ThemeHelper, WMSService, ThemeService, $q) {
+    var externService = function externService(MapData, map, GISService, ThemeCreater, WMSService, ThemeService, $q) {
         var _externService = {};
         _externService.Export = function () {
             var exportObject = {};
@@ -1760,14 +1637,16 @@ var esri2geo = {};
                     var prom = GISService.GetThemeData(theme.cleanUrl);
                     promises.push(prom);
                     prom.then(function (data) {
-                        themesArray.push(ThemeHelper.createThemeFromJson(data, theme));
+                        var arcgistheme = ThemeCreater.createARCGISThemeFromJson(data, theme);
+                        themesArray.push(arcgistheme);
                     });
                 } else {
                     // wms
-                    var _prom = WMSService.GetCapabilities(theme.cleanUrl);
+                    var _prom = WMSService.GetThemeData(theme.cleanUrl);
                     promises.push(_prom);
                     _prom.success(function (data, status, headers, config) {
-                        themesArray.push(data);
+                        var wmstheme = ThemeCreater.createWMSThemeFromJSON(data, theme.cleanUrl);
+                        themesArray.push(wmstheme);
                     }).error(function (data, status, headers, config) {
                         console.log('error!!!!!!!', data, status, headers, config);
                     });
@@ -1818,9 +1697,7 @@ var esri2geo = {};
             });
         };
         _externService.setExtent = function (extent) {
-
             map.fitBounds([[extent._northEast.lat, extent._northEast.lng], [extent._southWest.lat, extent._southWest.lng]]);
-            // map.setZoom(map.getZoom() + 1);
         };
         _externService.CleanMapAndThemes = function () {
             MapData.CleanMap();
@@ -1829,7 +1706,7 @@ var esri2geo = {};
 
         return _externService;
     };
-    module.$inject = ['MapData', 'map', 'GISService', 'ThemeHelper', 'WMSService', 'ThemeService', '$q'];
+    module.$inject = ['MapData', 'map', 'GISService', 'ThemeCreater', 'WMSService', 'ThemeService', '$q'];
     module.factory('ExternService', externService);
 })();
 ;'use strict';
@@ -2423,7 +2300,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     } catch (e) {
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'tink.modal']); //'leaflet-directive'
     }
-    var mapService = function mapService($rootScope, MapData, map, ThemeHelper, $q, GISService, ResultsData, HelperService) {
+    var mapService = function mapService($rootScope, MapData, map, ThemeCreater, $q, GISService, ResultsData, HelperService) {
         var _mapService = {};
         _mapService.Identify = function (event, tolerance) {
             if (typeof tolerance === 'undefined') {
@@ -2630,118 +2507,14 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         };
         return _mapService;
     };
-    module.$inject = ['$rootScope', 'MapData', 'map', 'ThemeHelper', '$q', 'GISService', 'ResultsData', 'HelperService'];
+    module.$inject = ['$rootScope', 'MapData', 'map', 'ThemeCreater', '$q', 'GISService', 'ResultsData', 'HelperService'];
     module.factory('MapService', mapService);
 })();
-;// 'use strict';
-// (function () {
-//     var module;
-//     try {
-//         module = angular.module('tink.gis');
-//     } catch (e) {
-//         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi']); //'leaflet-directive'
-//     }
-//     var service = function () {
-//         var themeHelper = {};
-//         themeHelper.createThemeFromJson = function (rawdata, themeData) {
-//             var thema = {};
-//             try {
-//                 var rawlayers = rawdata.layers;
-//                 thema.Naam = rawdata.documentInfo.Title;
-//                 thema.name = rawdata.documentInfo.Title;
-//                 thema.Description = rawdata.documentInfo.Subject;
-//                 thema.Layers = []; // de layers direct onder het theme zonder sublayers
-//                 thema.AllLayers = []; // alle Layers die hij heeft including subgrouplayers
-//                 thema.Groups = []; // layergroups die nog eens layers zelf hebben
-//                 thema.CleanUrl = themeData.cleanUrl;
-//                 thema.Url = themeData.url;
-//                 thema.VisibleLayers = [];
-//                 thema.VisibleLayerIds = [];
-//                 thema.Visible = true;
-//                 thema.Added = false;
-//                 thema.enabled = true;
-//                 thema.Type = ThemeType.ESRI;
-//                 thema.status = ThemeStatus.NEW;
-//                 thema.MapData = {};
-//                 _.each(rawlayers, function (x) {
-//                     x.visible = x.defaultVisibility;
-//                     x.enabled = true;
-//                     x.parent = null;
-//                     x.title = x.name;
-//                     x.theme = thema;
-//                     x.displayed = true;
-//                     x.UpdateDisplayed = function (currentScale) {
-//                         if (x.maxScale > 0 || x.minScale > 0) {
-//                             console.log('MinMaxandCurrentScale', x.maxScale, x.minScale, currentScale);
-//                             if (currentScale > x.maxScale && currentScale < x.minScale) {
-//                                 x.displayed = true;
-//                             }
-//                             else {
-//                                 x.displayed = false;
-
-//                             }
-//                         }
-//                     };
-//                     x.type = LayerType.LAYER;
-//                     thema.AllLayers.push(x);
-//                     if (x.parentLayerId === -1) {
-//                         if (x.subLayerIds === null) {
-//                             thema.Layers.push(x);
-//                         } else {
-//                             thema.Groups.push(x);
-//                             x.type = LayerType.GROUP;
-//                         }
-//                     }
-//                 });
-//                 _.each(thema.Groups, function (layerGroup) {
-//                     if (layerGroup.subLayerIds !== null) {
-//                         layerGroup.Layers = [];
-//                         _.each(rawlayers, function (rawlayer) {
-//                             if (layerGroup.id === rawlayer.parentLayerId) {
-//                                 rawlayer.parent = layerGroup;
-//                                 layerGroup.Layers.push(rawlayer);
-//                             }
-//                         });
-//                     }
-//                 });
-//                 thema.UpdateDisplayed = function (currentScale) {
-//                     thema.AllLayers.forEach(function (layer) {
-//                         layer.UpdateDisplayed(currentScale);
-//                     });
-//                 };
-//                 thema.UpdateMap = function () {
-//                     thema.RecalculateVisibleLayerIds();
-//                     thema.MapData.setLayers(thema.VisibleLayerIds);
-//                 };
-
-//                 thema.RecalculateVisibleLayerIds = function () {
-//                     thema.VisibleLayerIds.length = 0;
-//                     thema.VisibleLayers.forEach(function (visLayer) {
-//                         thema.VisibleLayerIds.push(visLayer.id);
-//                     });
-//                     if (thema.VisibleLayerIds.length === 0) {
-//                         thema.VisibleLayerIds.push(-1); //als we niet doen dan zoekt hij op alle lagen!
-//                     }
-//                 };
-//                 thema.RecalculateVisibleLayerIds();
-//             }
-//             catch (ex) {
-//                 console.log('Error when creating theme from url: ' + themeData.url + ' Exeption: ' + ex + ' Data: ');
-//                 console.log(rawdata);
-//             }
-//             return thema;
-//         };
-//         return themeHelper;
-//     };
-//     module.$inject = ['map'];
-//     module.factory('ThemeHelper', service);
-// })();
-"use strict";
 ;'use strict';
 
 (function () {
     var module = angular.module('tink.gis');
-    var service = function service(map, ThemeHelper, MapData, LayerManagementService) {
+    var service = function service(map, ThemeCreater, MapData, LayerManagementService) {
         var _service = {};
         _service.AddAndUpdateThemes = function (themesBatch) {
             console.log('Themes batch for add and updates...');
@@ -2944,7 +2717,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
         return _service;
     };
-    module.$inject = ['map', 'ThemeHelper', 'MapData', 'LayerManagementService'];
+    module.$inject = ['map', 'ThemeCreater', 'MapData', 'LayerManagementService'];
     module.factory('ThemeService', service);
 })();
 ;'use strict';
@@ -3775,7 +3548,7 @@ L.drawLocal = {
     "<div class=row>\n" +
     "<div class=col-md-4>\n" +
     "<input class=searchbox ng-model=searchTerm ng-change=searchChanged() ng-model-options=\"{debounce: 250}\" placeholder=\"Geef een trefwoord\">\n" +
-    "<div ng-if=!searchIsUrl ng-repeat=\"theme in availableThemes\">\n" +
+    "<div ng-repeat=\"theme in availableThemes\">\n" +
     "<div ng-click=solrThemeChanged(theme) class=greytext>\n" +
     "{{theme.name}}\n" +
     "<div style=\"margin-left: 20px\" ng-repeat=\"layer in theme.layers\">\n" +
@@ -4189,7 +3962,7 @@ var app;
             _this3.title = info.name;
             _this3.theme = parenttheme;
             _this3.displayed = true;
-            if (_this3.parentLayerId === -1 && _this3.subLayerIds !== null) {
+            if (_this3.subLayerIds !== null) {
                 _this3.type = LayerType.GROUP;
             }
             return _this3;
@@ -4236,53 +4009,28 @@ var app;
 })(app || (app = {}));
 ;'use strict';
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
 (function () {
     var module = angular.module('tink.gis');
     var service = function service() {
-        var themeHelper = {};
-        themeHelper.createThemeFromJson = function (rawdata, themeData) {
-            var theme = new app.ArcGIStheme(rawdata, themeData);
-            return theme;
+        var ThemeCreater = function ThemeCreater() {
+            _classCallCheck(this, ThemeCreater);
+
+            this.createARCGISThemeFromJson = function (rawdata, themeData) {
+                var theme = new app.ArcGIStheme(rawdata, themeData);
+                return theme;
+            };
+            this.createWMSThemeFromJSON = function (data, url) {
+                var wms = new app.wmstheme(data, url);
+                return wms;
+            };
         };
-        return themeHelper;
+
+        ;
+        return new ThemeCreater();
     };
-    module.factory('ThemeHelper', service);
-})();
-(function () {
-    var module = angular.module('tink.gis');
-    var service = function service($http, $window, map, helperService) {
-        var _service = {};
-        _service.GetCapabilities = function (url) {
-            var fullurl = url + '?request=GetCapabilities&service=WMS&callback=foo';
-            var prom = $http({
-                method: 'GET',
-                url: helperService.CreateProxyUrl(fullurl),
-                timeout: 10000,
-                transformResponse: function transformResponse(data) {
-                    if (data) {
-                        data = helperService.UnwrapProxiedData(data);
-                        if (data.listOfHttpError) {
-                            console.log(data.listOfHttpError, fullurl);
-                        } else {
-                            var convertedToJson = JXON.stringToJs(data).wms_capabilities;
-                            var wms = new app.wmstheme(convertedToJson, url);
-                            return wms;
-                        }
-                    }
-                }
-            }).success(function (data, status, headers, config) {}).error(function (data, status, headers, config) {
-                console.log('error: data, status, headers, config:');
-                console.log(data);
-                console.log(status);
-                console.log(headers);
-                console.log(config);
-                $window.alert('error');
-            });
-            return prom;
-        };
-        return _service;
-    };
-    module.service('WMSService', ['$http', '$window', 'map', 'HelperService', service]);
+    module.factory('ThemeCreater', service);
 })();
 ;'use strict';
 

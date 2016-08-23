@@ -1,7 +1,7 @@
 'use strict';
 (function () {
     var module = angular.module('tink.gis');
-    var service = function (map, ThemeHelper, MapData, LayerManagementService) {
+    var service = function (map, ThemeCreater, MapData, LayerManagementService) {
         var _service = {};
         _service.AddAndUpdateThemes = function (themesBatch) {
             console.log('Themes batch for add and updates...');
@@ -215,6 +215,6 @@
 
         return _service;
     };
-    module.$inject = ['map', 'ThemeHelper', 'MapData', 'LayerManagementService'];
+    module.$inject = ['map', 'ThemeCreater', 'MapData', 'LayerManagementService'];
     module.factory('ThemeService', service);
 })();

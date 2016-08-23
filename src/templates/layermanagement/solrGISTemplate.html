@@ -2,7 +2,7 @@
     <div class="col-md-4">
         <input class="searchbox" type="text" ng-model="searchTerm" ng-change="searchChanged()" ng-model-options="{debounce: 250}"
             placeholder="Geef een trefwoord" />
-        <div ng-if="!searchIsUrl" ng-repeat="theme in availableThemes">
+        <div ng-repeat="theme in availableThemes">
             <div ng-click="solrThemeChanged(theme)" class="greytext">
                 <!-- ng-class="{'greytext': theme.Type != 'wms' &&  theme.Type != 'esri'}"-->
                 {{theme.name}}
@@ -12,8 +12,6 @@
                         {{layer.features.join(', ')}}
                     </div>
                 </div>
-                <!--<i ng-if="theme.Added == true" class="fa fa-check-circle"></i>
-                <i ng-if="theme.Added == null" class="fa fa-check-circle-o"></i>-->
             </div>
 
         </div>

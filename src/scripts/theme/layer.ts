@@ -60,7 +60,7 @@ namespace app {
             this.title = info.name;
             this.theme = parenttheme;
             this.displayed = true;
-            if (this.parentLayerId === -1 && this.subLayerIds !== null) {
+            if (this.subLayerIds !== null) {
                 this.type = LayerType.GROUP;
             }
         }

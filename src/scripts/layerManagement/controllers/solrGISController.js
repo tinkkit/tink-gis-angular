@@ -6,8 +6,8 @@
     } catch (e) {
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
     }
-    module.controller('solrGISController', ['$scope', 'ThemeHelper', '$q', 'MapService', 'MapData', 'GISService', 'LayerManagementService', 'WMSService', '$window', '$http', 'GeopuntService',
-        function ($scope, ThemeHelper, $q, MapService, MapData, GISService, LayerManagementService, WMSService, $window, $http, GeopuntService) {
+    module.controller('solrGISController', ['$scope', 'ThemeCreater', '$q', 'MapService', 'MapData', 'GISService', 'LayerManagementService', 'WMSService', '$window', '$http', 'GeopuntService',
+        function ($scope, ThemeCreater, $q, MapService, MapData, GISService, LayerManagementService, WMSService, $window, $http, GeopuntService) {
             $scope.pagingCount = null;
             $scope.numberofrecordsmatched = 0;
             // $scope.currentPage = 1;
@@ -147,7 +147,7 @@
             $scope.solrThemeChanged = function (theme) {
                 GISService.GetThemeData(theme.url).then(function (data, statuscode, functie, getdata) {
                     if (!data.error) {
-                        var convertedTheme = ThemeHelper.createThemeFromJson(data, theme);
+                        var convertedTheme = ThemeCreater.createARCGISThemeFromJson(data, theme);
                         $scope.previewTheme(convertedTheme);
                     } else {
                         console.log('ERROR:', data.error);
