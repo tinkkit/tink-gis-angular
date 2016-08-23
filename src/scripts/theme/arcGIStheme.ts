@@ -3,19 +3,16 @@
 'use strict';
 namespace app {
     export class ArcGIStheme extends Theme {
+        VisibleLayerIds: Array<number>;
+
         constructor(rawdata: any, themeData: any) {
             super();
             let rawlayers = rawdata.layers;
             this.Naam = rawdata.documentInfo.Title;
             this.name = rawdata.documentInfo.Title;
             this.Description = rawdata.documentInfo.Subject;
-            this.Layers = []; // de layers direct onder het theme zonder sublayers
-            this.AllLayers = []; // alle Layers die hij heeft including subgrouplayers
-            this.Groups = []; // layergroups die nog eens layers zelf hebben
             this.CleanUrl = themeData.cleanUrl;
             this.Url = themeData.url;
-            this.VisibleLayers = [];
-            this.VisibleLayerIds = [];
             this.Visible = true;
             this.Added = false;
             this.enabled = true;
@@ -23,7 +20,7 @@ namespace app {
             this.status = ThemeStatus.NEW;
             this.MapData = {};
             rawlayers.forEach((layerInfo) => {
-                let layer = new Layer(layerInfo, this);
+                let layer = new arcgislayer(layerInfo, this);
                 this.AllLayers.push(layer);
                 if (layer.parentLayerId === -1) {
                     if (layer.subLayerIds === null) {
@@ -46,5 +43,9 @@ namespace app {
             });
             this.RecalculateVisibleLayerIds();
         }
+        UpdateMap() {
+            this.RecalculateVisibleLayerIds();
+            this.MapData.setLayers(this.VisibleLayerIds);
+        };
     }
 }

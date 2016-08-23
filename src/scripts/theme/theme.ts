@@ -15,11 +15,11 @@ namespace app {
         Type: string;
         status: number;
 
-        VisibleLayerIds: Array<number>;
-        Layers: Array<Layer>;
-        VisibleLayers: Array<Layer>;
-        AllLayers: Array<Layer>;
-        Groups: Array<Layer>;
+        VisibleLayerIds: Array<any> = [];
+        Layers: Array<Layer> = [];
+        VisibleLayers: Array<Layer> = [];
+        AllLayers: Array<Layer> = [];
+        Groups: Array<Layer> = [];
 
         MapData: any;
 
@@ -28,10 +28,9 @@ namespace app {
                 layer.UpdateDisplayed(currentScale);
             });
         }
-        UpdateMap = () => {
-            this.RecalculateVisibleLayerIds();
-            this.MapData.setLayers(this.VisibleLayerIds);
-        };
+        abstract UpdateMap(mapobject?: L.Map) : void;
+        // abstract funct UpdateMap: void;
+    
         RecalculateVisibleLayerIds = () => {
             this.VisibleLayerIds.length = 0;
             this.VisibleLayers.forEach(visLayer => {
