@@ -40,12 +40,7 @@
             }).success(function (data, status, headers, config) {
                 // console.dir(data);  // XML document object
             }).error(function (data, status, headers, config) {
-                console.log('error: data, status, headers, config:');
-                console.log(data);
-                console.log(status);
-                console.log(headers);
-                console.log(config);
-                $window.alert('error');
+                console.log('error: data, status, headers, config:', data, status, headers, config);
             });
             return prom;
         };

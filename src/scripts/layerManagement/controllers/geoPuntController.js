@@ -59,8 +59,17 @@
             };
             $scope.laadUrl = function () {
                 $scope.searchTerm = $scope.searchTerm.trim().replace('?', '');
-                if (MapData.Themes.find(x => x.CleanUrl == $scope.searchTerm) == undefined) {
-                    var getwms = WMSService.GetCapabilities($scope.searchTerm);
+                createWMS($scope.searchTerm);
+            };
+            $scope.geopuntThemeChanged = function (theme) {
+                var questionmarkPos = theme.Url.trim().indexOf('?');
+                var url = theme.Url.trim().substring(0, questionmarkPos);
+                createWMS(url);
+            };
+
+            var createWMS = function (url) {
+                if (MapData.Themes.find(x => x.CleanUrl == url) == undefined) {
+                    var getwms = WMSService.GetCapabilities(url);
                     getwms.success(function (data, status, headers, config) {
                         $scope.previewTheme(data);
                     }).error(function (data, status, headers, config) {
@@ -70,9 +79,7 @@
                 else {
                     alert('Deze is al toegevoegd aan de map.');
                 }
-
-
-            };
+            }
             $scope.selectedTheme = null;
             $scope.copySelectedTheme = null;
             $scope.previewTheme = function (theme) {
@@ -85,31 +92,7 @@
                 $scope.selectedTheme = null;
                 $scope.copySelectedTheme = null;
             };
-            $scope.geopuntThemeChanged = function (theme) {
-                // alert(theme.Type != 'WMS' && theme.Type != 'ESRI');
-                // if (theme.Type != 'wms' && theme.Type != 'esri') {
-                console.log(theme);
-                var questionmarkPos = theme.Url.trim().indexOf('?');
-                var url = theme.Url.trim().substring(0, questionmarkPos);
 
-                // var url = theme.Url.trim().replace('?', '');
-
-                if (MapData.Themes.find(x => x.CleanUrl == url) == undefined) {
-                    var getwms = WMSService.GetCapabilities(url);
-                    getwms.success(function (data, status, headers, config) {
-
-                        $scope.previewTheme(data);
-                    }).error(function (data, status, headers, config) {
-                        $window.alert('error');
-                    });
-                }
-                else {
-                    alert('Deze is al toegevoegd aan de map.');
-                }
-                // }
-
-
-            };
             $scope.AddOrUpdateTheme = function () {
                 console.log('AddOrUpdateTheme');
                 var allChecked = true;
