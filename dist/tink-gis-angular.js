@@ -1353,118 +1353,122 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
     module.$inject = ['$http', 'MapService', 'MapData'];
     module.factory('GeometryService', service);
 })();
-;'use strict';
+;// 'use strict';
+// (function () {
+//     // try {
+//     var module = angular.module('tink.gis');
+//     // } catch (e) {
+//     //     module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
+//     // }
+//     var service = function ($http, $window, map, helperService) {
+//         var _service = {};
 
-(function () {
-    // try {
-    var module = angular.module('tink.gis');
-    // } catch (e) {
-    //     module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
-    // }
-    var service = function service($http, $window, map, helperService) {
-        var _service = {};
+//         _service.GetCapabilities = function (url) {
+//             var fullurl = url + '?request=GetCapabilities&service=WMS&callback=foo';
+//             var prom = $http({
+//                 method: 'GET',
+//                 url: helperService.CreateProxyUrl(fullurl),
+//                 timeout: 10000,
+//                 // params: {},  // Query Parameters (GET)
+//                 transformResponse: function (data) {
+//                     var wmstheme = {};
+//                     if (data) {
+//                         data = helperService.UnwrapProxiedData(data);
+//                         if (data.listOfHttpError) {
+//                             console.log(data.listOfHttpError, fullurl);
+//                         }
+//                         else {
+//                             var returnjson = JXON.stringToJs(data).wms_capabilities;
+//                             console.log(returnjson);
+//                             wmstheme.Version = returnjson['version'];
+//                             wmstheme.name = returnjson.service.title;
+//                             wmstheme.Naam = returnjson.service.title;
+//                             // wmstheme.Title = returnjson.service.title;
+//                             wmstheme.enabled = true;
+//                             wmstheme.Visible = true;
+//                             wmstheme.Layers = [];
+//                             wmstheme.AllLayers = [];
+//                             wmstheme.Groups = []; // layergroups die nog eens layers zelf hebben
+//                             wmstheme.CleanUrl = url;
+//                             wmstheme.Added = false;
+//                             wmstheme.status = ThemeStatus.NEW;
+//                             wmstheme.Description = returnjson.service.abstract;
+//                             wmstheme.Type = ThemeType.WMS;
+//                             wmstheme.VisibleLayerIds = [];
+//                             wmstheme.VisibleLayers = [];
+//                             var createLayer = function (layer) {
+//                                 var tmplayer = {};
+//                                 tmplayer.visible = true;
+//                                 tmplayer.enabled = true;
+//                                 tmplayer.parent = null;
+//                                 tmplayer.displayed = true;
+//                                 tmplayer.theme = wmstheme;
+//                                 tmplayer.name = layer.name;
+//                                 tmplayer.title = layer.title;
+//                                 tmplayer.queryable = layer.queryable;
+//                                 tmplayer.type = LayerType.LAYER;
+//                                 tmplayer.id = layer.name; //names are the ids of the layer in wms
+//                                 wmstheme.Layers.push(tmplayer);
+//                                 wmstheme.AllLayers.push(tmplayer);
+//                             };
+//                             var layers = returnjson.capability.layer.layer;
+//                             if (layers) {
+//                                 if (layers.length != undefined) { // array, it has a length
+//                                     layers.forEach(layer => {
+//                                         createLayer(layer);
+//                                     });
+//                                 }
+//                                 else {
+//                                     createLayer(layers);
 
-        _service.GetCapabilities = function (url) {
-            var fullurl = url + '?request=GetCapabilities&service=WMS&callback=foo';
-            var prom = $http({
-                method: 'GET',
-                url: helperService.CreateProxyUrl(fullurl),
-                timeout: 10000,
-                // params: {},  // Query Parameters (GET)
-                transformResponse: function transformResponse(data) {
-                    var wmstheme = {};
-                    if (data) {
-                        data = helperService.UnwrapProxiedData(data);
-                        if (data.listOfHttpError) {
-                            console.log(data.listOfHttpError, fullurl);
-                        } else {
-                            var returnjson = JXON.stringToJs(data).wms_capabilities;
-                            console.log(returnjson);
-                            wmstheme.Version = returnjson['version'];
-                            wmstheme.name = returnjson.service.title;
-                            wmstheme.Naam = returnjson.service.title;
-                            // wmstheme.Title = returnjson.service.title;
-                            wmstheme.enabled = true;
-                            wmstheme.Visible = true;
-                            wmstheme.Layers = [];
-                            wmstheme.AllLayers = [];
-                            wmstheme.Groups = []; // layergroups die nog eens layers zelf hebben
-                            wmstheme.CleanUrl = url;
-                            wmstheme.Added = false;
-                            wmstheme.status = ThemeStatus.NEW;
-                            wmstheme.Description = returnjson.service.abstract;
-                            wmstheme.Type = ThemeType.WMS;
-                            wmstheme.VisibleLayerIds = [];
-                            wmstheme.VisibleLayers = [];
-                            var createLayer = function createLayer(layer) {
-                                var tmplayer = {};
-                                tmplayer.visible = true;
-                                tmplayer.enabled = true;
-                                tmplayer.parent = null;
-                                tmplayer.displayed = true;
-                                tmplayer.theme = wmstheme;
-                                tmplayer.name = layer.name;
-                                tmplayer.title = layer.title;
-                                tmplayer.queryable = layer.queryable;
-                                tmplayer.type = LayerType.LAYER;
-                                tmplayer.id = layer.name; //names are the ids of the layer in wms
-                                wmstheme.Layers.push(tmplayer);
-                                wmstheme.AllLayers.push(tmplayer);
-                            };
-                            var layers = returnjson.capability.layer.layer;
-                            if (layers) {
-                                if (layers.length != undefined) {
-                                    // array, it has a length
-                                    layers.forEach(function (layer) {
-                                        createLayer(layer);
-                                    });
-                                } else {
-                                    createLayer(layers);
-                                }
-                            } else {
-                                createLayer(returnjson.capability.layer);
-                            }
+//                                 }
 
-                            wmstheme.UpdateMap = function () {
-                                wmstheme.RecalculateVisibleLayerIds();
-                                map.removeLayer(wmstheme.MapData);
-                                map.addLayer(wmstheme.MapData);
-                            };
+//                             } else {
+//                                 createLayer(returnjson.capability.layer);
+//                             }
 
-                            wmstheme.RecalculateVisibleLayerIds = function () {
-                                wmstheme.VisibleLayerIds.length = 0;
-                                _.forEach(wmstheme.VisibleLayers, function (visLayer) {
-                                    wmstheme.VisibleLayerIds.push(visLayer.id);
-                                });
-                                if (wmstheme.VisibleLayerIds.length === 0) {
-                                    wmstheme.VisibleLayerIds.push(-1); //als we niet doen dan zoekt hij op alle lagen!
-                                }
-                            };
-                            wmstheme.RecalculateVisibleLayerIds();
-                        }
-                    }
+//                             wmstheme.UpdateMap = function () {
+//                                 wmstheme.RecalculateVisibleLayerIds();
+//                                 map.removeLayer(wmstheme.MapData);
+//                                 map.addLayer(wmstheme.MapData);
+//                             };
 
-                    return wmstheme;
-                }
-            }).success(function (data, status, headers, config) {
-                console.dir(data); // XML document object
-            }).error(function (data, status, headers, config) {
-                console.log('error: data, status, headers, config:');
-                console.log(data);
-                console.log(status);
-                console.log(headers);
-                console.log(config);
-                $window.alert('error');
-            });
-            return prom;
-        };
+//                             wmstheme.RecalculateVisibleLayerIds = function () {
+//                                 wmstheme.VisibleLayerIds.length = 0;
+//                                 _.forEach(wmstheme.VisibleLayers, function (visLayer) {
+//                                     wmstheme.VisibleLayerIds.push(visLayer.id);
+//                                 });
+//                                 if (wmstheme.VisibleLayerIds.length === 0) {
+//                                     wmstheme.VisibleLayerIds.push(-1); //als we niet doen dan zoekt hij op alle lagen!
+//                                 }
+//                             };
+//                             wmstheme.RecalculateVisibleLayerIds();
 
-        return _service;
-    };
-    // module.$inject = ['HelperService'];
+//                         }
+//                     }
 
-    module.service('WMSService', ['$http', '$window', 'map', 'HelperService', service]);
-})();
+//                     return wmstheme;
+//                 }
+//             }).success(function (data, status, headers, config) {
+//                 console.dir(data);  // XML document object
+//             }).error(function (data, status, headers, config) {
+//                 console.log('error: data, status, headers, config:');
+//                 console.log(data);
+//                 console.log(status);
+//                 console.log(headers);
+//                 console.log(config);
+//                 $window.alert('error');
+//             });
+//             return prom;
+//         };
+
+//         return _service;
+//     };
+//     // module.$inject = ['HelperService'];
+
+//     module.service('WMSService', ['$http', '$window', 'map', 'HelperService', service]);
+// })();
+"use strict";
 ;'use strict';
 
 (function () {
@@ -2629,107 +2633,110 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     module.$inject = ['$rootScope', 'MapData', 'map', 'ThemeHelper', '$q', 'GISService', 'ResultsData', 'HelperService'];
     module.factory('MapService', mapService);
 })();
-;'use strict';
+;// 'use strict';
+// (function () {
+//     var module;
+//     try {
+//         module = angular.module('tink.gis');
+//     } catch (e) {
+//         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi']); //'leaflet-directive'
+//     }
+//     var service = function () {
+//         var themeHelper = {};
+//         themeHelper.createThemeFromJson = function (rawdata, themeData) {
+//             var thema = {};
+//             try {
+//                 var rawlayers = rawdata.layers;
+//                 thema.Naam = rawdata.documentInfo.Title;
+//                 thema.name = rawdata.documentInfo.Title;
+//                 thema.Description = rawdata.documentInfo.Subject;
+//                 thema.Layers = []; // de layers direct onder het theme zonder sublayers
+//                 thema.AllLayers = []; // alle Layers die hij heeft including subgrouplayers
+//                 thema.Groups = []; // layergroups die nog eens layers zelf hebben
+//                 thema.CleanUrl = themeData.cleanUrl;
+//                 thema.Url = themeData.url;
+//                 thema.VisibleLayers = [];
+//                 thema.VisibleLayerIds = [];
+//                 thema.Visible = true;
+//                 thema.Added = false;
+//                 thema.enabled = true;
+//                 thema.Type = ThemeType.ESRI;
+//                 thema.status = ThemeStatus.NEW;
+//                 thema.MapData = {};
+//                 _.each(rawlayers, function (x) {
+//                     x.visible = x.defaultVisibility;
+//                     x.enabled = true;
+//                     x.parent = null;
+//                     x.title = x.name;
+//                     x.theme = thema;
+//                     x.displayed = true;
+//                     x.UpdateDisplayed = function (currentScale) {
+//                         if (x.maxScale > 0 || x.minScale > 0) {
+//                             console.log('MinMaxandCurrentScale', x.maxScale, x.minScale, currentScale);
+//                             if (currentScale > x.maxScale && currentScale < x.minScale) {
+//                                 x.displayed = true;
+//                             }
+//                             else {
+//                                 x.displayed = false;
 
-(function () {
-    var module;
-    try {
-        module = angular.module('tink.gis');
-    } catch (e) {
-        module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi']); //'leaflet-directive'
-    }
-    var service = function service() {
-        var themeHelper = {};
-        themeHelper.createThemeFromJson = function (rawdata, themeData) {
-            var thema = {};
-            try {
-                var rawlayers = rawdata.layers;
-                thema.Naam = rawdata.documentInfo.Title;
-                thema.name = rawdata.documentInfo.Title;
-                thema.Description = rawdata.documentInfo.Subject;
-                thema.Layers = []; // de layers direct onder het theme zonder sublayers
-                thema.AllLayers = []; // alle Layers die hij heeft including subgrouplayers
-                thema.Groups = []; // layergroups die nog eens layers zelf hebben
-                thema.CleanUrl = themeData.cleanUrl;
-                thema.Url = themeData.url;
-                thema.VisibleLayers = [];
-                thema.VisibleLayerIds = [];
-                thema.Visible = true;
-                thema.Added = false;
-                thema.enabled = true;
-                thema.Type = ThemeType.ESRI;
-                thema.status = ThemeStatus.NEW;
-                thema.MapData = {};
-                _.each(rawlayers, function (x) {
-                    x.visible = x.defaultVisibility;
-                    x.enabled = true;
-                    x.parent = null;
-                    x.title = x.name;
-                    x.theme = thema;
-                    x.displayed = true;
-                    x.UpdateDisplayed = function (currentScale) {
-                        if (x.maxScale > 0 || x.minScale > 0) {
-                            console.log('MinMaxandCurrentScale', x.maxScale, x.minScale, currentScale);
-                            if (currentScale > x.maxScale && currentScale < x.minScale) {
-                                x.displayed = true;
-                            } else {
-                                x.displayed = false;
-                            }
-                        }
-                    };
-                    x.type = LayerType.LAYER;
-                    thema.AllLayers.push(x);
-                    if (x.parentLayerId === -1) {
-                        if (x.subLayerIds === null) {
-                            thema.Layers.push(x);
-                        } else {
-                            thema.Groups.push(x);
-                            x.type = LayerType.GROUP;
-                        }
-                    }
-                });
-                _.each(thema.Groups, function (layerGroup) {
-                    if (layerGroup.subLayerIds !== null) {
-                        layerGroup.Layers = [];
-                        _.each(rawlayers, function (rawlayer) {
-                            if (layerGroup.id === rawlayer.parentLayerId) {
-                                rawlayer.parent = layerGroup;
-                                layerGroup.Layers.push(rawlayer);
-                            }
-                        });
-                    }
-                });
-                thema.UpdateDisplayed = function (currentScale) {
-                    thema.AllLayers.forEach(function (layer) {
-                        layer.UpdateDisplayed(currentScale);
-                    });
-                };
-                thema.UpdateMap = function () {
-                    thema.RecalculateVisibleLayerIds();
-                    thema.MapData.setLayers(thema.VisibleLayerIds);
-                };
+//                             }
+//                         }
+//                     };
+//                     x.type = LayerType.LAYER;
+//                     thema.AllLayers.push(x);
+//                     if (x.parentLayerId === -1) {
+//                         if (x.subLayerIds === null) {
+//                             thema.Layers.push(x);
+//                         } else {
+//                             thema.Groups.push(x);
+//                             x.type = LayerType.GROUP;
+//                         }
+//                     }
+//                 });
+//                 _.each(thema.Groups, function (layerGroup) {
+//                     if (layerGroup.subLayerIds !== null) {
+//                         layerGroup.Layers = [];
+//                         _.each(rawlayers, function (rawlayer) {
+//                             if (layerGroup.id === rawlayer.parentLayerId) {
+//                                 rawlayer.parent = layerGroup;
+//                                 layerGroup.Layers.push(rawlayer);
+//                             }
+//                         });
+//                     }
+//                 });
+//                 thema.UpdateDisplayed = function (currentScale) {
+//                     thema.AllLayers.forEach(function (layer) {
+//                         layer.UpdateDisplayed(currentScale);
+//                     });
+//                 };
+//                 thema.UpdateMap = function () {
+//                     thema.RecalculateVisibleLayerIds();
+//                     thema.MapData.setLayers(thema.VisibleLayerIds);
+//                 };
 
-                thema.RecalculateVisibleLayerIds = function () {
-                    thema.VisibleLayerIds.length = 0;
-                    thema.VisibleLayers.forEach(function (visLayer) {
-                        thema.VisibleLayerIds.push(visLayer.id);
-                    });
-                    if (thema.VisibleLayerIds.length === 0) {
-                        thema.VisibleLayerIds.push(-1); //als we niet doen dan zoekt hij op alle lagen!
-                    }
-                };
-                thema.RecalculateVisibleLayerIds();
-            } catch (ex) {
-                console.log('Error when creating theme from url: ' + themeData.url + ' Exeption: ' + ex + ' Data: ');
-                console.log(rawdata);
-            }
-            return thema;
-        };
-        return themeHelper;
-    };
-    module.$inject = ['map'];
-    module.factory('ThemeHelper', service);
-})();
+//                 thema.RecalculateVisibleLayerIds = function () {
+//                     thema.VisibleLayerIds.length = 0;
+//                     thema.VisibleLayers.forEach(function (visLayer) {
+//                         thema.VisibleLayerIds.push(visLayer.id);
+//                     });
+//                     if (thema.VisibleLayerIds.length === 0) {
+//                         thema.VisibleLayerIds.push(-1); //als we niet doen dan zoekt hij op alle lagen!
+//                     }
+//                 };
+//                 thema.RecalculateVisibleLayerIds();
+//             }
+//             catch (ex) {
+//                 console.log('Error when creating theme from url: ' + themeData.url + ' Exeption: ' + ex + ' Data: ');
+//                 console.log(rawdata);
+//             }
+//             return thema;
+//         };
+//         return themeHelper;
+//     };
+//     module.$inject = ['map'];
+//     module.factory('ThemeHelper', service);
+// })();
+"use strict";
 ;'use strict';
 
 (function () {
@@ -2775,7 +2782,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             MapData.SetZIndexes();
         };
         _service.UpdateThemeVisibleLayers = function (theme) {
-            theme.UpdateMap();
+            theme.UpdateMap(map);
         };
         _service.UpdateTheme = function (updatedTheme, existingTheme) {
             //lets update the existingTheme
@@ -4025,6 +4032,8 @@ L.drawLocal = {
 }]);
 ;'use strict';
 
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
@@ -4045,13 +4054,8 @@ var app;
             _this.Naam = rawdata.documentInfo.Title;
             _this.name = rawdata.documentInfo.Title;
             _this.Description = rawdata.documentInfo.Subject;
-            _this.Layers = [];
-            _this.AllLayers = [];
-            _this.Groups = [];
             _this.CleanUrl = themeData.cleanUrl;
             _this.Url = themeData.url;
-            _this.VisibleLayers = [];
-            _this.VisibleLayerIds = [];
             _this.Visible = true;
             _this.Added = false;
             _this.enabled = true;
@@ -4059,7 +4063,7 @@ var app;
             _this.status = ThemeStatus.NEW;
             _this.MapData = {};
             rawlayers.forEach(function (layerInfo) {
-                var layer = new app.Layer(layerInfo, _this);
+                var layer = new app.arcgislayer(layerInfo, _this);
                 _this.AllLayers.push(layer);
                 if (layer.parentLayerId === -1) {
                     if (layer.subLayerIds === null) {
@@ -4084,6 +4088,14 @@ var app;
             return _this;
         }
 
+        _createClass(ArcGIStheme, [{
+            key: 'UpdateMap',
+            value: function UpdateMap() {
+                this.RecalculateVisibleLayerIds();
+                this.MapData.setLayers(this.VisibleLayerIds);
+            }
+        }]);
+
         return ArcGIStheme;
     }(app.Theme);
 
@@ -4099,10 +4111,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var app;
 (function (app) {
-    var LayerJSON = function LayerJSON(layerJSON) {
+    var LayerJSON = function LayerJSON() {
         _classCallCheck(this, LayerJSON);
-
-        Object.assign(this, layerJSON);
     };
 
     app.LayerJSON = LayerJSON;
@@ -4110,11 +4120,18 @@ var app;
     var Layer = function (_LayerJSON) {
         _inherits(Layer, _LayerJSON);
 
-        function Layer(info, parenttheme) {
+        function Layer() {
+            var _Object$getPrototypeO;
+
             _classCallCheck(this, Layer);
 
-            var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(Layer).call(this, info));
+            for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+                args[_key] = arguments[_key];
+            }
 
+            var _this = _possibleConstructorReturn(this, (_Object$getPrototypeO = Object.getPrototypeOf(Layer)).call.apply(_Object$getPrototypeO, [this].concat(args)));
+
+            _this.type = LayerType.LAYER;
             _this.UpdateDisplayed = function (currentScale) {
                 if (_this.maxScale > 0 || _this.minScale > 0) {
                     console.log('MinMaxandCurrentScale', _this.maxScale, _this.minScale, currentScale);
@@ -4125,17 +4142,6 @@ var app;
                     }
                 }
             };
-            _this.visible = info.defaultVisibility;
-            _this.enabled = true;
-            _this.parent = null;
-            _this.title = info.name;
-            _this.theme = parenttheme;
-            _this.displayed = true;
-            if (_this.parentLayerId === -1 && _this.subLayerIds !== null) {
-                _this.type = LayerType.GROUP;
-            } else {
-                _this.type = LayerType.LAYER;
-            }
             return _this;
         }
 
@@ -4143,6 +4149,56 @@ var app;
     }(LayerJSON);
 
     app.Layer = Layer;
+
+    var wmslayer = function (_Layer) {
+        _inherits(wmslayer, _Layer);
+
+        function wmslayer(info, parenttheme) {
+            _classCallCheck(this, wmslayer);
+
+            var _this2 = _possibleConstructorReturn(this, Object.getPrototypeOf(wmslayer).call(this));
+
+            Object.assign(_this2, info);
+            _this2.visible = true;
+            _this2.enabled = true;
+            _this2.parent = null;
+            _this2.displayed = true;
+            _this2.theme = parenttheme;
+            _this2.queryable = info.queryable;
+            _this2.id = _this2.name;
+            return _this2;
+        }
+
+        return wmslayer;
+    }(Layer);
+
+    app.wmslayer = wmslayer;
+
+    var arcgislayer = function (_Layer2) {
+        _inherits(arcgislayer, _Layer2);
+
+        function arcgislayer(info, parenttheme) {
+            _classCallCheck(this, arcgislayer);
+
+            var _this3 = _possibleConstructorReturn(this, Object.getPrototypeOf(arcgislayer).call(this));
+
+            Object.assign(_this3, info);
+            _this3.visible = info.defaultVisibility;
+            _this3.enabled = true;
+            _this3.parent = null;
+            _this3.title = info.name;
+            _this3.theme = parenttheme;
+            _this3.displayed = true;
+            if (_this3.parentLayerId === -1 && _this3.subLayerIds !== null) {
+                _this3.type = LayerType.GROUP;
+            }
+            return _this3;
+        }
+
+        return arcgislayer;
+    }(Layer);
+
+    app.arcgislayer = arcgislayer;
 })(app || (app = {}));
 ;'use strict';
 
@@ -4155,14 +4211,15 @@ var app;
 
         _classCallCheck(this, Theme);
 
+        this.VisibleLayerIds = [];
+        this.Layers = [];
+        this.VisibleLayers = [];
+        this.AllLayers = [];
+        this.Groups = [];
         this.UpdateDisplayed = function (currentScale) {
             _this.AllLayers.forEach(function (layer) {
                 layer.UpdateDisplayed(currentScale);
             });
-        };
-        this.UpdateMap = function () {
-            _this.RecalculateVisibleLayerIds();
-            _this.MapData.setLayers(_this.VisibleLayerIds);
         };
         this.RecalculateVisibleLayerIds = function () {
             _this.VisibleLayerIds.length = 0;
@@ -4191,3 +4248,103 @@ var app;
     };
     module.factory('ThemeHelper', service);
 })();
+(function () {
+    var module = angular.module('tink.gis');
+    var service = function service($http, $window, map, helperService) {
+        var _service = {};
+        _service.GetCapabilities = function (url) {
+            var fullurl = url + '?request=GetCapabilities&service=WMS&callback=foo';
+            var prom = $http({
+                method: 'GET',
+                url: helperService.CreateProxyUrl(fullurl),
+                timeout: 10000,
+                transformResponse: function transformResponse(data) {
+                    if (data) {
+                        data = helperService.UnwrapProxiedData(data);
+                        if (data.listOfHttpError) {
+                            console.log(data.listOfHttpError, fullurl);
+                        } else {
+                            var convertedToJson = JXON.stringToJs(data).wms_capabilities;
+                            var wms = new app.wmstheme(convertedToJson, url);
+                            return wms;
+                        }
+                    }
+                }
+            }).success(function (data, status, headers, config) {}).error(function (data, status, headers, config) {
+                console.log('error: data, status, headers, config:');
+                console.log(data);
+                console.log(status);
+                console.log(headers);
+                console.log(config);
+                $window.alert('error');
+            });
+            return prom;
+        };
+        return _service;
+    };
+    module.service('WMSService', ['$http', '$window', 'map', 'HelperService', service]);
+})();
+;'use strict';
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+var app;
+(function (app) {
+    var wmstheme = function (_app$Theme) {
+        _inherits(wmstheme, _app$Theme);
+
+        function wmstheme(data, url) {
+            _classCallCheck(this, wmstheme);
+
+            var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(wmstheme).call(this));
+
+            _this.Version = data['version'];
+            _this.name = data.service.title;
+            _this.Naam = data.service.title;
+            _this.enabled = true;
+            _this.Visible = true;
+            _this.CleanUrl = url;
+            _this.Added = false;
+            _this.status = ThemeStatus.NEW;
+            _this.Description = data.service.abstract;
+            _this.Type = ThemeType.WMS;
+            var layers = data.capability.layer.layer;
+            var lays = [];
+            if (layers) {
+                if (layers.length == undefined) {
+                    lays.push(layers);
+                } else {
+                    lays = layers;
+                }
+            } else {
+                lays.push(data.capability.layer);
+            }
+            layers.forEach(function (layer) {
+                var lay = new app.wmslayer(layer, _this);
+                _this.Layers.push(lay);
+                _this.AllLayers.push(lay);
+            });
+            _this.RecalculateVisibleLayerIds();
+            return _this;
+        }
+
+        _createClass(wmstheme, [{
+            key: 'UpdateMap',
+            value: function UpdateMap(map) {
+                this.RecalculateVisibleLayerIds();
+                map.removeLayer(this.MapData);
+                map.addLayer(this.MapData);
+            }
+        }]);
+
+        return wmstheme;
+    }(app.Theme);
+
+    app.wmstheme = wmstheme;
+})(app || (app = {}));

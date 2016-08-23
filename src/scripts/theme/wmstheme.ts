@@ -6,19 +6,18 @@ namespace app {
 
         constructor(data, url) {
             super();
-            var returnjson = JXON.stringToJs(data).wms_capabilities;
-            this.Version = returnjson['version'];
-            this.name = returnjson.service.title;
-            this.Naam = returnjson.service.title;
+            this.Version = data['version'];
+            this.name = data.service.title;
+            this.Naam = data.service.title;
             // this.Title = returnjson.service.title;
             this.enabled = true;
             this.Visible = true;
             this.CleanUrl = url;
             this.Added = false;
             this.status = ThemeStatus.NEW;
-            this.Description = returnjson.service.abstract;
+            this.Description = data.service.abstract;
             this.Type = ThemeType.WMS;
-            var layers = returnjson.capability.layer.layer;
+            var layers = data.capability.layer.layer;
             var lays = [];
             if (layers) {
                 if (layers.length == undefined) { // array, it has a length
@@ -28,7 +27,7 @@ namespace app {
                     lays = layers;
                 }
             } else {
-                lays.push(returnjson.capability.layer)
+                lays.push(data.capability.layer)
             }
             layers.forEach(layer => {
                 let lay = new wmslayer(layer, this);

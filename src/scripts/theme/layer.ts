@@ -20,7 +20,7 @@ namespace app {
         theme: Theme;
         title: string;
         displayed: boolean;
-        type: number;
+        type: number = LayerType.LAYER;
         Layers: Array<Layer>;
         UpdateDisplayed = (currentScale) => {
             if (this.maxScale > 0 || this.minScale > 0) {
@@ -46,7 +46,6 @@ namespace app {
             this.displayed = true;
             this.theme = parenttheme;
             this.queryable = info.queryable;
-            this.type = info.LAYER;
             this.id = this.name; //names are the ids of the layer in wms
         }
     }
@@ -63,9 +62,6 @@ namespace app {
             this.displayed = true;
             if (this.parentLayerId === -1 && this.subLayerIds !== null) {
                 this.type = LayerType.GROUP;
-            }
-            else {
-                this.type = LayerType.LAYER;
             }
         }
     }

@@ -30,7 +30,9 @@
                         if (data.listOfHttpError) {
                             console.log(data.listOfHttpError, fullurl);
                         } else {
-                            var wms = new app.wmstheme(data, url);
+                            var convertedToJson = JXON.stringToJs(data).wms_capabilities;
+
+                            var wms = new app.wmstheme(convertedToJson, url);
                             return wms;
                         }
                     }

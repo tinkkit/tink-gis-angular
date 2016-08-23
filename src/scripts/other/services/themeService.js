@@ -42,7 +42,7 @@
             MapData.SetZIndexes();
         };
         _service.UpdateThemeVisibleLayers = function (theme) {
-            theme.UpdateMap();
+            theme.UpdateMap(map);
         };
         _service.UpdateTheme = function (updatedTheme, existingTheme) {
             //lets update the existingTheme
