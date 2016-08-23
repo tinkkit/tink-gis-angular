@@ -28,9 +28,9 @@ namespace app {
                 layer.UpdateDisplayed(currentScale);
             });
         }
-        abstract UpdateMap(mapobject?: L.Map) : void;
+        abstract UpdateMap(mapobject?: L.Map): void;
         // abstract funct UpdateMap: void;
-    
+
         RecalculateVisibleLayerIds = () => {
             this.VisibleLayerIds.length = 0;
             this.VisibleLayers.forEach(visLayer => {
