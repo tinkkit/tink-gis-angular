@@ -6,7 +6,7 @@
     var service = function () {
         var themeHelper: any = {};
         themeHelper.createThemeFromJson = function (rawdata, themeData) {
-            let theme: ArcGIStheme = new ArcGIStheme(rawdata, themeData)
+            let theme: app.ArcGIStheme = new app.ArcGIStheme(rawdata, themeData)
             return theme;
         };
         return themeHelper;
