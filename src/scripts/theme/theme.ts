@@ -15,13 +15,27 @@ namespace app {
         Type: string;
         status: number;
 
-        VisibleLayerIds: Array<any> = [];
-        Layers: Array<Layer> = [];
-        VisibleLayers: Array<Layer> = [];
-        AllLayers: Array<Layer> = [];
-        Groups: Array<Layer> = [];
-
         MapData: any;
+
+
+        Layers: Array<Layer> = [];
+        get VisibleLayers(): Array<Layer> {
+            if (this.Visible) {
+                var allLay: Array<Layer> = this.AllLayers.filter(x => x.IsRealyVisible == true);
+                return allLay;
+            }
+            return []; // if the theme is not visible then give 0 layers back
+        };
+        get VisibleLayerIds(): Array<any> {
+            return this.VisibleLayers.map(x => x.id);
+        };
+        get AllLayers(): Array<Layer> {
+            var allLay: Array<Layer> = this.Layers;
+            this.Layers.forEach(lay => {
+                allLay = allLay.concat(lay.AllLayers);
+            });
+            return allLay;
+        };
 
         UpdateDisplayed = (currentScale) => {
             this.AllLayers.forEach(layer => {
@@ -31,14 +45,14 @@ namespace app {
         abstract UpdateMap(mapobject?: L.Map): void;
         // abstract funct UpdateMap: void;
 
-        RecalculateVisibleLayerIds = () => {
-            this.VisibleLayerIds.length = 0;
-            this.VisibleLayers.forEach(visLayer => {
-                this.VisibleLayerIds.push(visLayer.id);
-            });
-            if (this.VisibleLayerIds.length === 0) {
-                this.VisibleLayerIds.push(-1); //als we niet doen dan zoekt hij op alle lagen!
-            }
-        };
+        // RecalculateVisibleLayerIds = () => {
+        //     this.VisibleLayerIds.length = 0;
+        //     this.VisibleLayers.forEach(visLayer => {
+        //         this.VisibleLayerIds.push(visLayer.id);
+        //     });
+        //     if (this.VisibleLayerIds.length === 0) {
+        //         this.VisibleLayerIds.push(-1); //als we niet doen dan zoekt hij op alle lagen!
+        //     }
+        // };
     }
 }

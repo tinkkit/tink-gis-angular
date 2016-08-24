@@ -4,14 +4,14 @@
     module = angular.module('tink.gis');
 
 
-    module.directive('tinkLayer', ['RecursionHelper', function (RecursionHelper) {
+    module.directive('tinkManagementlayer', ['RecursionHelper', function (RecursionHelper) {
         return {
             replace: false,
             scope: {
                 layer: '='
             },
-            templateUrl: 'templates/other/layerTemplate.html',
-            controller: 'layerController',
+            templateUrl: 'templates/layerManagement/managementLayerTemplate.html',
+            controller: 'managementLayerController',
             controllerAs: 'lyrctrl',
             compile: function (element) {
                 // Use the compile function from the RecursionHelper,

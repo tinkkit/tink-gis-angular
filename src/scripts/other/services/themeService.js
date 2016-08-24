@@ -72,7 +72,7 @@
                 existingLayer.enabled = updatedLayer.enabled;
                 existingLayer.visible = updatedLayer.visible;
             }
-            existingTheme.RecalculateVisibleLayerIds();
+            // existingTheme.RecalculateVisibleLayerIds();
         };
         _service.AddNewTheme = function (theme) {
             MapData.Themes.unshift(theme);
@@ -87,7 +87,7 @@
                 }
 
             });
-            theme.RecalculateVisibleLayerIds();
+            // theme.RecalculateVisibleLayerIds();
 
             switch (theme.Type) {
                 case ThemeType.ESRI:
@@ -103,31 +103,12 @@
 
 
                     theme.MapData.on('load', function (e) {
-                        // console.log(MapData.Zindex);
-                        // console.log('Load Fired for ' + theme.Naam);
                         if (theme.MapData._currentImage) {
                             theme.MapData._currentImage._image.style.zIndex = theme.MapData.ZIndex;
                             console.log('Zindex on ' + theme.Naam + ' set to ' + theme.MapData.ZIndex);
                         }
                     });
-                    // theme.MapData.on('loading', function(e) {
-                    //     console.log('loading ' + theme.Naam);
-                    // });
-                    // theme.MapData.on('requeststart', function(obj) {
-                    //     MapData.Loading++;
-                    //     console.log(MapData.Loading + 'requeststart ' + theme.Naam);
-                    //     $rootScope.$apply();
-
-
-                    // });
-                    // theme.MapData.on('requestend', function(obj) {
-                    //     if (MapData.Loading > 0) {
-                    //         MapData.Loading--;
-                    //     }
-                    //     console.log(MapData.Loading + 'requestend ' + theme.Naam);
-                    //     $rootScope.$apply();
-
-                    // });
+ 
                     break;
                 case ThemeType.WMS:
                     theme.MapData = L.tileLayer.betterWms(theme.CleanUrl, {
@@ -139,30 +120,7 @@
                         continuousWorld: true,
                         useCors: true
                     }).addTo(map);
-                    // theme.MapData.on('tileloadstart', function(obj) {
-                    //     MapData.Loading++;
-                    //     console.log(MapData.Loading + 'tileloadstart ' + theme.Naam);
-                    //     $rootScope.$apply();
-
-
-                    // });
-                    // theme.MapData.on('tileerror', function(obj) {
-                    //     // if (MapData.Loading > 0) {
-                    //         MapData.Loading--;
-                    //     // }
-                    //     console.log('!!!!!!!!! ' + MapData.Loading + 'tileerror ' + theme.Naam);
-                    //     $rootScope.$apply();
-
-
-                    // });
-                    // theme.MapData.on('tileload', function(obj) {
-                    //     // if (MapData.Loading > 0) {
-                    //         MapData.Loading--;
-                    //     // }
-                    //     console.log(MapData.Loading + 'tileload ' + theme.Naam);
-                    //     $rootScope.$apply();
-
-                    // });
+            
                     theme.MapData.on('load', function (e) {
                         console.log('LOAD VAN ' + theme.Naam);
                         console.log(theme.MapData);

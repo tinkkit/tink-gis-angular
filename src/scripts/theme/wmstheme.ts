@@ -32,13 +32,11 @@ namespace app {
             layers.forEach(layer => {
                 let lay = new wmslayer(layer, this);
                 this.Layers.push(lay);
-                this.AllLayers.push(lay);
+                // this.AllLayers.push(lay);
             });
-            this.RecalculateVisibleLayerIds();
-
         }
         UpdateMap(map: L.Map) {
-            this.RecalculateVisibleLayerIds();
+            // this.RecalculateVisibleLayerIds();
             map.removeLayer(this.MapData);
             map.addLayer(this.MapData);
         }

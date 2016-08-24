@@ -7,7 +7,7 @@ namespace app {
 
         constructor(rawdata: any, themeData: any) {
             super();
-            let rawlayers = rawdata.layers;
+            let rawlayers: any[] = rawdata.layers;
             this.Naam = rawdata.documentInfo.Title;
             this.name = rawdata.documentInfo.Title;
             this.Description = rawdata.documentInfo.Subject;
@@ -19,33 +19,26 @@ namespace app {
             this.Type = ThemeType.ESRI;
             this.status = ThemeStatus.NEW;
             this.MapData = {};
-            rawlayers.forEach((layerInfo) => {
-                let layer = new arcgislayer(layerInfo, this);
-                this.AllLayers.push(layer);
-                if (layer.parentLayerId === -1) {
-                    if (layer.subLayerIds === null) {
-                        this.Layers.push(layer);
-                    } else {
-                        this.Groups.push(layer);
-                    }
+            var convertedLayers = rawlayers.map(x => new arcgislayer(x, this));
+            convertedLayers.forEach(argislay => {
+                if (argislay.parentLayerId === -1) {
+                    this.Layers.push(argislay);
                 }
-            });
-            this.Groups.forEach((layerGroup) => {
-                if (layerGroup.subLayerIds !== null) {
-                    layerGroup.Layers = [];
-                    this.AllLayers.forEach((layer) => {
-                        if (layerGroup.id === layer.parentLayerId) {
-                            layer.parent = layerGroup;
-                            layerGroup.Layers.push(layer);
-                        }
-                    });
+                else {
+                    var parentlayer = convertedLayers.find(x => x.id == argislay.parentLayerId);
+                    argislay.parent == parentlayer;
+                    parentlayer.Layers.push(argislay);
                 }
-            });
-            this.RecalculateVisibleLayerIds();
+
+            })
         }
         UpdateMap() {
-            this.RecalculateVisibleLayerIds();
-            this.MapData.setLayers(this.VisibleLayerIds);
+            if (this.VisibleLayerIds.length !== 0) {
+                this.MapData.setLayers(this.VisibleLayerIds);
+            }
+            else {
+                this.MapData.setLayers([-1]);
+            }
         };
     }
 }

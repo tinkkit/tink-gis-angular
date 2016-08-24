@@ -1,9 +1,20 @@
 <div class="layercontroller-checkbox">
-    <img style="width:20px; height:20px;" ng-if="lyrctrl.layer.theme.Type == 'esri' && lyrctrl.layer.legend.length == 1" ng-src="{{lyrctrl.layer.legend[0].fullurl}}"></img>
-    <input class="visible-box" type="checkbox" ng-model="lyrctrl.layer.visible" ng-change="lyrctrl.chkChanged()" id="{{lyrctrl.layer.name}}{{lyrctrl.layer.id}}">
-    <label ng-class="{'greytext': lyrctrl.layer.displayed == false}" for="{{lyrctrl.layer.name}}{{lyrctrl.layer.id}}"> {{lyrctrl.layer.title | limitTo: 23}}<span ng-show="lyrctrl.layer.theme.Type == 'wms' && lyrctrl.layer.queryable">(i)</span></label>
-    <img ng-if="lyrctrl.layer.theme.Type == 'wms'" ng-src="{{layer.theme.CleanUrl}}?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&LAYER={{lyrctrl.layer.id}}"><img>
-    <div ng-if="lyrctrl.layer.theme.Type == 'esri' && lyrctrl.layer.legend.length > 1" ng-repeat="legend in lyrctrl.layer.legend">
-        <img style="width:20px; height:20px;" ng-src="{{legend.fullurl}}"><img><span> {{legend.label}}</span>
+    <div ng-if="lyrctrl.layer.hasLayers">
+        <input class="visible-box" type="checkbox" id="{{lyrctrl.layer.name}}{{lyrctrl.layer.id}}" ng-model="lyrctrl.layer.visible"
+            ng-change="lyrctrl.chkChanged()">
+        <label for="{{lyrctrl.layer.name}}{{lyrctrl.layer.id}}">{{lyrctrl.layer.name}}</label>
+        <div ng-repeat="layer in lyrctrl.layer.Layers | filter :  { enabled: true }">
+            <tink-Layer layer="layer">
+            </tink-Layer>
+        </div>
+    </div>
+    <div ng-if="!lyrctrl.layer.hasLayers">
+        <img style="width:20px; height:20px; " ng-if="lyrctrl.layer.theme.Type=='esri' && lyrctrl.layer.legend.length==1" ng-src="{{lyrctrl.layer.legend[0].fullurl}} "></img>
+        <input class="visible-box " type="checkbox" ng-model="lyrctrl.layer.visible " ng-change="lyrctrl.chkChanged()" id="{{lyrctrl.layer.name}}{{lyrctrl.layer.id}} ">
+        <label ng-class="{ 'greytext': lyrctrl.layer.displayed==false} " for="{{lyrctrl.layer.name}}{{lyrctrl.layer.id}}"> {{lyrctrl.layer.title | limitTo: 23}}<span ng-show="lyrctrl.layer.theme.Type=='wms' && lyrctrl.layer.queryable ">(i)</span></label>
+        <img ng-if="lyrctrl.layer.theme.Type=='wms' " ng-src="{{layer.theme.CleanUrl}}?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&LAYER={{lyrctrl.layer.id}} "><img>
+        <div ng-if="lyrctrl.layer.theme.Type=='esri' && lyrctrl.layer.legend.length> 1" ng-repeat="legend in lyrctrl.layer.legend">
+            <img style="width:20px; height:20px;" ng-src="{{legend.fullurl}}"><img><span> {{legend.label}}</span>
+        </div>
     </div>
 </div>

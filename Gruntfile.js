@@ -38,7 +38,7 @@ module.exports = function (grunt) {
                 reference: 'src/typings/index.d.ts',
                 tsconfig: './src/tsconfig.json',
                 options: {
-                    inlineSources: true,
+                    // inlineSoukrces: true,
                     inlineSourceMap: true,
                     livereload: '<%= connect.options.livereload %>'
                 }

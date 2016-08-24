@@ -5,12 +5,12 @@
     } catch (e) {
         var module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi']); //'leaflet-directive'
     }
-    var theController = module.controller('layerController', function ($scope) {
+    var theController = module.controller('layerController', function ($scope, ThemeService) {
         var vm = this;
         vm.layer = $scope.layer;
         vm.chkChanged = function () {
-            $scope.$emit('layerCheckboxChangedEvent', $scope.layer); // stuur naar parent ofwel group ofwel theme
+            ThemeService.UpdateThemeVisibleLayers(vm.layer.theme);
         };
     });
-    theController.$inject = [];
+    theController.$inject = ['ThemeService'];
 })();

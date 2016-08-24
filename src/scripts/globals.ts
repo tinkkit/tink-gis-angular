@@ -72,4 +72,5 @@ var Scales = [
     500,
     250,
     100
-]
+];
+// (<any>window).Scales = Scales;

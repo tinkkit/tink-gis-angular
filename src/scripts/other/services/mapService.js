@@ -11,7 +11,7 @@
         _mapService.Identify = function (event, tolerance) {
             if (typeof tolerance === 'undefined') { tolerance = 10; }
             _.each(MapData.Themes, function (theme) {
-                theme.RecalculateVisibleLayerIds();
+                // theme.RecalculateVisibleLayerIds();
                 var identifOnThisTheme = true;
                 if (theme.VisibleLayerIds.length === 1 && theme.VisibleLayerIds[0] === -1) {
                     identifOnThisTheme = false; // we moeten de layer niet qryen wnnr er geen vis layers zijn
@@ -191,42 +191,8 @@
                     });
             }
         };
-        _mapService.UpdateThemeStatus = function (theme) {
-            _.each(theme.Groups, function (layerGroup) {
-                _mapService.UpdateGroupLayerStatus(layerGroup, theme);
-            });
-            _.each(theme.Layers, function (layer) {
-                _mapService.UpdateLayerStatus(layer, theme);
-            });
+        
 
-        };
-        _mapService.UpdateGroupLayerStatus = function (groupLayer, theme) {
-            _.each(groupLayer.Layers, function (childlayer) {
-                _mapService.UpdateLayerStatus(childlayer, theme);
-            });
-        };
-
-        _mapService.UpdateLayerStatus = function (layer, theme) {
-            var visibleOnMap = theme.Visible && layer.visible && ((layer.parent && layer.parent.visible) || !layer.parent);
-            var indexOfLayerInVisibleLayers = theme.VisibleLayers.indexOf(layer);
-            if (visibleOnMap) {
-                if (indexOfLayerInVisibleLayers === -1 && layer.enabled) { // alleen maar toevoegen wnnr layer enabled en niet aanwezig al in de array!
-                    theme.VisibleLayers.push(layer);
-                    if (theme.Type == ThemeType.ESRI) {
-                        MapData.VisibleLayers.push(layer);
-                    }
-                }
-            }
-            else {
-                if (indexOfLayerInVisibleLayers > -1) {
-                    theme.VisibleLayers.splice(indexOfLayerInVisibleLayers, 1);
-                    if (theme.Type == ThemeType.ESRI) {
-                        var indexOfLayerInVisibleLayersOfMap = MapData.VisibleLayers.indexOf(layer);
-                        MapData.VisibleLayers.splice(indexOfLayerInVisibleLayersOfMap, 1);
-                    }
-                }
-            }
-        };
         return _mapService;
     };
     module.$inject = ['$rootScope', 'MapData', 'map', 'ThemeCreater', '$q', 'GISService', 'ResultsData', 'HelperService'];
