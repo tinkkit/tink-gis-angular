@@ -15,16 +15,14 @@ namespace app {
     }
     export abstract class Layer extends LayerJSON {
         visible: boolean;
-        get IsRealyVisible(): boolean {
-            // debugger;
-            return this.enabled && this.visible && !this.hasLayers;
-        };
+        // get IsRealyVisible(): boolean {
+        //     return this.enabled && this.visible && !this.hasLayers;
+        // };
         enabled: boolean;
-        parent: any = null;
+        parent: Layer = null;
         theme: Theme;
         title: string;
         displayed: boolean;
-        // type: number = LayerType.LAYER;
         get hasLayers(): boolean {
             if (this.Layers) {
                 return this.Layers.length > 0;
@@ -32,7 +30,28 @@ namespace app {
             return false;
         };
         Layers: Array<Layer> = [];
-
+        get ShouldBeVisible(): boolean {
+            if (this.enabled && this.visible && !this.hasLayers) {
+                if (!this.parent) {
+                    return true;
+                }
+                else if (this.parent.IsEnabledAndVisible) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        get IsEnabledAndVisible(): boolean {
+            if (this.enabled && this.visible) {
+                if (!this.parent) {
+                    return true;
+                }
+                else {
+                    return this.parent.IsEnabledAndVisible;
+                }
+            }
+            return false;
+        }
         get AllLayers(): Array<Layer> {
             var allLay: Array<Layer> = this.Layers;
             this.Layers.forEach(lay => {

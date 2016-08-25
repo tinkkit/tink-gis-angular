@@ -26,12 +26,13 @@ namespace app {
                 }
                 else {
                     var parentlayer = convertedLayers.find(x => x.id == argislay.parentLayerId);
-                    argislay.parent == parentlayer;
+                    argislay.parent = parentlayer;
                     parentlayer.Layers.push(argislay);
                 }
 
             })
         }
+
         UpdateMap() {
             if (this.VisibleLayerIds.length !== 0) {
                 this.MapData.setLayers(this.VisibleLayerIds);

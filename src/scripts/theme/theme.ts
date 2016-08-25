@@ -21,7 +21,7 @@ namespace app {
         Layers: Array<Layer> = [];
         get VisibleLayers(): Array<Layer> {
             if (this.Visible) {
-                var allLay: Array<Layer> = this.AllLayers.filter(x => x.IsRealyVisible == true);
+                var allLay: Array<Layer> = this.AllLayers.filter(x => x.ShouldBeVisible);
                 return allLay;
             }
             return []; // if the theme is not visible then give 0 layers back
@@ -36,7 +36,7 @@ namespace app {
             });
             return allLay;
         };
-
+ 
         UpdateDisplayed = (currentScale) => {
             this.AllLayers.forEach(layer => {
                 layer.UpdateDisplayed(currentScale);
