@@ -10,7 +10,7 @@
             scope: {
                 layer: '='
             },
-            templateUrl: 'templates/layerManagement/managementLayerTemplate.html',
+            templateUrl: 'templates/layermanagement/managementLayerTemplate.html',
             controller: 'managementLayerController',
             controllerAs: 'lyrctrl',
             compile: function (element) {

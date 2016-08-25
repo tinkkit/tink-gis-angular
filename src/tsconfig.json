@@ -1,8 +1,7 @@
 {
     "compilerOptions": {
         "target": "es6",
-        "module": "commonjs",
-        "sourceMap": true,
+        "module": "es6",
         "inlineSourceMap": true
     }
 }

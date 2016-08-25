@@ -1,7 +1,6 @@
-// import {Theme} from './theme';
-// import {Layer} from './layer';
-'use strict';
-namespace app {
+namespace TinkGis {
+
+    'use strict';
     export class ArcGIStheme extends Theme {
         VisibleLayerIds: Array<number>;
 
@@ -19,7 +18,7 @@ namespace app {
             this.Type = ThemeType.ESRI;
             this.status = ThemeStatus.NEW;
             this.MapData = {};
-            var convertedLayers = rawlayers.map(x => new arcgislayer(x, this));
+            let convertedLayers = rawlayers.map(x => new arcgislayer(x, this));
             convertedLayers.forEach(argislay => {
                 if (argislay.parentLayerId === -1) {
                     this.Layers.push(argislay);

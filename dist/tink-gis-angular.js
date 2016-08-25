@@ -265,8 +265,8 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 if (allChecked) {
                     $scope.selectedTheme.Added = true; // here we can set the Added to true when they are all added
                 } else {
-                        $scope.selectedTheme.Added = null; // if not all added then we put it to null
-                    }
+                    $scope.selectedTheme.Added = null; // if not all added then we put it to null
+                }
                 if (alreadyAdded == false) {
                     // it is a new theme!
                     LayerManagementService.EnabledThemes.push($scope.selectedTheme);
@@ -527,8 +527,8 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 if (allChecked) {
                     $scope.selectedTheme.Added = true; // here we can set the Added to true when they are all added
                 } else {
-                        $scope.selectedTheme.Added = null; // if not all added then we put it to null
-                    }
+                    $scope.selectedTheme.Added = null; // if not all added then we put it to null
+                }
                 if (alreadyAdded == false) {
                     // it is a new theme!
                     LayerManagementService.EnabledThemes.push($scope.selectedTheme);
@@ -585,7 +585,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             scope: {
                 layer: '='
             },
-            templateUrl: 'templates/layerManagement/managementLayerTemplate.html',
+            templateUrl: 'templates/layermanagement/managementLayerTemplate.html',
             controller: 'managementLayerController',
             controllerAs: 'lyrctrl',
             compile: function compile(element) {
@@ -654,9 +654,9 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                     prom.resolve(returnObject);
                     // console.log(getResults['csw:record']);
                 } else {
-                        prom.reject(null);
-                        console.log('EMPTY RESULT');
-                    }
+                    prom.reject(null);
+                    console.log('EMPTY RESULT');
+                }
             }).error(function (data, status, headers, config) {
                 prom.reject(null);
                 console.log('ERROR!', data, status, headers, config);
@@ -861,14 +861,14 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 setViewAndPutDot(WGS84Check);
                 // map.setView(L.latLng(WGS84Check.X, WGS84Check.Y), 12);
             } else {
-                    var lambertCheck = HelperService.getLambartCordsFromString(search);
-                    if (lambertCheck.hasCordinates) {
-                        var xyWGS84 = HelperService.ConvertLambert72ToWSG84({ x: lambertCheck.x, y: lambertCheck.y });
-                        setViewAndPutDot(xyWGS84);
-                    } else {
-                        console.log('NIET GEVONDEN');
-                    }
+                var lambertCheck = HelperService.getLambartCordsFromString(search);
+                if (lambertCheck.hasCordinates) {
+                    var xyWGS84 = HelperService.ConvertLambert72ToWSG84({ x: lambertCheck.x, y: lambertCheck.y });
+                    setViewAndPutDot(xyWGS84);
+                } else {
+                    console.log('NIET GEVONDEN');
                 }
+            }
         };
 
         vm.zoekLocChanged = function (search) {
@@ -1699,8 +1699,8 @@ var esri2geo = {};
                     if (realTheme.AllLayers.length == theme.layers.length) {
                         realTheme.Added = true; //all are added
                     } else {
-                            realTheme.Added = null; // some are added, never false because else we woudn't save it.
-                        }
+                        realTheme.Added = null; // some are added, never false because else we woudn't save it.
+                    }
                     realTheme.AllLayers.forEach(function (layer) {
                         layer.enabled = false; // lets disable all layers first
                     });
@@ -3107,15 +3107,6 @@ L.TileLayer.BetterWMS = L.TileLayer.WMS.extend({
 
 });
 
-// showGetFeatureInfo: function(err, latlng, content) {
-//     if (err) { console.log(err); return; } // do nothing if there's an error
-
-//     // Otherwise show the content in a popup, or something.
-//     L.popup({ maxWidth: 800 })
-//         .setLatLng(latlng)
-//         .setContent(content)
-//         .openOn(this._map);
-// }
 L.tileLayer.betterWms = function (url, options) {
     return new L.TileLayer.BetterWMS(url, options);
 };
@@ -3824,10 +3815,12 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var app;
-(function (app) {
-    var ArcGIStheme = function (_app$Theme) {
-        _inherits(ArcGIStheme, _app$Theme);
+var TinkGis;
+(function (TinkGis) {
+    'use strict';
+
+    var ArcGIStheme = function (_TinkGis$Theme) {
+        _inherits(ArcGIStheme, _TinkGis$Theme);
 
         function ArcGIStheme(rawdata, themeData) {
             _classCallCheck(this, ArcGIStheme);
@@ -3847,7 +3840,7 @@ var app;
             _this.status = ThemeStatus.NEW;
             _this.MapData = {};
             var convertedLayers = rawlayers.map(function (x) {
-                return new app.arcgislayer(x, _this);
+                return new TinkGis.arcgislayer(x, _this);
             });
             convertedLayers.forEach(function (argislay) {
                 if (argislay.parentLayerId === -1) {
@@ -3856,7 +3849,7 @@ var app;
                     var parentlayer = convertedLayers.find(function (x) {
                         return x.id == argislay.parentLayerId;
                     });
-                    argislay.parent == parentlayer;
+                    argislay.parent = parentlayer;
                     parentlayer.Layers.push(argislay);
                 }
             });
@@ -3875,10 +3868,10 @@ var app;
         }]);
 
         return ArcGIStheme;
-    }(app.Theme);
+    }(TinkGis.Theme);
 
-    app.ArcGIStheme = ArcGIStheme;
-})(app || (app = {}));
+    TinkGis.ArcGIStheme = ArcGIStheme;
+})(TinkGis || (TinkGis = {}));
 ;'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -3889,13 +3882,15 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var app;
-(function (app) {
+var TinkGis;
+(function (TinkGis) {
+    'use strict';
+
     var LayerJSON = function LayerJSON() {
         _classCallCheck(this, LayerJSON);
     };
 
-    app.LayerJSON = LayerJSON;
+    TinkGis.LayerJSON = LayerJSON;
 
     var Layer = function (_LayerJSON) {
         _inherits(Layer, _LayerJSON);
@@ -3930,15 +3925,32 @@ var app;
         }
 
         _createClass(Layer, [{
-            key: 'IsRealyVisible',
-            get: function get() {
-                return this.enabled && this.visible && !this.hasLayers;
-            }
-        }, {
             key: 'hasLayers',
             get: function get() {
                 if (this.Layers) {
                     return this.Layers.length > 0;
+                }
+                return false;
+            }
+        }, {
+            key: 'ShouldBeVisible',
+            get: function get() {
+                if (this.IsEnabledAndVisible && !this.hasLayers) {
+                    if (!this.parent || this.parent.IsEnabledAndVisible) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        }, {
+            key: 'IsEnabledAndVisible',
+            get: function get() {
+                if (this.enabled && this.visible) {
+                    if (!this.parent) {
+                        return true;
+                    } else {
+                        return this.parent.IsEnabledAndVisible;
+                    }
                 }
                 return false;
             }
@@ -3956,7 +3968,7 @@ var app;
         return Layer;
     }(LayerJSON);
 
-    app.Layer = Layer;
+    TinkGis.Layer = Layer;
 
     var wmslayer = function (_Layer) {
         _inherits(wmslayer, _Layer);
@@ -3979,7 +3991,7 @@ var app;
         return wmslayer;
     }(Layer);
 
-    app.wmslayer = wmslayer;
+    TinkGis.wmslayer = wmslayer;
 
     var arcgislayer = function (_Layer2) {
         _inherits(arcgislayer, _Layer2);
@@ -4001,16 +4013,18 @@ var app;
         return arcgislayer;
     }(Layer);
 
-    app.arcgislayer = arcgislayer;
-})(app || (app = {}));
+    TinkGis.arcgislayer = arcgislayer;
+})(TinkGis || (TinkGis = {}));
 ;'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var app;
-(function (app) {
+var TinkGis;
+(function (TinkGis) {
+    'use strict';
+
     var Theme = function () {
         function Theme() {
             var _this = this;
@@ -4030,7 +4044,7 @@ var app;
             get: function get() {
                 if (this.Visible) {
                     var allLay = this.AllLayers.filter(function (x) {
-                        return x.IsRealyVisible == true;
+                        return x.ShouldBeVisible;
                     });
                     return allLay;
                 }
@@ -4057,33 +4071,29 @@ var app;
         return Theme;
     }();
 
-    app.Theme = Theme;
-})(app || (app = {}));
+    TinkGis.Theme = Theme;
+})(TinkGis || (TinkGis = {}));
 ;'use strict';
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-(function () {
-    var module = angular.module('tink.gis');
-    var service = function service() {
-        var ThemeCreater = function ThemeCreater() {
-            _classCallCheck(this, ThemeCreater);
-
-            this.createARCGISThemeFromJson = function (rawdata, themeData) {
-                var theme = new app.ArcGIStheme(rawdata, themeData);
+var TinkGis;
+(function (TinkGis) {
+    (function () {
+        var module = angular.module('tink.gis');
+        var service = function service() {
+            var ThemeCreater = {};
+            ThemeCreater.createARCGISThemeFromJson = function (rawdata, themeData) {
+                var theme = new TinkGis.ArcGIStheme(rawdata, themeData);
                 return theme;
             };
-            this.createWMSThemeFromJSON = function (data, url) {
-                var wms = new app.wmstheme(data, url);
+            ThemeCreater.createWMSThemeFromJSON = function (data, url) {
+                var wms = new TinkGis.wmstheme(data, url);
                 return wms;
             };
+            return ThemeCreater;
         };
-
-        ;
-        return new ThemeCreater();
-    };
-    module.factory('ThemeCreater', service);
-})();
+        module.factory('ThemeCreater', service);
+    })();
+})(TinkGis || (TinkGis = {}));
 ;'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -4094,10 +4104,12 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var app;
-(function (app) {
-    var wmstheme = function (_app$Theme) {
-        _inherits(wmstheme, _app$Theme);
+var TinkGis;
+(function (TinkGis) {
+    'use strict';
+
+    var wmstheme = function (_TinkGis$Theme) {
+        _inherits(wmstheme, _TinkGis$Theme);
 
         function wmstheme(data, url) {
             _classCallCheck(this, wmstheme);
@@ -4126,7 +4138,7 @@ var app;
                 lays.push(data.capability.layer);
             }
             layers.forEach(function (layer) {
-                var lay = new app.wmslayer(layer, _this);
+                var lay = new TinkGis.wmslayer(layer, _this);
                 _this.Layers.push(lay);
             });
             return _this;
@@ -4141,7 +4153,7 @@ var app;
         }]);
 
         return wmstheme;
-    }(app.Theme);
+    }(TinkGis.Theme);
 
-    app.wmstheme = wmstheme;
-})(app || (app = {}));
+    TinkGis.wmstheme = wmstheme;
+})(TinkGis || (TinkGis = {}));

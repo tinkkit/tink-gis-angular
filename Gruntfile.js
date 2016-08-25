@@ -308,7 +308,6 @@ module.exports = function (grunt) {
                 }]
             },
             test: {
-
                 files: [{
                     expand: true,
                     cwd: 'src/scripts',

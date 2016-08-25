@@ -1,6 +1,6 @@
-'use strict';
-// import {Theme} from './theme';
-namespace app {
+namespace TinkGis {
+
+    'use strict';
 
     export class LayerJSON {
         id: any;
@@ -15,27 +15,22 @@ namespace app {
     }
     export abstract class Layer extends LayerJSON {
         visible: boolean;
-        // get IsRealyVisible(): boolean {
-        //     return this.enabled && this.visible && !this.hasLayers;
-        // };
         enabled: boolean;
         parent: Layer = null;
         theme: Theme;
         title: string;
         displayed: boolean;
+        Layers: Array<Layer> = [];
+
         get hasLayers(): boolean {
             if (this.Layers) {
                 return this.Layers.length > 0;
             }
             return false;
         };
-        Layers: Array<Layer> = [];
         get ShouldBeVisible(): boolean {
-            if (this.enabled && this.visible && !this.hasLayers) {
-                if (!this.parent) {
-                    return true;
-                }
-                else if (this.parent.IsEnabledAndVisible) {
+            if (this.IsEnabledAndVisible && !this.hasLayers) {
+                if (!this.parent || this.parent.IsEnabledAndVisible) {
                     return true;
                 }
             }

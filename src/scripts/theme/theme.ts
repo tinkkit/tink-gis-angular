@@ -1,6 +1,5 @@
-// import {Layer} from './layer';
-'use strict';
-namespace app {
+namespace TinkGis {
+    'use strict';
     export abstract class Theme {
         Naam: string;
         name: string;
@@ -36,23 +35,12 @@ namespace app {
             });
             return allLay;
         };
- 
+
         UpdateDisplayed = (currentScale) => {
             this.AllLayers.forEach(layer => {
                 layer.UpdateDisplayed(currentScale);
             });
         }
         abstract UpdateMap(mapobject?: L.Map): void;
-        // abstract funct UpdateMap: void;
-
-        // RecalculateVisibleLayerIds = () => {
-        //     this.VisibleLayerIds.length = 0;
-        //     this.VisibleLayers.forEach(visLayer => {
-        //         this.VisibleLayerIds.push(visLayer.id);
-        //     });
-        //     if (this.VisibleLayerIds.length === 0) {
-        //         this.VisibleLayerIds.push(-1); //als we niet doen dan zoekt hij op alle lagen!
-        //     }
-        // };
     }
 }
