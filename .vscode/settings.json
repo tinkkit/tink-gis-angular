@@ -1,0 +1,17 @@
+// Place your settings in this file to overwrite default and user settings.
+{
+    "files.exclude": {
+        "**/*.js": {
+            "when": "$(basename).ts"
+        },
+        "test/": true,
+        "lib/": true,
+        ".tscache/": true,
+        ".tmp/": true,
+        "bower_components/": true,
+        "node_modules/": true,
+        "dist/": true,
+        "build.bat": true,
+        ".gitignore": true
+    }
+}

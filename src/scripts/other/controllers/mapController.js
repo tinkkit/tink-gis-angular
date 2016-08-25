@@ -14,6 +14,18 @@
         vm.drawingType = MapData.DrawingType;
         vm.showMetenControls = false;
         vm.showDrawControls = false;
+        var engine = new Bloodhound({
+            datumTokenizer: Bloodhound.tokenizers.whitespace,
+            queryTokenizer: Bloodhound.tokenizers.whitespace,
+            local: []
+        });
+        var itemsdata = [];
+
+        $('.typeahead').typeahead(null, {
+            name: 'name',
+            source: engine
+        });
+
         vm.interactieButtonChanged = function (ActiveButton) {
             MapData.CleanMap();
             MapData.ActiveInteractieKnop = ActiveButton; // If we only could keep the vmactiveInteractieKnop in sync with the one from MapData
@@ -59,10 +71,21 @@
         };
 
         vm.zoekLocChanged = function (search) {
-            var prom = GISService.QuerySOLRLocatie(search);
-            prom.then(function (data) {
-                console.log(data);
-            });
+            if (search.length > 2) {
+                var prom = GISService.QuerySOLRLocatie(search);
+                prom.then(function (data) {
+
+                    var arr = data.response.docs;
+                    var names = arr.map(x => x.name);
+                    console.log(names);
+                    itemsdata = arr;
+                    engine.clear();
+                    engine.add(names);
+
+
+                });
+            }
+
         };
 
         vm.drawingButtonChanged = function (drawOption) {
