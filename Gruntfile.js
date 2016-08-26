@@ -34,11 +34,12 @@ module.exports = function (grunt) {
         yeoman: appConfig,
         ts: {
             default: {
-                src: ['<%= yeoman.app %>/scripts/**/*.ts'],
-                reference: 'src/typings/index.d.ts',
-                tsconfig: './src/tsconfig.json',
+                src: ['typings/index.d.ts', '<%= yeoman.app %>/scripts/**/*.ts'],
+                reference: 'typings/index.d.ts',
+                // tsconfig: 'tsconfig.json',
                 options: {
-                    // inlineSoukrces: true,
+                    target: 'es6',
+                    basePath: 'src/scripts/',
                     inlineSourceMap: true,
                     livereload: '<%= connect.options.livereload %>'
                 }

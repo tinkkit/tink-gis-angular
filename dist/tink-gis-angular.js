@@ -60,6 +60,7 @@
         //     continuousWorld: true
         // }).addTo(map);
 
+
         map.doubleClickZoom.disable();
         // L.control.scale({ imperial: false }).addTo(map);
         var drawnItems = L.featureGroup().addTo(map);
@@ -829,6 +830,81 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         vm.drawingType = MapData.DrawingType;
         vm.showMetenControls = false;
         vm.showDrawControls = false;
+        vm.zoekLoc = "";
+        var engine = new Bloodhound({
+            datumTokenizer: Bloodhound.tokenizers.whitespace,
+            queryTokenizer: Bloodhound.tokenizers.whitespace,
+            local: []
+        });
+        var itemsdata = [];
+        $('#locatiezoek.typeahead').typeahead(null, {
+            name: 'name',
+            source: engine
+        });
+        $('.typeahead').bind('typeahead:select', function (ev, suggestion) {
+            var item = itemsdata.find(function (x) {
+                return x.name == suggestion && x.layer == "WEGENREGISTER_STRAATAS_XY";
+            });
+            if (!item) {
+                item = itemsdata.find(function (x) {
+                    return x.name == suggestion;
+                });
+            }
+            var cors = {
+                x: item.x,
+                y: item.y
+            };
+            var xyWGS84 = HelperService.ConvertLambert72ToWSG84(cors);
+            setViewAndPutDot(xyWGS84);
+            console.log('Selection: ' + item);
+        });
+        $('.typeahead').bind('typeahead:select', function (ev, suggestion) {
+            console.log('Selection: ' + suggestion);
+        });
+        $('#locatiezoek.typeahead').on('input', function (e) {
+            vm.zoekLoc = e.currentTarget.value;
+            var search = vm.zoekLoc;
+            if (search.length > 2) {
+                var prom = GISService.QuerySOLRLocatie(search);
+                prom.then(function (data) {
+                    var arr = data.response.docs;
+                    var names = arr.map(function (x) {
+                        return x.name;
+                    });
+                    console.log(names);
+                    itemsdata = arr;
+                    engine.clear();
+                    engine.add(names);
+                    var promise = engine.initialize();
+
+                    promise.done(function () {
+                        $('#locatiezoek.typeahead').typeahead('open');
+                        console.log('ready to go!');
+                    }).fail(function () {
+                        console.log('err, something went wrong :(');
+                    });
+                });
+            } else {
+                console.log("engine clear");
+                engine.clear();
+                $('#locatiezoek.typeahead').typeahead('close');
+            }
+        });
+        // vm.zoekLocChanged = function () {
+        //     console.log("ZOEKLOCCHANGED");
+        //     var search = vm.zoekLoc;
+        //     if (search.length > 2) {
+        //         var prom = GISService.QuerySOLRLocatie(search);
+        //         prom.then(function (data) {
+        //             var arr = data.response.docs;
+        //             var names = arr.map(x => x.name);
+        //             console.log(names);
+        //             itemsdata = arr;
+        //             engine.clear();
+        //             engine.add(names);
+        //         });
+        //     }
+        // };
         vm.interactieButtonChanged = function (ActiveButton) {
             MapData.CleanMap();
             MapData.ActiveInteractieKnop = ActiveButton; // If we only could keep the vmactiveInteractieKnop in sync with the one from MapData
@@ -869,13 +945,6 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                     console.log('NIET GEVONDEN');
                 }
             }
-        };
-
-        vm.zoekLocChanged = function (search) {
-            var prom = GISService.QuerySOLRLocatie(search);
-            prom.then(function (data) {
-                console.log(data);
-            });
         };
 
         vm.drawingButtonChanged = function (drawOption) {
@@ -1146,7 +1215,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         };
         _service.QuerySOLRLocatie = function (search) {
             var prom = $q.defer();
-            var url = 'https://esb-app1-o.antwerpen.be/v1/giszoek/solr/search?q=*' + search + '*&wt=json&indent=true&solrtype=gislocaties';
+            var url = 'https://esb-app1-o.antwerpen.be/v1/giszoek/solr/search?q=*' + search + '*&wt=json&indent=true&rows=50&solrtype=gislocaties';
             $http.get(url).success(function (data, status, headers, config) {
                 // data = HelperService.UnwrapProxiedData(data);
                 prom.resolve(data);
@@ -1697,7 +1766,7 @@ var esri2geo = {};
                     realTheme.Visible = theme.visible;
                     console.log(theme, ' vs real theme: ', realTheme);
                     if (realTheme.AllLayers.length == theme.layers.length) {
-                        realTheme.Added = true; //all are added
+                        realTheme.Added = true; //all are added 
                     } else {
                         realTheme.Added = null; // some are added, never false because else we woudn't save it.
                     }
@@ -1808,8 +1877,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             var returnobject = {};
             returnobject.hasCordinates = false;
             returnobject.error = null;
-            returnobject.X = null;
-            returnobject.Y = null;
+            returnobject.x = null;
+            returnobject.y = null;
             var currgetal = '';
             var samegetal = false;
             var aantalmetcorrectesize = 0;
@@ -1945,8 +2014,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             }
 
             if (aantalmet6size == 2 && getals.length == 2) {
-                returnobject.X = getals[0].replace(',', '.');
-                returnobject.Y = getals[1].replace(',', '.');
+                returnobject.x = getals[0].replace(',', '.');
+                returnobject.y = getals[1].replace(',', '.');
                 returnobject.hasCordinates = true;
                 return returnobject;
             } else {
@@ -2650,6 +2719,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             }
 
             // _mapService.UpdateThemeVisibleLayers(theme);
+
         };
         _service.CleanThemes = function () {
             while (MapData.Themes.length != 0) {
@@ -2739,7 +2809,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 (function (module) {
     module = angular.module('tink.gis');
-    var theController = module.controller('searchResultsController', function ($scope, ResultsData, map, SearchService) {
+    var theController = module.controller('searchResultsController', function ($scope, ResultsData, map, SearchService, MapData) {
         var vm = this;
         vm.features = ResultsData.JsonFeatures;
         vm.featureLayers = null;
@@ -2776,13 +2846,16 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             SearchService.DeleteFeatureGroup(featureGroupName);
         };
         vm.showDetails = function (feature) {
+            if (feature.theme.Type === 'esri') {
+                MapData.PanToFeature(feature.mapItem);
+            }
             ResultsData.SelectedFeature = feature;
         };
         vm.exportToCSV = function () {
             SearchService.ExportToCSV();
         };
     });
-    theController.$inject = ['$scope', 'ResultsData', 'map'];
+    theController.$inject = ['$scope', 'ResultsData', 'map', 'MapData'];
 })();
 ;'use strict';
 
@@ -3068,6 +3141,7 @@ L.TileLayer.BetterWMS = L.TileLayer.WMS.extend({
                 // console.log(data);
                 // var xmlstring = JXON.xmlToString(data);
                 // var returnjson = JXON.stringToJs(xmlstring);
+
 
                 // console.log(returnjson);
             },
@@ -3651,7 +3725,7 @@ L.drawLocal = {
     "<button type=button class=btn ng-class=\"{active: mapctrl.ZoekenOpLocatie==false}\" ng-click=\"mapctrl.ZoekenOpLocatie=false\" prevent-default><i class=\"fa fa-download\"></i></button>\n" +
     "</div>\n" +
     "<div class=\"ll zoekbalken\">\n" +
-    "<input type=search class=zoekbalk ng-show=\"mapctrl.ZoekenOpLocatie == true\" placeholder=\"Geef een X,Y / locatie of POI in.\" ng-change=mapctrl.zoekLocChanged(mapctrl.zoekLoc) ng-keyup=\"$event.keyCode == 13 && mapctrl.zoekLocatie(mapctrl.zoekLoc)\" ng-model=mapctrl.zoekLoc prevent-default>\n" +
+    "<input id=locatiezoek class=\"zoekbalk typeahead\" sf-typeahead options=exampleOptionsNonEditable datasets=numbersDataset ng-model=selectedNumberNonEditable ng-show=\"mapctrl.ZoekenOpLocatie == true\" placeholder=\"Geef een X,Y / locatie of POI in.\" ng-keyup=\"$event.keyCode == 13 && mapctrl.zoekLocatie(mapctrl.zoekLoc)\" prevent-default>\n" +
     "<input type=search class=zoekbalk ng-show=\"mapctrl.ZoekenOpLocatie == false\" placeholder=\"Geef een zoekterm\" prevent-default ng-keyup=\"$event.keyCode == 13 && mapctrl.zoekLaag(mapctrl.laagquery)\" ng-model=mapctrl.laagquery>\n" +
     "<select ng-options=\"layer as layer.name for layer in mapctrl.SelectableLayers\" ng-model=mapctrl.selectedLayer ng-show=\"mapctrl.ZoekenOpLocatie == false\" ng-change=mapctrl.layerChange() ng-class=\"{invisible: mapctrl.SelectableLayers.length<=1}\" prevent-default></select>\n" +
     "</div>\n" +
@@ -3825,7 +3899,7 @@ var TinkGis;
         function ArcGIStheme(rawdata, themeData) {
             _classCallCheck(this, ArcGIStheme);
 
-            var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(ArcGIStheme).call(this));
+            var _this = _possibleConstructorReturn(this, (ArcGIStheme.__proto__ || Object.getPrototypeOf(ArcGIStheme)).call(this));
 
             var rawlayers = rawdata.layers;
             _this.Naam = rawdata.documentInfo.Title;
@@ -3896,7 +3970,7 @@ var TinkGis;
         _inherits(Layer, _LayerJSON);
 
         function Layer() {
-            var _Object$getPrototypeO;
+            var _ref;
 
             _classCallCheck(this, Layer);
 
@@ -3904,7 +3978,7 @@ var TinkGis;
                 args[_key] = arguments[_key];
             }
 
-            var _this = _possibleConstructorReturn(this, (_Object$getPrototypeO = Object.getPrototypeOf(Layer)).call.apply(_Object$getPrototypeO, [this].concat(args)));
+            var _this = _possibleConstructorReturn(this, (_ref = Layer.__proto__ || Object.getPrototypeOf(Layer)).call.apply(_ref, [this].concat(args)));
 
             _this.parent = null;
             _this.Layers = [];
@@ -3976,7 +4050,7 @@ var TinkGis;
         function wmslayer(info, parenttheme) {
             _classCallCheck(this, wmslayer);
 
-            var _this2 = _possibleConstructorReturn(this, Object.getPrototypeOf(wmslayer).call(this));
+            var _this2 = _possibleConstructorReturn(this, (wmslayer.__proto__ || Object.getPrototypeOf(wmslayer)).call(this));
 
             Object.assign(_this2, info);
             _this2.visible = true;
@@ -3999,7 +4073,7 @@ var TinkGis;
         function arcgislayer(info, parenttheme) {
             _classCallCheck(this, arcgislayer);
 
-            var _this3 = _possibleConstructorReturn(this, Object.getPrototypeOf(arcgislayer).call(this));
+            var _this3 = _possibleConstructorReturn(this, (arcgislayer.__proto__ || Object.getPrototypeOf(arcgislayer)).call(this));
 
             Object.assign(_this3, info);
             _this3.visible = info.defaultVisibility;
@@ -4114,7 +4188,7 @@ var TinkGis;
         function wmstheme(data, url) {
             _classCallCheck(this, wmstheme);
 
-            var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(wmstheme).call(this));
+            var _this = _possibleConstructorReturn(this, (wmstheme.__proto__ || Object.getPrototypeOf(wmstheme)).call(this));
 
             _this.Version = data['version'];
             _this.name = data.service.title;
