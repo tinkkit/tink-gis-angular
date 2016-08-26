@@ -43,4 +43,85 @@ namespace TinkGis {
         }
         abstract UpdateMap(mapobject?: L.Map): void;
     }
+    export class ArcGIStheme extends Theme {
+        VisibleLayerIds: Array<number>;
+
+        constructor(rawdata: any, themeData: any) {
+            super();
+            let rawlayers: any[] = rawdata.layers;
+            this.Naam = rawdata.documentInfo.Title;
+            this.name = rawdata.documentInfo.Title;
+            this.Description = rawdata.documentInfo.Subject;
+            this.CleanUrl = themeData.cleanUrl;
+            this.Url = themeData.url;
+            this.Visible = true;
+            this.Added = false;
+            this.enabled = true;
+            this.Type = ThemeType.ESRI;
+            this.status = ThemeStatus.NEW;
+            this.MapData = {};
+            let convertedLayers = rawlayers.map(x => new arcgislayer(x, this));
+            convertedLayers.forEach(argislay => {
+                if (argislay.parentLayerId === -1) {
+                    this.Layers.push(argislay);
+                }
+                else {
+                    var parentlayer = convertedLayers.find(x => x.id == argislay.parentLayerId);
+                    argislay.parent = parentlayer;
+                    parentlayer.Layers.push(argislay);
+                }
+
+            })
+        }
+
+        UpdateMap() {
+            if (this.VisibleLayerIds.length !== 0) {
+                this.MapData.setLayers(this.VisibleLayerIds);
+            }
+            else {
+                this.MapData.setLayers([-1]);
+            }
+        };
+    }
+    export class wmstheme extends Theme {
+        Version: string;
+        VisibleLayerIds: Array<string>;
+
+        constructor(data, url) {
+            super();
+            this.Version = data['version'];
+            this.name = data.service.title;
+            this.Naam = data.service.title;
+            // this.Title = returnjson.service.title;
+            this.enabled = true;
+            this.Visible = true;
+            this.CleanUrl = url;
+            this.Added = false;
+            this.status = ThemeStatus.NEW;
+            this.Description = data.service.abstract;
+            this.Type = ThemeType.WMS;
+            var layers = data.capability.layer.layer;
+            var lays = [];
+            if (layers) {
+                if (layers.length == undefined) { // array, it has a length
+                    lays.push(layers)
+                }
+                else {
+                    lays = layers;
+                }
+            } else {
+                lays.push(data.capability.layer)
+            }
+            layers.forEach(layer => {
+                let lay = new wmslayer(layer, this);
+                this.Layers.push(lay);
+                // this.AllLayers.push(lay);
+            });
+        }
+        UpdateMap(map: L.Map) {
+            // this.RecalculateVisibleLayerIds();
+            map.removeLayer(this.MapData);
+            map.addLayer(this.MapData);
+        }
+    }
 }
