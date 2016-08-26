@@ -258,7 +258,7 @@ angular.module('tink.gis').run(['$templateCache', function($templateCache) {
     "<button type=button class=btn ng-class=\"{active: mapctrl.ZoekenOpLocatie==false}\" ng-click=\"mapctrl.ZoekenOpLocatie=false\" prevent-default><i class=\"fa fa-download\"></i></button>\n" +
     "</div>\n" +
     "<div class=\"ll zoekbalken\">\n" +
-    "<input type=search class=\"zoekbalk typeahead\" ng-show=\"mapctrl.ZoekenOpLocatie == true\" placeholder=\"Geef een X,Y / locatie of POI in.\" ng-change=mapctrl.zoekLocChanged(mapctrl.zoekLoc) ng-keyup=\"$event.keyCode == 13 && mapctrl.zoekLocatie(mapctrl.zoekLoc)\" ng-model=mapctrl.zoekLoc prevent-default>\n" +
+    "<input id=locatiezoek class=\"zoekbalk typeahead\" sf-typeahead options=exampleOptionsNonEditable datasets=numbersDataset ng-model=selectedNumberNonEditable ng-show=\"mapctrl.ZoekenOpLocatie == true\" placeholder=\"Geef een X,Y / locatie of POI in.\" ng-keyup=\"$event.keyCode == 13 && mapctrl.zoekLocatie(mapctrl.zoekLoc)\" prevent-default>\n" +
     "<input type=search class=zoekbalk ng-show=\"mapctrl.ZoekenOpLocatie == false\" placeholder=\"Geef een zoekterm\" prevent-default ng-keyup=\"$event.keyCode == 13 && mapctrl.zoekLaag(mapctrl.laagquery)\" ng-model=mapctrl.laagquery>\n" +
     "<select ng-options=\"layer as layer.name for layer in mapctrl.SelectableLayers\" ng-model=mapctrl.selectedLayer ng-show=\"mapctrl.ZoekenOpLocatie == false\" ng-change=mapctrl.layerChange() ng-class=\"{invisible: mapctrl.SelectableLayers.length<=1}\" prevent-default></select>\n" +
     "</div>\n" +

@@ -64,8 +64,8 @@
             var returnobject = {};
             returnobject.hasCordinates = false;
             returnobject.error = null;
-            returnobject.X = null;
-            returnobject.Y = null;
+            returnobject.x = null;
+            returnobject.y = null;
             var currgetal = '';
             var samegetal = false;
             var aantalmetcorrectesize = 0;
@@ -169,8 +169,8 @@
             }
 
             if (aantalmet6size == 2 && getals.length == 2) {
-                returnobject.X = getals[0].replace(',', '.');
-                returnobject.Y = getals[1].replace(',', '.');
+                returnobject.x = getals[0].replace(',', '.');
+                returnobject.y = getals[1].replace(',', '.');
                 returnobject.hasCordinates = true;
                 return returnobject;
             }

@@ -41,9 +41,6 @@
                 else { // wms we go to the last identifybounds
                     MapData.GoToLastClickBounds();
                 }
-
-
-
             };
             vm.volgende = function () {
                 ResultsData.SelectedFeature = vm.nextResult;

@@ -2,7 +2,7 @@
 (function (module) {
     module = angular.module('tink.gis');
     var theController = module.controller('searchResultsController',
-        function ($scope, ResultsData, map, SearchService) {
+        function ($scope, ResultsData, map, SearchService, MapData) {
             var vm = this;
             vm.features = ResultsData.JsonFeatures;
             vm.featureLayers = null;
@@ -33,6 +33,9 @@
                 SearchService.DeleteFeatureGroup(featureGroupName);
             };
             vm.showDetails = function (feature) {
+                if (feature.theme.Type === 'esri') {
+                    MapData.PanToFeature(feature.mapItem);
+                }
                 ResultsData.SelectedFeature = feature;
             };
             vm.exportToCSV = function () {
@@ -41,5 +44,5 @@
 
 
         });
-    theController.$inject = ['$scope', 'ResultsData', 'map'];
+    theController.$inject = ['$scope', 'ResultsData', 'map', 'MapData'];
 })();

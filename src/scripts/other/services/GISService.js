@@ -34,7 +34,7 @@
         };
         _service.QuerySOLRLocatie = function (search) {
             var prom = $q.defer();
-            var url = 'https://esb-app1-o.antwerpen.be/v1/giszoek/solr/search?q=*' + search + '*&wt=json&indent=true&solrtype=gislocaties';
+            var url = 'https://esb-app1-o.antwerpen.be/v1/giszoek/solr/search?q=*' + search + '*&wt=json&indent=true&rows=50&solrtype=gislocaties';
             $http.get(url)
                 .success(function (data, status, headers, config) {
                     // data = HelperService.UnwrapProxiedData(data);

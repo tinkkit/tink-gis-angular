@@ -14,18 +14,79 @@
         vm.drawingType = MapData.DrawingType;
         vm.showMetenControls = false;
         vm.showDrawControls = false;
+        vm.zoekLoc = "";
         var engine = new Bloodhound({
             datumTokenizer: Bloodhound.tokenizers.whitespace,
             queryTokenizer: Bloodhound.tokenizers.whitespace,
             local: []
         });
         var itemsdata = [];
-
-        $('.typeahead').typeahead(null, {
+        $('#locatiezoek.typeahead').typeahead(null, {
             name: 'name',
             source: engine
         });
+        $('.typeahead').bind('typeahead:select', function (ev, suggestion) {
+            var item = itemsdata.find(x => x.name == suggestion && x.layer == "WEGENREGISTER_STRAATAS_XY");
+            if (!item) {
+                item = itemsdata.find(x => x.name == suggestion);
+            }
+            var cors = {
+                x: item.x,
+                y: item.y
+            }
+            var xyWGS84 = HelperService.ConvertLambert72ToWSG84(cors);
+            setViewAndPutDot(xyWGS84);
+            console.log('Selection: ' + item);
+        });
+        $('.typeahead').bind('typeahead:select', function (ev, suggestion) {
+            console.log('Selection: ' + suggestion);
+        });
+        $('#locatiezoek.typeahead').on('input', function (e) {
+            vm.zoekLoc = e.currentTarget.value;
+            var search = vm.zoekLoc;
+            if (search.length > 2) {
+                var prom = GISService.QuerySOLRLocatie(search);
+                prom.then(function (data) {
+                    var arr = data.response.docs;
+                    var names = arr.map(x => x.name);
+                    console.log(names);
+                    itemsdata = arr;
+                    engine.clear();
+                    engine.add(names);
+                    var promise = engine.initialize();
 
+                    promise
+                        .done(function () {
+                            $('#locatiezoek.typeahead').typeahead('open');
+                            console.log('ready to go!');
+                        })
+                        .fail(function () {
+                            console.log('err, something went wrong :(');
+                        });
+                });
+            }
+            else {
+                console.log("engine clear");
+                engine.clear();
+                $('#locatiezoek.typeahead').typeahead('close');
+
+            }
+        });
+        // vm.zoekLocChanged = function () {
+        //     console.log("ZOEKLOCCHANGED");
+        //     var search = vm.zoekLoc;
+        //     if (search.length > 2) {
+        //         var prom = GISService.QuerySOLRLocatie(search);
+        //         prom.then(function (data) {
+        //             var arr = data.response.docs;
+        //             var names = arr.map(x => x.name);
+        //             console.log(names);
+        //             itemsdata = arr;
+        //             engine.clear();
+        //             engine.add(names);
+        //         });
+        //     }
+        // };
         vm.interactieButtonChanged = function (ActiveButton) {
             MapData.CleanMap();
             MapData.ActiveInteractieKnop = ActiveButton; // If we only could keep the vmactiveInteractieKnop in sync with the one from MapData
@@ -70,23 +131,7 @@
             }
         };
 
-        vm.zoekLocChanged = function (search) {
-            if (search.length > 2) {
-                var prom = GISService.QuerySOLRLocatie(search);
-                prom.then(function (data) {
 
-                    var arr = data.response.docs;
-                    var names = arr.map(x => x.name);
-                    console.log(names);
-                    itemsdata = arr;
-                    engine.clear();
-                    engine.add(names);
-
-
-                });
-            }
-
-        };
 
         vm.drawingButtonChanged = function (drawOption) {
             MapData.CleanMap();
