@@ -277,8 +277,10 @@ div.table-sort-pagination {
 }
 
 //Voor typeahead
-
-    .typeahead:focus {
+.tt-suggestion + .tt-suggestion {
+  border-top: 1px solid #ccd6dd;
+}
+    .tt-focus {
         border: 2px solid #0097cf;
     }
     
@@ -331,3 +333,4 @@ div.table-sort-pagination {
     .gist {
         font-size: 14px;
     }
+    .empty-message {padding:5px;text-align:center;color:red}
