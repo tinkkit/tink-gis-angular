@@ -14,26 +14,26 @@
         enableLog: true
     });
 
-    module.directive('preventDefault', function () {
-        return function (scope, element, attrs) {
-            angular.element(element).bind('click', function (event) {
-                event.preventDefault();
-                event.stopPropagation();
-            });
-            angular.element(element).bind('dblclick', function (event) {
-                event.preventDefault();
-                event.stopPropagation();
-            });
-            angular.element(element).bind('ondrag', function (event) {
-                event.preventDefault();
-                event.stopPropagation();
-            });
-            angular.element(element).bind('ondragstart', function (event) {
-                event.preventDefault();
-                event.stopPropagation();
-            });
-        };
-    });
+    // module.directive('preventDefault', function () {
+    //     return function (scope, element, attrs) {
+    //         angular.element(element).bind('click', function (event) {
+    //             event.preventDefault();
+    //             event.stopPropagation();
+    //         });
+    //         angular.element(element).bind('dblclick', function (event) {
+    //             event.preventDefault();
+    //             event.stopPropagation();
+    //         });
+    //         angular.element(element).bind('ondrag', function (event) {
+    //             event.preventDefault();
+    //             event.stopPropagation();
+    //         });
+    //         angular.element(element).bind('ondragstart', function (event) {
+    //             event.preventDefault();
+    //             event.stopPropagation();
+    //         });
+    //     };
+    // });
     JXON.config({
         attrPrefix: '', // default: '@'
         autoDate: false // default: true
@@ -813,9 +813,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
     });
     theController.$inject = ['MapData', 'map', 'ThemeService', '$modal'];
 })();
-;/// <reference path='../services/mapService.js' />
-
-'use strict';
+;'use strict';
 
 (function (module) {
     module = angular.module('tink.gis');
@@ -830,66 +828,129 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         vm.drawingType = MapData.DrawingType;
         vm.showMetenControls = false;
         vm.showDrawControls = false;
-        vm.zoekLoc = "";
-        var engine = new Bloodhound({
-            datumTokenizer: Bloodhound.tokenizers.whitespace,
-            queryTokenizer: Bloodhound.tokenizers.whitespace,
-            local: []
-        });
-        var itemsdata = [];
-        $('#locatiezoek.typeahead').typeahead(null, {
-            name: 'name',
-            source: engine
-        });
-        $('.typeahead').bind('typeahead:select', function (ev, suggestion) {
-            var item = itemsdata.find(function (x) {
-                return x.name == suggestion && x.layer == "WEGENREGISTER_STRAATAS_XY";
-            });
-            if (!item) {
-                item = itemsdata.find(function (x) {
-                    return x.name == suggestion;
-                });
+        vm.zoekLoc = '';
+        // var itemsdata = [];
+
+        var suggestionfunc = function suggestionfunc(item) {
+            var output = '<div>' + item.name;
+            if (item.attribute1value) {
+                output += '<p>' + item.attribute1name + ': ' + item.attribute1value + '</p>';
             }
-            var cors = {
-                x: item.x,
-                y: item.y
-            };
-            var xyWGS84 = HelperService.ConvertLambert72ToWSG84(cors);
-            setViewAndPutDot(xyWGS84);
-            console.log('Selection: ' + item);
+
+            if (item.attribute2value) {
+                output += '<p>' + item.attribute2name + ': ' + item.attribute2value + '</p>';
+            }
+            output += '<p>Laag: ' + item.layer + '</p></div>';
+            return output;
+        };
+        $('#locatiezoek.typeahead').typeahead({
+            minLength: 3,
+            highlight: true,
+            classNames: {
+                open: 'is-open',
+                empty: 'is-empty'
+            }
+        }, {
+            async: true,
+            limit: 99,
+            display: 'name',
+            source: function source(query, syncResults, asyncResults) {
+                if (query == 'mech') {
+                    syncResults([]);
+                } else {
+                    var prom = GISService.QuerySOLRLocatie(query);
+                    prom.then(function (data) {
+                        var arr = data.response.docs;
+                        asyncResults(arr);
+                    });
+                }
+            },
+            templates: {
+                suggestion: suggestionfunc,
+                notFound: ['<div class="empty-message"><b>Geen match gevonden</b></div>'],
+                empty: ['<div class="empty-message"><b>Zoek naar straten, POI en districten</b></div>']
+            }
+
         });
-        $('.typeahead').bind('typeahead:select', function (ev, suggestion) {
+
+        $('#locatiezoek.typeahead').bind('typeahead:change', function (ev, suggestion) {
+            console.log("CHANGEEEEEEEEEEEE");
             console.log('Selection: ' + suggestion);
         });
-        $('#locatiezoek.typeahead').on('input', function (e) {
-            vm.zoekLoc = e.currentTarget.value;
-            var search = vm.zoekLoc;
-            if (search.length > 2) {
-                var prom = GISService.QuerySOLRLocatie(search);
-                prom.then(function (data) {
-                    var arr = data.response.docs;
-                    var names = arr.map(function (x) {
-                        return x.name;
-                    });
-                    console.log(names);
-                    itemsdata = arr;
-                    engine.clear();
-                    engine.add(names);
-                    var promise = engine.initialize();
 
-                    promise.done(function () {
-                        $('#locatiezoek.typeahead').typeahead('open');
-                        console.log('ready to go!');
-                    }).fail(function () {
-                        console.log('err, something went wrong :(');
-                    });
-                });
+        $('#locatiezoek.typeahead').bind('typeahead:selected', function (ev, suggestion) {
+            MapData.CleanWatIsHier();
+            MapData.CleanTempFeatures();
+            if (suggestion.layer.toLowerCase() === 'postzone') {
+                MapData.QueryForTempFeatures(20, 'ObjectID=' + suggestion.key);
             } else {
-                console.log("engine clear");
-                engine.clear();
-                $('#locatiezoek.typeahead').typeahead('close');
+                var cors = {
+                    x: suggestion.x,
+                    y: suggestion.y
+                };
+
+                var xyWGS84 = HelperService.ConvertLambert72ToWSG84(cors);
+                setViewAndPutDot(xyWGS84);
             }
         });
+        $('.typeahead').on('typeahead:asyncrequest', function () {
+            $('.Typeahead-spinner').show();
+        });
+        $('.typeahead').on('typeahead:asynccancel typeahead:asyncreceive', function () {
+            $('.Typeahead-spinner').hide();
+        });
+        // $('.typeahead').bind('typeahead:select', function (ev, suggestion) {
+        //     console.log("JAAAAAAAAAAAAINFUNCTIEEEEEEEEEEEEEEEEEEE");
+
+        //     if (suggestion.layer.toLowerCase() === 'postzone') {
+        //         console.log('POSTZONEEEEEEE');
+        //     }
+
+        //     var cors = {
+        //         x: suggestion.x,
+        //         y: suggestion.y
+        //     };
+
+        //     var xyWGS84 = HelperService.ConvertLambert72ToWSG84(cors);
+        //     setViewAndPutDot(xyWGS84);
+        //     console.log('Selection: ' + suggestion);
+        // });
+        // $("[data-provide='typeahead']").blur(function (e) {
+        //     if ($('.dropdown-menu').is(":visible")) {
+        //         $(this).data('typeahead').click(e);
+        //     }
+        // });
+        // $('#locatiezoek.typeahead').on('input', function (e) {
+        //     vm.zoekLoc = e.currentTarget.value;
+        //     var search = vm.zoekLoc;
+        //     if (search.length > 2) {
+        //         var prom = GISService.QuerySOLRLocatie(search);
+        //         prom.then(function (data) {
+        //             var arr = data.response.docs;
+        //             var names = arr.map(x => x.name);
+        //             console.log(names);
+        //             itemsdata = arr;
+        //             engine.clear();
+        //             engine.add(names);
+        //             var promise = engine.initialize();
+
+        //             promise
+        //                 .done(function () {
+        //                     $('#locatiezoek.typeahead').typeahead('open');
+        //                     console.log('ready to go!');
+        //                 })
+        //                 .fail(function () {
+        //                     console.log('err, something went wrong :(');
+        //                 });
+        //         });
+        //     }
+        //     else {
+        //         console.log("engine clear");
+        //         engine.clear();
+        //         $('#locatiezoek.typeahead').typeahead('close');
+
+        //     }
+        // });
         // vm.zoekLocChanged = function () {
         //     console.log("ZOEKLOCCHANGED");
         //     var search = vm.zoekLoc;
@@ -930,12 +991,12 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             map.setView(L.latLng(loc.x, loc.y), 12);
             MapData.CreateDot(loc);
         };
+        //ng-keyup="$event.keyCode == 13 && mapctrl.zoekLocatie(mapctrl.zoekLoc)" 
         vm.zoekLocatie = function (search) {
             search = search.trim();
             var WGS84Check = HelperService.getWGS84CordsFromString(search);
             if (WGS84Check.hasCordinates) {
                 setViewAndPutDot(WGS84Check);
-                // map.setView(L.latLng(WGS84Check.X, WGS84Check.Y), 12);
             } else {
                 var lambertCheck = HelperService.getLambartCordsFromString(search);
                 if (lambertCheck.hasCordinates) {
@@ -1215,7 +1276,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         };
         _service.QuerySOLRLocatie = function (search) {
             var prom = $q.defer();
-            var url = 'https://esb-app1-o.antwerpen.be/v1/giszoek/solr/search?q=*' + search + '*&wt=json&indent=true&rows=50&solrtype=gislocaties';
+            var url = 'https://esb-app1-o.antwerpen.be/v1/giszoek/solr/search?q=*' + search + '*&wt=json&indent=true&rows=10&solrtype=gislocaties';
             $http.get(url).success(function (data, status, headers, config) {
                 // data = HelperService.UnwrapProxiedData(data);
                 prom.resolve(data);
@@ -2082,7 +2143,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             _data.CleanDrawings();
             _data.CleanWatIsHier();
             _data.CleanSearch();
-            _data.ClearBuffer();
+            _data.CleanBuffer();
+            _data.CleanTempFeatures();
         };
         _data.bufferLaag = null;
         _data.CreateBuffer = function (gisBufferData) {
@@ -2092,11 +2154,17 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             map.fitBounds(_data.bufferLaag.getBounds());
             return _data.bufferLaag;
         };
-        _data.ClearBuffer = function () {
+        _data.CleanBuffer = function () {
             if (_data.bufferLaag) {
                 map.removeLayer(_data.bufferLaag);
                 _data.bufferLaag = null;
             }
+        };
+        _data.CleanTempFeatures = function () {
+            tempFeatures.forEach(function (tempfeature) {
+                map.removeLayer(tempfeature);
+            });
+            tempFeatures.length = 0;
         };
         _data.GetZoomLevel = function () {
             return map.getZoom();
@@ -2133,6 +2201,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 console.log('apply NOT needed');
             }
         };
+
         _data.CreateOrigineleMarker = function (latlng, addressFound, straatNaam) {
             if (addressFound) {
                 var foundMarker = L.AwesomeMarkers.icon({
@@ -2167,7 +2236,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         _data.CreateDot = function (loc) {
             _data.CleanWatIsHier();
             var dotIcon = L.icon({
-                iconUrl: 'styles/fa-dot-circle-o_24_0_000000_none.png',
+                iconUrl: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAMAAADXqc3KAAABKVBMVEUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABUJ5OrAAAAYnRSTlMAAQIEBQYICgsNDg8QERITFxgaGyAhJSYoKS8wMTU2ODk7QkRPVFVXXV5fYWJkZ2lrbHF3eHyAg4aMjpSXmJ6jpqirra+wsrS3ucDByszP0dPc3uDi5Obo6evt7/P19/n7/fGWhfoAAAERSURBVBgZXcGHIoJhGIbh5+uXZO+sZK/slZ0tMwkhwn3+B+HtrxTXpapgKOj0n4slC8DX+binWrEcFe8T+uV2qXXhqcSdYvYGmurD/Ylv4M6TLwGk21QSugROVBQBjgKqcFvAmMwNPHiqclfwEpC6gB4VRdeWumQagai0CLcy7hwzK7MPe9IFzMjE8XVKisGr9AyDMhl8C5LagYA+ISLzhm9VUjPgKQvDMtv4hiR1Ak5JWJFpyGPOZMYhI03Bo4oadvKZuJNJwabUDIyqVjfQK+kICmFV1T1BWqYVuA+rIpgCIiqaBD5GVNKXAzZUso7JLkcjQ3NpzIFT2RS11lTVdkzFdbf+aJk+zH4+n813qOwHxGRbFJ0DoNgAAAAASUVORK5CYII=',
                 iconSize: [24, 24]
             });
             WatIsHierMarker = L.marker([loc.x, loc.y], { icon: dotIcon }).addTo(map);
@@ -2204,6 +2273,35 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 counter--;
             });
         };
+
+        _data.QueryForTempFeatures = function (layerid, where) {
+            locatieMapData.query().layer(layerid).where(where).run(function (error, featureCollection, response) {
+                if (!error) {
+                    console.log(error, featureCollection, response);
+                    _data.AddTempFeatures(featureCollection);
+                } else {
+                    console.log("ERRRORRRRRRRRRRR", error);
+                }
+            });
+        };
+        var locatieMapData = L.esri.dynamicMapLayer({
+            maxZoom: 19,
+            minZoom: 0,
+            url: 'http://geoint-a.antwerpen.be/arcgissql/rest/services/A_DA/Locaties/MapServer',
+            opacity: 1,
+            layers: 0,
+            continuousWorld: true,
+            useCors: true
+        }).addTo(map);
+
+        var tempFeatures = [];
+        _data.AddTempFeatures = function (featureCollection) {
+            featureCollection.features.forEach(function (feature) {
+                var mapItem = L.geoJson(feature, { style: Style.DEFAULT }).addTo(map);
+                _data.PanToFeature(mapItem);
+                tempFeatures.push(mapItem);
+            });
+        };
         _data.AddFeatures = function (features, theme, layerId) {
             if (features == null || features.features.length == 0) {
                 ResultsData.EmptyResult = true;
@@ -2213,18 +2311,17 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                     var featureItem = features.features[x];
 
                     var layer = {};
-                    if (featureItem.layerId != undefined && featureItem.layerId != null) {
+                    if (featureItem.layerId) {
                         layer = theme.AllLayers.find(function (x) {
                             return x.id === featureItem.layerId;
                         });
-                    } else if (layerId != undefined && layerId != null) {
+                    } else if (layerId) {
                         layer = theme.AllLayers.find(function (x) {
                             return x.id === layerId;
                         });
                     } else {
                         console.log('NO LAYER ID WAS GIVEN EITHER FROM FEATURE ITEM OR FROM PARAMETER');
                     }
-                    // featureItem.layer = layer;
                     featureItem.theme = theme;
                     featureItem.layerName = layer.name;
                     if (theme.Type === ThemeType.ESRI) {
@@ -2301,47 +2398,49 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             MapData.Apply();
         });
 
-        map.on('click', function (event) {
-            if (event.originalEvent instanceof MouseEvent) {
-                console.log('click op map! Is drawing: ' + MapData.IsDrawing);
-                if (!MapData.IsDrawing) {
-                    MapData.CleanMap();
-                    switch (MapData.ActiveInteractieKnop) {
-                        case ActiveInteractieButton.IDENTIFY:
-                            MapData.LastIdentifyBounds = map.getBounds();
-                            MapService.Identify(event, 10);
-                            break;
-                        case ActiveInteractieButton.SELECT:
-                            if (MapData.DrawingType === DrawingOption.NIETS) {
-                                MapService.Select(event);
-                            } // else a drawing finished
-                            break;
-                        case ActiveInteractieButton.WATISHIER:
-                            MapService.WatIsHier(event);
-                            break;
-                        case ActiveInteractieButton.METEN:
+        // map.on('click.draw', function (event) {
+        //     if (event.originalEvent instanceof MouseEvent) {
+        //         console.log('click op map! Is drawing: ' + MapData.IsDrawing);
+        //         if (!MapData.IsDrawing) {
+        //             MapData.CleanMap();
+        //             switch (MapData.ActiveInteractieKnop) {
+        //                 case ActiveInteractieButton.IDENTIFY:
+        //                     MapData.LastIdentifyBounds = map.getBounds();
+        //                     MapService.Identify(event, 10);
+        //                     break;
+        //                 case ActiveInteractieButton.SELECT:
+        //                     if (MapData.DrawingType === DrawingOption.NIETS) {
+        //                         MapService.Select(event);
+        //                     } // else a drawing finished
+        //                     break;
+        //                 case ActiveInteractieButton.WATISHIER:
+        //                     MapService.WatIsHier(event);
+        //                     break;
+        //                 case ActiveInteractieButton.METEN:
 
-                            break;
-                        default:
-                            console.log('MAG NIET!!!!!!!!');
-                            break;
-                    }
-                } else {
-                    // MapData.DrawingObject = event;
-                    console.log("DrawingObject: ");
-                    console.log(MapData.DrawingObject);
-                    switch (MapData.DrawingType) {
-                        case DrawingOption.AFSTAND:
-                            break;
-                        case DrawingOption.OPPERVLAKTE:
-                            break;
-                        default:
-                            console.log("Aant drawen zonder een gekent type!!!!!!");
-                            break;
-                    }
-                }
-            }
-        });
+        //                     break;
+        //                 default:
+        //                     console.log('MAG NIET!!!!!!!!');
+        //                     break;
+        //             }
+        //         }
+        //         else {
+        //             // MapData.DrawingObject = event;
+        //             console.log("DrawingObject: ");
+        //             console.log(MapData.DrawingObject);
+        //             switch (MapData.DrawingType) {
+        //                 case DrawingOption.AFSTAND:
+        //                     break;
+        //                 case DrawingOption.OPPERVLAKTE:
+        //                     break;
+        //                 default:
+        //                     console.log("Aant drawen zonder een gekent type!!!!!!");
+        //                     break;
+        //             }
+        //         }
+        //     }
+        // });
+
 
         map.on('draw:created', function (e) {
             console.log('draw created');
@@ -3725,7 +3824,7 @@ L.drawLocal = {
     "<button type=button class=btn ng-class=\"{active: mapctrl.ZoekenOpLocatie==false}\" ng-click=\"mapctrl.ZoekenOpLocatie=false\" prevent-default><i class=\"fa fa-download\"></i></button>\n" +
     "</div>\n" +
     "<div class=\"ll zoekbalken\">\n" +
-    "<input id=locatiezoek class=\"zoekbalk typeahead\" sf-typeahead options=exampleOptionsNonEditable datasets=numbersDataset ng-model=selectedNumberNonEditable ng-show=\"mapctrl.ZoekenOpLocatie == true\" placeholder=\"Geef een X,Y / locatie of POI in.\" ng-keyup=\"$event.keyCode == 13 && mapctrl.zoekLocatie(mapctrl.zoekLoc)\" prevent-default>\n" +
+    "<input id=locatiezoek class=\"zoekbalk typeahead\" ng-show=\"mapctrl.ZoekenOpLocatie == true\" placeholder=\"Geef een X,Y / locatie of POI in.\">\n" +
     "<input type=search class=zoekbalk ng-show=\"mapctrl.ZoekenOpLocatie == false\" placeholder=\"Geef een zoekterm\" prevent-default ng-keyup=\"$event.keyCode == 13 && mapctrl.zoekLaag(mapctrl.laagquery)\" ng-model=mapctrl.laagquery>\n" +
     "<select ng-options=\"layer as layer.name for layer in mapctrl.SelectableLayers\" ng-model=mapctrl.selectedLayer ng-show=\"mapctrl.ZoekenOpLocatie == false\" ng-change=mapctrl.layerChange() ng-class=\"{invisible: mapctrl.SelectableLayers.length<=1}\" prevent-default></select>\n" +
     "</div>\n" +

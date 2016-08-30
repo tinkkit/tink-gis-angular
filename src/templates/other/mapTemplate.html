@@ -7,11 +7,8 @@
                 prevent-default><i class="fa fa-download"></i></button>
         </div>
         <div class="ll zoekbalken">
-            <input id="locatiezoek" class="zoekbalk typeahead" type="text"
-             sf-typeahead options="exampleOptionsNonEditable" datasets="numbersDataset"
-                ng-model="selectedNumberNonEditable"
-                 ng-show="mapctrl.ZoekenOpLocatie == true" placeholder="Geef een X,Y / locatie of POI in."
-                ng-keyup="$event.keyCode == 13 && mapctrl.zoekLocatie(mapctrl.zoekLoc)" />
+            <input id="locatiezoek" class="zoekbalk typeahead" type="text" ng-show="mapctrl.ZoekenOpLocatie == true" placeholder="Geef een X,Y / locatie of POI in."
+            />
             <input type="search" class="zoekbalk" ng-show="mapctrl.ZoekenOpLocatie == false" placeholder="Geef een zoekterm" prevent-default
                 ng-keyup="$event.keyCode == 13 && mapctrl.zoekLaag(mapctrl.laagquery)" ng-model="mapctrl.laagquery" />
             <select ng-options="layer as layer.name for layer in mapctrl.SelectableLayers" ng-model="mapctrl.selectedLayer" ng-show="mapctrl.ZoekenOpLocatie == false"

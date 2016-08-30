@@ -14,78 +14,100 @@
         vm.showDrawControls = false;
         vm.zoekLoc = '';
         // var itemsdata = [];
-        var locatieMapData = L.esri.dynamicMapLayer({
-                        maxZoom: 19,
-                        minZoom: 0,
-                        url: 'http://geoint-a.antwerpen.be/arcgissql/rest/services/A_DA/Locaties/MapServer',
-                        opacity: 1,
-                        layers: 0,
-                        continuousWorld: true,
-                        useCors: true
-                    }).addTo(map);
-var suggestionfunc = function (item)
-{
-    var output = '<div>' + item.name;
-     if(item.attribute1value) {
-        output+= '<p>' + item.attribute1name + ': ' + item.attribute1value + '</p>'; 
-     }
-     
-     if(item.attribute2value) {
-        output+= '<p>' + item.attribute2name + ': ' + item.attribute2value + '</p>'; 
-     }
-     output += '<p>Laag: ' + item.layer + '</p></div>';
-     return output;
-}  
-        $('#locatiezoek.typeahead').typeahead({   
-            minLength: 3,
-  highlight: true,
-      classNames: {
-      open: 'is-open',
-      empty: 'is-empty',
-    //   cursor: 'is-active',
-    //   suggestion: 'Typeahead-suggestion',
-    //   selectable: 'Typeahead-selectable'
-    }
-}, {
-            async: true,
-            limit: 99,
-            display: 'displayField',
-              source: function(query, syncResults, asyncResults) {
-                  var prom = GISService.QuerySOLRLocatie(query);
-                    prom.then(function (data) {
-                    var arr = data.response.docs;
-                    // console.log('--------------------------------------------');
-                    // arr.forEach(x=>{
-                    //     console.log(x);
-                    //     x.displayField = x.name + ' (' + x.attribute1value + ')(' + x.layer + ')'; 
-                    // });
-                    // console.log('--------------------------------------------');
-                    asyncResults(arr);
-                    //         $('#locatiezoek.typeahead').typeahead('open');
-                  });
-         },
-           templates: {
-               suggestion: suggestionfunc,
-        notFound: ['<div class="empty-message"><b>Geen match gevonden</b></div>'],
-        empty: ['<div class="empty-message"><b>Zoek naar straten, POI en districten</b></div>']
-    }
 
-        });
-        $('.typeahead').bind('typeahead:select', function (ev, suggestion) {
-            if(suggestion.layer.toLowerCase() === 'postzone')
-            {
-                console.log('POSTZONEEEEEEE');
+        var suggestionfunc = function (item) {
+            var output = '<div>' + item.name;
+            if (item.attribute1value) {
+                output += '<p>' + item.attribute1name + ': ' + item.attribute1value + '</p>';
             }
 
-            var cors = {
-                x: suggestion.x,
-                y: suggestion.y
-            };
-            
-            var xyWGS84 = HelperService.ConvertLambert72ToWSG84(cors);
-            setViewAndPutDot(xyWGS84);
+            if (item.attribute2value) {
+                output += '<p>' + item.attribute2name + ': ' + item.attribute2value + '</p>';
+            }
+            output += '<p>Laag: ' + item.layer + '</p></div>';
+            return output;
+        }
+        $('#locatiezoek.typeahead').typeahead({
+            minLength: 3,
+            highlight: true,
+            classNames: {
+                open: 'is-open',
+                empty: 'is-empty',
+            }
+        }, {
+                async: true,
+                limit: 99,
+                display: 'name',
+                source: function (query, syncResults, asyncResults) {
+                    if (query == 'mech') {
+                        syncResults([])
+                    }
+                    else {
+                        var prom = GISService.QuerySOLRLocatie(query);
+                        prom.then(function (data) {
+                            var arr = data.response.docs;
+                            asyncResults(arr);
+                        });
+                    }
+
+                },
+                templates: {
+                    suggestion: suggestionfunc,
+                    notFound: ['<div class="empty-message"><b>Geen match gevonden</b></div>'],
+                    empty: ['<div class="empty-message"><b>Zoek naar straten, POI en districten</b></div>']
+                }
+
+            });
+
+
+        $('#locatiezoek.typeahead').bind('typeahead:change', function (ev, suggestion) {
+            console.log("CHANGEEEEEEEEEEEE");
             console.log('Selection: ' + suggestion);
         });
+
+        $('#locatiezoek.typeahead').bind('typeahead:selected', function (ev, suggestion) {
+            MapData.CleanWatIsHier();
+            MapData.CleanTempFeatures();
+            if (suggestion.layer.toLowerCase() === 'postzone') {
+                MapData.QueryForTempFeatures(20, 'ObjectID=' + suggestion.key);
+            }
+            else {
+                var cors = {
+                    x: suggestion.x,
+                    y: suggestion.y
+                };
+
+                var xyWGS84 = HelperService.ConvertLambert72ToWSG84(cors);
+                setViewAndPutDot(xyWGS84);
+            }
+        });
+        $('.typeahead').on('typeahead:asyncrequest', function () {
+            $('.Typeahead-spinner').show();
+        })
+        $('.typeahead').on('typeahead:asynccancel typeahead:asyncreceive', function () {
+            $('.Typeahead-spinner').hide();
+        });
+        // $('.typeahead').bind('typeahead:select', function (ev, suggestion) {
+        //     console.log("JAAAAAAAAAAAAINFUNCTIEEEEEEEEEEEEEEEEEEE");
+
+        //     if (suggestion.layer.toLowerCase() === 'postzone') {
+        //         console.log('POSTZONEEEEEEE');
+        //     }
+
+        //     var cors = {
+        //         x: suggestion.x,
+        //         y: suggestion.y
+        //     };
+
+        //     var xyWGS84 = HelperService.ConvertLambert72ToWSG84(cors);
+        //     setViewAndPutDot(xyWGS84);
+        //     console.log('Selection: ' + suggestion);
+        // });
+        // $("[data-provide='typeahead']").blur(function (e) {
+        //     if ($('.dropdown-menu').is(":visible")) {
+        //         $(this).data('typeahead').click(e);
+        //     }
+        // });
         // $('#locatiezoek.typeahead').on('input', function (e) {
         //     vm.zoekLoc = e.currentTarget.value;
         //     var search = vm.zoekLoc;
@@ -158,13 +180,12 @@ var suggestionfunc = function (item)
             MapData.CreateDot(loc);
 
         };
+        //ng-keyup="$event.keyCode == 13 && mapctrl.zoekLocatie(mapctrl.zoekLoc)" 
         vm.zoekLocatie = function (search) {
             search = search.trim();
             var WGS84Check = HelperService.getWGS84CordsFromString(search);
             if (WGS84Check.hasCordinates) {
                 setViewAndPutDot(WGS84Check);
-                // map.setView(L.latLng(WGS84Check.X, WGS84Check.Y), 12);
-
             } else {
                 var lambertCheck = HelperService.getLambartCordsFromString(search);
                 if (lambertCheck.hasCordinates) {

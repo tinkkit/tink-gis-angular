@@ -33,7 +33,8 @@
             _data.CleanDrawings();
             _data.CleanWatIsHier();
             _data.CleanSearch();
-            _data.ClearBuffer();
+            _data.CleanBuffer();
+            _data.CleanTempFeatures();
         };
         _data.bufferLaag = null;
         _data.CreateBuffer = function (gisBufferData) {
@@ -43,11 +44,17 @@
             map.fitBounds(_data.bufferLaag.getBounds());
             return _data.bufferLaag;
         };
-        _data.ClearBuffer = function () {
+        _data.CleanBuffer = function () {
             if (_data.bufferLaag) {
                 map.removeLayer(_data.bufferLaag);
                 _data.bufferLaag = null;
             }
+        };
+        _data.CleanTempFeatures = function () {
+            tempFeatures.forEach(tempfeature => {
+                map.removeLayer(tempfeature);
+            });
+            tempFeatures.length = 0;
         };
         _data.GetZoomLevel = function () {
             return map.getZoom();
@@ -85,6 +92,8 @@
                 console.log('apply NOT needed');
             }
         };
+
+
         _data.CreateOrigineleMarker = function (latlng, addressFound, straatNaam) {
             if (addressFound) {
                 var foundMarker = L.AwesomeMarkers.icon({
@@ -144,7 +153,7 @@
         _data.CreateDot = function (loc) {
             _data.CleanWatIsHier();
             var dotIcon = L.icon({
-                iconUrl: 'styles/fa-dot-circle-o_24_0_000000_none.png',
+                iconUrl: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAMAAADXqc3KAAABKVBMVEUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABUJ5OrAAAAYnRSTlMAAQIEBQYICgsNDg8QERITFxgaGyAhJSYoKS8wMTU2ODk7QkRPVFVXXV5fYWJkZ2lrbHF3eHyAg4aMjpSXmJ6jpqirra+wsrS3ucDByszP0dPc3uDi5Obo6evt7/P19/n7/fGWhfoAAAERSURBVBgZXcGHIoJhGIbh5+uXZO+sZK/slZ0tMwkhwn3+B+HtrxTXpapgKOj0n4slC8DX+binWrEcFe8T+uV2qXXhqcSdYvYGmurD/Ylv4M6TLwGk21QSugROVBQBjgKqcFvAmMwNPHiqclfwEpC6gB4VRdeWumQagai0CLcy7hwzK7MPe9IFzMjE8XVKisGr9AyDMhl8C5LagYA+ISLzhm9VUjPgKQvDMtv4hiR1Ak5JWJFpyGPOZMYhI03Bo4oadvKZuJNJwabUDIyqVjfQK+kICmFV1T1BWqYVuA+rIpgCIiqaBD5GVNKXAzZUso7JLkcjQ3NpzIFT2RS11lTVdkzFdbf+aJk+zH4+n813qOwHxGRbFJ0DoNgAAAAASUVORK5CYII=',
                 iconSize: [24, 24]
             });
             WatIsHierMarker = L.marker([loc.x, loc.y], { icon: dotIcon }).addTo(map);
@@ -181,6 +190,41 @@
 
             });
         };
+
+
+        _data.QueryForTempFeatures = function (layerid, where) {
+            locatieMapData.query()
+                .layer(layerid)
+                .where(where)
+                .run(function (error, featureCollection, response) {
+                    if (!error) {
+                        console.log(error, featureCollection, response);
+                        _data.AddTempFeatures(featureCollection);
+                    }
+                    else {
+                        console.log("ERRRORRRRRRRRRRR", error);
+                    }
+
+                });
+        }
+        var locatieMapData = L.esri.dynamicMapLayer({
+            maxZoom: 19,
+            minZoom: 0,
+            url: 'http://geoint-a.antwerpen.be/arcgissql/rest/services/A_DA/Locaties/MapServer',
+            opacity: 1,
+            layers: 0,
+            continuousWorld: true,
+            useCors: true
+        }).addTo(map);
+
+        var tempFeatures = [];
+        _data.AddTempFeatures = function (featureCollection) {
+            featureCollection.features.forEach(feature => {
+                var mapItem = L.geoJson(feature, { style: Style.DEFAULT }).addTo(map);
+                _data.PanToFeature(mapItem);
+                tempFeatures.push(mapItem);
+            })
+        }
         _data.AddFeatures = function (features, theme, layerId) {
             if (features == null || features.features.length == 0) {
                 ResultsData.EmptyResult = true;
@@ -191,15 +235,14 @@
                     var featureItem = features.features[x];
 
                     var layer = {};
-                    if (featureItem.layerId != undefined && featureItem.layerId != null) {
+                    if (featureItem.layerId) {
                         layer = theme.AllLayers.find(x => x.id === featureItem.layerId);
                     }
-                    else if (layerId != undefined && layerId != null) {
+                    else if (layerId) {
                         layer = theme.AllLayers.find(x => x.id === layerId);
                     } else {
                         console.log('NO LAYER ID WAS GIVEN EITHER FROM FEATURE ITEM OR FROM PARAMETER');
                     }
-                    // featureItem.layer = layer;
                     featureItem.theme = theme;
                     featureItem.layerName = layer.name;
                     if (theme.Type === ThemeType.ESRI) {

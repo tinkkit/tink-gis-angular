@@ -13,26 +13,26 @@
         enableLog: true
     });
 
-    module.directive('preventDefault', function () {
-        return function (scope, element, attrs) {
-            angular.element(element).bind('click', function (event) {
-                event.preventDefault();
-                event.stopPropagation();
-            });
-            angular.element(element).bind('dblclick', function (event) {
-                event.preventDefault();
-                event.stopPropagation();
-            });
-            angular.element(element).bind('ondrag', function (event) {
-                event.preventDefault();
-                event.stopPropagation();
-            });
-            angular.element(element).bind('ondragstart', function (event) {
-                event.preventDefault();
-                event.stopPropagation();
-            });
-        };
-    });
+    // module.directive('preventDefault', function () {
+    //     return function (scope, element, attrs) {
+    //         angular.element(element).bind('click', function (event) {
+    //             event.preventDefault();
+    //             event.stopPropagation();
+    //         });
+    //         angular.element(element).bind('dblclick', function (event) {
+    //             event.preventDefault();
+    //             event.stopPropagation();
+    //         });
+    //         angular.element(element).bind('ondrag', function (event) {
+    //             event.preventDefault();
+    //             event.stopPropagation();
+    //         });
+    //         angular.element(element).bind('ondragstart', function (event) {
+    //             event.preventDefault();
+    //             event.stopPropagation();
+    //         });
+    //     };
+    // });
     JXON.config({
         attrPrefix: '',              // default: '@'
         autoDate: false              // default: true

@@ -36,48 +36,48 @@
             MapData.Apply();
         });
 
-        map.on('click', function (event) {
-            if (event.originalEvent instanceof MouseEvent) {
-                console.log('click op map! Is drawing: ' + MapData.IsDrawing);
-                if (!MapData.IsDrawing) {
-                    MapData.CleanMap();
-                    switch (MapData.ActiveInteractieKnop) {
-                        case ActiveInteractieButton.IDENTIFY:
-                            MapData.LastIdentifyBounds = map.getBounds();
-                            MapService.Identify(event, 10);
-                            break;
-                        case ActiveInteractieButton.SELECT:
-                            if (MapData.DrawingType === DrawingOption.NIETS) {
-                                MapService.Select(event);
-                            } // else a drawing finished
-                            break;
-                        case ActiveInteractieButton.WATISHIER:
-                            MapService.WatIsHier(event);
-                            break;
-                        case ActiveInteractieButton.METEN:
+        // map.on('click.draw', function (event) {
+        //     if (event.originalEvent instanceof MouseEvent) {
+        //         console.log('click op map! Is drawing: ' + MapData.IsDrawing);
+        //         if (!MapData.IsDrawing) {
+        //             MapData.CleanMap();
+        //             switch (MapData.ActiveInteractieKnop) {
+        //                 case ActiveInteractieButton.IDENTIFY:
+        //                     MapData.LastIdentifyBounds = map.getBounds();
+        //                     MapService.Identify(event, 10);
+        //                     break;
+        //                 case ActiveInteractieButton.SELECT:
+        //                     if (MapData.DrawingType === DrawingOption.NIETS) {
+        //                         MapService.Select(event);
+        //                     } // else a drawing finished
+        //                     break;
+        //                 case ActiveInteractieButton.WATISHIER:
+        //                     MapService.WatIsHier(event);
+        //                     break;
+        //                 case ActiveInteractieButton.METEN:
 
-                            break;
-                        default:
-                            console.log('MAG NIET!!!!!!!!');
-                            break;
-                    }
-                }
-                else {
-                    // MapData.DrawingObject = event;
-                    console.log("DrawingObject: ");
-                    console.log(MapData.DrawingObject);
-                    switch (MapData.DrawingType) {
-                        case DrawingOption.AFSTAND:
-                            break;
-                        case DrawingOption.OPPERVLAKTE:
-                            break;
-                        default:
-                            console.log("Aant drawen zonder een gekent type!!!!!!");
-                            break;
-                    }
-                }
-            }
-        });
+        //                     break;
+        //                 default:
+        //                     console.log('MAG NIET!!!!!!!!');
+        //                     break;
+        //             }
+        //         }
+        //         else {
+        //             // MapData.DrawingObject = event;
+        //             console.log("DrawingObject: ");
+        //             console.log(MapData.DrawingObject);
+        //             switch (MapData.DrawingType) {
+        //                 case DrawingOption.AFSTAND:
+        //                     break;
+        //                 case DrawingOption.OPPERVLAKTE:
+        //                     break;
+        //                 default:
+        //                     console.log("Aant drawen zonder een gekent type!!!!!!");
+        //                     break;
+        //             }
+        //         }
+        //     }
+        // });
 
 
         map.on('draw:created', function (e) {
