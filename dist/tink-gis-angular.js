@@ -2287,7 +2287,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         var locatieMapData = L.esri.dynamicMapLayer({
             maxZoom: 19,
             minZoom: 0,
-            url: 'http://geoint-a.antwerpen.be/arcgissql/rest/services/A_DA/Locaties/MapServer',
+            url: 'https://geoint-a.antwerpen.be/arcgissql/rest/services/A_DA/Locaties/MapServer',
             opacity: 1,
             layers: 0,
             continuousWorld: true,
