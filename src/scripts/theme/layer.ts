@@ -14,6 +14,8 @@ namespace TinkGis {
         }
     }
     export abstract class Layer extends LayerJSON {
+        queryable: boolean;
+
         visible: boolean;
         enabled: boolean;
         parent: Layer = null;
@@ -21,6 +23,9 @@ namespace TinkGis {
         title: string;
         displayed: boolean;
         Layers: Array<Layer> = [];
+        get legendUrl(): string {
+            return "TODOOVERWRITEBIJCHILD abstract get is nog niet ondersteund door typescript"
+        }
 
         get hasLayers(): boolean {
             if (this.Layers) {
@@ -71,7 +76,6 @@ namespace TinkGis {
         }
     }
     export class wmslayer extends Layer {
-        queryable: boolean;
         id: string;
         constructor(info: any, parenttheme: Theme) {
             super();
@@ -83,8 +87,21 @@ namespace TinkGis {
             this.queryable = info.queryable;
             this.id = this.name; //names are the ids of the layer in wms
         }
+        get legendUrl(): string {
+            return this.theme.CleanUrl + '?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&LAYER=' + this.id;
+        };
     }
+    export class argislegend {
+        constructor(label: string, url: string) {
+            this.label = label;
+            this.url = url;
+        }
+        label: string;
+        url: string;
+    }
+
     export class arcgislayer extends Layer {
+        legend: Array<any>;
         id: number;
         constructor(info: LayerJSON, parenttheme: Theme) {
             super();
@@ -94,9 +111,11 @@ namespace TinkGis {
             this.title = info.name;
             this.theme = parenttheme;
             this.displayed = true;
-            // if (this.subLayerIds !== null) {
-            //     this.type = LayerType.GROUP;
-            // }
+            this.queryable = false;
+        }
+
+        get legends(): Array<argislegend> {
+            return this.legend.map(x => new argislegend(x.label, x.fullurl));
         }
     }
 

@@ -68,17 +68,22 @@
         $('#locatiezoek.typeahead').bind('typeahead:selected', function (ev, suggestion) {
             MapData.CleanWatIsHier();
             MapData.CleanTempFeatures();
-            if (suggestion.layer.toLowerCase() === 'postzone') {
-                MapData.QueryForTempFeatures(20, 'ObjectID=' + suggestion.key);
-            }
-            else {
-                var cors = {
-                    x: suggestion.x,
-                    y: suggestion.y
-                };
+            switch (suggestion.layer.toLowerCase()) {
+                case 'postzone':
+                    MapData.QueryForTempFeatures(20, 'ObjectID=' + suggestion.key);
+                    break;
+                case 'district':
+                    MapData.QueryForTempFeatures(21, 'ObjectID=' + suggestion.key);
+                    break;
+                default:
+                    var cors = {
+                        x: suggestion.x,
+                        y: suggestion.y
+                    };
+                    var xyWGS84 = HelperService.ConvertLambert72ToWSG84(cors);
+                    setViewAndPutDot(xyWGS84);
+                    break;
 
-                var xyWGS84 = HelperService.ConvertLambert72ToWSG84(cors);
-                setViewAndPutDot(xyWGS84);
             }
         });
         $('.typeahead').on('typeahead:asyncrequest', function () {
