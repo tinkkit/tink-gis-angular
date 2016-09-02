@@ -881,16 +881,22 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         $('#locatiezoek.typeahead').bind('typeahead:selected', function (ev, suggestion) {
             MapData.CleanWatIsHier();
             MapData.CleanTempFeatures();
-            if (suggestion.layer.toLowerCase() === 'postzone') {
-                MapData.QueryForTempFeatures(20, 'ObjectID=' + suggestion.key);
-            } else {
-                var cors = {
-                    x: suggestion.x,
-                    y: suggestion.y
-                };
+            switch (suggestion.layer.toLowerCase()) {
+                case 'postzone':
+                    MapData.QueryForTempFeatures(20, 'ObjectID=' + suggestion.key);
+                    break;
+                case 'district':
+                    MapData.QueryForTempFeatures(21, 'ObjectID=' + suggestion.key);
+                    break;
+                default:
+                    var cors = {
+                        x: suggestion.x,
+                        y: suggestion.y
+                    };
+                    var xyWGS84 = HelperService.ConvertLambert72ToWSG84(cors);
+                    setViewAndPutDot(xyWGS84);
+                    break;
 
-                var xyWGS84 = HelperService.ConvertLambert72ToWSG84(cors);
-                setViewAndPutDot(xyWGS84);
             }
         });
         $('.typeahead').on('typeahead:asyncrequest', function () {
@@ -1276,7 +1282,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         };
         _service.QuerySOLRLocatie = function (search) {
             var prom = $q.defer();
-            var url = 'https://esb-app1-o.antwerpen.be/v1/giszoek/solr/search?q=*' + search + '*&wt=json&indent=true&rows=10&solrtype=gislocaties';
+            var url = 'https://esb-app1-o.antwerpen.be/v1/giszoek/solr/search?q=*' + search + '*&wt=json&indent=true&rows=50&solrtype=gislocaties&dismax=true&bq=exactName:DISTRICT^20000.0&bq=layer:WEGENREGISTER_STRAATAS_XY^20000.0';
             $http.get(url).success(function (data, status, headers, config) {
                 // data = HelperService.UnwrapProxiedData(data);
                 prom.resolve(data);
@@ -3790,9 +3796,9 @@ L.drawLocal = {
     "<img style=\"width:20px; height:20px\" ng-if=\"lyrctrl.layer.theme.Type=='esri' && lyrctrl.layer.legend.length==1\" ng-src=\"{{lyrctrl.layer.legend[0].fullurl}} \">\n" +
     "<input class=visible-box type=checkbox ng-model=\"lyrctrl.layer.visible \" ng-change=lyrctrl.chkChanged() id=\"{{lyrctrl.layer.name}}{{lyrctrl.layer.id}} \">\n" +
     "<label ng-class=\"{ 'greytext': lyrctrl.layer.displayed==false} \" for={{lyrctrl.layer.name}}{{lyrctrl.layer.id}}> {{lyrctrl.layer.title | limitTo: 23}}<span ng-show=\"lyrctrl.layer.theme.Type=='wms' && lyrctrl.layer.queryable \">(i)</span></label>\n" +
-    "<img ng-if=\"lyrctrl.layer.theme.Type=='wms' \" ng-src=\"{{layer.theme.CleanUrl}}?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&LAYER={{lyrctrl.layer.id}} \"><img>\n" +
-    "<div ng-if=\"lyrctrl.layer.theme.Type=='esri' && lyrctrl.layer.legend.length> 1\" ng-repeat=\"legend in lyrctrl.layer.legend\">\n" +
-    "<img style=\"width:20px; height:20px\" ng-src={{legend.fullurl}}><img><span> {{legend.label}}</span>\n" +
+    "<img ng-if=\"lyrctrl.layer.theme.Type=='wms' \" ng-src={{lyrctrl.layer.legendUrl}}><img>\n" +
+    "<div ng-if=\"lyrctrl.layer.theme.Type=='esri' && lyrctrl.layer.legend.length> 1\" ng-repeat=\"legend in lyrctrl.legends\">\n" +
+    "<img style=\"width:20px; height:20px\" ng-src={{legend.url}}><img><span> {{legend.label}}</span>\n" +
     "</div>\n" +
     "</div>\n" +
     "</div>"
@@ -4031,6 +4037,11 @@ var TinkGis;
         }
 
         _createClass(Layer, [{
+            key: 'legendUrl',
+            get: function get() {
+                return "TODOOVERWRITEBIJCHILD abstract get is nog niet ondersteund door typescript";
+            }
+        }, {
             key: 'hasLayers',
             get: function get() {
                 if (this.Layers) {
@@ -4094,10 +4105,26 @@ var TinkGis;
             return _this2;
         }
 
+        _createClass(wmslayer, [{
+            key: 'legendUrl',
+            get: function get() {
+                return this.theme.CleanUrl + '?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&LAYER=' + this.id;
+            }
+        }]);
+
         return wmslayer;
     }(Layer);
 
     TinkGis.wmslayer = wmslayer;
+
+    var argislegend = function argislegend(label, url) {
+        _classCallCheck(this, argislegend);
+
+        this.label = label;
+        this.url = url;
+    };
+
+    TinkGis.argislegend = argislegend;
 
     var arcgislayer = function (_Layer2) {
         _inherits(arcgislayer, _Layer2);
@@ -4113,8 +4140,18 @@ var TinkGis;
             _this3.title = info.name;
             _this3.theme = parenttheme;
             _this3.displayed = true;
+            _this3.queryable = false;
             return _this3;
         }
+
+        _createClass(arcgislayer, [{
+            key: 'legends',
+            get: function get() {
+                return this.legend.map(function (x) {
+                    return new argislegend(x.label, x.fullurl);
+                });
+            }
+        }]);
 
         return arcgislayer;
     }(Layer);
