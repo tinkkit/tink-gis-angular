@@ -1,6 +1,13 @@
 <div data-tink-nav-aside="" id="rightaside" data-auto-select="true" data-toggle-id="asideNavRight" class="nav-aside nav-right">
     <aside>
         <div class="nav-aside-section">
+
+<div>
+    <span class="gis-toggle-right" data-tink-sidenav-collapse="asideNavRight">
+      <a href="#" title="Open menu"><i class="fa fa-caret-right"><span class="sr-only">Open right menu</span></i></a>
+    </span>
+</div>
+
             <button class="btn btn-primary addlayerbtn" ng-click="lyrsctrl.AddLayers()">Lagenbeheer</button>
             <ul id="sortableThemes" ui-sortable="lyrsctrl.sortableOptions" ng-model="lyrsctrl.themes">
                 <div ng-repeat="theme in lyrsctrl.themes">

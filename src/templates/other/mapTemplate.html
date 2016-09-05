@@ -1,4 +1,36 @@
 <div class="tink-map">
+
+
+
+<!--     <div data-tink-nav-aside="" data-auto-select="true" data-toggle-id="asideNavLeft" class="nav-aside nav-left">
+      <aside>
+        <div class="nav-aside-section">
+          <p class="nav-aside-title">Section title</p>
+          <ul>
+            <li>
+              <a href="#"> <span>Menu item</span> </a>
+            </li>
+          </ul>
+        </div>
+      </aside>
+    </div> -->
+
+
+<!--     <div data-tink-nav-aside="" id="leftaside" data-auto-select="true" data-toggle-id="asideNavLeft" class="nav-aside nav-left">
+        <aside>
+            <div class="nav-aside-section" ng-show="srchctrl.Loading == 0">
+                <tink-search-results></tink-search-results>
+                <tink-search-selected></tink-search-selected>
+            </div>
+            <div class="nav-aside-section" ng-show="srchctrl.Loading > 0">
+                <div class="loader"></div> {{srchctrl.MaxLoading - srchctrl.Loading}}/ {{srchctrl.MaxLoading}}
+            </div>
+        </aside>
+    </div> -->
+
+    <tink-Search></tink-Search>
+
+
     <div id="map" class="leafletmap">
         <div class="btn-group ll searchbtns">
             <button type="button" class="btn" ng-class="{active: mapctrl.ZoekenOpLocatie==true}" ng-click="mapctrl.ZoekenOpLocatie=true"
@@ -58,6 +90,44 @@
             <div class="loader"></div> {{mapctrl.MaxLoading - mapctrl.Loading}}/ {{mapctrl.MaxLoading}}
         </div>
     </div>
-    <tink-Search></tink-Search>
+
+
+<!--     <div data-tink-nav-aside="" data-auto-select="true" data-toggle-id="asideNavRight" class="nav-aside nav-right">
+      <aside>
+        <div class="nav-aside-section">
+          <p class="nav-aside-title">Section title</p>
+          <ul>
+            <li>
+              <a href="#"> <span>Menu item</span> </a>
+            </li>
+          </ul>
+        </div>
+      </aside>
+    </div> -->
+
+
+
+
+<!--     <div data-tink-nav-aside="" id="rightaside" data-auto-select="true" data-toggle-id="asideNavRight" class="nav-aside nav-right">
+        <aside>
+            <div class="nav-aside-section">
+                <button class="btn btn-primary addlayerbtn" ng-click="lyrsctrl.AddLayers()">Lagenbeheer</button>
+                <ul id="sortableThemes" ui-sortable="lyrsctrl.sortableOptions" ng-model="lyrsctrl.themes">
+                    <div ng-repeat="theme in lyrsctrl.themes">
+                        <tink-Theme theme="theme">
+                        </tink-Theme>
+                    </div>
+                </ul>
+            </div>
+        </aside>
+    </div> -->
+
+
+
     <tink-Layers></tink-Layers>
+
+
+
+
+
 </div>
