@@ -205,12 +205,17 @@ angular.module('tink.gis').run(['$templateCache', function($templateCache) {
     "<div data-tink-nav-aside=\"\" id=rightaside data-auto-select=true data-toggle-id=asideNavRight class=\"nav-aside nav-right\">\n" +
     "<aside>\n" +
     "<div class=nav-aside-section>\n" +
+    "<p class=nav-aside-title>Layers</p>\n" +
+    "</div>\n" +
     "<div>\n" +
     "<span class=gis-toggle-right data-tink-sidenav-collapse=asideNavRight>\n" +
     "<a href=# title=\"Open menu\"><i class=\"fa fa-caret-right\"><span class=sr-only>Open right menu</span></i></a>\n" +
     "</span>\n" +
     "</div>\n" +
+    "<div>\n" +
     "<button class=\"btn btn-primary addlayerbtn\" ng-click=lyrsctrl.AddLayers()>Lagenbeheer</button>\n" +
+    "</div>\n" +
+    "<div>\n" +
     "<ul id=sortableThemes ui-sortable=lyrsctrl.sortableOptions ng-model=lyrsctrl.themes>\n" +
     "<div ng-repeat=\"theme in lyrsctrl.themes\">\n" +
     "<tink-theme theme=theme>\n" +
@@ -226,7 +231,7 @@ angular.module('tink.gis').run(['$templateCache', function($templateCache) {
   $templateCache.put('templates/other/mapTemplate.html',
     "<div class=tink-map>\n" +
     "<tink-search></tink-search>\n" +
-    "<div id=map class=leafletmap>\n" +
+    "<div id=map class=\"main leafletmap\">\n" +
     "<div class=\"btn-group ll searchbtns\">\n" +
     "<button type=button class=btn ng-class=\"{active: mapctrl.ZoekenOpLocatie==true}\" ng-click=\"mapctrl.ZoekenOpLocatie=true\" prevent-default><i class=\"fa fa-map-marker\"></i></button>\n" +
     "<button type=button class=btn ng-class=\"{active: mapctrl.ZoekenOpLocatie==false}\" ng-click=\"mapctrl.ZoekenOpLocatie=false\" prevent-default><i class=\"fa fa-download\"></i></button>\n" +
@@ -373,16 +378,19 @@ angular.module('tink.gis').run(['$templateCache', function($templateCache) {
   $templateCache.put('templates/search/searchTemplate.html',
     "<div data-tink-nav-aside=\"\" id=leftaside data-auto-select=true data-toggle-id=asideNavLeft class=\"nav-aside nav-left\">\n" +
     "<aside>\n" +
+    "<div class=nav-aside-section>\n" +
+    "<p class=nav-aside-title>Search</p>\n" +
+    "</div>\n" +
     "<div>\n" +
     "<span class=gis-toggle-left data-tink-sidenav-collapse=asideNavLeft>\n" +
     "<a href=# title=\"Open menu\"><i class=\"fa fa-caret-left\"><span class=sr-only>Open left menu</span></i></a>\n" +
     "</span>\n" +
     "</div>\n" +
-    "<div class=nav-aside-section ng-show=\"srchctrl.Loading == 0\">\n" +
+    "<div ng-show=\"srchctrl.Loading == 0\">\n" +
     "<tink-search-results></tink-search-results>\n" +
     "<tink-search-selected></tink-search-selected>\n" +
     "</div>\n" +
-    "<div class=nav-aside-section ng-show=\"srchctrl.Loading > 0\">\n" +
+    "<div ng-show=\"srchctrl.Loading > 0\">\n" +
     "<div class=loader></div> {{srchctrl.MaxLoading - srchctrl.Loading}}/ {{srchctrl.MaxLoading}}\n" +
     "</div>\n" +
     "</aside>\n" +

@@ -2,30 +2,9 @@
 @import "../../bower_components/tink-core/dist/tink/mixins";
 @import "../../bower_components/tink-core/dist/tink/variables";
 
-
-.aside {
-  position: relative;
-}
-
-.gis-toggle-left {
-  background-color: #638293;
-  left: 350px;
-  position: relative;
-}
-
-.gis-toggle-right {
-  background-color: #638293;
-  position: relative;
-
-}
-
-
-
-
-
-.fa {
-    width: 15.775px;
-}
+// .fa {
+//     width: 15.775px;
+// }
 
 .tink-map, .leafletmap {
   height: 100%;
@@ -54,310 +33,336 @@
 
 
 
-.ll {
-  position: absolute;
-  z-index: 600;
-}
-
-.interactiebtns {
-  left: rem(10);
-  top: rem(100);
-
-  @include mq($screen-sm) {
-    left: rem(15);
-    top: rem(105);
-  }
-}
-
-.searchbtns {
-  left: rem(10);
-  top: rem(10);
-
-  @include mq($screen-sm) {
-    left: rem(15);
-    top: rem(15);
-  }
-}
-
-.metenbtns {
-  left: rem(55);
-  top: rem(165);
-
-  @include mq($screen-sm) {
-    left: rem(60);
-    top: rem(170);
-  }
-}
-
-.drawingbtns {
-  left: rem(55);
-  top: rem(130);
-
-  @include mq($screen-sm) {
-    left: rem(60);
-    top: rem(135);
-  }
-}
-
-.zoekbalken {
-  left: rem(90);
-  top: rem(10);
-
-  @include mq($screen-sm) {
-    left: rem(95);
-    top: rem(15);
-  }
-}
-
-.zoekbalk {
-  width: rem(150);
-
-  @include mq($screen-sm) {
-    width: rem(200);
-  }
-}
-
-.localiseerbtn {
-  right: rem(10);
-  bottom: rem(20);
-
-  @include mq($screen-sm) {
-    right: rem(15);
-    bottom: rem(20);
-  }
-}
-.loading {
-  right: rem(10);
-  top: rem(10);
-  background-color: white;
-  @include mq($screen-sm) {
-    right: rem(15);
-    top: rem(15);
-  }
-}
-.viewbtns {
-  right: rem(10);
-  bottom: rem(64);
-
-  @include mq($screen-sm) {
-    right: rem(15);
-    bottom: rem(69);
-  }
-}
-
-button.btn.active {
-  background-color: dodgerblue;
-  color: white;
-}
-
-.leaflet-left .leaflet-control-scale {
-  margin-left: rem(130);
-  margin-bottom: rem(13);
-
-  @include mq($screen-sm) {
-    margin-left: rem(135);
-    margin-bottom: rem(18);
-  }
-}
-
-.kaarttypes {
-  left: rem(10);
-  bottom: rem(10);
-
-  @include mq($screen-sm) {
-    left: rem(15);
-    bottom: rem(15);
-  }
-}
-
-.kaarttypes > .btn {
-    height:30px;
-    font-size: 10px;
-//   font-weight: small;
-}
-
-// Wtf tink ???
-// input[type="checkbox"], input[type="radio"] {
-//      opacity: 1;
-//      position: static;
+// .ll {
+//   position: absolute;
+//   z-index: 600;
 // }
-// .visible-box {
-//     padding-top: 4px;
+
+// .interactiebtns {
+//   left: rem(10);
+//   top: rem(100);
+
+//   @include mq($screen-sm) {
+//     left: rem(15);
+//     top: rem(105);
+//   }
 // }
-.layercontroller-checkbox
-{
-    margin-left:10px;
+
+// .searchbtns {
+//   left: rem(10);
+//   top: rem(10);
+
+//   @include mq($screen-sm) {
+//     left: rem(15);
+//     top: rem(15);
+//   }
+// }
+
+// .metenbtns {
+//   left: rem(55);
+//   top: rem(165);
+
+//   @include mq($screen-sm) {
+//     left: rem(60);
+//     top: rem(170);
+//   }
+// }
+
+// .drawingbtns {
+//   left: rem(55);
+//   top: rem(130);
+
+//   @include mq($screen-sm) {
+//     left: rem(60);
+//     top: rem(135);
+//   }
+// }
+
+// .zoekbalken {
+//   left: rem(90);
+//   top: rem(10);
+
+//   @include mq($screen-sm) {
+//     left: rem(95);
+//     top: rem(15);
+//   }
+// }
+
+// .zoekbalk {
+//   width: rem(150);
+
+//   @include mq($screen-sm) {
+//     width: rem(200);
+//   }
+// }
+
+// .localiseerbtn {
+//   right: rem(10);
+//   bottom: rem(20);
+
+//   @include mq($screen-sm) {
+//     right: rem(15);
+//     bottom: rem(20);
+//   }
+// }
+// .loading {
+//   right: rem(10);
+//   top: rem(10);
+//   background-color: white;
+//   @include mq($screen-sm) {
+//     right: rem(15);
+//     top: rem(15);
+//   }
+// }
+// .viewbtns {
+//   right: rem(10);
+//   bottom: rem(64);
+
+//   @include mq($screen-sm) {
+//     right: rem(15);
+//     bottom: rem(69);
+//   }
+// }
+
+// button.btn.active {
+//   background-color: dodgerblue;
+//   color: white;
+// }
+
+// .leaflet-left .leaflet-control-scale {
+//   margin-left: rem(130);
+//   margin-bottom: rem(13);
+
+//   @include mq($screen-sm) {
+//     margin-left: rem(135);
+//     margin-bottom: rem(18);
+//   }
+// }
+
+// .kaarttypes {
+//   left: rem(10);
+//   bottom: rem(10);
+
+//   @include mq($screen-sm) {
+//     left: rem(15);
+//     bottom: rem(15);
+//   }
+// }
+
+// .kaarttypes > .btn {
+//     height:30px;
+//     font-size: 10px;
+// //   font-weight: small;
+// }
+
+// // Wtf tink ???
+// // input[type="checkbox"], input[type="radio"] {
+// //      opacity: 1;
+// //      position: static;
+// // }
+// // .visible-box {
+// //     padding-top: 4px;
+// // }
+// .layercontroller-checkbox
+// {
+//     margin-left:10px;
+// }
+
+// .addlayerbtn {
+//     margin-left: auto;
+//     margin-right: auto;
+//     margin-top: 5px;
+//     margin-bottom: 5px;
+//     display: block;
+// }
+
+
+
+// .modal-header {
+//     padding: 15px;
+//     border-bottom: 1px solid gray;
+//     // text-align: left;
+// }
+// .modal-title {
+//     margin: 0;
+//     line-height: 1.42857143;
+// }
+// .modal-content {
+//     padding: 15px;
+//     // text-align: left;
+// }
+// .modal-footer {
+//     padding: 15px;
+//     border-top: 1px solid gray;
+//     // text-align: left;
+// }
+// .row-no-padding {
+//   [class*="col-"] {
+//     padding-left: 0 !important;
+//     padding-right: 0 !important;
+//   }
+// }
+// .container.container-low-padding {
+//     padding-left: 0.46875rem;
+//     padding-right: 0.46875rem;
+// }
+// .leaflet-popup-content-wrapper {
+//     border-radius: 6px;
+// }
+// .makeblock{
+//     display: block !important;
+// }
+// .nav-aside{
+//     width: 25rem !important;
+// }
+
+// .tink-map {
+//     padding-right: 25rem !important;
+//     padding-left: 25rem !important;
+// }
+// .leaflet-popup-content-wrapper, .leaflet-popup-tip {
+//     opacity: 0.8;
+// }
+
+// svg.leaflet-zoom-animated {
+//     z-index: 999;
+// }
+// .leaflet-marker-pane {
+//     z-index: 999;
+// }
+// .leaflet-popup-pane {
+//     z-index: 1000;
+// }
+
+// .leaflet-overlay-pane {
+//     z-index: auto;
+// }
+// .leaflet-objects-pane {
+//     z-index: auto;
+// }
+// .leaflet-tile-pane {
+//     z-index: auto;
+// }
+
+// .modal-dialog{
+//     min-width: 1000px;
+//     background-color: white;
+//     text-align: left;
+//     z-index: 9999;
+// }
+// .modal {
+//   z-index: 9998;
+// }
+
+// .greytext {
+//   color: lightgrey !important;
+// }
+// .blacktext {
+//   color: black !important;
+// }
+
+// a.btn.prev,a.btn.next {
+//   display: none;
+// }
+// div.table-sort-pagination {
+//       float: left !important;
+// }
+// .nav-tabs {
+//   margin:  5px 0px 5px 0px;
+// }
+// //Lagenbeheer
+// .featureinsolr {
+//   font-style: italic;
+//   font-size: 10px;
+// }
+
+// //Voor typeahead
+// .tt-suggestion + .tt-suggestion {
+//   border-top: 1px solid #ccd6dd;
+// }
+//     .tt-focus {
+//         border: 2px solid #0097cf;
+//     }
+
+//     .tt-query {
+//         -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+//         -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+//         box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+//     }
+
+//     .tt-hint {
+//         color: #999
+//     }
+
+//     .tt-menu {
+//         width: 422px;
+//         margin: 12px 0;
+//         padding: 8px 0;
+//         background-color: #fff;
+//         border: 1px solid #ccc;
+//         border: 1px solid rgba(0, 0, 0, 0.2);
+//         -webkit-border-radius: 8px;
+//         -moz-border-radius: 8px;
+//         border-radius: 8px;
+//         -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, .2);
+//         -moz-box-shadow: 0 5px 10px rgba(0, 0, 0, .2);
+//         box-shadow: 0 5px 10px rgba(0, 0, 0, .2);
+//         z-index: 99999;
+//     }
+
+//     .tt-suggestion {
+//         padding: 3px 20px;
+//         font-size: 18px;
+//         line-height: 24px;
+//         z-index: 99999;
+//     }
+
+//     .tt-suggestion:hover {
+//         cursor: pointer;
+//         color: #fff;
+//         background-color: #0097cf;
+//     }
+
+//     .tt-suggestion.tt-cursor {
+//         color: #fff;
+//         background-color: #0097cf;
+//     }
+
+//     .tt-suggestion p {
+//         margin: 0;
+//     }
+
+//     .gist {
+//         font-size: 14px;
+//     }
+//     .empty-message {padding:5px;text-align:center;color:red}
+
+//     .achtergrondfixvoorpng {
+//       background-image: url('fa-dot-circle-o_24_0_000000_none.png');
+//     }
+
+// REFACTOR work in progress
+
+
+.aside {
+  position: relative;
 }
 
-.addlayerbtn {
-    margin-left: auto;
-    margin-right: auto;
-    margin-top: 5px;
-    margin-bottom: 5px;
-    display: block;
+.gis-toggle-left {
+  background-color: #638293;
+  height: 25px;
+  position: fixed;
+  right: 0;
+  width: 25px;
+  z-index: 18;
 }
 
-
-
-.modal-header {
-    padding: 15px;
-    border-bottom: 1px solid gray;
-    // text-align: left;
-}
-.modal-title {
-    margin: 0;
-    line-height: 1.42857143;
-}
-.modal-content {
-    padding: 15px;
-    // text-align: left;
-}
-.modal-footer {
-    padding: 15px;
-    border-top: 1px solid gray;
-    // text-align: left;
-}
-.row-no-padding {
-  [class*="col-"] {
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-  }
-}
-.container.container-low-padding {
-    padding-left: 0.46875rem;
-    padding-right: 0.46875rem;
-}
-.leaflet-popup-content-wrapper {
-    border-radius: 6px;
-}
-.makeblock{
-    display: block !important;
-}
-.nav-aside{
-    width: 25rem !important;
+.gis-toggle-right {
+  background-color: #638293;
+  height: 25px;
+  position: fixed;
+  left: 0;
+  width: 25px;
+  z-index: 18;
 }
 
-.tink-map {
-    padding-right: 25rem !important;
-    padding-left: 25rem !important;
-}
-.leaflet-popup-content-wrapper, .leaflet-popup-tip {
-    opacity: 0.8;
-}
-
-svg.leaflet-zoom-animated {
-    z-index: 999;
-}
-.leaflet-marker-pane {
-    z-index: 999;
-}
-.leaflet-popup-pane {
-    z-index: 1000;
-}
-
-.leaflet-overlay-pane {
-    z-index: auto;
-}
-.leaflet-objects-pane {
-    z-index: auto;
-}
-.leaflet-tile-pane {
-    z-index: auto;
-}
-
-.modal-dialog{
-    min-width: 1000px;
-    background-color: white;
-    text-align: left;
-    z-index: 9999;
-}
-.modal {
-  z-index: 9998;
-}
-
-.greytext {
-  color: lightgrey !important;
-}
-.blacktext {
-  color: black !important;
-}
-
-a.btn.prev,a.btn.next {
-  display: none;
-}
-div.table-sort-pagination {
-      float: left !important;
-}
-.nav-tabs {
-  margin:  5px 0px 5px 0px;
-}
-//Lagenbeheer
-.featureinsolr {
-  font-style: italic;
-  font-size: 10px;
-}
-
-//Voor typeahead
-.tt-suggestion + .tt-suggestion {
-  border-top: 1px solid #ccd6dd;
-}
-    .tt-focus {
-        border: 2px solid #0097cf;
-    }
-
-    .tt-query {
-        -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-        -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-        box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-    }
-
-    .tt-hint {
-        color: #999
-    }
-
-    .tt-menu {
-        width: 422px;
-        margin: 12px 0;
-        padding: 8px 0;
-        background-color: #fff;
-        border: 1px solid #ccc;
-        border: 1px solid rgba(0, 0, 0, 0.2);
-        -webkit-border-radius: 8px;
-        -moz-border-radius: 8px;
-        border-radius: 8px;
-        -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, .2);
-        -moz-box-shadow: 0 5px 10px rgba(0, 0, 0, .2);
-        box-shadow: 0 5px 10px rgba(0, 0, 0, .2);
-        z-index: 99999;
-    }
-
-    .tt-suggestion {
-        padding: 3px 20px;
-        font-size: 18px;
-        line-height: 24px;
-        z-index: 99999;
-    }
-
-    .tt-suggestion:hover {
-        cursor: pointer;
-        color: #fff;
-        background-color: #0097cf;
-    }
-
-    .tt-suggestion.tt-cursor {
-        color: #fff;
-        background-color: #0097cf;
-    }
-
-    .tt-suggestion p {
-        margin: 0;
-    }
-
-    .gist {
-        font-size: 14px;
-    }
-    .empty-message {padding:5px;text-align:center;color:red}
-
-    .achtergrondfixvoorpng {
-      background-image: url('fa-dot-circle-o_24_0_000000_none.png');
-    }
