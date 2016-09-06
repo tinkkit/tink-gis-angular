@@ -4,6 +4,7 @@
 @import "../../bower_components/tink-core/dist/tink/mixins";
 @import "../../bower_components/tink-core/dist/tink/variables";
 
+
 /**
  * Content area
  */
@@ -25,11 +26,12 @@
 
   .nav-aside {
     top: 0;
+    z-index: 700; // set above leafletmap
   }
 
-  .fa-fw {
-    width: rem(10);
-  }
+  // .fa-fw {
+  //   width: rem(10);
+  // }
 }
 
 .leafletmap {
@@ -114,6 +116,30 @@
   }
 }
 
+.viewbtns {
+  right: rem(10);
+  bottom: rem(64);
+
+  @include mq($screen-sm) {
+    right: rem(15);
+    bottom: rem(69);
+  }
+}
+
+.kaarttypes {
+  left: rem(10);
+  bottom: rem(10);
+
+  @include mq($screen-sm) {
+    left: rem(15);
+    bottom: rem(15);
+  }
+
+  > .btn {
+    height:30px;
+    font-size: 10px;
+  }
+}
 
 /**
  * Seperate components
@@ -128,15 +154,6 @@
     top: rem(15);
   }
 }
-// .viewbtns {
-//   right: rem(10);
-//   bottom: rem(64);
-
-//   @include mq($screen-sm) {
-//     right: rem(15);
-//     bottom: rem(69);
-//   }
-// }
 
 // button.btn.active {
 //   background-color: dodgerblue;
@@ -151,22 +168,6 @@
 //     margin-left: rem(135);
 //     margin-bottom: rem(18);
 //   }
-// }
-
-// .kaarttypes {
-//   left: rem(10);
-//   bottom: rem(10);
-
-//   @include mq($screen-sm) {
-//     left: rem(15);
-//     bottom: rem(15);
-//   }
-// }
-
-// .kaarttypes > .btn {
-//     height:30px;
-//     font-size: 10px;
-// //   font-weight: small;
 // }
 
 // // Wtf tink ???
@@ -186,11 +187,25 @@
 /**
  * Rightside layer menu
  */
-// //Lagenbeheer
-// .featureinsolr {
-//   font-style: italic;
-//   font-size: 10px;
-// }
+
+// Lagenbeheer
+.addlayerbtn {
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    display: block;
+}
+
+// solrGISTemplate
+.blacktext {
+  color: black !important;
+}
+
+.featureinsolr {
+  font-style: italic;
+  font-size: 10px;
+}
 
 .addlayerbtn {
     margin-left: auto;
@@ -202,8 +217,9 @@
 
 
 /**
- * Rightside layer menu
+ * Modal
  */
+
 .modal-header {
     padding: 15px;
     border-bottom: 1px solid gray;
@@ -253,7 +269,7 @@
 //     width: 25rem !important;
 // }
 
-// .tink-map {
+// .tink-map { // !!
 //     padding-right: 25rem !important;
 //     padding-left: 25rem !important;
 // }
@@ -284,9 +300,7 @@
 // .greytext {
 //   color: lightgrey !important;
 // }
-// .blacktext {
-//   color: black !important;
-// }
+
 
 // a.btn.prev,a.btn.next {
 //   display: none;
@@ -299,100 +313,111 @@
 // }
 
 
-// //Voor typeahead
-// .tt-suggestion + .tt-suggestion {
-//   border-top: 1px solid #ccd6dd;
-// }
-//     .tt-focus {
-//         border: 2px solid #0097cf;
-//     }
+/**
+ * Typeahead styling
+ */
 
-//     .tt-query {
-//         -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-//         -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-//         box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-//     }
+.tt-suggestion + .tt-suggestion {
+  border-top: 1px solid #ccd6dd;
+}
+    .tt-focus {
+        border: 2px solid #0097cf;
+    }
 
-//     .tt-hint {
-//         color: #999
-//     }
+    .tt-query {
+        -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+        -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+        box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+    }
 
-//     .tt-menu {
-//         width: 422px;
-//         margin: 12px 0;
-//         padding: 8px 0;
-//         background-color: #fff;
-//         border: 1px solid #ccc;
-//         border: 1px solid rgba(0, 0, 0, 0.2);
-//         -webkit-border-radius: 8px;
-//         -moz-border-radius: 8px;
-//         border-radius: 8px;
-//         -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, .2);
-//         -moz-box-shadow: 0 5px 10px rgba(0, 0, 0, .2);
-//         box-shadow: 0 5px 10px rgba(0, 0, 0, .2);
-//         z-index: 99999;
-//     }
+    .tt-hint {
+        color: #999
+    }
 
-//     .tt-suggestion {
-//         padding: 3px 20px;
-//         font-size: 18px;
-//         line-height: 24px;
-//         z-index: 99999;
-//     }
+    .tt-menu {
+        width: 422px;
+        margin: 12px 0;
+        padding: 8px 0;
+        background-color: #fff;
+        border: 1px solid #ccc;
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        -webkit-border-radius: 8px;
+        -moz-border-radius: 8px;
+        border-radius: 8px;
+        -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, .2);
+        -moz-box-shadow: 0 5px 10px rgba(0, 0, 0, .2);
+        box-shadow: 0 5px 10px rgba(0, 0, 0, .2);
+        z-index: 99999;
+    }
 
-//     .tt-suggestion:hover {
-//         cursor: pointer;
-//         color: #fff;
-//         background-color: #0097cf;
-//     }
+    .tt-suggestion {
+        padding: 3px 20px;
+        font-size: 18px;
+        line-height: 24px;
+        z-index: 99999;
+    }
 
-//     .tt-suggestion.tt-cursor {
-//         color: #fff;
-//         background-color: #0097cf;
-//     }
+    .tt-suggestion:hover {
+        cursor: pointer;
+        color: #fff;
+        background-color: #0097cf;
+    }
 
-//     .tt-suggestion p {
-//         margin: 0;
-//     }
+    .tt-suggestion.tt-cursor {
+        color: #fff;
+        background-color: #0097cf;
+    }
 
-//     .gist {
-//         font-size: 14px;
-//     }
-//     .empty-message {padding:5px;text-align:center;color:red}
+    .tt-suggestion p {
+        margin: 0;
+    }
 
-//     .achtergrondfixvoorpng {
-//       background-image: url('fa-dot-circle-o_24_0_000000_none.png');
-//     }
+    .gist {
+        font-size: 14px;
+    }
+    .empty-message {padding:5px;text-align:center;color:red}
 
-// REFACTOR work in progress
+    .achtergrondfixvoorpng {
+      background-image: url('fa-dot-circle-o_24_0_000000_none.png');
+    }
 
+
+/**
+ * Refactor work in progress
+ */
 
 .aside {
   position: relative;
 }
 
 .gis-toggle-left {
-  height: 25px;
+  background-color: #fff;
+  border-color: rgba(0, 0, 0, 0.12);
+  border-style: solid;
+  border-width: 2px;
+  border-left-color: white;
   position: fixed;
-  right: 10px;
-  width: 25px;
-  z-index: 18;
+  right: rem(-33);
+  text-align: center;
+  z-index: 700;
 
-  a {
+  a{
     color: #333;
-
   }
 }
 
 .gis-toggle-right {
-  height: 25px;
+  background-color: #fff;
+  border-color: rgba(0, 0, 0, 0.12);
+  border-style: solid;
+  border-width: 2px;
+  border-right-color: white;
   position: fixed;
-  left: 10px;
-  text-align: right;
-  width: 25px;
-  z-index: 18;
+  left: rem(-33);
+  text-align: center;
+  z-index: 700;
 
-  a {
+  a{
     color: #333;
   }
 }
