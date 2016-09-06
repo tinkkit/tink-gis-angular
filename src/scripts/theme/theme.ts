@@ -25,6 +25,13 @@ namespace TinkGis {
             }
             return []; // if the theme is not visible then give 0 layers back
         };
+        get EnabledLayers(): Array<Layer> {
+            if (this.Visible) {
+                var allLay: Array<Layer> = this.AllLayers.filter(x => x.enabled);
+                return allLay;
+            }
+            return []; // if the theme is not visible then give 0 layers back
+        };
         get VisibleLayerIds(): Array<any> {
             return this.VisibleLayers.map(x => x.id);
         };

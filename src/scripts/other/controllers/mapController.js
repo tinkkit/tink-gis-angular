@@ -92,73 +92,13 @@
         $('.typeahead').on('typeahead:asynccancel typeahead:asyncreceive', function () {
             $('.Typeahead-spinner').hide();
         });
-        // $('.typeahead').bind('typeahead:select', function (ev, suggestion) {
-        //     console.log("JAAAAAAAAAAAAINFUNCTIEEEEEEEEEEEEEEEEEEE");
 
-        //     if (suggestion.layer.toLowerCase() === 'postzone') {
-        //         console.log('POSTZONEEEEEEE');
-        //     }
 
-        //     var cors = {
-        //         x: suggestion.x,
-        //         y: suggestion.y
-        //     };
+        // var externproj = JSON.parse('{"naam":"Velo en fietspad!!","extent":{"_northEast":{"lat":"51.2336102032025","lng":"4.41993402409611"},"_southWest":{"lat":"51.1802290498612","lng":"4.38998297870121"}},"guid":"bfc88ea3-8581-4204-bdbc-b5f54f46050d","extentString":"51.2336102032025,4.41993402409611,51.1802290498612,4.38998297870121","isKaart":true,"uniqId":3,"creatorId":6,"creator":null,"createDate":"2016-08-22T10:55:15.525994","updaterId":6,"updater":null,"lastUpdated":"2016-08-22T10:55:15.525994","themes":[{"cleanUrl":"services/P_Stad/Mobiliteit/MapServer","naam":"Mobiliteit","type":"esri","visible":true,"layers":[{"id":"9","name":"fietspad","visible":true},{"id":"6","name":"velo","visible":true},{"id":"0","name":"Fiets en voetganger","visible":true}]}],"isReadOnly":false}');
+        // externService.Import(externproj);
 
-        //     var xyWGS84 = HelperService.ConvertLambert72ToWSG84(cors);
-        //     setViewAndPutDot(xyWGS84);
-        //     console.log('Selection: ' + suggestion);
-        // });
-        // $("[data-provide='typeahead']").blur(function (e) {
-        //     if ($('.dropdown-menu').is(":visible")) {
-        //         $(this).data('typeahead').click(e);
-        //     }
-        // });
-        // $('#locatiezoek.typeahead').on('input', function (e) {
-        //     vm.zoekLoc = e.currentTarget.value;
-        //     var search = vm.zoekLoc;
-        //     if (search.length > 2) {
-        //         var prom = GISService.QuerySOLRLocatie(search);
-        //         prom.then(function (data) {
-        //             var arr = data.response.docs;
-        //             var names = arr.map(x => x.name);
-        //             console.log(names);
-        //             itemsdata = arr;
-        //             engine.clear();
-        //             engine.add(names);
-        //             var promise = engine.initialize();
 
-        //             promise
-        //                 .done(function () {
-        //                     $('#locatiezoek.typeahead').typeahead('open');
-        //                     console.log('ready to go!');
-        //                 })
-        //                 .fail(function () {
-        //                     console.log('err, something went wrong :(');
-        //                 });
-        //         });
-        //     }
-        //     else {
-        //         console.log("engine clear");
-        //         engine.clear();
-        //         $('#locatiezoek.typeahead').typeahead('close');
 
-        //     }
-        // });
-        // vm.zoekLocChanged = function () {
-        //     console.log("ZOEKLOCCHANGED");
-        //     var search = vm.zoekLoc;
-        //     if (search.length > 2) {
-        //         var prom = GISService.QuerySOLRLocatie(search);
-        //         prom.then(function (data) {
-        //             var arr = data.response.docs;
-        //             var names = arr.map(x => x.name);
-        //             console.log(names);
-        //             itemsdata = arr;
-        //             engine.clear();
-        //             engine.add(names);
-        //         });
-        //     }
-        // };
         vm.interactieButtonChanged = function (ActiveButton) {
             MapData.CleanMap();
             MapData.ActiveInteractieKnop = ActiveButton; // If we only could keep the vmactiveInteractieKnop in sync with the one from MapData
