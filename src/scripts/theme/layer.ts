@@ -23,10 +23,6 @@ namespace TinkGis {
         title: string;
         displayed: boolean;
         Layers: Array<Layer> = [];
-        get legendUrl(): string {
-            return "TODOOVERWRITEBIJCHILD abstract get is nog niet ondersteund door typescript"
-        }
-
         get hasLayers(): boolean {
             if (this.Layers) {
                 return this.Layers.length > 0;
