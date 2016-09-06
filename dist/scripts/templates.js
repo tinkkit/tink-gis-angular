@@ -209,7 +209,7 @@ angular.module('tink.gis').run(['$templateCache', function($templateCache) {
     "</div>\n" +
     "<div>\n" +
     "<span class=gis-toggle-right data-tink-sidenav-collapse=asideNavRight>\n" +
-    "<a href=# title=\"Open menu\"><i class=\"fa fa-caret-right\"><span class=sr-only>Open right menu</span></i></a>\n" +
+    "<a href=# title=\"Open menu\"><i class=\"fa fa-angle-double-right\"><span class=sr-only>Open right menu</span></i></a>\n" +
     "</span>\n" +
     "</div>\n" +
     "<div>\n" +
@@ -383,7 +383,7 @@ angular.module('tink.gis').run(['$templateCache', function($templateCache) {
     "</div>\n" +
     "<div>\n" +
     "<span class=gis-toggle-left data-tink-sidenav-collapse=asideNavLeft>\n" +
-    "<a href=# title=\"Open menu\"><i class=\"fa fa-caret-left\"><span class=sr-only>Open left menu</span></i></a>\n" +
+    "<a href=# title=\"Open menu\"><i class=\"fa fa-angle-double-left\"><span class=sr-only>Open left menu</span></i></a>\n" +
     "</span>\n" +
     "</div>\n" +
     "<div ng-show=\"srchctrl.Loading == 0\">\n" +
