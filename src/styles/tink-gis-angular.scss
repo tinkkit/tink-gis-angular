@@ -19,10 +19,11 @@
 }
 
 .tink-map {
-  @include mq($screen-sm) {
-    padding-right: rem($nav-aside-width); // !! this is only ok when both sidenavs stay open.
-    padding-left: rem($nav-aside-width); // !! this is only ok when both sidenavs stay open.
-  }
+  // default 100% width
+  // @include mq($screen-sm) {
+  //   padding-right: rem($nav-aside-width); // !! this is only ok when both sidenavs stay open.
+  //   padding-left: rem($nav-aside-width); // !! this is only ok when both sidenavs stay open.
+  // }
 
   .nav-aside {
     top: 0;
@@ -422,3 +423,30 @@
   }
 }
 
+// setting the sidenavs collapsed by default
+.nav-left {
+  transform: translate(-15.7142857143rem , 0);
+}
+.nav-right {
+  transform: translate(15.7142857143rem , 0);
+}
+
+// Nav left can be opened even with larger screen sizes
+html.nav-left-open {
+  .tink-map {
+    padding-left: rem($nav-aside-width + $nav-aside-extra-body-padding);
+  }
+  .nav-left {
+    transform: translate(0, 0);
+  }
+}
+
+// Nav right can be opened even with larger screen sizes
+html.nav-right-open {
+  .tink-map {
+    padding-right: rem($nav-aside-width + $nav-aside-extra-body-padding);
+  }
+  .nav-right {
+    transform: translate(0, 0);
+  }
+}
