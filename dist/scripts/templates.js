@@ -200,7 +200,7 @@ angular.module('tink.gis').run(['$templateCache', function($templateCache) {
     "<div data-tink-nav-aside=\"\" id=rightaside data-auto-select=true data-toggle-id=asideNavRight class=\"nav-aside nav-right\">\n" +
     "<aside>\n" +
     "<div class=nav-aside-section>\n" +
-    "<p class=nav-aside-title>Layers</p>\n" +
+    "<p class=nav-aside-title>Lagenoverzicht</p>\n" +
     "</div>\n" +
     "<button class=gis-toggle-right data-tink-sidenav-collapse=asideNavRight>\n" +
     "<a href=# title=\"Open menu\"><i class=\"fa fa-angle-double-right\"><span class=sr-only>Open right menu</span></i></a>\n" +

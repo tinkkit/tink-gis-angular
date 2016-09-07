@@ -43,7 +43,7 @@
     opacity: 0.8;
 }
 
-// .leaflet-left .leaflet-control-scale {
+// .leaflet-left .leaflet-control-scale { // !!??
 //   margin-left: rem(130);
 //   margin-bottom: rem(13);
 
@@ -438,11 +438,15 @@ div.table-sort-pagination {
   transform: translate(15.7142857143rem , 0);
 }
 
+.map-buttons-left {
+  height: 100%;
+  position: relative;
+}
+
 // Nav left can be opened even with larger screen sizes
 html.nav-left-open {
   .map-buttons-left {
     left: rem($nav-aside-width + $nav-aside-extra-body-padding);
-    position: relative;
   }
   .nav-left {
     transform: translate(0, 0);
@@ -453,7 +457,6 @@ html.nav-left-open {
 html.nav-right-open {
   .map-buttons-right {
     right: rem($nav-aside-width + $nav-aside-extra-body-padding);
-    position: relative;
   }
   .nav-right {
     transform: translate(0, 0);
