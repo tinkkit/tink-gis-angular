@@ -1,5 +1,3 @@
-// import tink elements to reuse here
-
 @import "../../bower_components/tink-core/dist/tink/functions";
 @import "../../bower_components/tink-core/dist/tink/mixins";
 @import "../../bower_components/tink-core/dist/tink/variables";
@@ -15,17 +13,17 @@
 }
 
 .tink-map {
-  // default 100% width
+  // !! not necessary anymore
   // @include mq($screen-sm) {
-  //   padding-right: rem($nav-aside-width); // !! this is only ok when both sidenavs stay open.
-  //   padding-left: rem($nav-aside-width); // !! this is only ok when both sidenavs stay open.
+  //   padding-right: rem($nav-aside-width);
+  //   padding-left: rem($nav-aside-width);
   // }
 
   .nav-aside {
     top: 0;
     z-index: 700; // set above leafletmap
   }
-
+  // !! not necessary anymore
   // .fa-fw {
   //   width: rem(10);
   // }
@@ -39,7 +37,8 @@
     opacity: 0.8;
 }
 
-// .leaflet-left .leaflet-control-scale { // !!??
+
+// .leaflet-left .leaflet-control-scale {
 //   margin-left: rem(130);
 //   margin-bottom: rem(13);
 
@@ -85,7 +84,6 @@ svg.leaflet-zoom-animated {
       width: rem($font-size-base);
   }
 }
-
 
 button.btn.active {
   background-color: dodgerblue;
@@ -210,14 +208,14 @@ button.btn.active {
   }
 }
 
-// // Wtf tink ???
-// // input[type="checkbox"], input[type="radio"] {
-// //      opacity: 1;
-// //      position: static;
-// // }
-// // .visible-box {
-// //     padding-top: 4px;
-// // }
+// Wtf tink ???
+// input[type="checkbox"], input[type="radio"] {
+//      opacity: 1;
+//      position: static;
+// }
+// .visible-box {
+//     padding-top: 4px;
+// }
 
 
 /**
@@ -243,14 +241,6 @@ button.btn.active {
   font-size: 10px;
 }
 
-.addlayerbtn {
-    margin-left: auto;
-    margin-right: auto;
-    margin-top: 5px;
-    margin-bottom: 5px;
-    display: block;
-}
-
 .layercontroller-checkbox
 {
     margin-left:10px;
@@ -265,6 +255,7 @@ button.btn.active {
     border-bottom: 1px solid gray;
     // text-align: left;
 }
+
 .modal-title {
     margin: 0;
     line-height: 1.42857143;
@@ -289,42 +280,6 @@ button.btn.active {
   z-index: 9998;
 }
 
-// to check
-.row-no-padding {
-  [class*="col-"] {
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-  }
-}
-
-.container.container-low-padding {
-    padding-left: 0.46875rem;
-    padding-right: 0.46875rem;
-}
-
-.makeblock{
-    display: block !important;
-}
-
-a.btn.prev,a.btn.next {
-  display: none;
-}
-
-div.table-sort-pagination {
-      float: left !important;
-}
-.nav-tabs {
-  margin:  5px 0px 5px 0px;
-}
-
-// .nav-aside{ // !!
-//     width: 25rem !important;
-// }
-
-// .tink-map { // !!
-//     padding-right: 25rem !important;
-//     padding-left: 25rem !important;
-// }
 
 /**
  * Typeahead styling
@@ -393,6 +348,49 @@ div.table-sort-pagination {
     .achtergrondfixvoorpng {
       background-image: url('fa-dot-circle-o_24_0_000000_none.png');
     }
+
+
+
+// Legacy code - needs further checking
+
+.row-no-padding {
+  [class*="col-"] {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+}
+.container.container-low-padding {
+    padding-left: 0.46875rem;
+    padding-right: 0.46875rem;
+}
+.makeblock{
+    display: block !important;
+}
+
+
+// .nav-aside{
+//     width: 25rem !important;
+// }
+
+// !! removing seems to break leafletlayers?
+// .tink-map {
+//     padding-right: 25rem !important;
+//     padding-left: 25rem !important;
+// }
+
+.greytext {
+  color: lightgrey !important;
+}
+
+a.btn.prev,a.btn.next {
+  display: none;
+}
+div.table-sort-pagination {
+      float: left !important;
+}
+.nav-tabs {
+  margin:  5px 0px 5px 0px;
+}
 
 
 /**
@@ -486,3 +484,4 @@ html.nav-right-open {
     transform: translate(0, 0);
   }
 }
+
