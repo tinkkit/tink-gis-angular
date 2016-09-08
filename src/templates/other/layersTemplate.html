@@ -1,10 +1,10 @@
 <div data-tink-nav-aside="" id="rightaside" data-auto-select="true" data-toggle-id="asideNavRight" class="nav-aside nav-right">
     <aside>
         <div class="nav-aside-section">
-            <button class="btn btn-primary addlayerbtn" ng-click="lyrsctrl.AddLayers()">Lagenbeheer</button>
+            <button class="btn btn-primary addlayerbtn" ng-click="lyrsctrl.Lagenbeheer()">Lagenbeheer</button>
             <ul id="sortableThemes" ui-sortable="lyrsctrl.sortableOptions" ng-model="lyrsctrl.themes">
                 <div ng-repeat="theme in lyrsctrl.themes">
-                    <tink-Theme theme="theme">
+                    <tink-Theme theme="theme" layercheckboxchange="lyrsctrl.updatethemevisibility(theme)" hidedelete="false">
                     </tink-Theme>
                 </div>
             </ul>

@@ -8,7 +8,8 @@
         return {
             replace: false,
             scope: {
-                layer: '='
+                layer: '=',
+                layercheckboxchange: '&'
             },
             templateUrl: 'templates/other/layerTemplate.html',
             controller: 'layerController',

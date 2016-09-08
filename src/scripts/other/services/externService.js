@@ -11,43 +11,19 @@
         _externService.GetAllThemes = function () {
             let legendItem = {};
             legendItem.EsriThemes = MapData.Themes.filter(x => x.Type == ThemeType.ESRI);
-            // .map(theme => {
-            //     let returnitem = {};
-            //     returnitem.name = theme.name;
-            //     returnitem.layers = theme.AllLayers.filter(i => i.legends.length > 0).map(lay => {
-            //         let returnlay = {};
-            //         returnlay.name = lay.title;
-            //         returnlay.legends = lay.legends;
-            //         return returnlay;
-            //     });
-            //     return returnitem;
-            // });
             legendItem.WmsThemes = MapData.Themes.filter(x => x.Type == ThemeType.WMS);
-            // .map(theme => {
-            //     let returnitem = {};
-            //     returnitem.name = theme.name;
-            //     returnitem.layers = theme.AllLayers.map(lay => {
-            //         let returnlay = {};
-            //         returnlay.name = lay.title;
-            //         returnlay.legendUrl = lay.legendUrl;
-            //         return returnlay;
-            //     });
-            //     return returnitem;
-            // });
             return legendItem;
         };
-        // _externService.Get
-
         _externService.Export = function () {
             var exportObject = {};
             var arr = MapData.Themes.map(theme => {
                 let returnitem = {};
                 returnitem.Naam = theme.Naam;
-                if (theme.Type == ThemeType.ESRI) {
-                    returnitem.CleanUrl = theme.Url;
+                if (theme.CleanUrl) {
+                    returnitem.CleanUrl = theme.CleanUrl;
                 }
                 else {
-                    returnitem.CleanUrl = theme.CleanUrl;
+                    returnitem.CleanUrl = theme.Url;
                 }
                 returnitem.Type = theme.Type;
                 returnitem.Visible = theme.Visible;

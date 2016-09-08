@@ -2,7 +2,7 @@
 'use strict';
 (function () {
     var module = angular.module('tink.gis');
-    var service = function ($http, map, MapData, HelperService, $q) {
+    var service = function ($http, HelperService, $q) {
         var _service = {};
         _service.ReverseGeocode = function (event) {
             var lambert72Cords = HelperService.ConvertWSG84ToLambert72(event.latlng);
@@ -96,6 +96,6 @@
         };
         return _service;
     };
-    module.$inject = ['$http', 'map', 'MapData', 'HelperService', '$q'];
+    module.$inject = ['$http', 'HelperService', '$q'];
     module.factory('GISService', service);
 })();

@@ -6,6 +6,7 @@
             var vm = this;
             console.log('Theme geladen');
             vm.theme = $scope.theme;
+            vm.hidedelete = $scope.hidedelete;
             vm.chkChanged = function () {
                 ThemeService.UpdateThemeVisibleLayers(vm.theme);
             };

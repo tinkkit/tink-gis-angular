@@ -5,7 +5,9 @@
         return {
             replace: true,
             scope: {
-                theme: '='
+                theme: '=',
+                layercheckboxchange: '&',
+                hidedelete: '='
             },
             templateUrl: 'templates/other/themeTemplate.html',
             controller: 'themeController',
