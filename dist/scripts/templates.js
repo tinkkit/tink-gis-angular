@@ -202,7 +202,7 @@ angular.module('tink.gis').run(['$templateCache', function($templateCache) {
     "<div class=nav-aside-section>\n" +
     "<p class=nav-aside-title>Lagenoverzicht</p>\n" +
     "</div>\n" +
-    "<button class=gis-toggle-right data-tink-sidenav-collapse=asideNavRight>\n" +
+    "<button class=nav-right-toggle data-tink-sidenav-collapse=asideNavRight>\n" +
     "<a href=# title=\"Open menu\"><i class=\"fa fa-angle-double-right\"><span class=sr-only>Open right menu</span></i></a>\n" +
     "</button>\n" +
     "<div>\n" +
@@ -376,9 +376,9 @@ angular.module('tink.gis').run(['$templateCache', function($templateCache) {
     "<div data-tink-nav-aside=\"\" id=leftaside data-auto-select=true data-toggle-id=asideNavLeft class=\"nav-aside nav-left\">\n" +
     "<aside>\n" +
     "<div class=nav-aside-section>\n" +
-    "<p class=nav-aside-title>Search</p>\n" +
+    "<p class=nav-aside-title>Resultaten</p>\n" +
     "</div>\n" +
-    "<button class=gis-toggle-left data-tink-sidenav-collapse=asideNavLeft>\n" +
+    "<button class=nav-left-toggle data-tink-sidenav-collapse=asideNavLeft>\n" +
     "<a href=# title=\"Open menu\"><i class=\"fa fa-angle-double-left\"><span class=sr-only>Open left menu</span></i></a>\n" +
     "</button>\n" +
     "<div ng-show=\"srchctrl.Loading == 0\">\n" +

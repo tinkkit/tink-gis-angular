@@ -9,10 +9,6 @@
  * Map
  */
 
-// .fa {
-//     width: 15.775px;
-// }
-
 .tink-map, .leafletmap {
   height: 100%;
   width: 100%;
@@ -84,6 +80,16 @@ svg.leaflet-zoom-animated {
 .ll {
   position: absolute;
   z-index: 600;
+
+  .fa {
+      width: rem($font-size-base);
+  }
+}
+
+
+button.btn.active {
+  background-color: dodgerblue;
+  color: white;
 }
 
 
@@ -204,11 +210,6 @@ svg.leaflet-zoom-animated {
   }
 }
 
-// button.btn.active {
-//   background-color: dodgerblue;
-//   color: white;
-// }
-
 // // Wtf tink ???
 // // input[type="checkbox"], input[type="radio"] {
 // //      opacity: 1;
@@ -288,19 +289,34 @@ svg.leaflet-zoom-animated {
   z-index: 9998;
 }
 
-// .row-no-padding {
-//   [class*="col-"] {
-//     padding-left: 0 !important;
-//     padding-right: 0 !important;
-//   }
-// }
-// .container.container-low-padding {
-//     padding-left: 0.46875rem;
-//     padding-right: 0.46875rem;
-// }
-// .makeblock{
-//     display: block !important;
-// }
+// to check
+.row-no-padding {
+  [class*="col-"] {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+}
+
+.container.container-low-padding {
+    padding-left: 0.46875rem;
+    padding-right: 0.46875rem;
+}
+
+.makeblock{
+    display: block !important;
+}
+
+a.btn.prev,a.btn.next {
+  display: none;
+}
+
+div.table-sort-pagination {
+      float: left !important;
+}
+.nav-tabs {
+  margin:  5px 0px 5px 0px;
+}
+
 // .nav-aside{ // !!
 //     width: 25rem !important;
 // }
@@ -309,17 +325,6 @@ svg.leaflet-zoom-animated {
 //     padding-right: 25rem !important;
 //     padding-left: 25rem !important;
 // }
-
-// a.btn.prev,a.btn.next {
-//   display: none;
-// }
-div.table-sort-pagination {
-      float: left !important;
-}
-.nav-tabs {
-  margin:  5px 0px 5px 0px;
-}
-
 
 /**
  * Typeahead styling
@@ -398,36 +403,43 @@ div.table-sort-pagination {
   position: relative;
 }
 
-.gis-toggle-left {
+.nav-left-toggle,
+.nav-right-toggle {
   background-color: #fff;
   border-color: rgba(0, 0, 0, 0.12);
   border-style: solid;
   border-width: 2px;
-  border-left-color: white;
   position: fixed;
-  right: rem(-33);
   text-align: center;
   z-index: 700;
 
+  &:hover,
+  &:focus,
+  &:active {
+    box-shadow: 0 0 0 0;
+    outline: 0;
+  }
+
   a{
     color: #333;
+
+    &:hover,
+    &:focus,
+    &:active {
+      box-shadow: 0 0 0 0;
+      outline: 0;
+    }
   }
 }
 
-.gis-toggle-right {
-  background-color: #fff;
-  border-color: rgba(0, 0, 0, 0.12);
-  border-style: solid;
-  border-width: 2px;
-  border-right-color: white;
-  position: fixed;
-  left: rem(-33);
-  text-align: center;
-  z-index: 700;
+.nav-left-toggle {
+  border-left-color: #fff;
+  right: rem(-33);
+}
 
-  a{
-    color: #333;
-  }
+.nav-right-toggle {
+  border-right-color: #fff;
+  left: rem(-33);
 }
 
 // setting the sidenavs collapsed by default
@@ -440,7 +452,19 @@ div.table-sort-pagination {
 
 .map-buttons-left {
   height: 100%;
+  display: inline-block;
+  margin-right: -4px; // clear spacing between  divs
   position: relative;
+  width: 50%;
+  z-index: 600;
+}
+
+.map-buttons-right {
+  height: 100%;
+  display: inline-block;
+  position: relative;
+  width: 50%;
+  z-index: 600;
 }
 
 // Nav left can be opened even with larger screen sizes
