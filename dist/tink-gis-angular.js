@@ -14,26 +14,26 @@
         enableLog: true
     });
 
-    // module.directive('preventDefault', function () {
-    //     return function (scope, element, attrs) {
-    //         angular.element(element).bind('click', function (event) {
-    //             event.preventDefault();
-    //             event.stopPropagation();
-    //         });
-    //         angular.element(element).bind('dblclick', function (event) {
-    //             event.preventDefault();
-    //             event.stopPropagation();
-    //         });
-    //         angular.element(element).bind('ondrag', function (event) {
-    //             event.preventDefault();
-    //             event.stopPropagation();
-    //         });
-    //         angular.element(element).bind('ondragstart', function (event) {
-    //             event.preventDefault();
-    //             event.stopPropagation();
-    //         });
-    //     };
-    // });
+    module.directive('preventDefault', function () {
+        return function (scope, element, attrs) {
+            angular.element(element).bind('click', function (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            });
+            angular.element(element).bind('dblclick', function (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            });
+            angular.element(element).bind('ondrag', function (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            });
+            angular.element(element).bind('ondragstart', function (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            });
+        };
+    });
     JXON.config({
         attrPrefix: '', // default: '@'
         autoDate: false // default: true
@@ -758,14 +758,11 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
     } catch (e) {
         var module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi']); //'leaflet-directive'
     }
-    var theController = module.controller('layerController', function ($scope, ThemeService) {
+    var theController = module.controller('layerController', function ($scope) {
         var vm = this;
         vm.layer = $scope.layer;
-        vm.chkChanged = function () {
-            ThemeService.UpdateThemeVisibleLayers(vm.layer.theme);
-        };
     });
-    theController.$inject = ['ThemeService'];
+    // theController.$inject = ['ThemeService'];
 })();
 ;'use strict';
 
@@ -777,31 +774,26 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         vm.selectedLayers = [];
 
         vm.sortableOptions = {
-            // update: function(e, ui) {
-            //     console.log("UPDATEZINDEXES");
-            //     MapData.SetZIndexes();
-            // },
             stop: function stop(e, ui) {
-                // console.log("stop");
                 MapData.SetZIndexes();
             }
         };
         $scope.$watch(function () {
             return MapData.Themes;
         }, function (newVal, oldVal) {
-            console.log("WATCH OP MAPDATATHEMES IN LAYERSCONTROLLER");
             MapData.SetZIndexes(newVal);
         });
-        vm.AddLayers = function () {
+        vm.updatethemevisibility = function (theme) {
+
+            ThemeService.UpdateThemeVisibleLayers(theme);
+        };
+        vm.Lagenbeheer = function () {
             var addLayerInstance = $modal.open({
                 templateUrl: 'templates/layermanagement/layerManagerTemplate.html',
                 controller: 'LayerManagerController',
                 resolve: {
                     backdrop: false,
                     keyboard: true
-                    // urls: function() {
-                    //     return MapData.ThemeUrls;
-                    // }
                 }
             });
             addLayerInstance.result.then(function (selectedThemes) {
@@ -817,7 +809,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
 
 (function (module) {
     module = angular.module('tink.gis');
-    var theController = module.controller('mapController', function ($scope, BaseLayersService, MapService, MapData, map, MapEvents, DrawService, HelperService, GISService) {
+    var theController = module.controller('mapController', function ($scope, ExternService, BaseLayersService, MapService, MapData, map, MapEvents, DrawService, HelperService, GISService) {
         //We need to include MapEvents, even tho we don t call it just to make sure it gets loaded!
         var vm = this;
         vm.layerId = '';
@@ -830,7 +822,12 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         vm.showDrawControls = false;
         vm.zoekLoc = '';
         // var itemsdata = [];
-
+        var init = function () {
+            if (window.location.href.startsWith('http://localhost:9000/')) {
+                var externproj = JSON.parse('{"naam":"Velo en fietspad!!","extent":{"_northEast":{"lat":"51.2336102032025","lng":"4.41993402409611"},"_southWest":{"lat":"51.1802290498612","lng":"4.38998297870121"}},"guid":"bfc88ea3-8581-4204-bdbc-b5f54f46050d","extentString":"51.2336102032025,4.41993402409611,51.1802290498612,4.38998297870121","isKaart":true,"uniqId":3,"creatorId":6,"creator":null,"createDate":"2016-08-22T10:55:15.525994","updaterId":6,"updater":null,"lastUpdated":"2016-08-22T10:55:15.525994","themes":[{"cleanUrl":"services/P_Stad/Mobiliteit/MapServer","naam":"Mobiliteit","type":"esri","visible":true,"layers":[{"id":"9","name":"fietspad","visible":true},{"id":"6","name":"velo","visible":true},{"id":"0","name":"Fiets en voetganger","visible":true}]}],"isReadOnly":false}');
+                ExternService.Import(externproj);
+            }
+        }();
         var suggestionfunc = function suggestionfunc(item) {
             var output = '<div>' + item.name;
             if (item.attribute1value) {
@@ -905,10 +902,6 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         $('.typeahead').on('typeahead:asynccancel typeahead:asyncreceive', function () {
             $('.Typeahead-spinner').hide();
         });
-
-        // var externproj = JSON.parse('{"naam":"Velo en fietspad!!","extent":{"_northEast":{"lat":"51.2336102032025","lng":"4.41993402409611"},"_southWest":{"lat":"51.1802290498612","lng":"4.38998297870121"}},"guid":"bfc88ea3-8581-4204-bdbc-b5f54f46050d","extentString":"51.2336102032025,4.41993402409611,51.1802290498612,4.38998297870121","isKaart":true,"uniqId":3,"creatorId":6,"creator":null,"createDate":"2016-08-22T10:55:15.525994","updaterId":6,"updater":null,"lastUpdated":"2016-08-22T10:55:15.525994","themes":[{"cleanUrl":"services/P_Stad/Mobiliteit/MapServer","naam":"Mobiliteit","type":"esri","visible":true,"layers":[{"id":"9","name":"fietspad","visible":true},{"id":"6","name":"velo","visible":true},{"id":"0","name":"Fiets en voetganger","visible":true}]}],"isReadOnly":false}');
-        // externService.Import(externproj);
-
 
         vm.interactieButtonChanged = function (ActiveButton) {
             MapData.CleanMap();
@@ -1009,7 +1002,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             map.addLayer(BaseLayersService.luchtfoto);
         };
     });
-    theController.$inject = ['BaseLayersService', 'MapService', 'MapData', 'map', 'MapEvents', 'DrawService', 'HelperService', 'GISService'];
+    theController.$inject = ['BaseLayersService', 'ExternService', 'MapService', 'MapData', 'map', 'MapEvents', 'DrawService', 'HelperService', 'GISService'];
 })();
 ;'use strict';
 
@@ -1019,6 +1012,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         var vm = this;
         console.log('Theme geladen');
         vm.theme = $scope.theme;
+        vm.hidedelete = $scope.hidedelete;
         vm.chkChanged = function () {
             ThemeService.UpdateThemeVisibleLayers(vm.theme);
         };
@@ -1125,7 +1119,8 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         return {
             replace: false,
             scope: {
-                layer: '='
+                layer: '=',
+                layercheckboxchange: '&'
             },
             templateUrl: 'templates/other/layerTemplate.html',
             controller: 'layerController',
@@ -1177,7 +1172,9 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         return {
             replace: true,
             scope: {
-                theme: '='
+                theme: '=',
+                layercheckboxchange: '&',
+                hidedelete: '='
             },
             templateUrl: 'templates/other/themeTemplate.html',
             controller: 'themeController',
@@ -1190,7 +1187,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
 
 (function () {
     var module = angular.module('tink.gis');
-    var service = function service($http, map, MapData, HelperService, $q) {
+    var service = function service($http, HelperService, $q) {
         var _service = {};
         _service.ReverseGeocode = function (event) {
             var lambert72Cords = HelperService.ConvertWSG84ToLambert72(event.latlng);
@@ -1278,7 +1275,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         };
         return _service;
     };
-    module.$inject = ['$http', 'map', 'MapData', 'HelperService', '$q'];
+    module.$inject = ['$http', 'HelperService', '$q'];
     module.factory('GISService', service);
 })();
 ;'use strict';
@@ -1704,44 +1701,20 @@ var esri2geo = {};
             legendItem.EsriThemes = MapData.Themes.filter(function (x) {
                 return x.Type == ThemeType.ESRI;
             });
-            // .map(theme => {
-            //     let returnitem = {};
-            //     returnitem.name = theme.name;
-            //     returnitem.layers = theme.AllLayers.filter(i => i.legends.length > 0).map(lay => {
-            //         let returnlay = {};
-            //         returnlay.name = lay.title;
-            //         returnlay.legends = lay.legends;
-            //         return returnlay;
-            //     });
-            //     return returnitem;
-            // });
             legendItem.WmsThemes = MapData.Themes.filter(function (x) {
                 return x.Type == ThemeType.WMS;
             });
-            // .map(theme => {
-            //     let returnitem = {};
-            //     returnitem.name = theme.name;
-            //     returnitem.layers = theme.AllLayers.map(lay => {
-            //         let returnlay = {};
-            //         returnlay.name = lay.title;
-            //         returnlay.legendUrl = lay.legendUrl;
-            //         return returnlay;
-            //     });
-            //     return returnitem;
-            // });
             return legendItem;
         };
-        // _externService.Get
-
         _externService.Export = function () {
             var exportObject = {};
             var arr = MapData.Themes.map(function (theme) {
                 var returnitem = {};
                 returnitem.Naam = theme.Naam;
-                if (theme.Type == ThemeType.ESRI) {
-                    returnitem.CleanUrl = theme.Url;
-                } else {
+                if (theme.CleanUrl) {
                     returnitem.CleanUrl = theme.CleanUrl;
+                } else {
+                    returnitem.CleanUrl = theme.Url;
                 }
                 returnitem.Type = theme.Type;
                 returnitem.Visible = theme.Visible;
@@ -1878,6 +1851,19 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 console.log('LOC');
                 return 'https://localhost/digipolis.stadinkaart.api/';
             }
+        };
+        _service.getEnvironment = function () {
+            if (window.location.href.startsWith('https://stadinkaart-a.antwerpen.be/')) {
+                console.log('ACC');
+                return 'A';
+            } else if (window.location.href.startsWith('https://stadinkaart-o.antwerpen.be/')) {
+                console.log('O');
+                return 'O';
+            } else if (window.location.href.startsWith('https://localhost/')) {
+                return 'D'; //DEV
+            } else {
+                    return 'L'; //local
+                }
         };
         _service.CreateProxyUrl = function (url) {
             return getApiURL() + 'Proxy/go?url=' + encodeURIComponent(url);
@@ -3752,16 +3738,16 @@ L.drawLocal = {
   $templateCache.put('templates/other/layerTemplate.html',
     "<div class=layercontroller-checkbox>\n" +
     "<div ng-if=lyrctrl.layer.hasLayers>\n" +
-    "<input class=visible-box type=checkbox id={{lyrctrl.layer.name}}{{lyrctrl.layer.id}} ng-model=lyrctrl.layer.visible ng-change=lyrctrl.chkChanged()>\n" +
+    "<input class=visible-box type=checkbox id={{lyrctrl.layer.name}}{{lyrctrl.layer.id}} ng-model=lyrctrl.layer.visible ng-change=layercheckboxchange(lyrctrl.layer.theme)>\n" +
     "<label for={{lyrctrl.layer.name}}{{lyrctrl.layer.id}}>{{lyrctrl.layer.name}}</label>\n" +
     "<div ng-repeat=\"layer in lyrctrl.layer.Layers | filter :  { enabled: true }\">\n" +
-    "<tink-layer layer=layer>\n" +
+    "<tink-layer layer=layer layercheckboxchange=layercheckboxchange(layer.theme)>\n" +
     "</tink-layer>\n" +
     "</div>\n" +
     "</div>\n" +
     "<div ng-if=!lyrctrl.layer.hasLayers>\n" +
     "<img style=\"width:20px; height:20px\" ng-if=\"lyrctrl.layer.theme.Type=='esri' && lyrctrl.layer.legend.length==1\" ng-src=\"{{lyrctrl.layer.legend[0].fullurl}} \">\n" +
-    "<input class=visible-box type=checkbox ng-model=\"lyrctrl.layer.visible \" ng-change=lyrctrl.chkChanged() id=\"{{lyrctrl.layer.name}}{{lyrctrl.layer.id}} \">\n" +
+    "<input class=visible-box type=checkbox ng-model=lyrctrl.layer.visible ng-change=layercheckboxchange(lyrctrl.layer.theme) id=\"{{lyrctrl.layer.name}}{{lyrctrl.layer.id}} \">\n" +
     "<label ng-class=\"{ 'greytext': lyrctrl.layer.displayed==false} \" for={{lyrctrl.layer.name}}{{lyrctrl.layer.id}}> {{lyrctrl.layer.title | limitTo: 23}}<span ng-show=\"lyrctrl.layer.theme.Type=='wms' && lyrctrl.layer.queryable \">(i)</span></label>\n" +
     "<img ng-if=\"lyrctrl.layer.theme.Type=='wms' \" ng-src={{lyrctrl.layer.legendUrl}}><img>\n" +
     "<div ng-if=\"lyrctrl.layer.theme.Type=='esri' && lyrctrl.layer.legend.length> 1\" ng-repeat=\"legend in lyrctrl.legends\">\n" +
@@ -3776,10 +3762,10 @@ L.drawLocal = {
     "<div data-tink-nav-aside=\"\" id=rightaside data-auto-select=true data-toggle-id=asideNavRight class=\"nav-aside nav-right\">\n" +
     "<aside>\n" +
     "<div class=nav-aside-section>\n" +
-    "<button class=\"btn btn-primary addlayerbtn\" ng-click=lyrsctrl.AddLayers()>Lagenbeheer</button>\n" +
+    "<button class=\"btn btn-primary addlayerbtn\" ng-click=lyrsctrl.Lagenbeheer()>Lagenbeheer</button>\n" +
     "<ul id=sortableThemes ui-sortable=lyrsctrl.sortableOptions ng-model=lyrsctrl.themes>\n" +
     "<div ng-repeat=\"theme in lyrsctrl.themes\">\n" +
-    "<tink-theme theme=theme>\n" +
+    "<tink-theme theme=theme layercheckboxchange=lyrsctrl.updatethemevisibility(theme) hidedelete=false>\n" +
     "</tink-theme>\n" +
     "</div>\n" +
     "</ul>\n" +
@@ -3842,10 +3828,11 @@ L.drawLocal = {
 
   $templateCache.put('templates/other/themeTemplate.html',
     "<div>\n" +
-    "<input class=visible-box type=checkbox id=chk{{thmctrl.theme.Naam}} ng-model=thmctrl.theme.Visible ng-change=thmctrl.chkChanged()>\n" +
-    "<label for=chk{{thmctrl.theme.Naam}}> {{thmctrl.theme.Naam}} <span ng-show=\"thmctrl.theme.Type=='esri'\">(stad)</span><span ng-hide=\"thmctrl.theme.Type=='esri'\">({{thmctrl.theme.Type}})</span></label><i class=\"fa fa-trash pull-right\" ng-click=thmctrl.deleteTheme()></i>\n" +
+    "<input class=visible-box type=checkbox id=chk{{thmctrl.theme.Naam}} ng-model=thmctrl.theme.Visible ng-change=layercheckboxchange(thmctrl.theme)>\n" +
+    "<label for=chk{{thmctrl.theme.Naam}}> {{thmctrl.theme.Naam}} <span ng-show=\"thmctrl.theme.Type=='esri'\">(stad)</span><span ng-hide=\"thmctrl.theme.Type=='esri'\">({{thmctrl.theme.Type}})</span></label>\n" +
+    "<i ng-hide=\"hidedelete == true\" class=\"fa fa-trash pull-right\" ng-click=thmctrl.deleteTheme()></i>\n" +
     "<div class=layercontroller-checkbox ng-repeat=\"layer in thmctrl.theme.Layers | filter: { enabled: true }\">\n" +
-    "<tink-layer layer=layer>\n" +
+    "<tink-layer layer=layer layercheckboxchange=layercheckboxchange(layer.theme)>\n" +
     "</tink-layer>\n" +
     "</div>\n" +
     "</div>"

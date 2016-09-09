@@ -9,12 +9,12 @@
             </button>
 
         <div class="">
-            <button class="btn btn-primary addlayerbtn" ng-click="lyrsctrl.AddLayers()">Lagenbeheer</button>
+            <button class="btn btn-primary addlayerbtn" ng-click="lyrsctrl.Lagenbeheer()">Lagenbeheer</button>
         </div>
         <div class="">
             <ul id="sortableThemes" ui-sortable="lyrsctrl.sortableOptions" ng-model="lyrsctrl.themes">
                 <div ng-repeat="theme in lyrsctrl.themes">
-                    <tink-Theme theme="theme">
+                    <tink-Theme theme="theme" layercheckboxchange="lyrsctrl.updatethemevisibility(theme)" hidedelete="false">
                     </tink-Theme>
                 </div>
             </ul>

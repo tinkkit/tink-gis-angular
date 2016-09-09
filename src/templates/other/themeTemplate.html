@@ -1,9 +1,9 @@
 <div>
-    <input class="visible-box" type="checkbox" id="chk{{thmctrl.theme.Naam}}" ng-model="thmctrl.theme.Visible" ng-change="thmctrl.chkChanged()">
-    <label for="chk{{thmctrl.theme.Naam}}"> {{thmctrl.theme.Naam}} <span ng-show="thmctrl.theme.Type=='esri'">(stad)</span><span ng-hide="thmctrl.theme.Type=='esri'">({{thmctrl.theme.Type}})</span></label><i class="fa fa-trash pull-right" ng-click="thmctrl.deleteTheme()"></i>
-
+    <input class="visible-box" type="checkbox" id="chk{{thmctrl.theme.Naam}}" ng-model="thmctrl.theme.Visible" ng-change="layercheckboxchange(thmctrl.theme)">
+    <label for="chk{{thmctrl.theme.Naam}}"> {{thmctrl.theme.Naam}} <span ng-show="thmctrl.theme.Type=='esri'">(stad)</span><span ng-hide="thmctrl.theme.Type=='esri'">({{thmctrl.theme.Type}})</span></label>
+    <i ng-hide="hidedelete == true" class="fa fa-trash pull-right" ng-click="thmctrl.deleteTheme()"></i>
     <div class="layercontroller-checkbox" ng-repeat="layer in thmctrl.theme.Layers | filter: { enabled: true }">
-        <tink-Layer layer="layer">
+        <tink-Layer layer="layer" layercheckboxchange="layercheckboxchange(layer.theme)">
         </tink-Layer>
     </div>
 </div>

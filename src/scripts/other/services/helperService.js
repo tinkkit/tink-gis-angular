@@ -24,7 +24,21 @@
                 console.log('LOC');
                 return 'https://localhost/digipolis.stadinkaart.api/'
             }
-
+        }
+        _service.getEnvironment = function () {
+            if (window.location.href.startsWith('https://stadinkaart-a.antwerpen.be/')) {
+                console.log('ACC');
+                return 'A'
+            }
+            else if (window.location.href.startsWith('https://stadinkaart-o.antwerpen.be/')) {
+                console.log('O');
+                return 'O';
+            }
+            else if (window.location.href.startsWith('https://localhost/')) {
+                return 'D' //DEV
+            } else {
+                return 'L' //local
+            }
         }
         _service.CreateProxyUrl = function (url) {
             return getApiURL() + 'Proxy/go?url=' + encodeURIComponent(url);
