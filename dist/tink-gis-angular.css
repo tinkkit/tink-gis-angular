@@ -471,13 +471,22 @@ div.table-sort-pagination {
       box-shadow: 0 0 0 0;
       outline: 0; }
 
+.nav-left-toggle,
+.nav-right-toggle {
+  font-family: FontAwesome;
+  font-weight: 100; }
+
 .nav-left-toggle {
   border-left-color: #fff;
   right: -2.3571428571rem ; }
+  .nav-left-toggle:before {
+    content: "\f101"; }
 
 .nav-right-toggle {
   border-right-color: #fff;
   left: -2.3571428571rem ; }
+  .nav-right-toggle:before {
+    content: "\f100"; }
 
 .nav-left {
   -webkit-transform: translate(-15.7142857143rem, 0);
@@ -494,15 +503,13 @@ div.table-sort-pagination {
   display: inline-block;
   margin-right: -4px;
   position: relative;
-  width: 50%;
-  z-index: 600; }
+  width: 50%; }
 
 .map-buttons-right {
   height: 100%;
   display: inline-block;
   position: relative;
-  width: 50%;
-  z-index: 600; }
+  width: 50%; }
 
 html.nav-left-open .map-buttons-left {
   left: 15.7142857143rem ; }
@@ -512,6 +519,9 @@ html.nav-left-open .nav-left {
       -ms-transform: translate(0, 0);
           transform: translate(0, 0); }
 
+html.nav-left-open .nav-left-toggle:before {
+  content: "\f100"; }
+
 html.nav-right-open .map-buttons-right {
   right: 15.7142857143rem ; }
 
@@ -519,3 +529,6 @@ html.nav-right-open .nav-right {
   -webkit-transform: translate(0, 0);
       -ms-transform: translate(0, 0);
           transform: translate(0, 0); }
+
+html.nav-right-open .nav-right-toggle:before {
+  content: "\f101"; }
