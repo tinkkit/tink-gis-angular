@@ -42,6 +42,11 @@
             MapData.SetZIndexes();
         };
         _service.UpdateThemeVisibleLayers = function (theme) {
+            MapData.VisibleLayers.length = 0;
+            MapData.Themes.forEach(x => {
+                MapData.VisibleLayers = MapData.VisibleLayers.concat(x.VisibleLayers);
+            });
+            MapData.VisibleLayers = MapData.VisibleLayers.sort(x => x.title);
             theme.UpdateMap(map);
         };
         _service.UpdateTheme = function (updatedTheme, existingTheme) {
@@ -76,19 +81,9 @@
         };
         _service.AddNewTheme = function (theme) {
             MapData.Themes.unshift(theme);
-            console.log('Adding THEME!!!', theme);
-            _.each(theme.AllLayers, function (layer) {
-                if (layer.enabled && layer.visible && layer.type === LayerType.LAYER && theme.Visible && ((layer.parent == null || layer.parent == undefined) || layer.parent.visible == true)) {
-                    console.log("LAYERINFO: ", layer);
-                    theme.VisibleLayers.push(layer);
-                    if (theme.Type == ThemeType.ESRI) {
-                        MapData.VisibleLayers.push(layer);
-                    }
-                }
-
-            });
-            // theme.RecalculateVisibleLayerIds();
-
+            if (theme.Type == ThemeType.ESRI) {
+                MapData.VisibleLayers = MapData.VisibleLayers.concat(theme.VisibleLayers)
+            }
             switch (theme.Type) {
                 case ThemeType.ESRI:
                     theme.MapData = L.esri.dynamicMapLayer({
@@ -108,7 +103,7 @@
                             console.log('Zindex on ' + theme.Naam + ' set to ' + theme.MapData.ZIndex);
                         }
                     });
- 
+
                     break;
                 case ThemeType.WMS:
                     theme.MapData = L.tileLayer.betterWms(theme.CleanUrl, {
@@ -120,7 +115,7 @@
                         continuousWorld: true,
                         useCors: true
                     }).addTo(map);
-            
+
                     theme.MapData.on('load', function (e) {
                         console.log('LOAD VAN ' + theme.Naam);
                         console.log(theme.MapData);
@@ -137,24 +132,15 @@
                     console.log('UNKNOW TYPE');
                     break;
             }
-
-            // _mapService.UpdateThemeVisibleLayers(theme);
-
-
         };
         _service.CleanThemes = function () {
             while (MapData.Themes.length != 0) {
                 console.log('DELETING THIS THEME', MapData.Themes[0]);
                 _service.DeleteTheme(MapData.Themes[0]);
-
             }
-            // MapData.Themes.length = 0;
-            // MapData.VisibleLayers.length = 0;
-            // MapData.VisibleLayers.unshift(MapData.defaultlayer);
         };
 
         _service.DeleteTheme = function (theme) {
-            // theme.MapData.removeFrom(map);
             map.removeLayer(theme.MapData); // this one works with ESRI And leaflet
             var themeIndex = MapData.Themes.indexOf(theme);
             if (themeIndex > -1) {

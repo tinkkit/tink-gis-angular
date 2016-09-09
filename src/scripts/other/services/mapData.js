@@ -12,7 +12,7 @@
         _data.Themes = [];
         _data.defaultlayer = { id: '', name: 'Alle Layers' };
         _data.SelectedLayer = _data.defaultlayer;
-        _data.VisibleLayers.unshift(_data.defaultlayer);
+        // _data.VisibleLayers.unshift(_data.defaultlayer);
         _data.ActiveInteractieKnop = ActiveInteractieButton.IDENTIFY;
         _data.DrawingType = DrawingOption.NIETS;
         _data.DrawingObject = null;

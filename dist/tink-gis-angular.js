@@ -5,7 +5,7 @@
     try {
         module = angular.module('tink.gis');
     } catch (e) {
-        module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter', 'tink.pagination']); //'leaflet-directive'
+        module = angular.module('tink.gis', ['tink.navigation', 'tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter', 'tink.pagination']); //'leaflet-directive'
     }
     module.constant('appConfig', {
         templateUrl: '/digipolis.stadinkaart.webui',
@@ -812,22 +812,32 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
     var theController = module.controller('mapController', function ($scope, ExternService, BaseLayersService, MapService, MapData, map, MapEvents, DrawService, HelperService, GISService) {
         //We need to include MapEvents, even tho we don t call it just to make sure it gets loaded!
         var vm = this;
-        vm.layerId = '';
-        vm.ZoekenOpLocatie = true;
-        vm.activeInteractieKnop = MapData.ActiveInteractieKnop;
-        vm.SelectableLayers = MapData.VisibleLayers;
-        vm.selectedLayer = MapData.SelectedLayer;
-        vm.drawingType = MapData.DrawingType;
-        vm.showMetenControls = false;
-        vm.showDrawControls = false;
-        vm.zoekLoc = '';
-        // var itemsdata = [];
         var init = function () {
             if (window.location.href.startsWith('http://localhost:9000/')) {
                 var externproj = JSON.parse('{"naam":"Velo en fietspad!!","extent":{"_northEast":{"lat":"51.2336102032025","lng":"4.41993402409611"},"_southWest":{"lat":"51.1802290498612","lng":"4.38998297870121"}},"guid":"bfc88ea3-8581-4204-bdbc-b5f54f46050d","extentString":"51.2336102032025,4.41993402409611,51.1802290498612,4.38998297870121","isKaart":true,"uniqId":3,"creatorId":6,"creator":null,"createDate":"2016-08-22T10:55:15.525994","updaterId":6,"updater":null,"lastUpdated":"2016-08-22T10:55:15.525994","themes":[{"cleanUrl":"services/P_Stad/Mobiliteit/MapServer","naam":"Mobiliteit","type":"esri","visible":true,"layers":[{"id":"9","name":"fietspad","visible":true},{"id":"6","name":"velo","visible":true},{"id":"0","name":"Fiets en voetganger","visible":true}]}],"isReadOnly":false}');
                 ExternService.Import(externproj);
             }
         }();
+        // vm.MapData = MapData;
+        vm.layerId = '';
+        vm.ZoekenOpLocatie = true;
+        vm.activeInteractieKnop = MapData.ActiveInteractieKnop;
+        vm.SelectableLayers = function () {
+            console.log("ANGULAR: Checking SelectableLayers");
+            return MapData.VisibleLayers;
+        };
+        vm.selectedLayer = MapData.SelectedLayer;
+        vm.drawingType = MapData.DrawingType;
+        vm.showMetenControls = false;
+        vm.showDrawControls = false;
+        vm.zoekLoc = '';
+
+        // var itemsdata = [];
+        // $scope.$watch(function () {
+        //     return MapData.VisibleLayers;
+        // }, function (newval, oldval) {
+        //     vm.SelectableLayers = newval;
+        // });
         var suggestionfunc = function suggestionfunc(item) {
             var output = '<div>' + item.name;
             if (item.attribute1value) {
@@ -852,14 +862,15 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             limit: 99,
             display: 'name',
             source: function source(query, syncResults, asyncResults) {
-                if (query == 'mech') {
-                    syncResults([]);
-                } else {
-                    var prom = GISService.QuerySOLRLocatie(query);
-                    prom.then(function (data) {
+                if (query.replace(/[^0-9]/g, "").length < 6) {
+                    // if less then 6 numbers then we just search
+                    GISService.QuerySOLRLocatie(query).then(function (data) {
                         var arr = data.response.docs;
                         asyncResults(arr);
                     });
+                } else {
+                    syncResults([]);
+                    vm.zoekXY(query);
                 }
             },
             templates: {
@@ -929,7 +940,8 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             MapData.CreateDot(loc);
         };
         //ng-keyup="$event.keyCode == 13 && mapctrl.zoekLocatie(mapctrl.zoekLoc)" 
-        vm.zoekLocatie = function (search) {
+        vm.zoekXY = function (search) {
+
             search = search.trim();
             var WGS84Check = HelperService.getWGS84CordsFromString(search);
             if (WGS84Check.hasCordinates) {
@@ -2085,7 +2097,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         _data.Themes = [];
         _data.defaultlayer = { id: '', name: 'Alle Layers' };
         _data.SelectedLayer = _data.defaultlayer;
-        _data.VisibleLayers.unshift(_data.defaultlayer);
+        // _data.VisibleLayers.unshift(_data.defaultlayer);
         _data.ActiveInteractieKnop = ActiveInteractieButton.IDENTIFY;
         _data.DrawingType = DrawingOption.NIETS;
         _data.DrawingObject = null;
@@ -2362,49 +2374,47 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             MapData.Apply();
         });
 
-        // map.on('click.draw', function (event) {
-        //     if (event.originalEvent instanceof MouseEvent) {
-        //         console.log('click op map! Is drawing: ' + MapData.IsDrawing);
-        //         if (!MapData.IsDrawing) {
-        //             MapData.CleanMap();
-        //             switch (MapData.ActiveInteractieKnop) {
-        //                 case ActiveInteractieButton.IDENTIFY:
-        //                     MapData.LastIdentifyBounds = map.getBounds();
-        //                     MapService.Identify(event, 10);
-        //                     break;
-        //                 case ActiveInteractieButton.SELECT:
-        //                     if (MapData.DrawingType === DrawingOption.NIETS) {
-        //                         MapService.Select(event);
-        //                     } // else a drawing finished
-        //                     break;
-        //                 case ActiveInteractieButton.WATISHIER:
-        //                     MapService.WatIsHier(event);
-        //                     break;
-        //                 case ActiveInteractieButton.METEN:
+        map.on('click', function (event) {
+            if (event.originalEvent instanceof MouseEvent) {
+                console.log('click op map! Is drawing: ' + MapData.IsDrawing);
+                if (!MapData.IsDrawing) {
+                    MapData.CleanMap();
+                    switch (MapData.ActiveInteractieKnop) {
+                        case ActiveInteractieButton.IDENTIFY:
+                            MapData.LastIdentifyBounds = map.getBounds();
+                            MapService.Identify(event, 10);
+                            break;
+                        case ActiveInteractieButton.SELECT:
+                            if (MapData.DrawingType === DrawingOption.NIETS) {
+                                MapService.Select(event);
+                            } // else a drawing finished
+                            break;
+                        case ActiveInteractieButton.WATISHIER:
+                            MapService.WatIsHier(event);
+                            break;
+                        case ActiveInteractieButton.METEN:
 
-        //                     break;
-        //                 default:
-        //                     console.log('MAG NIET!!!!!!!!');
-        //                     break;
-        //             }
-        //         }
-        //         else {
-        //             // MapData.DrawingObject = event;
-        //             console.log("DrawingObject: ");
-        //             console.log(MapData.DrawingObject);
-        //             switch (MapData.DrawingType) {
-        //                 case DrawingOption.AFSTAND:
-        //                     break;
-        //                 case DrawingOption.OPPERVLAKTE:
-        //                     break;
-        //                 default:
-        //                     console.log("Aant drawen zonder een gekent type!!!!!!");
-        //                     break;
-        //             }
-        //         }
-        //     }
-        // });
-
+                            break;
+                        default:
+                            console.log('MAG NIET!!!!!!!!');
+                            break;
+                    }
+                } else {
+                    // MapData.DrawingObject = event;
+                    console.log("DrawingObject: ");
+                    console.log(MapData.DrawingObject);
+                    switch (MapData.DrawingType) {
+                        case DrawingOption.AFSTAND:
+                            break;
+                        case DrawingOption.OPPERVLAKTE:
+                            break;
+                        default:
+                            console.log("Aant drawen zonder een gekent type!!!!!!");
+                            break;
+                    }
+                }
+            }
+        });
 
         map.on('draw:created', function (e) {
             console.log('draw created');
@@ -2688,6 +2698,13 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             MapData.SetZIndexes();
         };
         _service.UpdateThemeVisibleLayers = function (theme) {
+            MapData.VisibleLayers.length = 0;
+            MapData.Themes.forEach(function (x) {
+                MapData.VisibleLayers = MapData.VisibleLayers.concat(x.VisibleLayers);
+            });
+            MapData.VisibleLayers = MapData.VisibleLayers.sort(function (x) {
+                return x.title;
+            });
             theme.UpdateMap(map);
         };
         _service.UpdateTheme = function (updatedTheme, existingTheme) {
@@ -2721,18 +2738,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         };
         _service.AddNewTheme = function (theme) {
             MapData.Themes.unshift(theme);
-            console.log('Adding THEME!!!', theme);
-            _.each(theme.AllLayers, function (layer) {
-                if (layer.enabled && layer.visible && layer.type === LayerType.LAYER && theme.Visible && (layer.parent == null || layer.parent == undefined || layer.parent.visible == true)) {
-                    console.log("LAYERINFO: ", layer);
-                    theme.VisibleLayers.push(layer);
-                    if (theme.Type == ThemeType.ESRI) {
-                        MapData.VisibleLayers.push(layer);
-                    }
-                }
-            });
-            // theme.RecalculateVisibleLayerIds();
-
+            if (theme.Type == ThemeType.ESRI) {
+                MapData.VisibleLayers = MapData.VisibleLayers.concat(theme.VisibleLayers);
+            }
             switch (theme.Type) {
                 case ThemeType.ESRI:
                     theme.MapData = L.esri.dynamicMapLayer({
@@ -2780,22 +2788,15 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                     console.log('UNKNOW TYPE');
                     break;
             }
-
-            // _mapService.UpdateThemeVisibleLayers(theme);
-
         };
         _service.CleanThemes = function () {
             while (MapData.Themes.length != 0) {
                 console.log('DELETING THIS THEME', MapData.Themes[0]);
                 _service.DeleteTheme(MapData.Themes[0]);
             }
-            // MapData.Themes.length = 0;
-            // MapData.VisibleLayers.length = 0;
-            // MapData.VisibleLayers.unshift(MapData.defaultlayer);
         };
 
         _service.DeleteTheme = function (theme) {
-            // theme.MapData.removeFrom(map);
             map.removeLayer(theme.MapData); // this one works with ESRI And leaflet
             var themeIndex = MapData.Themes.indexOf(theme);
             if (themeIndex > -1) {
@@ -3762,7 +3763,15 @@ L.drawLocal = {
     "<div data-tink-nav-aside=\"\" id=rightaside data-auto-select=true data-toggle-id=asideNavRight class=\"nav-aside nav-right\">\n" +
     "<aside>\n" +
     "<div class=nav-aside-section>\n" +
+    "<p class=nav-aside-title>Lagenoverzicht</p>\n" +
+    "</div>\n" +
+    "<button class=nav-right-toggle data-tink-sidenav-collapse=asideNavRight>\n" +
+    "<a href=# title=\"Open menu\"><i class=\"fa fa-angle-double-right\"><span class=sr-only>Open right menu</span></i></a>\n" +
+    "</button>\n" +
+    "<div>\n" +
     "<button class=\"btn btn-primary addlayerbtn\" ng-click=lyrsctrl.Lagenbeheer()>Lagenbeheer</button>\n" +
+    "</div>\n" +
+    "<div>\n" +
     "<ul id=sortableThemes ui-sortable=lyrsctrl.sortableOptions ng-model=lyrsctrl.themes>\n" +
     "<div ng-repeat=\"theme in lyrsctrl.themes\">\n" +
     "<tink-theme theme=theme layercheckboxchange=lyrsctrl.updatethemevisibility(theme) hidedelete=false>\n" +
@@ -3771,13 +3780,35 @@ L.drawLocal = {
     "</ul>\n" +
     "</div>\n" +
     "</aside>\n" +
-    "</div>"
+    "</div>\n"
   );
 
 
   $templateCache.put('templates/other/mapTemplate.html',
     "<div class=tink-map>\n" +
-    "<div id=map class=leafletmap>\n" +
+    "<tink-search></tink-search>\n" +
+    "<div id=map class=\"main leafletmap\">\n" +
+    "<div class=map-buttons-left>\n" +
+    "<div class=\"btn-group ll drawingbtns\" ng-show=mapctrl.showDrawControls>\n" +
+    "<button ng-click=mapctrl.selectpunt() ng-class=\"{active: mapctrl.drawingType==''}\" type=button class=btn prevent-default><i class=\"fa fa-mouse-pointer\"></i></button>\n" +
+    "<button ng-click=\"mapctrl.drawingButtonChanged('lijn')\" ng-class=\"{active: mapctrl.drawingType=='lijn'}\" type=button class=btn prevent-default><i class=\"fa fa-minus\"></i></button>\n" +
+    "<button ng-click=\"mapctrl.drawingButtonChanged('vierkant')\" ng-class=\"{active: mapctrl.drawingType=='vierkant'}\" type=button class=btn prevent-default><i class=\"fa fa-square-o\"></i></button>\n" +
+    "<button ng-click=\"mapctrl.drawingButtonChanged('polygon')\" ng-class=\"{active: mapctrl.drawingType=='polygon'}\" type=button class=btn prevent-default><i class=\"fa fa-star-o\"></i></button>\n" +
+    "</div>\n" +
+    "<div class=\"btn-group btn-group-vertical ll interactiebtns\">\n" +
+    "<button type=button class=btn ng-click=\"mapctrl.interactieButtonChanged('identify')\" ng-class=\"{active: mapctrl.activeInteractieKnop=='identify'}\" prevent-default><i class=\"fa fa-info\"></i></button>\n" +
+    "<button type=button class=btn ng-click=\"mapctrl.interactieButtonChanged('select')\" ng-class=\"{active: mapctrl.activeInteractieKnop=='select'}\" prevent-default><i class=\"fa fa-mouse-pointer\"></i></button>\n" +
+    "<button type=button class=btn ng-click=\"mapctrl.interactieButtonChanged('meten')\" ng-class=\"{active: mapctrl.activeInteractieKnop=='meten'}\" prevent-default><i class=\"fa fa-expand\"></i></button>\n" +
+    "<button type=button class=btn ng-click=\"mapctrl.interactieButtonChanged('watishier')\" ng-class=\"{active: mapctrl.activeInteractieKnop=='watishier'}\" prevent-default><i class=\"fa fa-thumb-tack\"></i></button>\n" +
+    "</div>\n" +
+    "<div class=\"btn-group ll kaarttypes\">\n" +
+    "<button class=btn ng-class=\"{active: mapctrl.kaartIsGetoond==true}\" ng-click=mapctrl.toonKaart() prevent-default>Kaart</button>\n" +
+    "<button class=btn ng-class=\"{active: mapctrl.kaartIsGetoond==false}\" ng-click=mapctrl.toonLuchtfoto() prevent-default>Luchtfoto</button>\n" +
+    "</div>\n" +
+    "<div class=\"btn-group ll metenbtns\" ng-show=mapctrl.showMetenControls>\n" +
+    "<button ng-click=\"mapctrl.drawingButtonChanged('afstand')\" ng-class=\"{active: mapctrl.drawingType=='afstand'}\" type=button class=btn prevent-default><i class=\"fa fa-arrows-h\"></i></button>\n" +
+    "<button ng-click=\"mapctrl.drawingButtonChanged('oppervlakte')\" ng-class=\"{active: mapctrl.drawingType=='oppervlakte'}\" type=button class=btn prevent-default><i class=\"fa fa-star-o\"></i></button>\n" +
+    "</div>\n" +
     "<div class=\"btn-group ll searchbtns\">\n" +
     "<button type=button class=btn ng-class=\"{active: mapctrl.ZoekenOpLocatie==true}\" ng-click=\"mapctrl.ZoekenOpLocatie=true\" prevent-default><i class=\"fa fa-map-marker\"></i></button>\n" +
     "<button type=button class=btn ng-class=\"{active: mapctrl.ZoekenOpLocatie==false}\" ng-click=\"mapctrl.ZoekenOpLocatie=false\" prevent-default><i class=\"fa fa-download\"></i></button>\n" +
@@ -3787,25 +3818,10 @@ L.drawLocal = {
     "<input type=search class=zoekbalk ng-show=\"mapctrl.ZoekenOpLocatie == false\" placeholder=\"Geef een zoekterm\" prevent-default ng-keyup=\"$event.keyCode == 13 && mapctrl.zoekLaag(mapctrl.laagquery)\" ng-model=mapctrl.laagquery>\n" +
     "<select ng-options=\"layer as layer.name for layer in mapctrl.SelectableLayers\" ng-model=mapctrl.selectedLayer ng-show=\"mapctrl.ZoekenOpLocatie == false\" ng-change=mapctrl.layerChange() ng-class=\"{invisible: mapctrl.SelectableLayers.length<=1}\" prevent-default></select>\n" +
     "</div>\n" +
-    "<div class=\"btn-group btn-group-vertical ll interactiebtns\">\n" +
-    "<button type=button class=btn ng-click=\"mapctrl.interactieButtonChanged('identify')\" ng-class=\"{active: mapctrl.activeInteractieKnop=='identify'}\" prevent-default><i class=\"fa fa-info\"></i></button>\n" +
-    "<button type=button class=btn ng-click=\"mapctrl.interactieButtonChanged('select')\" ng-class=\"{active: mapctrl.activeInteractieKnop=='select'}\" prevent-default><i class=\"fa fa-mouse-pointer\"></i></button>\n" +
-    "<button type=button class=btn ng-click=\"mapctrl.interactieButtonChanged('meten')\" ng-class=\"{active: mapctrl.activeInteractieKnop=='meten'}\" prevent-default><i class=\"fa fa-expand\"></i></button>\n" +
-    "<button type=button class=btn ng-click=\"mapctrl.interactieButtonChanged('watishier')\" ng-class=\"{active: mapctrl.activeInteractieKnop=='watishier'}\" prevent-default><i class=\"fa fa-thumb-tack\"></i></button>\n" +
     "</div>\n" +
-    "<div class=\"btn-group ll metenbtns\" ng-show=mapctrl.showMetenControls>\n" +
-    "<button ng-click=\"mapctrl.drawingButtonChanged('afstand')\" ng-class=\"{active: mapctrl.drawingType=='afstand'}\" type=button class=btn prevent-default><i class=\"fa fa-arrows-h\"></i></button>\n" +
-    "<button ng-click=\"mapctrl.drawingButtonChanged('oppervlakte')\" ng-class=\"{active: mapctrl.drawingType=='oppervlakte'}\" type=button class=btn prevent-default><i class=\"fa fa-star-o\"></i></button>\n" +
-    "</div>\n" +
-    "<div class=\"btn-group ll drawingbtns\" ng-show=mapctrl.showDrawControls>\n" +
-    "<button ng-click=mapctrl.selectpunt() ng-class=\"{active: mapctrl.drawingType==''}\" type=button class=btn prevent-default><i class=\"fa fa-mouse-pointer\"></i></button>\n" +
-    "<button ng-click=\"mapctrl.drawingButtonChanged('lijn')\" ng-class=\"{active: mapctrl.drawingType=='lijn'}\" type=button class=btn prevent-default><i class=\"fa fa-minus\"></i></button>\n" +
-    "<button ng-click=\"mapctrl.drawingButtonChanged('vierkant')\" ng-class=\"{active: mapctrl.drawingType=='vierkant'}\" type=button class=btn prevent-default><i class=\"fa fa-square-o\"></i></button>\n" +
-    "<button ng-click=\"mapctrl.drawingButtonChanged('polygon')\" ng-class=\"{active: mapctrl.drawingType=='polygon'}\" type=button class=btn prevent-default><i class=\"fa fa-star-o\"></i></button>\n" +
-    "</div>\n" +
-    "<div class=\"ll btn-group kaarttypes\">\n" +
-    "<button class=btn ng-class=\"{active: mapctrl.kaartIsGetoond==true}\" ng-click=mapctrl.toonKaart() prevent-default>Kaart</button>\n" +
-    "<button class=btn ng-class=\"{active: mapctrl.kaartIsGetoond==false}\" ng-click=mapctrl.toonLuchtfoto() prevent-default>Luchtfoto</button>\n" +
+    "<div class=map-buttons-right>\n" +
+    "<div class=\"btn-group btn-group-vertical ll localiseerbtn\">\n" +
+    "<button type=button class=btn prevent-default><i class=\"fa fa-male\"></i></button>\n" +
     "</div>\n" +
     "<div class=\"btn-group btn-group-vertical ll viewbtns\">\n" +
     "<button type=button class=btn ng-click=mapctrl.zoomIn() prevent-default><i class=\"fa fa-plus\"></i></button>\n" +
@@ -3813,16 +3829,13 @@ L.drawLocal = {
     "<button type=button class=btn ng-click=\"\" prevent-default><i class=\"fa fa-crosshairs\"></i></button>\n" +
     "<button type=button class=btn ng-click=mapctrl.fullExtent() prevent-default><i class=\"fa fa-home\"></i></button>\n" +
     "</div>\n" +
-    "<div class=\"btn-group btn-group-vertical ll localiseerbtn\">\n" +
-    "<button type=button class=btn prevent-default><i class=\"fa fa-male\"></i></button>\n" +
-    "</div>\n" +
     "<div class=\"ll loading\" ng-show=\"mapctrl.Loading > 0\">\n" +
     "<div class=loader></div> {{mapctrl.MaxLoading - mapctrl.Loading}}/ {{mapctrl.MaxLoading}}\n" +
     "</div>\n" +
     "</div>\n" +
-    "<tink-search></tink-search>\n" +
+    "</div>\n" +
     "<tink-layers></tink-layers>\n" +
-    "</div>"
+    "</div>\n"
   );
 
 
@@ -3926,15 +3939,21 @@ L.drawLocal = {
   $templateCache.put('templates/search/searchTemplate.html',
     "<div data-tink-nav-aside=\"\" id=leftaside data-auto-select=true data-toggle-id=asideNavLeft class=\"nav-aside nav-left\">\n" +
     "<aside>\n" +
-    "<div class=nav-aside-section ng-show=\"srchctrl.Loading == 0\">\n" +
+    "<div class=nav-aside-section>\n" +
+    "<p class=nav-aside-title>Resultaten</p>\n" +
+    "</div>\n" +
+    "<button class=nav-left-toggle data-tink-sidenav-collapse=asideNavLeft>\n" +
+    "<a href=# title=\"Open menu\"><i class=\"fa fa-angle-double-left\"><span class=sr-only>Open left menu</span></i></a>\n" +
+    "</button>\n" +
+    "<div ng-show=\"srchctrl.Loading == 0\">\n" +
     "<tink-search-results></tink-search-results>\n" +
     "<tink-search-selected></tink-search-selected>\n" +
     "</div>\n" +
-    "<div class=nav-aside-section ng-show=\"srchctrl.Loading > 0\">\n" +
+    "<div ng-show=\"srchctrl.Loading > 0\">\n" +
     "<div class=loader></div> {{srchctrl.MaxLoading - srchctrl.Loading}}/ {{srchctrl.MaxLoading}}\n" +
     "</div>\n" +
     "</aside>\n" +
-    "</div>"
+    "</div>\n"
   );
 
 }]);
