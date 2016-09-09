@@ -430,14 +430,29 @@ div.table-sort-pagination {
   }
 }
 
+.nav-left-toggle,
+.nav-right-toggle {
+  font-family: FontAwesome;
+  font-weight: 100;
+}
+
+
 .nav-left-toggle {
   border-left-color: #fff;
   right: rem(-33);
+
+  &:before {
+    content: "\f101";
+  }
 }
 
 .nav-right-toggle {
   border-right-color: #fff;
   left: rem(-33);
+
+  &:before {
+    content: "\f100";
+  }
 }
 
 // setting the sidenavs collapsed by default
@@ -473,6 +488,11 @@ html.nav-left-open {
   .nav-left {
     transform: translate(0, 0);
   }
+  .nav-left-toggle {
+    &:before {
+      content: "\f100";
+    }
+  }
 }
 
 // Nav right can be opened even with larger screen sizes
@@ -482,6 +502,11 @@ html.nav-right-open {
   }
   .nav-right {
     transform: translate(0, 0);
+  }
+  .nav-right-toggle {
+    &:before {
+      content: "\f101";
+    }
   }
 }
 
