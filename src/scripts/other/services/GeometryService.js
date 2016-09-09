@@ -6,7 +6,6 @@
 
         _service.Buffer = function (location, distance, selectedlayer) {
             MapData.CleanMap();
-
             var geo = getGeo(location.geometry);
             delete geo.geometry.spatialReference;
             geo.geometries = geo.geometry;
@@ -33,21 +32,6 @@
             console.log(location);
             MapService.Query(location);
         };
-
-
-
-        _service.BufferEnDoordruk = function (location, distance) {
-            if (distance === 0) {
-                _service.Doordruk(location);
-            }
-            else {
-                _service.Buffer(location, distance);
-
-            }
-
-        };
-
-
         var getGeo = function (geometry) {
             var geoconverted = {};
             // geoconverted.inSr = 4326;

@@ -12,7 +12,7 @@
         _data.Themes = [];
         _data.defaultlayer = { id: '', name: 'Alle Layers' };
         _data.SelectedLayer = _data.defaultlayer;
-        // _data.VisibleLayers.unshift(_data.defaultlayer);
+        _data.VisibleLayers.unshift(_data.defaultlayer);
         _data.ActiveInteractieKnop = ActiveInteractieButton.IDENTIFY;
         _data.DrawingType = DrawingOption.NIETS;
         _data.DrawingObject = null;
@@ -166,7 +166,7 @@
             _data.VisibleFeatures.length = 0;
         };
         _data.PanToFeature = function (feature) {
-            // var tmplayer = feature.mapItem._layers[Object.keys(feature.mapItem._layers)[0]]
+            console.log("PANNING TO FEATURE");
             var featureBounds = feature.getBounds();
             map.fitBounds(featureBounds);
         };

@@ -1,7 +1,7 @@
 'use strict';
 (function () {
     var module = angular.module('tink.gis');
-    var mapEvents = function (map, MapService, MapData) {
+    var mapEvents = function (map, MapService, MapData, UIService) {
         var _mapEvents = {};
         map.on('draw:drawstart', function (event) {
             console.log('draw started');
@@ -45,10 +45,12 @@
                         case ActiveInteractieButton.IDENTIFY:
                             MapData.LastIdentifyBounds = map.getBounds();
                             MapService.Identify(event, 10);
+                            UIService.OpenLeftSide();
                             break;
                         case ActiveInteractieButton.SELECT:
                             if (MapData.DrawingType === DrawingOption.NIETS) {
                                 MapService.Select(event);
+                                UIService.OpenLeftSide();
                             } // else a drawing finished
                             break;
                         case ActiveInteractieButton.WATISHIER:
@@ -95,6 +97,7 @@
                             break;
                     }
                     MapService.Query(e.layer);
+                    UIService.OpenLeftSide();
                     break;
                 case ActiveInteractieButton.METEN:
                     switch (MapData.DrawingType) {
@@ -130,6 +133,8 @@
 
         return _mapEvents;
     };
+    module.$inject = ['map', 'MapService', 'MapData', 'UIService'];
+
     module.factory('MapEvents', mapEvents);
 })();
 

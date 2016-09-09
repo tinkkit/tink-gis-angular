@@ -53,7 +53,7 @@
             vm.doordruk = function () {
                 console.log(ResultsData.SelectedFeature);
                 ResultsData.SelectedFeature.mapItem.toGeoJSON().features.forEach(feature => {
-                    GeometryService.BufferEnDoordruk(feature, 0);
+                    GeometryService.Doordruk(feature);
                 });
             };
             vm.buffer = function () {
@@ -68,9 +68,9 @@
                         // }
                     }
                 });
-                bufferInstance.result.then(function (buffer, layer) {
+                bufferInstance.result.then(function (returnobj) {
                     ResultsData.SelectedFeature.mapItem.toGeoJSON().features.forEach(feature => {
-                        GeometryService.BufferEnDoordruk(feature, buffer, layer);
+                        GeometryService.Buffer(feature, returnobj.buffer, returnobj.layer);
                     });
                 }, function (obj) {
                     console.log('Modal dismissed at: ' + new Date()); // The contoller is closed by the use of the $dismiss call

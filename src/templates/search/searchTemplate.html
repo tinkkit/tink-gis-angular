@@ -13,7 +13,7 @@
             <tink-search-selected></tink-search-selected>
         </div>
         <div class="" ng-show="srchctrl.Loading > 0">
-            <div class="loader"></div> {{srchctrl.MaxLoading - srchctrl.Loading}}/ {{srchctrl.MaxLoading}}
+            <div class="loader"></div> {{srchctrl.LoadedCount()}} / {{srchctrl.MaxLoading}}
         </div>
     </aside>
 </div>

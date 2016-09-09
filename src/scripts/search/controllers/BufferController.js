@@ -14,7 +14,7 @@
             $scope.SelectableLayers.shift();
             $scope.selectedLayer = $scope.SelectableLayers[0];
             $scope.ok = function () {
-                $modalInstance.$close($scope.buffer, $scope.selectedLayer); // return the themes.
+                $modalInstance.$close({ buffer: $scope.buffer, layer: $scope.selectedLayer }); // return the themes.
             };
             $scope.cancel = function () {
                 $modalInstance.$dismiss('cancel is pressed'); // To close the controller with a dismiss message

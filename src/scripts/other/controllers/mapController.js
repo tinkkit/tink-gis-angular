@@ -15,7 +15,6 @@
         vm.ZoekenOpLocatie = true;
         vm.activeInteractieKnop = MapData.ActiveInteractieKnop;
         vm.SelectableLayers = function () {
-            console.log("ANGULAR: Checking SelectableLayers");
             return MapData.VisibleLayers;
         };
         vm.selectedLayer = MapData.SelectedLayer;
