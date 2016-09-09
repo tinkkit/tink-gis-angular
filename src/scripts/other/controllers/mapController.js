@@ -4,22 +4,32 @@
     var theController = module.controller('mapController', function ($scope, ExternService, BaseLayersService, MapService, MapData, map, MapEvents, DrawService, HelperService, GISService) {
         //We need to include MapEvents, even tho we don t call it just to make sure it gets loaded!
         var vm = this;
-        vm.layerId = '';
-        vm.ZoekenOpLocatie = true;
-        vm.activeInteractieKnop = MapData.ActiveInteractieKnop;
-        vm.SelectableLayers = MapData.VisibleLayers;
-        vm.selectedLayer = MapData.SelectedLayer;
-        vm.drawingType = MapData.DrawingType;
-        vm.showMetenControls = false;
-        vm.showDrawControls = false;
-        vm.zoekLoc = '';
-        // var itemsdata = [];
         var init = function () {
             if (window.location.href.startsWith('http://localhost:9000/')) {
                 var externproj = JSON.parse('{"naam":"Velo en fietspad!!","extent":{"_northEast":{"lat":"51.2336102032025","lng":"4.41993402409611"},"_southWest":{"lat":"51.1802290498612","lng":"4.38998297870121"}},"guid":"bfc88ea3-8581-4204-bdbc-b5f54f46050d","extentString":"51.2336102032025,4.41993402409611,51.1802290498612,4.38998297870121","isKaart":true,"uniqId":3,"creatorId":6,"creator":null,"createDate":"2016-08-22T10:55:15.525994","updaterId":6,"updater":null,"lastUpdated":"2016-08-22T10:55:15.525994","themes":[{"cleanUrl":"services/P_Stad/Mobiliteit/MapServer","naam":"Mobiliteit","type":"esri","visible":true,"layers":[{"id":"9","name":"fietspad","visible":true},{"id":"6","name":"velo","visible":true},{"id":"0","name":"Fiets en voetganger","visible":true}]}],"isReadOnly":false}');
                 ExternService.Import(externproj);
             }
         } ();
+        // vm.MapData = MapData;
+        vm.layerId = '';
+        vm.ZoekenOpLocatie = true;
+        vm.activeInteractieKnop = MapData.ActiveInteractieKnop;
+        vm.SelectableLayers = function () {
+            console.log("ANGULAR: Checking SelectableLayers");
+            return MapData.VisibleLayers;
+        };
+        vm.selectedLayer = MapData.SelectedLayer;
+        vm.drawingType = MapData.DrawingType;
+        vm.showMetenControls = false;
+        vm.showDrawControls = false;
+        vm.zoekLoc = '';
+
+        // var itemsdata = [];
+        // $scope.$watch(function () {
+        //     return MapData.VisibleLayers;
+        // }, function (newval, oldval) {
+        //     vm.SelectableLayers = newval;
+        // });
         var suggestionfunc = function (item) {
             var output = '<div>' + item.name;
             if (item.attribute1value) {

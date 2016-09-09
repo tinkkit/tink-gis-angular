@@ -11,9 +11,10 @@
             />
             <input type="search" class="zoekbalk" ng-show="mapctrl.ZoekenOpLocatie == false" placeholder="Geef een zoekterm" prevent-default
                 ng-keyup="$event.keyCode == 13 && mapctrl.zoekLaag(mapctrl.laagquery)" ng-model="mapctrl.laagquery" />
-            <select ng-options="layer as layer.name for layer in mapctrl.SelectableLayers" ng-model="mapctrl.selectedLayer" ng-show="mapctrl.ZoekenOpLocatie == false"
-                ng-change="mapctrl.layerChange()" ng-class="{invisible: mapctrl.SelectableLayers.length<=1}" prevent-default></select>
-        </div>
+            <select ng-options="layer as layer.name for layer in mapctrl.SelectableLayers()" ng-model="mapctrl.selectedLayer" 
+            ng-show="mapctrl.ZoekenOpLocatie == false"
+                ng-change="mapctrl.layerChange()"  prevent-default></select>
+        </div> <!--<ng-class="{invisible: mapctrl.SelectableLayers.length<=1}"-->
         <div class="btn-group btn-group-vertical ll interactiebtns">
             <button type="button" class="btn" ng-click="mapctrl.interactieButtonChanged('identify')" ng-class="{active: mapctrl.activeInteractieKnop=='identify'}"
                 prevent-default><i class="fa fa-info"></i></button>
