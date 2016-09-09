@@ -1,7 +1,17 @@
 <div data-tink-nav-aside="" id="rightaside" data-auto-select="true" data-toggle-id="asideNavRight" class="nav-aside nav-right">
     <aside>
         <div class="nav-aside-section">
+            <p class="nav-aside-title">Lagenoverzicht</p>
+        </div>
+
+            <button class="nav-right-toggle" data-tink-sidenav-collapse="asideNavRight">
+              <a href="#" title="Open menu"><i class="fa fa-angle-double-right"><span class="sr-only">Open right menu</span></i></a>
+            </button>
+
+        <div class="">
             <button class="btn btn-primary addlayerbtn" ng-click="lyrsctrl.Lagenbeheer()">Lagenbeheer</button>
+        </div>
+        <div class="">
             <ul id="sortableThemes" ui-sortable="lyrsctrl.sortableOptions" ng-model="lyrsctrl.themes">
                 <div ng-repeat="theme in lyrsctrl.themes">
                     <tink-Theme theme="theme" layercheckboxchange="lyrsctrl.updatethemevisibility(theme)" hidedelete="false">

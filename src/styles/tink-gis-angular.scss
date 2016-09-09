@@ -2,9 +2,10 @@
 @import "../../bower_components/tink-core/dist/tink/mixins";
 @import "../../bower_components/tink-core/dist/tink/variables";
 
-.fa {
-    width: 15.775px;
-}
+
+/**
+ * Map
+ */
 
 .tink-map, .leafletmap {
   height: 100%;
@@ -12,216 +13,43 @@
 }
 
 .tink-map {
-  @include mq($screen-sm) {
-    padding-right: rem($nav-aside-width);
-    padding-left: rem($nav-aside-width);
-  }
+  // !! not necessary anymore
+  // @include mq($screen-sm) {
+  //   padding-right: rem($nav-aside-width);
+  //   padding-left: rem($nav-aside-width);
+  // }
 
   .nav-aside {
     top: 0;
+    z-index: 700; // set above leafletmap
   }
-
-  .fa-fw {
-    width: rem(10);
-  }
+  // !! not necessary anymore
+  // .fa-fw {
+  //   width: rem(10);
+  // }
 }
 
 .leafletmap {
   position: relative;
 }
 
-
-
-
-.ll {
-  position: absolute;
-  z-index: 600;
-}
-
-.interactiebtns {
-  left: rem(10);
-  top: rem(100);
-
-  @include mq($screen-sm) {
-    left: rem(15);
-    top: rem(105);
-  }
-}
-
-.searchbtns {
-  left: rem(10);
-  top: rem(10);
-
-  @include mq($screen-sm) {
-    left: rem(15);
-    top: rem(15);
-  }
-}
-
-.metenbtns {
-  left: rem(55);
-  top: rem(165);
-
-  @include mq($screen-sm) {
-    left: rem(60);
-    top: rem(170);
-  }
-}
-
-.drawingbtns {
-  left: rem(55);
-  top: rem(130);
-
-  @include mq($screen-sm) {
-    left: rem(60);
-    top: rem(135);
-  }
-}
-
-.zoekbalken {
-  left: rem(90);
-  top: rem(10);
-
-  @include mq($screen-sm) {
-    left: rem(95);
-    top: rem(15);
-  }
-}
-
-.zoekbalk {
-  width: rem(150);
-
-  @include mq($screen-sm) {
-    width: rem(200);
-  }
-}
-
-.localiseerbtn {
-  right: rem(10);
-  bottom: rem(20);
-
-  @include mq($screen-sm) {
-    right: rem(15);
-    bottom: rem(20);
-  }
-}
-.loading {
-  right: rem(10);
-  top: rem(10);
-  background-color: white;
-  @include mq($screen-sm) {
-    right: rem(15);
-    top: rem(15);
-  }
-}
-.viewbtns {
-  right: rem(10);
-  bottom: rem(64);
-
-  @include mq($screen-sm) {
-    right: rem(15);
-    bottom: rem(69);
-  }
-}
-
-button.btn.active {
-  background-color: dodgerblue;
-  color: white;
-}
-
-.leaflet-left .leaflet-control-scale {
-  margin-left: rem(130);
-  margin-bottom: rem(13);
-
-  @include mq($screen-sm) {
-    margin-left: rem(135);
-    margin-bottom: rem(18);
-  }
-}
-
-.kaarttypes {
-  left: rem(10);
-  bottom: rem(10);
-
-  @include mq($screen-sm) {
-    left: rem(15);
-    bottom: rem(15);
-  }
-}
-
-.kaarttypes > .btn {
-    height:30px;
-    font-size: 10px;
-//   font-weight: small;
-}
-
-// Wtf tink ???
-// input[type="checkbox"], input[type="radio"] {
-//      opacity: 1; 
-//      position: static; 
-// }
-// .visible-box {
-//     padding-top: 4px;
-// }
-.layercontroller-checkbox
-{
-    margin-left:10px;
-}
-
-.addlayerbtn {
-    margin-left: auto;
-    margin-right: auto;
-    margin-top: 5px;
-    margin-bottom: 5px;
-    display: block;
-}
-
-
-
-.modal-header {
-    padding: 15px;
-    border-bottom: 1px solid gray;
-    // text-align: left;   
-}
-.modal-title {
-    margin: 0;
-    line-height: 1.42857143;
-}
-.modal-content {
-    padding: 15px;
-    // text-align: left;       
-}
-.modal-footer {
-    padding: 15px;
-    border-top: 1px solid gray;
-    // text-align: left;   
-}
-.row-no-padding {
-  [class*="col-"] {
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-  }
-}
-.container.container-low-padding {
-    padding-left: 0.46875rem;
-    padding-right: 0.46875rem;
-}
-.leaflet-popup-content-wrapper {
-    border-radius: 6px;
-}
-.makeblock{
-    display: block !important;
-}
-.nav-aside{
-    width: 25rem !important;
-}
-
-.tink-map {
-    padding-right: 25rem !important;
-    padding-left: 25rem !important;
-}
 .leaflet-popup-content-wrapper, .leaflet-popup-tip {
     opacity: 0.8;
+}
+
+
+// .leaflet-left .leaflet-control-scale {
+//   margin-left: rem(130);
+//   margin-bottom: rem(13);
+
+//   @include mq($screen-sm) {
+//     margin-left: rem(135);
+//     margin-bottom: rem(18);
+//   }
+// }
+
+.leaflet-popup-content-wrapper {
+    border-radius: 6px;
 }
 
 svg.leaflet-zoom-animated {
@@ -244,6 +72,204 @@ svg.leaflet-zoom-animated {
     z-index: auto;
 }
 
+/**
+ * Map buttons styling
+ */
+
+.ll {
+  position: absolute;
+  z-index: 600;
+
+  .fa {
+      width: rem($font-size-base);
+  }
+}
+
+button.btn.active {
+  background-color: dodgerblue;
+  color: white;
+}
+
+
+/**
+ * Map buttons left side
+ */
+
+.drawingbtns {
+  left: rem(55);
+  top: rem(130);
+
+  @include mq($screen-sm) {
+    left: rem(60);
+    top: rem(135);
+  }
+}
+
+.interactiebtns {
+  left: rem(10);
+  top: rem(100);
+
+  @include mq($screen-sm) {
+    left: rem(15);
+    top: rem(105);
+  }
+}
+
+.kaarttypes {
+  left: rem(10);
+  bottom: rem(10);
+
+  @include mq($screen-sm) {
+    left: rem(15);
+    bottom: rem(15);
+  }
+
+  > .btn {
+    height: rem(30);
+    font-size: rem(10);
+  }
+}
+
+.metenbtns {
+  left: rem(55);
+  top: rem(165);
+
+  @include mq($screen-sm) {
+    left: rem(60);
+    top: rem(170);
+  }
+}
+
+.searchbtns {
+  left: rem(10);
+  top: rem(10);
+
+  @include mq($screen-sm) {
+    left: rem(15);
+    top: rem(15);
+  }
+}
+
+.zoekbalk {
+  width: rem(150);
+
+  @include mq($screen-sm) {
+    width: rem(200);
+  }
+}
+
+.zoekbalken {
+  left: rem(90);
+  top: rem(10);
+
+  @include mq($screen-sm) {
+    left: rem(95);
+    top: rem(15);
+  }
+}
+
+
+/**
+ * Map buttons right side
+ */
+
+.localiseerbtn {
+  right: rem(10);
+  bottom: rem(20);
+
+  @include mq($screen-sm) {
+    right: rem(15);
+    bottom: rem(20);
+  }
+}
+
+.viewbtns {
+  right: rem(10);
+  bottom: rem(64);
+
+  @include mq($screen-sm) {
+    right: rem(15);
+    bottom: rem(69);
+  }
+}
+
+
+/**
+ * Seperate components
+ */
+
+.loading {
+  right: rem(10);
+  top: rem(10);
+  background-color: white;
+  @include mq($screen-sm) {
+    right: rem(15);
+    top: rem(15);
+  }
+}
+
+// Wtf tink ???
+// input[type="checkbox"], input[type="radio"] {
+//      opacity: 1;
+//      position: static;
+// }
+// .visible-box {
+//     padding-top: 4px;
+// }
+
+
+/**
+ * Rightside layer menu
+ */
+
+// Lagenbeheer
+.addlayerbtn {
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    display: block;
+}
+
+// solrGISTemplate
+.blacktext {
+  color: black !important;
+}
+
+.featureinsolr {
+  font-style: italic;
+  font-size: 10px;
+}
+
+.layercontroller-checkbox
+{
+    margin-left:10px;
+}
+
+/**
+ * Modal styling
+ */
+
+.modal-header {
+    padding: 15px;
+    border-bottom: 1px solid gray;
+    // text-align: left;
+}
+
+.modal-title {
+    margin: 0;
+    line-height: 1.42857143;
+}
+.modal-content {
+    padding: 15px;
+    // text-align: left;
+}
+.modal-footer {
+    padding: 15px;
+    border-top: 1px solid gray;
+    // text-align: left;
+}
+
 .modal-dialog{
     min-width: 1000px;
     background-color: white;
@@ -254,46 +280,28 @@ svg.leaflet-zoom-animated {
   z-index: 9998;
 }
 
-.greytext {
-  color: lightgrey !important;
-}
-.blacktext {
-  color: black !important;
-}
 
-a.btn.prev,a.btn.next {
-  display: none;
-}
-div.table-sort-pagination {
-      float: left !important;
-}
-.nav-tabs {
-  margin:  5px 0px 5px 0px;
-}
-//Lagenbeheer
-.featureinsolr {
-  font-style: italic;
-  font-size: 10px;
-}
+/**
+ * Typeahead styling
+ */
 
-//Voor typeahead
 .tt-suggestion + .tt-suggestion {
   border-top: 1px solid #ccd6dd;
 }
     .tt-focus {
         border: 2px solid #0097cf;
     }
-    
+
     .tt-query {
         -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
         -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
         box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
     }
-    
+
     .tt-hint {
         color: #999
     }
-    
+
     .tt-menu {
         width: 422px;
         margin: 12px 0;
@@ -309,29 +317,29 @@ div.table-sort-pagination {
         box-shadow: 0 5px 10px rgba(0, 0, 0, .2);
         z-index: 99999;
     }
-    
+
     .tt-suggestion {
         padding: 3px 20px;
         font-size: 18px;
         line-height: 24px;
         z-index: 99999;
     }
-    
+
     .tt-suggestion:hover {
         cursor: pointer;
         color: #fff;
         background-color: #0097cf;
     }
-    
+
     .tt-suggestion.tt-cursor {
         color: #fff;
         background-color: #0097cf;
     }
-    
+
     .tt-suggestion p {
         margin: 0;
     }
-    
+
     .gist {
         font-size: 14px;
     }
@@ -340,3 +348,140 @@ div.table-sort-pagination {
     .achtergrondfixvoorpng {
       background-image: url('fa-dot-circle-o_24_0_000000_none.png');
     }
+
+
+
+// Legacy code - needs further checking
+
+.row-no-padding {
+  [class*="col-"] {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+}
+.container.container-low-padding {
+    padding-left: 0.46875rem;
+    padding-right: 0.46875rem;
+}
+.makeblock{
+    display: block !important;
+}
+
+
+// .nav-aside{
+//     width: 25rem !important;
+// }
+
+// !! removing seems to break leafletlayers?
+// .tink-map {
+//     padding-right: 25rem !important;
+//     padding-left: 25rem !important;
+// }
+
+.greytext {
+  color: lightgrey !important;
+}
+
+a.btn.prev,a.btn.next {
+  display: none;
+}
+div.table-sort-pagination {
+      float: left !important;
+}
+.nav-tabs {
+  margin:  5px 0px 5px 0px;
+}
+
+
+/**
+ * Refactor work in progress
+ */
+
+.aside {
+  position: relative;
+}
+
+.nav-left-toggle,
+.nav-right-toggle {
+  background-color: #fff;
+  border-color: rgba(0, 0, 0, 0.12);
+  border-style: solid;
+  border-width: 2px;
+  position: fixed;
+  text-align: center;
+  z-index: 700;
+
+  &:hover,
+  &:focus,
+  &:active {
+    box-shadow: 0 0 0 0;
+    outline: 0;
+  }
+
+  a{
+    color: #333;
+
+    &:hover,
+    &:focus,
+    &:active {
+      box-shadow: 0 0 0 0;
+      outline: 0;
+    }
+  }
+}
+
+.nav-left-toggle {
+  border-left-color: #fff;
+  right: rem(-33);
+}
+
+.nav-right-toggle {
+  border-right-color: #fff;
+  left: rem(-33);
+}
+
+// setting the sidenavs collapsed by default
+.nav-left {
+  transform: translate(-15.7142857143rem , 0);
+}
+.nav-right {
+  transform: translate(15.7142857143rem , 0);
+}
+
+.map-buttons-left {
+  height: 100%;
+  display: inline-block;
+  margin-right: -4px; // clear spacing between  divs
+  position: relative;
+  width: 50%;
+  z-index: 600;
+}
+
+.map-buttons-right {
+  height: 100%;
+  display: inline-block;
+  position: relative;
+  width: 50%;
+  z-index: 600;
+}
+
+// Nav left can be opened even with larger screen sizes
+html.nav-left-open {
+  .map-buttons-left {
+    left: rem($nav-aside-width + $nav-aside-extra-body-padding);
+  }
+  .nav-left {
+    transform: translate(0, 0);
+  }
+}
+
+// Nav right can be opened even with larger screen sizes
+html.nav-right-open {
+  .map-buttons-right {
+    right: rem($nav-aside-width + $nav-aside-extra-body-padding);
+  }
+  .nav-right {
+    transform: translate(0, 0);
+  }
+}
+

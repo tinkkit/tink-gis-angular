@@ -1,10 +1,18 @@
 <div data-tink-nav-aside="" id="leftaside" data-auto-select="true" data-toggle-id="asideNavLeft" class="nav-aside nav-left">
     <aside>
-        <div class="nav-aside-section" ng-show="srchctrl.Loading == 0">
+        <div class="nav-aside-section">
+            <p class="nav-aside-title">Resultaten</p>
+        </div>
+
+            <button class="nav-left-toggle" data-tink-sidenav-collapse="asideNavLeft">
+              <a href="#" title="Open menu"><i class="fa fa-angle-double-left"><span class="sr-only">Open left menu</span></i></a>
+            </button>
+
+        <div class="" ng-show="srchctrl.Loading == 0">
             <tink-search-results></tink-search-results>
             <tink-search-selected></tink-search-selected>
         </div>
-        <div class="nav-aside-section" ng-show="srchctrl.Loading > 0">
+        <div class="" ng-show="srchctrl.Loading > 0">
             <div class="loader"></div> {{srchctrl.MaxLoading - srchctrl.Loading}}/ {{srchctrl.MaxLoading}}
         </div>
     </aside>
