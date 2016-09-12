@@ -97,11 +97,9 @@
                     var param = params[key];
                     var type = Object.prototype.toString.call(param);
                     var value;
-
                     if (data.length) {
                         data += ',';
                     }
-
                     if (type === '[object Array]') {
                         value = (Object.prototype.toString.call(param[0]) === '[object Object]') ? JSON.stringify(param) : param.join(',');
                     } else if (type === '[object Object]') {

@@ -4,7 +4,7 @@
     try {
         module = angular.module('tink.gis');
     } catch (e) {
-        module = angular.module('tink.gis', ['tink.navigation','tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter', 'tink.pagination']); //'leaflet-directive'
+        module = angular.module('tink.gis', ['tink.navigation', 'tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter', 'tink.pagination']); //'leaflet-directive'
     }
     module.constant('appConfig', {
         templateUrl: '/digipolis.stadinkaart.webui',
@@ -13,28 +13,25 @@
         enableLog: true
     });
 
-        
+
 
 
     module.directive('preventDefault', function () {
-        return function (scope, element, attrs) {
-            angular.element(element).bind('click', function (event) {
-                event.preventDefault();
-                event.stopPropagation();
-            });
-            angular.element(element).bind('dblclick', function (event) {
-                event.preventDefault();
-                event.stopPropagation();
-            });
-            angular.element(element).bind('ondrag', function (event) {
-                event.preventDefault();
-                event.stopPropagation();
-            });
-            angular.element(element).bind('ondragstart', function (event) {
-                event.preventDefault();
-                event.stopPropagation();
-            });
-        };
+        return {
+            link: function (scope, element, attrs) {
+                console.log(element);
+                element.on('click', function (event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                });
+                element.on('dblclick', function (event) {
+                    event.stopPropagation();
+                });
+                element.on('mousemove', function (event) {
+                    event.stopPropagation();
+                });
+            }
+        }
     });
     JXON.config({
         attrPrefix: '',              // default: '@'

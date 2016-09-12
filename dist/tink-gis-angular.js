@@ -15,23 +15,20 @@
     });
 
     module.directive('preventDefault', function () {
-        return function (scope, element, attrs) {
-            angular.element(element).bind('click', function (event) {
-                event.preventDefault();
-                event.stopPropagation();
-            });
-            angular.element(element).bind('dblclick', function (event) {
-                event.preventDefault();
-                event.stopPropagation();
-            });
-            angular.element(element).bind('ondrag', function (event) {
-                event.preventDefault();
-                event.stopPropagation();
-            });
-            angular.element(element).bind('ondragstart', function (event) {
-                event.preventDefault();
-                event.stopPropagation();
-            });
+        return {
+            link: function link(scope, element, attrs) {
+                console.log(element);
+                element.on('click', function (event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                });
+                element.on('dblclick', function (event) {
+                    event.stopPropagation();
+                });
+                element.on('mousemove', function (event) {
+                    event.stopPropagation();
+                });
+            }
         };
     });
     JXON.config({
@@ -823,7 +820,6 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         vm.ZoekenOpLocatie = true;
         vm.activeInteractieKnop = MapData.ActiveInteractieKnop;
         vm.SelectableLayers = function () {
-            console.log("ANGULAR: Checking SelectableLayers");
             return MapData.VisibleLayers;
         };
         vm.selectedLayer = MapData.SelectedLayer;
@@ -1299,7 +1295,6 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
 
         _service.Buffer = function (location, distance, selectedlayer) {
             MapData.CleanMap();
-
             var geo = getGeo(location.geometry);
             delete geo.geometry.spatialReference;
             geo.geometries = geo.geometry;
@@ -1326,15 +1321,6 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             console.log(location);
             MapService.Query(location);
         };
-
-        _service.BufferEnDoordruk = function (location, distance) {
-            if (distance === 0) {
-                _service.Doordruk(location);
-            } else {
-                _service.Buffer(location, distance);
-            }
-        };
-
         var getGeo = function getGeo(geometry) {
             var geoconverted = {};
             // geoconverted.inSr = 4326;
@@ -1399,11 +1385,9 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                     var param = params[key];
                     var type = Object.prototype.toString.call(param);
                     var value;
-
                     if (data.length) {
                         data += ',';
                     }
-
                     if (type === '[object Array]') {
                         value = Object.prototype.toString.call(param[0]) === '[object Object]' ? JSON.stringify(param) : param.join(',');
                     } else if (type === '[object Object]') {
@@ -2097,7 +2081,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         _data.Themes = [];
         _data.defaultlayer = { id: '', name: 'Alle Layers' };
         _data.SelectedLayer = _data.defaultlayer;
-        // _data.VisibleLayers.unshift(_data.defaultlayer);
+        _data.VisibleLayers.unshift(_data.defaultlayer);
         _data.ActiveInteractieKnop = ActiveInteractieButton.IDENTIFY;
         _data.DrawingType = DrawingOption.NIETS;
         _data.DrawingObject = null;
@@ -2225,7 +2209,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             _data.VisibleFeatures.length = 0;
         };
         _data.PanToFeature = function (feature) {
-            // var tmplayer = feature.mapItem._layers[Object.keys(feature.mapItem._layers)[0]]
+            console.log("PANNING TO FEATURE");
             var featureBounds = feature.getBounds();
             map.fitBounds(featureBounds);
         };
@@ -2339,7 +2323,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 (function () {
     var module = angular.module('tink.gis');
-    var mapEvents = function mapEvents(map, MapService, MapData) {
+    var mapEvents = function mapEvents(map, MapService, MapData, UIService) {
         var _mapEvents = {};
         map.on('draw:drawstart', function (event) {
             console.log('draw started');
@@ -2383,10 +2367,12 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                         case ActiveInteractieButton.IDENTIFY:
                             MapData.LastIdentifyBounds = map.getBounds();
                             MapService.Identify(event, 10);
+                            UIService.OpenLeftSide();
                             break;
                         case ActiveInteractieButton.SELECT:
                             if (MapData.DrawingType === DrawingOption.NIETS) {
                                 MapService.Select(event);
+                                UIService.OpenLeftSide();
                             } // else a drawing finished
                             break;
                         case ActiveInteractieButton.WATISHIER:
@@ -2431,6 +2417,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                             break;
                     }
                     MapService.Query(e.layer);
+                    UIService.OpenLeftSide();
                     break;
                 case ActiveInteractieButton.METEN:
                     switch (MapData.DrawingType) {
@@ -2464,6 +2451,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
         return _mapEvents;
     };
+    module.$inject = ['map', 'MapService', 'MapData', 'UIService'];
+
     module.factory('MapEvents', mapEvents);
 })();
 ;'use strict';
@@ -2818,6 +2807,29 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 })();
 ;'use strict';
 
+(function () {
+    var module;
+    try {
+        module = angular.module('tink.gis');
+    } catch (e) {
+        module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter', 'tink.pagination']); //'leaflet-directive'
+    }
+    var service = function service() {
+        var _service = {};
+        _service.OpenLeftSide = function () {
+            var html = $('html');
+            if (!html.hasClass('nav-left-open')) {
+                html.addClass('nav-left-open');
+            }
+        };
+
+        return _service;
+    };
+    // module.$inject = ['$http', 'map'];
+    module.factory('UIService', service);
+})();
+;'use strict';
+
 (function (module) {
     var module;
     try {
@@ -2832,7 +2844,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         $scope.SelectableLayers.shift();
         $scope.selectedLayer = $scope.SelectableLayers[0];
         $scope.ok = function () {
-            $modalInstance.$close($scope.buffer, $scope.selectedLayer); // return the themes.
+            $modalInstance.$close({ buffer: $scope.buffer, layer: $scope.selectedLayer }); // return the themes.
         };
         $scope.cancel = function () {
             $modalInstance.$dismiss('cancel is pressed'); // To close the controller with a dismiss message
@@ -2847,25 +2859,37 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         var vm = this;
         vm.features = ResultsData.JsonFeatures;
         vm.EmptyResult = ResultsData.EmptyResult;
-        vm.Loading = ResultsData.Loading;
+        vm.Loading = 0;
         vm.MaxLoading = 0;
-        $scope.$watch(function () {
-            return ResultsData.Loading;
-        }, function (newVal, oldVal) {
-            vm.Loading = newVal;
-            if (oldVal == 0) {
-                vm.MaxLoading = newVal;
+        vm.LoadedCount = function () {
+            if (ResultsData.Loading > vm.MaxLoading) {
+                vm.MaxLoading = ResultsData.Loading;
             }
-            if (newVal < oldVal) {
-                if (vm.MaxLoading < oldVal) {
-                    vm.MaxLoading = oldVal;
-                }
-            }
-            if (newVal == 0) {
+            if (ResultsData.Loading == 0) ;
+            {
                 vm.MaxLoading = 0;
             }
-            console.log("Loading val: " + newVal + "/" + vm.MaxLoading);
-        });
+            vm.Loading = ResultsData.Loading;
+            if (ResultsData.Loading == 0 && !$scope.$$phase) {
+                $scope.$apply();
+            }
+            return ResultsData.Loading;
+        };
+        // $scope.$watch(function () { return ResultsData.Loading; }, function (newVal, oldVal) {
+        //     vm.Loading = newVal;
+        //     if (oldVal == 0) {
+        //         vm.MaxLoading = newVal;
+        //     }
+        //     if (newVal < oldVal) {
+        //         if (vm.MaxLoading < oldVal) {
+        //             vm.MaxLoading = oldVal;
+        //         }
+        //     }
+        //     if (newVal == 0) {
+        //         vm.MaxLoading = 0;
+        //     }
+        //     console.log("Loading val: " + newVal + "/" + vm.MaxLoading);
+        // });
     });
     theController.$inject = ['$scope', 'ResultsData', 'map'];
 })();
@@ -2981,7 +3005,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         vm.doordruk = function () {
             console.log(ResultsData.SelectedFeature);
             ResultsData.SelectedFeature.mapItem.toGeoJSON().features.forEach(function (feature) {
-                GeometryService.BufferEnDoordruk(feature, 0);
+                GeometryService.Doordruk(feature);
             });
         };
         vm.buffer = function () {
@@ -2996,9 +3020,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                     // }
                 }
             });
-            bufferInstance.result.then(function (buffer, layer) {
+            bufferInstance.result.then(function (returnobj) {
                 ResultsData.SelectedFeature.mapItem.toGeoJSON().features.forEach(function (feature) {
-                    GeometryService.BufferEnDoordruk(feature, buffer, layer);
+                    GeometryService.Buffer(feature, returnobj.buffer, returnobj.layer);
                 });
             }, function (obj) {
                 console.log('Modal dismissed at: ' + new Date()); // The contoller is closed by the use of the $dismiss call
@@ -3538,20 +3562,34 @@ L.drawLocal = {
     "<meta charset=utf-8>\n" +
     "<title>Street View side-by-side</title>\n" +
     "<style>\n" +
-    "html, body {\n" +
-    "        height: 100%;\n" +
-    "        margin: 0;\n" +
-    "        padding: 0;\n" +
-    "      }\n" +
-    "      #map,  {\n" +
-    "        float: left;\n" +
-    "        height: 0%;\n" +
-    "        width: 0%;\n" +
-    "      }\n" +
-    "       #pano {\n" +
-    "        float: left;\n" +
-    "        height: 100%;\n" +
-    "        width: 100%;\n" +
+    "html, body {\r" +
+    "\n" +
+    "        height: 100%;\r" +
+    "\n" +
+    "        margin: 0;\r" +
+    "\n" +
+    "        padding: 0;\r" +
+    "\n" +
+    "      }\r" +
+    "\n" +
+    "      #map,  {\r" +
+    "\n" +
+    "        float: left;\r" +
+    "\n" +
+    "        height: 0%;\r" +
+    "\n" +
+    "        width: 0%;\r" +
+    "\n" +
+    "      }\r" +
+    "\n" +
+    "       #pano {\r" +
+    "\n" +
+    "        float: left;\r" +
+    "\n" +
+    "        height: 100%;\r" +
+    "\n" +
+    "        width: 100%;\r" +
+    "\n" +
     "      }\n" +
     "</style>\n" +
     "</head>\n" +
@@ -3559,24 +3597,42 @@ L.drawLocal = {
     "<div id=map></div>\n" +
     "<div id=pano></div>\n" +
     "<script>\n" +
-    "function initialize() {\n" +
-    "        \n" +
-    "        var urlLat = parseFloat((location.search.split('lat=')[1]||'').split('&')[0]);\n" +
-    "        var urlLng = parseFloat((location.search.split('lng=')[1]||'').split('&')[0]);\n" +
-    "        var fenway = {lat:urlLat, lng: urlLng};\n" +
-    "        var map = new google.maps.Map(document.getElementById('map'), {\n" +
-    "          center: fenway,\n" +
-    "          zoom: 14\n" +
-    "        });\n" +
-    "        var panorama = new google.maps.StreetViewPanorama(\n" +
-    "            document.getElementById('pano'), {\n" +
-    "              position: fenway,\n" +
-    "              pov: {\n" +
-    "                heading: 34,\n" +
-    "                pitch: 10\n" +
-    "              }\n" +
-    "            });\n" +
-    "        map.setStreetView(panorama);\n" +
+    "function initialize() {\r" +
+    "\n" +
+    "        \r" +
+    "\n" +
+    "        var urlLat = parseFloat((location.search.split('lat=')[1]||'').split('&')[0]);\r" +
+    "\n" +
+    "        var urlLng = parseFloat((location.search.split('lng=')[1]||'').split('&')[0]);\r" +
+    "\n" +
+    "        var fenway = {lat:urlLat, lng: urlLng};\r" +
+    "\n" +
+    "        var map = new google.maps.Map(document.getElementById('map'), {\r" +
+    "\n" +
+    "          center: fenway,\r" +
+    "\n" +
+    "          zoom: 14\r" +
+    "\n" +
+    "        });\r" +
+    "\n" +
+    "        var panorama = new google.maps.StreetViewPanorama(\r" +
+    "\n" +
+    "            document.getElementById('pano'), {\r" +
+    "\n" +
+    "              position: fenway,\r" +
+    "\n" +
+    "              pov: {\r" +
+    "\n" +
+    "                heading: 34,\r" +
+    "\n" +
+    "                pitch: 10\r" +
+    "\n" +
+    "              }\r" +
+    "\n" +
+    "            });\r" +
+    "\n" +
+    "        map.setStreetView(panorama);\r" +
+    "\n" +
     "      }\n" +
     "</script>\n" +
     "<script async defer src=\"https://maps.googleapis.com/maps/api/js?callback=initialize\">\n" +
@@ -3782,9 +3838,9 @@ L.drawLocal = {
     "<button type=button class=btn ng-class=\"{active: mapctrl.ZoekenOpLocatie==false}\" ng-click=\"mapctrl.ZoekenOpLocatie=false\" prevent-default><i class=\"fa fa-download\"></i></button>\n" +
     "</div>\n" +
     "<div class=\"ll zoekbalken\">\n" +
-    "<input id=locatiezoek class=\"zoekbalk typeahead\" ng-show=\"mapctrl.ZoekenOpLocatie == true\" placeholder=\"Geef een X,Y / locatie of POI in.\">\n" +
+    "<input id=locatiezoek class=\"zoekbalk typeahead\" ng-show=\"mapctrl.ZoekenOpLocatie == true\" placeholder=\"Geef een X,Y / locatie of POI in.\" prevent-default>\n" +
     "<input type=search class=zoekbalk ng-show=\"mapctrl.ZoekenOpLocatie == false\" placeholder=\"Geef een zoekterm\" prevent-default ng-keyup=\"$event.keyCode == 13 && mapctrl.zoekLaag(mapctrl.laagquery)\" ng-model=mapctrl.laagquery>\n" +
-    "<select ng-options=\"layer as layer.name for layer in mapctrl.SelectableLayers\" ng-model=mapctrl.selectedLayer ng-show=\"mapctrl.ZoekenOpLocatie == false\" ng-change=mapctrl.layerChange() ng-class=\"{invisible: mapctrl.SelectableLayers.length<=1}\" prevent-default></select>\n" +
+    "<select ng-options=\"layer as layer.name for layer in mapctrl.SelectableLayers()\" ng-model=mapctrl.selectedLayer ng-show=\"mapctrl.activeInteractieKnop=='select' && mapctrl.SelectableLayers().length > 1\" ng-change=mapctrl.layerChange() prevent-default></select>\n" +
     "</div>\n" +
     "</div>\n" +
     "<div class=map-buttons-right>\n" +
@@ -3803,7 +3859,7 @@ L.drawLocal = {
     "</div>\n" +
     "</div>\n" +
     "<tink-layers></tink-layers>\n" +
-    "</div>\n"
+    "</div>"
   );
 
 
@@ -3918,10 +3974,10 @@ L.drawLocal = {
     "<tink-search-selected></tink-search-selected>\n" +
     "</div>\n" +
     "<div ng-show=\"srchctrl.Loading > 0\">\n" +
-    "<div class=loader></div> {{srchctrl.MaxLoading - srchctrl.Loading}}/ {{srchctrl.MaxLoading}}\n" +
+    "<div class=loader></div> {{srchctrl.LoadedCount()}} / {{srchctrl.MaxLoading}}\n" +
     "</div>\n" +
     "</aside>\n" +
-    "</div>\n"
+    "</div>"
   );
 
 }]);

@@ -47,7 +47,7 @@
             </div>
 
             <div class="ll zoekbalken">
-                <input id="locatiezoek" class="zoekbalk typeahead" type="text" ng-show="mapctrl.ZoekenOpLocatie == true" placeholder="Geef een X,Y / locatie of POI in."
+                <input id="locatiezoek" class="zoekbalk typeahead" type="text" ng-show="mapctrl.ZoekenOpLocatie == true" placeholder="Geef een X,Y / locatie of POI in." prevent-default
                 />
                 <input type="search" class="zoekbalk" ng-show="mapctrl.ZoekenOpLocatie == false" placeholder="Geef een zoekterm" prevent-default
                     ng-keyup="$event.keyCode == 13 && mapctrl.zoekLaag(mapctrl.laagquery)" ng-model="mapctrl.laagquery" />
