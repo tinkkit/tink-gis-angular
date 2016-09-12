@@ -1746,6 +1746,12 @@ var esri2geo = {};
 
             return exportObject;
         };
+        _externService.getCenter = function () {
+            return map.getCenter();
+        };
+        _externService.setCenter = function (center) {
+            return map.setView(center);
+        };
         _externService.Import = function (project) {
             console.log(project);
             _externService.setExtent(project.extent);
