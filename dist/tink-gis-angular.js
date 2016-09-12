@@ -1009,6 +1009,15 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             map.removeLayer(BaseLayersService.kaart);
             map.addLayer(BaseLayersService.luchtfoto);
         };
+        vm.cancelPrint = function () {
+            var html = $('html');
+            if (html.hasClass('print')) {
+                html.removeClass('print');
+            }
+        };
+        vm.print = function () {
+            window.print();
+        };
     });
     theController.$inject = ['BaseLayersService', 'ExternService', 'MapService', 'MapData', 'map', 'MapEvents', 'DrawService', 'HelperService', 'GISService'];
 })();
@@ -3810,8 +3819,20 @@ L.drawLocal = {
 
   $templateCache.put('templates/other/mapTemplate.html',
     "<div class=tink-map>\n" +
-    "<tink-search></tink-search>\n" +
-    "<div id=map class=\"main leafletmap\">\n" +
+    "<div class=printpart>\n" +
+    "<div class=row>\n" +
+    "<h4 class=col-xs-6>Stad in kaart</h4>\n" +
+    "<div class=col-xs-6>\n" +
+    "<div class=\"btn-group pull-right\">\n" +
+    "<button type=button class=\"btn hidden-print\" ng-click=mapctrl.print()>Print</button>\n" +
+    "<button type=button class=\"btn hidden-print\" ng-click=mapctrl.cancelPrint()>Annuleer</button>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "<div class=mappart>\n" +
+    "<tink-search class=tink-search></tink-search>\n" +
+    "<div id=map class=leafletmap>\n" +
     "<div class=map-buttons-left>\n" +
     "<div class=\"btn-group ll drawingbtns\" ng-show=mapctrl.showDrawControls>\n" +
     "<button ng-click=mapctrl.selectpunt() ng-class=\"{active: mapctrl.drawingType==''}\" type=button class=btn prevent-default><i class=\"fa fa-mouse-pointer\"></i></button>\n" +
@@ -3844,22 +3865,34 @@ L.drawLocal = {
     "</div>\n" +
     "</div>\n" +
     "<div class=map-buttons-right>\n" +
-    "<div class=\"btn-group btn-group-vertical ll localiseerbtn\">\n" +
-    "<button type=button class=btn prevent-default><i class=\"fa fa-male\"></i></button>\n" +
-    "</div>\n" +
     "<div class=\"btn-group btn-group-vertical ll viewbtns\">\n" +
     "<button type=button class=btn ng-click=mapctrl.zoomIn() prevent-default><i class=\"fa fa-plus\"></i></button>\n" +
     "<button type=button class=btn ng-click=mapctrl.zoomOut() prevent-default><i class=\"fa fa-minus\"></i></button>\n" +
     "<button type=button class=btn ng-click=\"\" prevent-default><i class=\"fa fa-crosshairs\"></i></button>\n" +
     "<button type=button class=btn ng-click=mapctrl.fullExtent() prevent-default><i class=\"fa fa-home\"></i></button>\n" +
     "</div>\n" +
+    "<div class=\"btn-group btn-group-vertical ll localiseerbtn\">\n" +
+    "<button type=button class=btn prevent-default><i class=\"fa fa-male\"></i></button>\n" +
+    "</div>\n" +
     "<div class=\"ll loading\" ng-show=\"mapctrl.Loading > 0\">\n" +
     "<div class=loader></div> {{mapctrl.MaxLoading - mapctrl.Loading}}/ {{mapctrl.MaxLoading}}\n" +
     "</div>\n" +
     "</div>\n" +
     "</div>\n" +
-    "<tink-layers></tink-layers>\n" +
-    "</div>"
+    "<tink-layers class=tink-layers></tink-layers>\n" +
+    "</div>\n" +
+    "<div class=printpart>\n" +
+    "<div class=row>\n" +
+    "<div class=col-xs-2>\n" +
+    "<img class=\"float-left print-corner-image\" src=https://www.antwerpen.be/assets/aOS/gfx/gui/a-logo.svg alt=\"Antwerpen logo\">\n" +
+    "</div>\n" +
+    "<div class=col-xs-8>Voorbehoud: De kaart is een reproductie zonder juridische waarde. Zij bevat kaartmateriaal en info afkomstig van het stadsbestuur Antwerpen, AGIV, AAPD, Provinciebesturen en mogelijk nog andere organisaties.\n" +
+    "</div>\n" +
+    "<div class=col-xs-2>\n" +
+    "<img class=\"float-right print-corner-image\" src=http://images.vectorhq.com/images/previews/111/north-arrow-orienteering-137692.png alt=\"Noord pijl oriëntatielopen\">\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "</div></div>"
   );
 
 

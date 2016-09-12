@@ -500,11 +500,56 @@ html.nav-right-open {
   }
   .nav-right {
     transform: translate(0, 0);
-  }
+  } 
   .nav-right-toggle {
     &:before {
       content: "\f101";
     }
   }
 }
+.mappart {
+  height:100%;
+  width:100%;
+}
+.printpart {
+  display: none;
+  padding-top:10px;
+}
+html.print {
+  .map-buttons-left, .map-buttons-right, .tink-layers, .tink-search {
+    display: none;
+  }
+  .printpart {
+    display: block;
+  }
+    .mappart {
+          height:85%;
+          margin-bottom: 10px;
+    }
+  body {
+        height:297mm; 
+        width:210mm;
+    }
+  
 
+}
+
+
+@page {
+    size: A4;
+    // margin: 30mm 45mm 30mm 45mm; /* change the margins as you want them to be. */
+}
+
+@media print {
+   body {
+        margin-left: auto;
+        margin-right: auto;
+    }
+    .hidden-print {
+      display: none;
+    }
+}
+.print-corner-image {
+  width: 90px;
+  height: 90px;
+}

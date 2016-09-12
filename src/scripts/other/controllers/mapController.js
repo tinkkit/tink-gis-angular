@@ -216,6 +216,15 @@
             map.removeLayer(BaseLayersService.kaart);
             map.addLayer(BaseLayersService.luchtfoto);
         };
+        vm.cancelPrint = function () {
+            var html = $('html');
+            if (html.hasClass('print')) {
+                html.removeClass('print');
+            }
+        }
+        vm.print = function () {
+            window.print();
+        }
     });
     theController.$inject = ['BaseLayersService', 'ExternService', 'MapService', 'MapData', 'map', 'MapEvents', 'DrawService', 'HelperService', 'GISService'];
 })();
