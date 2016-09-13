@@ -7,14 +7,17 @@
                     <button type="button" class=" btn hidden-print" ng-click="mapctrl.print()">Print</button>
                     <button type="button" class=" btn hidden-print" ng-click="mapctrl.cancelPrint()">Annuleer</button>
                 </div>
+                <div class="btn-group pull-right" style="margin-right: 5px;">
+                    <button type="button" class=" btn hidden-print" ng-class="{active: mapctrl.printStyle=='portrait'}" ng-click="mapctrl.portrait()">Staand</button>
+                    <button type="button" class=" btn hidden-print" ng-class="{active: mapctrl.printStyle=='landscape'}" ng-click="mapctrl.landscape()">Liggend</button>
+                </div>
+
             </div>
         </div>
     </div>
     <div class="mappart">
         <tink-Search class="tink-search"></tink-Search>
-
         <div id="map" class="leafletmap">
-
             <div class="map-buttons-left">
                 <div class="btn-group ll drawingbtns" ng-show="mapctrl.showDrawControls">
                     <button ng-click="mapctrl.selectpunt()" ng-class="{active: mapctrl.drawingType==''}" type="button" class="btn" prevent-default><i class="fa fa-mouse-pointer"></i></button>

@@ -507,6 +507,13 @@ html.nav-right-open {
     }
   }
 }
+
+// @page Portrait {
+//     size: A4 portrait;
+// }
+// @page Landscape {
+//     size: A4 landscape;
+// }
 .mappart {
   height:100%;
   width:100%;
@@ -533,14 +540,19 @@ html.print {
   
 
 }
+html.print.landscape {
+    body 
+    {
+        height:205mm; 
+        width:297mm;
+        }
+    .mappart {
+      height:75%;
+    }
+    
 
-
-@page {
-    size: A4;
-    // margin: 30mm 45mm 30mm 45mm; /* change the margins as you want them to be. */
 }
-
-@media print {
+@media print  {
    body {
         margin-left: auto;
         margin-right: auto;
@@ -553,3 +565,6 @@ html.print {
   width: 90px;
   height: 90px;
 }
+//  @page {
+//         size: letter landscape;
+//       }

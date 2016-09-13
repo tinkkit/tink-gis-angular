@@ -14,6 +14,18 @@
             legendItem.WmsThemes = MapData.Themes.filter(x => x.Type == ThemeType.WMS);
             return legendItem;
         };
+        _externService.SetPrintPreview = function () {
+            var cent = map.getCenter();
+            var html = $('html');
+            if (!html.hasClass('print')) {
+                html.addClass('print');
+            }
+            if (html.hasClass('landscape')) {
+                html.removeClass('landscape');
+            }
+            map.invalidateSize(false);
+            ExternService.setCenter(cent);
+        }
         _externService.Export = function () {
             var exportObject = {};
             var arr = MapData.Themes.map(theme => {
@@ -48,12 +60,6 @@
 
             return exportObject;
         };
-        _externService.getCenter = function () {
-            return map.getCenter();
-        }
-        _externService.setCenter = function (center) {
-            return map.setView(center);
-        }
         _externService.Import = function (project) {
             console.log(project);
             _externService.setExtent(project.extent);

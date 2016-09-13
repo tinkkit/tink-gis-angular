@@ -215,7 +215,7 @@
             layers: 0,
             continuousWorld: true,
             useCors: true
-        }).addTo(map);
+        });
 
         var tempFeatures = [];
         _data.AddTempFeatures = function (featureCollection) {

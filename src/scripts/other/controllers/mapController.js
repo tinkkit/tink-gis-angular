@@ -217,14 +217,52 @@
             map.addLayer(BaseLayersService.luchtfoto);
         };
         vm.cancelPrint = function () {
-            var html = $('html');
+            let html = $('html');
             if (html.hasClass('print')) {
                 html.removeClass('print');
             }
+            vm.portrait(); // also put it back to portrait view
+
         }
         vm.print = function () {
             window.print();
         }
+        vm.printStyle = 'portrait';
+        var cssPagedMedia = (function () {
+            var style = document.createElement('style');
+            document.head.appendChild(style);
+            return function (rule) {
+                style.innerHTML = rule;
+            };
+        } ());
+
+        cssPagedMedia.size = function (oriantation) {
+            cssPagedMedia('@page {size: A4 ' + oriantation + '}');
+        };
+        vm.setPrintStyle = function (oriantation) {
+            vm.printStyle = oriantation;
+            cssPagedMedia.size(oriantation);
+        };
+        vm.setPrintStyle('portrait');
+
+        vm.portrait = function () {
+            let html = $('html');
+            vm.setPrintStyle('portrait');
+            if (html.hasClass('landscape')) {
+                html.removeClass('landscape');
+            }
+            map.invalidateSize(false);
+        }
+        vm.landscape = function () {
+            let html = $('html');
+            vm.setPrintStyle('landscape');
+            if (!html.hasClass('landscape')) {
+                html.addClass('landscape');
+            }
+            map.invalidateSize(false);
+        }
+
+
     });
     theController.$inject = ['BaseLayersService', 'ExternService', 'MapService', 'MapData', 'map', 'MapEvents', 'DrawService', 'HelperService', 'GISService'];
 })();

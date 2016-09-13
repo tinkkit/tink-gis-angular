@@ -555,8 +555,12 @@ html.print body {
   height: 297mm;
   width: 210mm; }
 
-@page {
-  size: A4; }
+html.print.landscape body {
+  height: 205mm;
+  width: 297mm; }
+
+html.print.landscape .mappart {
+  height: 75%; }
 
 @media print {
   body {

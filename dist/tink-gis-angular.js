@@ -1014,9 +1014,44 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             if (html.hasClass('print')) {
                 html.removeClass('print');
             }
+            vm.portrait(); // also put it back to portrait view
         };
         vm.print = function () {
             window.print();
+        };
+        vm.printStyle = 'portrait';
+        var cssPagedMedia = function () {
+            var style = document.createElement('style');
+            document.head.appendChild(style);
+            return function (rule) {
+                style.innerHTML = rule;
+            };
+        }();
+
+        cssPagedMedia.size = function (oriantation) {
+            cssPagedMedia('@page {size: A4 ' + oriantation + '}');
+        };
+        vm.setPrintStyle = function (oriantation) {
+            vm.printStyle = oriantation;
+            cssPagedMedia.size(oriantation);
+        };
+        vm.setPrintStyle('portrait');
+
+        vm.portrait = function () {
+            var html = $('html');
+            vm.setPrintStyle('portrait');
+            if (html.hasClass('landscape')) {
+                html.removeClass('landscape');
+            }
+            map.invalidateSize(false);
+        };
+        vm.landscape = function () {
+            var html = $('html');
+            vm.setPrintStyle('landscape');
+            if (!html.hasClass('landscape')) {
+                html.addClass('landscape');
+            }
+            map.invalidateSize(false);
         };
     });
     theController.$inject = ['BaseLayersService', 'ExternService', 'MapService', 'MapData', 'map', 'MapEvents', 'DrawService', 'HelperService', 'GISService'];
@@ -1711,6 +1746,18 @@ var esri2geo = {};
             });
             return legendItem;
         };
+        _externService.SetPrintPreview = function () {
+            var cent = map.getCenter();
+            var html = $('html');
+            if (!html.hasClass('print')) {
+                html.addClass('print');
+            }
+            if (html.hasClass('landscape')) {
+                html.removeClass('landscape');
+            }
+            map.invalidateSize(false);
+            ExternService.setCenter(cent);
+        };
         _externService.Export = function () {
             var exportObject = {};
             var arr = MapData.Themes.map(function (theme) {
@@ -1745,12 +1792,6 @@ var esri2geo = {};
             exportObject.IsKaart = true;
 
             return exportObject;
-        };
-        _externService.getCenter = function () {
-            return map.getCenter();
-        };
-        _externService.setCenter = function (center) {
-            return map.setView(center);
         };
         _externService.Import = function (project) {
             console.log(project);
@@ -2267,7 +2308,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             layers: 0,
             continuousWorld: true,
             useCors: true
-        }).addTo(map);
+        });
 
         var tempFeatures = [];
         _data.AddTempFeatures = function (featureCollection) {
@@ -3832,6 +3873,10 @@ L.drawLocal = {
     "<div class=\"btn-group pull-right\">\n" +
     "<button type=button class=\"btn hidden-print\" ng-click=mapctrl.print()>Print</button>\n" +
     "<button type=button class=\"btn hidden-print\" ng-click=mapctrl.cancelPrint()>Annuleer</button>\n" +
+    "</div>\n" +
+    "<div class=\"btn-group pull-right\" style=\"margin-right: 5px\">\n" +
+    "<button type=button class=\"btn hidden-print\" ng-class=\"{active: mapctrl.printStyle=='portrait'}\" ng-click=mapctrl.portrait()>Staand</button>\n" +
+    "<button type=button class=\"btn hidden-print\" ng-class=\"{active: mapctrl.printStyle=='landscape'}\" ng-click=mapctrl.landscape()>Liggend</button>\n" +
     "</div>\n" +
     "</div>\n" +
     "</div>\n" +
