@@ -533,7 +533,7 @@ html.print {
           height:85%;
           margin-bottom: 10px;
     }
-  body {
+  body { //A4 Portrait
         height:297mm; 
         width:210mm;
     }
@@ -541,7 +541,7 @@ html.print {
 
 }
 html.print.landscape {
-    body 
+    body // A4 Landscape
     {
         height:205mm; 
         width:297mm;
@@ -565,6 +565,3 @@ html.print.landscape {
   width: 90px;
   height: 90px;
 }
-//  @page {
-//         size: letter landscape;
-//       }

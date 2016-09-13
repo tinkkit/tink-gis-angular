@@ -24,7 +24,7 @@
                 html.removeClass('landscape');
             }
             map.invalidateSize(false);
-            ExternService.setCenter(cent);
+            map.setView(cent);
         }
         _externService.Export = function () {
             var exportObject = {};

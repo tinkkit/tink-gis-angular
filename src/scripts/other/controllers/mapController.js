@@ -232,6 +232,7 @@
             var style = document.createElement('style');
             document.head.appendChild(style);
             return function (rule) {
+                style.id = 'tempstyle';
                 style.innerHTML = rule;
             };
         } ());

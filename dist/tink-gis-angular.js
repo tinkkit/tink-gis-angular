@@ -1024,6 +1024,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             var style = document.createElement('style');
             document.head.appendChild(style);
             return function (rule) {
+                style.id = 'tempstyle';
                 style.innerHTML = rule;
             };
         }();
@@ -1756,7 +1757,7 @@ var esri2geo = {};
                 html.removeClass('landscape');
             }
             map.invalidateSize(false);
-            ExternService.setCenter(cent);
+            map.setView(cent);
         };
         _externService.Export = function () {
             var exportObject = {};
@@ -3819,7 +3820,7 @@ L.drawLocal = {
   $templateCache.put('templates/other/layerTemplate.html',
     "<div class=layercontroller-checkbox>\n" +
     "<div ng-if=lyrctrl.layer.hasLayers>\n" +
-    "<input class=visible-box type=checkbox id={{lyrctrl.layer.name}}{{lyrctrl.layer.id}} ng-model=lyrctrl.layer.visible ng-change=layercheckboxchange(lyrctrl.layer.theme)>\n" +
+    "<input class=\"visible-box hidden-print\" type=checkbox id={{lyrctrl.layer.name}}{{lyrctrl.layer.id}} ng-model=lyrctrl.layer.visible ng-change=layercheckboxchange(lyrctrl.layer.theme)>\n" +
     "<label for={{lyrctrl.layer.name}}{{lyrctrl.layer.id}}>{{lyrctrl.layer.name}}</label>\n" +
     "<div ng-repeat=\"layer in lyrctrl.layer.Layers | filter :  { enabled: true }\">\n" +
     "<tink-layer layer=layer layercheckboxchange=layercheckboxchange(layer.theme)>\n" +
@@ -3828,7 +3829,7 @@ L.drawLocal = {
     "</div>\n" +
     "<div ng-if=!lyrctrl.layer.hasLayers>\n" +
     "<img style=\"width:20px; height:20px\" ng-if=\"lyrctrl.layer.theme.Type=='esri' && lyrctrl.layer.legend.length==1\" ng-src=\"{{lyrctrl.layer.legend[0].fullurl}} \">\n" +
-    "<input class=visible-box type=checkbox ng-model=lyrctrl.layer.visible ng-change=layercheckboxchange(lyrctrl.layer.theme) id=\"{{lyrctrl.layer.name}}{{lyrctrl.layer.id}} \">\n" +
+    "<input class=\"visible-box hidden-print\" type=checkbox ng-model=lyrctrl.layer.visible ng-change=layercheckboxchange(lyrctrl.layer.theme) id=\"{{lyrctrl.layer.name}}{{lyrctrl.layer.id}} \">\n" +
     "<label ng-class=\"{ 'greytext': lyrctrl.layer.displayed==false} \" for={{lyrctrl.layer.name}}{{lyrctrl.layer.id}}> {{lyrctrl.layer.title | limitTo: 23}}<span ng-show=\"lyrctrl.layer.theme.Type=='wms' && lyrctrl.layer.queryable \">(i)</span></label>\n" +
     "<img ng-if=\"lyrctrl.layer.theme.Type=='wms' \" ng-src={{lyrctrl.layer.legendUrl}}><img>\n" +
     "<div ng-if=\"lyrctrl.layer.theme.Type=='esri' && lyrctrl.layer.legend.length> 1\" ng-repeat=\"legend in lyrctrl.legends\">\n" +
