@@ -275,6 +275,13 @@ button.trash {
   }
 }
 
+// give the elements in de sidenav some more padding on both sides
+.nav-aside-padding{
+  padding-left: rem(14);
+  padding-right: rem(14);
+}
+
+
 /**
  * Modal styling
  */

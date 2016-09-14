@@ -208,7 +208,7 @@ angular.module('tink.gis').run(['$templateCache', function($templateCache) {
     "<div>\n" +
     "<button class=\"btn btn-primary addlayerbtn\" ng-click=lyrsctrl.Lagenbeheer()>Lagenbeheer</button>\n" +
     "</div>\n" +
-    "<div>\n" +
+    "<div class=nav-aside-padding>\n" +
     "<ul id=sortableThemes ui-sortable=lyrsctrl.sortableOptions ng-model=lyrsctrl.themes>\n" +
     "<div ng-repeat=\"theme in lyrsctrl.themes\">\n" +
     "<tink-theme theme=theme layercheckboxchange=lyrsctrl.updatethemevisibility(theme) hidedelete=false>\n" +
