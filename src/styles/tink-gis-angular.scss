@@ -246,6 +246,35 @@ button.btn.active {
     margin-left:10px;
 }
 
+// set a pointer on the clickable items
+a,
+input[type="checkbox"] {
+  &:hover,
+  &:focus {
+    cursor: pointer;
+  }
+}
+
+
+// style the trash can button
+button.trash {
+  background-color: transparent;
+  color: #bbb;
+  font-family: FontAwesome;
+  font-weight: 100;
+  border-width: 0;
+  padding: 0;
+
+  &:hover,
+  &:focus {
+    color: #333;
+  }
+
+  &:before {
+    content: "\f014";
+  }
+}
+
 /**
  * Modal styling
  */
@@ -500,13 +529,17 @@ html.nav-right-open {
   }
   .nav-right {
     transform: translate(0, 0);
-  } 
+  }
   .nav-right-toggle {
     &:before {
       content: "\f101";
     }
   }
 }
+
+/**
+ * Print settings
+ */
 
 // @page Portrait {
 //     size: A4 portrait;
@@ -534,22 +567,22 @@ html.print {
           margin-bottom: 10px;
     }
   body { //A4 Portrait
-        height:297mm; 
+        height:297mm;
         width:210mm;
     }
-  
+
 
 }
 html.print.landscape {
     body // A4 Landscape
     {
-        height:205mm; 
+        height:205mm;
         width:297mm;
         }
     .mappart {
       height:75%;
     }
-    
+
 
 }
 @media print  {
