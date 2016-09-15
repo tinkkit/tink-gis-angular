@@ -567,7 +567,7 @@ html.print.landscape .mappart {
     margin-left: auto;
     margin-right: auto; }
   .hidden-print {
-    display: none; } }
+    display: none !important; } }
 
 .print-corner-image {
   width: 90px;
