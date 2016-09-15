@@ -1,31 +1,34 @@
-<div ng-if="srchslctdctrl.selectedResult">
+<div ng-if="srchslctdctrl.selectedResult" class="nav-aside-padding">
+    <div class="row margin-top margin-bottom">
+        <div class="col-xs-12">
+            <div class="btn-group">
+                <button type="button" class="btn" ng-if="srchslctdctrl.prevResult" ng-click="srchslctdctrl.vorige()">Vorige</button>
+                <button type="button" class="btn" ng-if="srchslctdctrl.nextResult" ng-click="srchslctdctrl.volgende()">Volgende</button>
+            </div>
+            <button class="srchbtn btn pull-right" ng-click="srchslctdctrl.delete()">Verwijderen</button>
+        </div>
+    </div>
+    <dl ng-repeat="prop in srchslctdctrl.props">
+        <dt>{{ prop.key}}</dt>
+        <div ng-if="prop.value.toLowerCase() != 'null'">
+            <a ng-if=" prop.value.indexOf( 'https://')==0 || prop.value.indexOf( 'http://')==0 " ng-href="{{prop.value}}" target="_blank">% Link</a>
+            <dd ng-if="prop.value.indexOf( 'https://') !=0 && prop.value.indexOf( 'http://') !=0 ">{{ prop.value }}</dd>
+        </div>
+    </dl>
     <div class="row">
-        <div class="col-md-4">
-            <button class="pull-left srchbtn" ng-if="srchslctdctrl.prevResult" ng-click="srchslctdctrl.vorige()">Vorige</button>
+        <div class="col-xs-12">
+            <button class="btn-primary srchbtn" ng-click="srchslctdctrl.toonFeatureOpKaart()">Tonen</button>
+            <a class="srchbtn margin-left" ng-click="srchslctdctrl.buffer()">Zone instellen</a>
         </div>
-        <div class="col-md-4">
-            <button class="srchbtn" ng-click="srchslctdctrl.delete()">Delete</button>
-        </div>
-        <div class="col-md-4">
-            <button class="pull-right srchbtn" ng-if="srchslctdctrl.nextResult" ng-click="srchslctdctrl.volgende()">Volgende</button>
-        </div>
-    </div>
-    <div class="row" ng-repeat="prop in srchslctdctrl.props">
-        <div class="col-md-5"> {{ prop.key}} </div>
-        <div class="col-md-7" ng-if="prop.value.toLowerCase() != 'null'">
-            <a ng-if=" prop.value.indexOf( 'https://')==0 || prop.value.indexOf( 'http://')==0 " ng-href="{{prop.value}}" target="_blank">Link</a>
-            <div ng-if="prop.value.indexOf( 'https://') !=0 && prop.value.indexOf( 'http://') !=0 ">{{ prop.value }}</div>
-        </div>
-    </div>
     <div class="row">
-        <div class="col-md-6 ">
-            <button class="pull-left srchbtn" ng-click="srchslctdctrl.toonFeatureOpKaart()">Tonen</button>
-        </div>
-        <div class="col-md-6">
-            <!-- ng-show="srchslctdctrl.selectedResult.theme.Type==='esri' -->
-            <button class="pull-left srchbtn" ng-click="srchslctdctrl.doordruk()">Doordruk</button>
-            <button class="pull-left srchbtn" ng-click="srchslctdctrl.buffer()">Buffer</button>
+        <div class="col-xs-8 col-xs-offset-4">
+            <a class="srchbtn" ng-click="srchslctdctrl.buffer()">Buffer instellen</a>
         </div>
     </div>
-    <button class="srchbtn " ng-click="srchslctdctrl.close(srchslctdctrl.selectedResult) ">Terug naar resultaten</button>
+    </div>
+    <div class="row margin-top">
+        <div class="col-xs-12">
+            <a class="srchbtn" ng-click="srchslctdctrl.close(srchslctdctrl.selectedResult)">Terug naar resultaten</a>
+        </div>
+    </div>
 </div>

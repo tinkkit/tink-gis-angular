@@ -362,42 +362,46 @@ angular.module('tink.gis').run(['$templateCache', function($templateCache) {
     "</tink-accordion-panel>\n" +
     "</tink-accordion>\n" +
     "</ul>\n" +
-    "<p></p><a ng-click=srchrsltsctrl.exportToCSV()>Export to CSV</a><p></p>\n" +
+    "<button class=\"btn-sm margin-left margin-top\" ng-click=srchrsltsctrl.exportToCSV()>Exporteer naar CSV</button>\n" +
     "</div>\n"
   );
 
 
   $templateCache.put('templates/search/searchSelectedTemplate.html',
-    "<div ng-if=srchslctdctrl.selectedResult>\n" +
+    "<div ng-if=srchslctdctrl.selectedResult class=nav-aside-padding>\n" +
+    "<div class=\"row margin-top margin-bottom\">\n" +
+    "<div class=col-xs-12>\n" +
+    "<div class=btn-group>\n" +
+    "<button type=button class=btn ng-if=srchslctdctrl.prevResult ng-click=srchslctdctrl.vorige()>Vorige</button>\n" +
+    "<button type=button class=btn ng-if=srchslctdctrl.nextResult ng-click=srchslctdctrl.volgende()>Volgende</button>\n" +
+    "</div>\n" +
+    "<button class=\"srchbtn btn pull-right\" ng-click=srchslctdctrl.delete()>Verwijderen</button>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "<dl ng-repeat=\"prop in srchslctdctrl.props\">\n" +
+    "<dt>{{ prop.key}}</dt>\n" +
+    "<div ng-if=\"prop.value.toLowerCase() != 'null'\">\n" +
+    "<a ng-if=\" prop.value.indexOf( 'https://')==0 || prop.value.indexOf( 'http://')==0 \" ng-href={{prop.value}} target=_blank>% Link</a>\n" +
+    "<dd ng-if=\"prop.value.indexOf( 'https://') !=0 && prop.value.indexOf( 'http://') !=0 \">{{ prop.value }}</dd>\n" +
+    "</div>\n" +
+    "</dl>\n" +
     "<div class=row>\n" +
-    "<div class=col-md-4>\n" +
-    "<button class=\"pull-left srchbtn\" ng-if=srchslctdctrl.prevResult ng-click=srchslctdctrl.vorige()>Vorige</button>\n" +
-    "</div>\n" +
-    "<div class=col-md-4>\n" +
-    "<button class=srchbtn ng-click=srchslctdctrl.delete()>Delete</button>\n" +
-    "</div>\n" +
-    "<div class=col-md-4>\n" +
-    "<button class=\"pull-right srchbtn\" ng-if=srchslctdctrl.nextResult ng-click=srchslctdctrl.volgende()>Volgende</button>\n" +
-    "</div>\n" +
-    "</div>\n" +
-    "<div class=row ng-repeat=\"prop in srchslctdctrl.props\">\n" +
-    "<div class=col-md-5> {{ prop.key}} </div>\n" +
-    "<div class=col-md-7 ng-if=\"prop.value.toLowerCase() != 'null'\">\n" +
-    "<a ng-if=\" prop.value.indexOf( 'https://')==0 || prop.value.indexOf( 'http://')==0 \" ng-href={{prop.value}} target=_blank>Link</a>\n" +
-    "<div ng-if=\"prop.value.indexOf( 'https://') !=0 && prop.value.indexOf( 'http://') !=0 \">{{ prop.value }}</div>\n" +
-    "</div>\n" +
+    "<div class=col-xs-12>\n" +
+    "<button class=\"btn-primary srchbtn\" ng-click=srchslctdctrl.toonFeatureOpKaart()>Tonen</button>\n" +
+    "<a class=\"srchbtn margin-left\" ng-click=srchslctdctrl.buffer()>Zone instellen</a>\n" +
     "</div>\n" +
     "<div class=row>\n" +
-    "<div class=col-md-6>\n" +
-    "<button class=\"pull-left srchbtn\" ng-click=srchslctdctrl.toonFeatureOpKaart()>Tonen</button>\n" +
-    "</div>\n" +
-    "<div class=col-md-6>\n" +
-    "<button class=\"pull-left srchbtn\" ng-click=srchslctdctrl.doordruk()>Doordruk</button>\n" +
-    "<button class=\"pull-left srchbtn\" ng-click=srchslctdctrl.buffer()>Buffer</button>\n" +
+    "<div class=\"col-xs-8 col-xs-offset-4\">\n" +
+    "<a class=srchbtn ng-click=srchslctdctrl.buffer()>Buffer instellen</a>\n" +
     "</div>\n" +
     "</div>\n" +
-    "<button class=srchbtn ng-click=\"srchslctdctrl.close(srchslctdctrl.selectedResult) \">Terug naar resultaten</button>\n" +
-    "</div>"
+    "</div>\n" +
+    "<div class=\"row margin-top\">\n" +
+    "<div class=col-xs-12>\n" +
+    "<a class=srchbtn ng-click=srchslctdctrl.close(srchslctdctrl.selectedResult)>Terug naar resultaten</a>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "</div>\n"
   );
 
 
@@ -418,7 +422,7 @@ angular.module('tink.gis').run(['$templateCache', function($templateCache) {
     "<div class=loader></div> {{srchctrl.LoadedCount()}} / {{srchctrl.MaxLoading}}\n" +
     "</div>\n" +
     "</aside>\n" +
-    "</div>"
+    "</div>\n"
   );
 
 }]);

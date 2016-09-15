@@ -2,6 +2,7 @@
 @import "../../bower_components/tink-core/dist/tink/mixins";
 @import "../../bower_components/tink-core/dist/tink/variables";
 
+$left-nav-aside-width: $nav-aside-width + $nav-aside-extra-body-padding + 100px; // making wider for extra detail content
 
 /**
  * Map
@@ -20,9 +21,14 @@
   // }
 
   .nav-aside {
-    top: 0;
+    top: 0; // is overwritten in specificity by Tink navigation script when using solution
     z-index: 700; // set above leafletmap
   }
+
+  .nav-aside.nav-left {
+    width: rem($left-nav-aside-width);
+  }
+
   // !! not necessary anymore
   // .fa-fw {
   //   width: rem(10);
@@ -276,7 +282,7 @@ button.trash {
 }
 
 // give the elements in de sidenav some more padding on both sides
-.nav-aside-padding{
+.nav-aside-padding {
   padding-left: rem(14);
   padding-right: rem(14);
 }
@@ -491,13 +497,16 @@ div.table-sort-pagination {
   }
 }
 
-// setting the sidenavs collapsed by default
-.nav-left {
-  transform: translate(-15.7142857143rem , 0);
+// adjusting the left sidenav width when collapsed
+html.has-nav-left.nav-left-can-always-close .nav-left {
+  transform: translate(rem(-$left-nav-aside-width) , 0);
 }
-.nav-right {
-  transform: translate(15.7142857143rem , 0);
-}
+
+// not necessary when using the Tink classes .nav-left-can-always-close .nav-right-can-always-close
+// not using .nav-right-can-always-close-and-starts-open because it messes up the map buttons
+// .nav-right {
+//   transform: translate(15.7142857143rem , 0);
+// }
 
 .map-buttons-left {
   height: 100%;
@@ -514,14 +523,15 @@ div.table-sort-pagination {
   width: 50%;
 }
 
-// Nav left can be opened even with larger screen sizes
+// Set padding for map buttons and change toggle icons
 html.nav-left-open {
   .map-buttons-left {
-    left: rem($nav-aside-width + $nav-aside-extra-body-padding);
+    left: rem($left-nav-aside-width);
   }
-  .nav-left {
-    transform: translate(0, 0);
-  }
+  // not necessary when using the Tink classes
+  // .nav-left {
+  //   transform: translate(0, 0);
+  // }
   .nav-left-toggle {
     &:before {
       content: "\f100";
@@ -529,14 +539,15 @@ html.nav-left-open {
   }
 }
 
-// Nav right can be opened even with larger screen sizes
+// Set padding for map buttons and change toggle icons
 html.nav-right-open {
   .map-buttons-right {
     right: rem($nav-aside-width + $nav-aside-extra-body-padding);
   }
-  .nav-right {
-    transform: translate(0, 0);
-  }
+  // not necessary when using the Tink classes
+  // .nav-right {
+  //   transform: translate(0, 0);
+  // }
   .nav-right-toggle {
     &:before {
       content: "\f101";
