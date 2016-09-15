@@ -16,19 +16,37 @@
         </div>
     </dl>
     <div class="row">
-        <div class="col-xs-12">
-            <button class="btn-primary srchbtn" ng-click="srchslctdctrl.toonFeatureOpKaart()">Tonen</button>
-            <a class="srchbtn margin-left" ng-click="srchslctdctrl.buffer()">Zone instellen</a>
+        <div class="col-xs-4">
+            <div class="row">
+                <div class="col-xs-12">
+                    <button class="btn-primary srchbtn" ng-click="srchslctdctrl.toonFeatureOpKaart()">Tonen</button>
+                </div>
+            </div>
         </div>
-    <div class="row">
-        <div class="col-xs-8 col-xs-offset-4">
-            <a class="srchbtn" ng-click="srchslctdctrl.buffer()">Buffer instellen</a>
+        <div class="col-xs-8">
+            <div class="row">
+                <div class="col-xs-6">
+                    <button class="srchbtn pull-right" ng-click="srchslctdctrl.buffer()">Zone</button>
+                </div>
+                <div class="col-xs-6">
+                    <button class="srchbtn pull-right" ng-click="srchslctdctrl.buffer()">Buffer</button>
+                </div>
+            </div>
         </div>
     </div>
-    </div>
-    <div class="row margin-top">
-        <div class="col-xs-12">
-            <a class="srchbtn" ng-click="srchslctdctrl.close(srchslctdctrl.selectedResult)">Terug naar resultaten</a>
+    <div class="row margin-top margin-bottom">
+        <div class="col-xs-4">
+            <div class="row">
+                <div class="col-xs-12">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-8">
+            <div class="row">
+                <div class="col-xs-12">
+                    <a class="srchbtn pull-right" ng-click="srchslctdctrl.close(srchslctdctrl.selectedResult)">Terug naar resultaten</a>
+                </div>
+            </div>
         </div>
     </div>
 </div>
