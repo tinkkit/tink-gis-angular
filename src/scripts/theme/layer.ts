@@ -38,7 +38,7 @@ namespace TinkGis {
             return false;
         }
         get IsEnabledAndVisible(): boolean {
-            if (this.enabled && this.visible) {
+            if (this.theme.enabled && this.enabled && this.visible) {
                 if (!this.parent) {
                     return true;
                 }

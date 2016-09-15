@@ -609,7 +609,7 @@ html.print.landscape {
         margin-right: auto;
     }
     .hidden-print {
-      display: none;
+      display: none !important;
     }
 }
 .print-corner-image {
