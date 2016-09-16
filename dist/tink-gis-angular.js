@@ -2811,7 +2811,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 theme.status = ThemeStatus.UNMODIFIED;
             });
             console.log('refresh of sortableThemes');
-            // $('#sortableThemes').sortable('refresh');
+            $('#sortableThemes').sortable('refresh');
 
             MapData.SetZIndexes();
         };

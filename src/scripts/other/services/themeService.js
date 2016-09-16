@@ -37,7 +37,7 @@
 
             });
             console.log('refresh of sortableThemes');
-            // $('#sortableThemes').sortable('refresh');
+            $('#sortableThemes').sortable('refresh');
 
             MapData.SetZIndexes();
         };
