@@ -124,10 +124,10 @@
                     '<img src="https://maps.googleapis.com/maps/api/streetview?size=100x50&location=' + latlng.lat + ',' + latlng.lng + '&pitch=-0.76" />' +
                     '</a>' +
                     '</div>' +
-                    '<div class="col-sm-8">' +
+                    '<div class="col-sm-8 mouse-over">' +
                     '<div class="col-sm-12"><b>' + straatNaam + '</b></div>' +
-                    '<div class="col-sm-3" >WGS84:</div><div id="wgs" class="col-sm-8" style="text-align: left;">{{WGS84LatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o" ng-click="CopyWGS()"></i></div>' +
-                    '<div class="col-sm-3">Lambert:</div><div id="lambert" class="col-sm-8" style="text-align: left;">{{LambertLatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o"  ng-click="CopyLambert()"></i></div>' +
+                    '<div class="col-sm-3" >WGS84:</div><div id="wgs" class="col-sm-8" style="text-align: left;">{{WGS84LatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o mouse-over-toshow" ng-click="CopyWGS()"></i></div>' +
+                    '<div class="col-sm-3">Lambert:</div><div id="lambert" class="col-sm-8" style="text-align: left;">{{LambertLatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o mouse-over-toshow"  ng-click="CopyLambert()"></i></div>' +
                     '</div>' +
                     '</div>' +
                     '</div>';
@@ -136,9 +136,9 @@
             else {
                 html =
                     '<div class="container container-low-padding">' +
-                    '<div class="row row-no-padding">' +
-                    '<div class="col-sm-3">WGS84:</div><div id="wgs" class="col-sm-8" style="text-align: left;">{{WGS84LatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o" ng-click="CopyWGS()"></i></div>' +
-                    '<div class="col-sm-3">Lambert:</div><div id="lambert" class="col-sm-8" style="text-align: left;">{{LambertLatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o" ng-click="CopyLambert()"></i></div>' +
+                    '<div class="row row-no-padding mouse-over">' +
+                    '<div class="col-sm-3">WGS84:</div><div id="wgs" class="col-sm-8 " style="text-align: left;">{{WGS84LatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o mouse-over-toshow" ng-click="CopyWGS()"></i></div>' +
+                    '<div class="col-sm-3">Lambert:</div><div id="lambert" class="col-sm-8" style="text-align: left;">{{LambertLatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o mouse-over-toshow" ng-click="CopyLambert()"></i></div>' +
                     '</div>' +
                     '</div>';
                 minwidth = 200;
@@ -180,6 +180,9 @@
             }
             _data.VisibleFeatures.length = 0;
         };
+        _data.PanToPoint = function (loc) {
+            map.setView(L.latLng(loc.x, loc.y), 12);
+        };
         _data.PanToFeature = function (feature) {
             console.log("PANNING TO FEATURE");
             var featureBounds = feature.getBounds();
@@ -187,7 +190,6 @@
         };
         _data.GoToLastClickBounds = function () {
             map.fitBounds(_data.LastIdentifyBounds, { paddingTopLeft: L.point(0, 0), paddingBottomRight: L.point(0, 0) });
-            // map.setZoom(map.getZoom() + 1);
         };
         _data.SetZIndexes = function () {
             var counter = _data.Themes.length + 3;

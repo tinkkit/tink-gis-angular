@@ -60,7 +60,7 @@
                         prevent-default><i class="fa fa-download"></i></button>
                 </div>
 
-                <div class="ll zoekbalken">
+                <div id="zoekbalken" class="ll zoekbalken">
                     <input id="locatiezoek" class="zoekbalk typeahead" type="text" ng-show="mapctrl.ZoekenOpLocatie == true" placeholder="Geef een X,Y / locatie of POI in."
                         prevent-default />
                     <input type="search" class="zoekbalk" ng-show="mapctrl.ZoekenOpLocatie == false" placeholder="Geef een zoekterm" prevent-default
@@ -68,7 +68,6 @@
                     <select ng-options="layer as layer.name for layer in mapctrl.SelectableLayers()" ng-model="mapctrl.selectedLayer" ng-show="mapctrl.activeInteractieKnop=='select' && mapctrl.SelectableLayers().length > 1"
                         ng-change="mapctrl.layerChange()" prevent-default></select>
                 </div>
-
             </div>
 
             <div class="map-buttons-right">

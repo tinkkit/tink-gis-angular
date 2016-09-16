@@ -23,12 +23,6 @@
         vm.showDrawControls = false;
         vm.zoekLoc = '';
 
-        // var itemsdata = [];
-        // $scope.$watch(function () {
-        //     return MapData.VisibleLayers;
-        // }, function (newval, oldval) {
-        //     vm.SelectableLayers = newval;
-        // });
         var suggestionfunc = function (item) {
             var output = '<div>' + item.name;
             if (item.attribute1value) {
@@ -52,6 +46,7 @@
                 async: true,
                 limit: 99,
                 display: 'name',
+                displayKey: 'name',
                 source: function (query, syncResults, asyncResults) {
                     if (query.replace(/[^0-9]/g, "").length < 6) { // if less then 6 numbers then we just search
                         GISService.QuerySOLRLocatie(query).then(function (data) {
@@ -107,10 +102,63 @@
             $('.Typeahead-spinner').hide();
         });
 
+        // L.control.typeahead({
+        //     minLength: 3,
+        //     highlight: true,
+        //     classNames: {
+        //         open: 'is-open',
+        //         empty: 'is-empty',
+        //     }
+        // }, {
+        //         async: true,
+        //         limit: 99,
+        //         display: 'name',
+        //         displayKey: 'name',
+        //         source: function (query, syncResults, asyncResults) {
+        //             if (query.replace(/[^0-9]/g, "").length < 6) { // if less then 6 numbers then we just search
+        //                 GISService.QuerySOLRLocatie(query).then(function (data) {
+        //                     var arr = data.response.docs;
+        //                     asyncResults(arr);
+        //                 });
+        //             }
+        //             else {
+        //                 syncResults([]);
+        //                 vm.zoekXY(query);
+        //             }
 
+        //         },
+        //         templates: {
+        //             suggestion: suggestionfunc,
+        //             notFound: ['<div class="empty-message"><b>Geen match gevonden</b></div>'],
+        //             empty: ['<div class="empty-message"><b>Zoek naar straten, POI en districten</b></div>']
+        //         }
 
+        //     },
+        //     {
+        //         placeholder: 'Search',
+        //         'typeahead:select': function (ev, suggestion) {
+        //             MapData.CleanWatIsHier();
+        //             MapData.CleanTempFeatures();
+        //             switch (suggestion.layer.toLowerCase()) {
+        //                 case 'postzone':
+        //                     MapData.QueryForTempFeatures(20, 'ObjectID=' + suggestion.key);
+        //                     break;
+        //                 case 'district':
+        //                     MapData.QueryForTempFeatures(21, 'ObjectID=' + suggestion.key);
+        //                     break;
+        //                 default:
+        //                     var cors = {
+        //                         x: suggestion.x,
+        //                         y: suggestion.y
+        //                     };
+        //                     var xyWGS84 = HelperService.ConvertLambert72ToWSG84(cors);
+        //                     setViewAndPutDot(xyWGS84);
+        //                     break;
 
-
+        //             }
+        //         }
+        //     }
+        // ).addTo(map);
 
 
         vm.interactieButtonChanged = function (ActiveButton) {
@@ -135,7 +183,7 @@
             MapService.Find(search);
         };
         var setViewAndPutDot = function (loc) {
-            map.setView(L.latLng(loc.x, loc.y), 12);
+            MapData.PanToPoint(loc);
             MapData.CreateDot(loc);
 
         };

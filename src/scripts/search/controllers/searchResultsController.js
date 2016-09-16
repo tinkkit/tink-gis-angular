@@ -34,7 +34,13 @@
             };
             vm.showDetails = function (feature) {
                 if (feature.theme.Type === 'esri') {
-                    MapData.PanToFeature(feature.mapItem);
+                    if (feature.geometry.type == 'Point') {
+                        MapData.PanToPoint({ x: feature.geometry.coordinates[1], y: feature.geometry.coordinates[0] });
+                    }
+                    else {
+                        MapData.PanToFeature(feature.mapItem);
+
+                    }
                 }
                 ResultsData.SelectedFeature = feature;
             };
