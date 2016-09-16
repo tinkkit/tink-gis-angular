@@ -1,7 +1,7 @@
 'use strict';
 (function () {
     var module = angular.module('tink.gis');
-    var mapData = function (map, $rootScope, HelperService, ResultsData) {
+    var mapData = function (map, $rootScope, HelperService, ResultsData, $compile) {
         var _data = {};
 
         _data.VisibleLayers = [];
@@ -113,9 +113,11 @@
                 WatIsHierOriginalMarker = L.marker([latlng.lat, latlng.lng], { icon: notFoundMarker }).addTo(map);
             }
             var convertedxy = HelperService.ConvertWSG84ToLambert72(latlng);
+            var html = "";
+            var minwidth = 0;
             if (straatNaam) {
-                var html =
-                    '<div class="container container-low-padding" ng-controller="tooltipcontroller">' +
+                html =
+                    '<div class="container container-low-padding">' +
                     '<div class="row row-no-padding">' +
                     '<div class="col-sm-4">' +
                     '<a href="templates/external/streetView.html?lat=' + latlng.lat + '&lng=' + latlng.lng + '" + target="_blank" >' +
@@ -123,33 +125,46 @@
                     '</a>' +
                     '</div>' +
                     '<div class="col-sm-8">' +
-                    '<div class="col-sm-12"><b ng-if="1 == 0">' + straatNaam + '</b></div>' +
-                    '<div class="col-sm-3" >WGS84:</div><div class="col-sm-8" style="text-align: left;">' + latlng.lat.toFixed(6) + ', ' + latlng.lng.toFixed(6) + '</div><div class="col-sm-1"><i class="fa fa-files-o"></i></div>' +
-                    '<div class="col-sm-3">Lambert:</div><div class="col-sm-8" style="text-align: left;">' + convertedxy.x.toFixed(1) + ', ' + convertedxy.y.toFixed(1) + '</div><div class="col-sm-1"><i class="fa fa-files-o"></i></div>' +
+                    '<div class="col-sm-12"><b>' + straatNaam + '</b></div>' +
+                    '<div class="col-sm-3" >WGS84:</div><div id="wgs" class="col-sm-8" style="text-align: left;">{{WGS84LatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o" ng-click="CopyWGS()"></i></div>' +
+                    '<div class="col-sm-3">Lambert:</div><div id="lambert" class="col-sm-8" style="text-align: left;">{{LambertLatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o"  ng-click="CopyLambert()"></i></div>' +
                     '</div>' +
                     '</div>' +
                     '</div>';
-                WatIsHierOriginalMarker.bindPopup(html, { minWidth: 300 }).openPopup();
+                minwidth = 300;
             }
             else {
-                var html =
+                html =
                     '<div class="container container-low-padding">' +
                     '<div class="row row-no-padding">' +
-                    '<div class="col-sm-3">WGS84:</div><div class="col-sm-8" style="text-align: left;">' + latlng.lat.toFixed(6) + ', ' + latlng.lng.toFixed(6) + '</div><div class="col-sm-1"><i class="fa fa-files-o"></i></div>' +
-                    '<div class="col-sm-3">Lambert:</div><div class="col-sm-8" style="text-align: left;">' + convertedxy.x.toFixed(1) + ', ' + convertedxy.y.toFixed(1) + '</div><div class="col-sm-1"><i class="fa fa-files-o"></i></div>' +
+                    '<div class="col-sm-3">WGS84:</div><div id="wgs" class="col-sm-8" style="text-align: left;">{{WGS84LatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o" ng-click="CopyWGS()"></i></div>' +
+                    '<div class="col-sm-3">Lambert:</div><div id="lambert" class="col-sm-8" style="text-align: left;">{{LambertLatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o" ng-click="CopyLambert()"></i></div>' +
                     '</div>' +
                     '</div>';
-                WatIsHierOriginalMarker.bindPopup(html, { minWidth: 200 }).openPopup();
+                minwidth = 200;
+
             }
-
-
+            var linkFunction = $compile(html);
+            var newScope = $rootScope.$new();
+            newScope.LambertLatLng = convertedxy.x.toFixed(1) + ', ' + convertedxy.y.toFixed(1);
+            newScope.CopyLambert = function () {
+                copyToClipboard('#lambert');
+            };
+            newScope.CopyWGS = function () {
+                copyToClipboard('#wgs');
+            };
+            newScope.WGS84LatLng = latlng.lat.toFixed(6) + ', ' + latlng.lng.toFixed(6);
+            var domele = linkFunction(newScope)[0];
+            WatIsHierOriginalMarker.bindPopup(domele, { minWidth: minwidth }).openPopup();
 
         };
-        // _data.CreateWatIsHierMarker = function (data) {
-        //     var convertedBackToWSG84 = HelperService.ConvertLambert72ToWSG84(data.location)
-        //     _data.CreateDot(convertedBackToWSG84);
-        // };
-
+        function copyToClipboard(element) {
+            var $temp = $("<input>");
+            $("body").append($temp);
+            $temp.val($(element).text()).select();
+            document.execCommand("copy");
+            $temp.remove();
+        }
         _data.CreateDot = function (loc) {
             _data.CleanWatIsHier();
             var dotIcon = L.icon({
