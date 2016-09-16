@@ -828,12 +828,6 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         vm.showDrawControls = false;
         vm.zoekLoc = '';
 
-        // var itemsdata = [];
-        // $scope.$watch(function () {
-        //     return MapData.VisibleLayers;
-        // }, function (newval, oldval) {
-        //     vm.SelectableLayers = newval;
-        // });
         var suggestionfunc = function suggestionfunc(item) {
             var output = '<div>' + item.name;
             if (item.attribute1value) {
@@ -857,6 +851,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             async: true,
             limit: 99,
             display: 'name',
+            displayKey: 'name',
             source: function source(query, syncResults, asyncResults) {
                 if (query.replace(/[^0-9]/g, "").length < 6) {
                     // if less then 6 numbers then we just search
@@ -910,6 +905,65 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             $('.Typeahead-spinner').hide();
         });
 
+        // L.control.typeahead({
+        //     minLength: 3,
+        //     highlight: true,
+        //     classNames: {
+        //         open: 'is-open',
+        //         empty: 'is-empty',
+        //     }
+        // }, {
+        //         async: true,
+        //         limit: 99,
+        //         display: 'name',
+        //         displayKey: 'name',
+        //         source: function (query, syncResults, asyncResults) {
+        //             if (query.replace(/[^0-9]/g, "").length < 6) { // if less then 6 numbers then we just search
+        //                 GISService.QuerySOLRLocatie(query).then(function (data) {
+        //                     var arr = data.response.docs;
+        //                     asyncResults(arr);
+        //                 });
+        //             }
+        //             else {
+        //                 syncResults([]);
+        //                 vm.zoekXY(query);
+        //             }
+
+        //         },
+        //         templates: {
+        //             suggestion: suggestionfunc,
+        //             notFound: ['<div class="empty-message"><b>Geen match gevonden</b></div>'],
+        //             empty: ['<div class="empty-message"><b>Zoek naar straten, POI en districten</b></div>']
+        //         }
+
+        //     },
+        //     {
+        //         placeholder: 'Search',
+        //         'typeahead:select': function (ev, suggestion) {
+        //             MapData.CleanWatIsHier();
+        //             MapData.CleanTempFeatures();
+        //             switch (suggestion.layer.toLowerCase()) {
+        //                 case 'postzone':
+        //                     MapData.QueryForTempFeatures(20, 'ObjectID=' + suggestion.key);
+        //                     break;
+        //                 case 'district':
+        //                     MapData.QueryForTempFeatures(21, 'ObjectID=' + suggestion.key);
+        //                     break;
+        //                 default:
+        //                     var cors = {
+        //                         x: suggestion.x,
+        //                         y: suggestion.y
+        //                     };
+        //                     var xyWGS84 = HelperService.ConvertLambert72ToWSG84(cors);
+        //                     setViewAndPutDot(xyWGS84);
+        //                     break;
+
+        //             }
+        //         }
+        //     }
+        // ).addTo(map);
+
+
         vm.interactieButtonChanged = function (ActiveButton) {
             MapData.CleanMap();
             MapData.ActiveInteractieKnop = ActiveButton; // If we only could keep the vmactiveInteractieKnop in sync with the one from MapData
@@ -932,7 +986,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             MapService.Find(search);
         };
         var setViewAndPutDot = function setViewAndPutDot(loc) {
-            map.setView(L.latLng(loc.x, loc.y), 12);
+            MapData.PanToPoint(loc);
             MapData.CreateDot(loc);
         };
         //ng-keyup="$event.keyCode == 13 && mapctrl.zoekLocatie(mapctrl.zoekLoc)" 
@@ -2127,7 +2181,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 (function () {
     var module = angular.module('tink.gis');
-    var mapData = function mapData(map, $rootScope, HelperService, ResultsData) {
+    var mapData = function mapData(map, $rootScope, HelperService, ResultsData, $compile) {
         var _data = {};
 
         _data.VisibleLayers = [];
@@ -2237,19 +2291,35 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 WatIsHierOriginalMarker = L.marker([latlng.lat, latlng.lng], { icon: notFoundMarker }).addTo(map);
             }
             var convertedxy = HelperService.ConvertWSG84ToLambert72(latlng);
+            var html = "";
+            var minwidth = 0;
             if (straatNaam) {
-                var html = '<div class="container container-low-padding" ng-controller="tooltipcontroller">' + '<div class="row row-no-padding">' + '<div class="col-sm-4">' + '<a href="templates/external/streetView.html?lat=' + latlng.lat + '&lng=' + latlng.lng + '" + target="_blank" >' + '<img src="https://maps.googleapis.com/maps/api/streetview?size=100x50&location=' + latlng.lat + ',' + latlng.lng + '&pitch=-0.76" />' + '</a>' + '</div>' + '<div class="col-sm-8">' + '<div class="col-sm-12"><b ng-if="1 == 0">' + straatNaam + '</b></div>' + '<div class="col-sm-3" >WGS84:</div><div class="col-sm-8" style="text-align: left;">' + latlng.lat.toFixed(6) + ', ' + latlng.lng.toFixed(6) + '</div><div class="col-sm-1"><i class="fa fa-files-o"></i></div>' + '<div class="col-sm-3">Lambert:</div><div class="col-sm-8" style="text-align: left;">' + convertedxy.x.toFixed(1) + ', ' + convertedxy.y.toFixed(1) + '</div><div class="col-sm-1"><i class="fa fa-files-o"></i></div>' + '</div>' + '</div>' + '</div>';
-                WatIsHierOriginalMarker.bindPopup(html, { minWidth: 300 }).openPopup();
+                html = '<div class="container container-low-padding">' + '<div class="row row-no-padding">' + '<div class="col-sm-4">' + '<a href="templates/external/streetView.html?lat=' + latlng.lat + '&lng=' + latlng.lng + '" + target="_blank" >' + '<img src="https://maps.googleapis.com/maps/api/streetview?size=100x50&location=' + latlng.lat + ',' + latlng.lng + '&pitch=-0.76" />' + '</a>' + '</div>' + '<div class="col-sm-8 mouse-over">' + '<div class="col-sm-12"><b>' + straatNaam + '</b></div>' + '<div class="col-sm-3" >WGS84:</div><div id="wgs" class="col-sm-8" style="text-align: left;">{{WGS84LatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o mouse-over-toshow" ng-click="CopyWGS()"></i></div>' + '<div class="col-sm-3">Lambert:</div><div id="lambert" class="col-sm-8" style="text-align: left;">{{LambertLatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o mouse-over-toshow"  ng-click="CopyLambert()"></i></div>' + '</div>' + '</div>' + '</div>';
+                minwidth = 300;
             } else {
-                var html = '<div class="container container-low-padding">' + '<div class="row row-no-padding">' + '<div class="col-sm-3">WGS84:</div><div class="col-sm-8" style="text-align: left;">' + latlng.lat.toFixed(6) + ', ' + latlng.lng.toFixed(6) + '</div><div class="col-sm-1"><i class="fa fa-files-o"></i></div>' + '<div class="col-sm-3">Lambert:</div><div class="col-sm-8" style="text-align: left;">' + convertedxy.x.toFixed(1) + ', ' + convertedxy.y.toFixed(1) + '</div><div class="col-sm-1"><i class="fa fa-files-o"></i></div>' + '</div>' + '</div>';
-                WatIsHierOriginalMarker.bindPopup(html, { minWidth: 200 }).openPopup();
+                html = '<div class="container container-low-padding">' + '<div class="row row-no-padding mouse-over">' + '<div class="col-sm-3">WGS84:</div><div id="wgs" class="col-sm-8 " style="text-align: left;">{{WGS84LatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o mouse-over-toshow" ng-click="CopyWGS()"></i></div>' + '<div class="col-sm-3">Lambert:</div><div id="lambert" class="col-sm-8" style="text-align: left;">{{LambertLatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o mouse-over-toshow" ng-click="CopyLambert()"></i></div>' + '</div>' + '</div>';
+                minwidth = 200;
             }
+            var linkFunction = $compile(html);
+            var newScope = $rootScope.$new();
+            newScope.LambertLatLng = convertedxy.x.toFixed(1) + ', ' + convertedxy.y.toFixed(1);
+            newScope.CopyLambert = function () {
+                copyToClipboard('#lambert');
+            };
+            newScope.CopyWGS = function () {
+                copyToClipboard('#wgs');
+            };
+            newScope.WGS84LatLng = latlng.lat.toFixed(6) + ', ' + latlng.lng.toFixed(6);
+            var domele = linkFunction(newScope)[0];
+            WatIsHierOriginalMarker.bindPopup(domele, { minWidth: minwidth }).openPopup();
         };
-        // _data.CreateWatIsHierMarker = function (data) {
-        //     var convertedBackToWSG84 = HelperService.ConvertLambert72ToWSG84(data.location)
-        //     _data.CreateDot(convertedBackToWSG84);
-        // };
-
+        function copyToClipboard(element) {
+            var $temp = $("<input>");
+            $("body").append($temp);
+            $temp.val($(element).text()).select();
+            document.execCommand("copy");
+            $temp.remove();
+        }
         _data.CreateDot = function (loc) {
             _data.CleanWatIsHier();
             var dotIcon = L.icon({
@@ -2265,6 +2335,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             }
             _data.VisibleFeatures.length = 0;
         };
+        _data.PanToPoint = function (loc) {
+            map.setView(L.latLng(loc.x, loc.y), 12);
+        };
         _data.PanToFeature = function (feature) {
             console.log("PANNING TO FEATURE");
             var featureBounds = feature.getBounds();
@@ -2272,7 +2345,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         };
         _data.GoToLastClickBounds = function () {
             map.fitBounds(_data.LastIdentifyBounds, { paddingTopLeft: L.point(0, 0), paddingBottomRight: L.point(0, 0) });
-            // map.setZoom(map.getZoom() + 1);
         };
         _data.SetZIndexes = function () {
             var counter = _data.Themes.length + 3;
@@ -2739,7 +2811,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 theme.status = ThemeStatus.UNMODIFIED;
             });
             console.log('refresh of sortableThemes');
-            $('#sortableThemes').sortable('refresh');
+            // $('#sortableThemes').sortable('refresh');
 
             MapData.SetZIndexes();
         };
@@ -2992,7 +3064,11 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         };
         vm.showDetails = function (feature) {
             if (feature.theme.Type === 'esri') {
-                MapData.PanToFeature(feature.mapItem);
+                if (feature.geometry.type == 'Point') {
+                    MapData.PanToPoint({ x: feature.geometry.coordinates[1], y: feature.geometry.coordinates[0] });
+                } else {
+                    MapData.PanToFeature(feature.mapItem);
+                }
             }
             ResultsData.SelectedFeature = feature;
         };
@@ -3619,20 +3695,34 @@ L.drawLocal = {
     "<meta charset=utf-8>\n" +
     "<title>Street View side-by-side</title>\n" +
     "<style>\n" +
-    "html, body {\n" +
-    "        height: 100%;\n" +
-    "        margin: 0;\n" +
-    "        padding: 0;\n" +
-    "      }\n" +
-    "      #map,  {\n" +
-    "        float: left;\n" +
-    "        height: 0%;\n" +
-    "        width: 0%;\n" +
-    "      }\n" +
-    "       #pano {\n" +
-    "        float: left;\n" +
-    "        height: 100%;\n" +
-    "        width: 100%;\n" +
+    "html, body {\r" +
+    "\n" +
+    "        height: 100%;\r" +
+    "\n" +
+    "        margin: 0;\r" +
+    "\n" +
+    "        padding: 0;\r" +
+    "\n" +
+    "      }\r" +
+    "\n" +
+    "      #map,  {\r" +
+    "\n" +
+    "        float: left;\r" +
+    "\n" +
+    "        height: 0%;\r" +
+    "\n" +
+    "        width: 0%;\r" +
+    "\n" +
+    "      }\r" +
+    "\n" +
+    "       #pano {\r" +
+    "\n" +
+    "        float: left;\r" +
+    "\n" +
+    "        height: 100%;\r" +
+    "\n" +
+    "        width: 100%;\r" +
+    "\n" +
     "      }\n" +
     "</style>\n" +
     "</head>\n" +
@@ -3640,24 +3730,42 @@ L.drawLocal = {
     "<div id=map></div>\n" +
     "<div id=pano></div>\n" +
     "<script>\n" +
-    "function initialize() {\n" +
-    "        \n" +
-    "        var urlLat = parseFloat((location.search.split('lat=')[1]||'').split('&')[0]);\n" +
-    "        var urlLng = parseFloat((location.search.split('lng=')[1]||'').split('&')[0]);\n" +
-    "        var fenway = {lat:urlLat, lng: urlLng};\n" +
-    "        var map = new google.maps.Map(document.getElementById('map'), {\n" +
-    "          center: fenway,\n" +
-    "          zoom: 14\n" +
-    "        });\n" +
-    "        var panorama = new google.maps.StreetViewPanorama(\n" +
-    "            document.getElementById('pano'), {\n" +
-    "              position: fenway,\n" +
-    "              pov: {\n" +
-    "                heading: 34,\n" +
-    "                pitch: 10\n" +
-    "              }\n" +
-    "            });\n" +
-    "        map.setStreetView(panorama);\n" +
+    "function initialize() {\r" +
+    "\n" +
+    "        \r" +
+    "\n" +
+    "        var urlLat = parseFloat((location.search.split('lat=')[1]||'').split('&')[0]);\r" +
+    "\n" +
+    "        var urlLng = parseFloat((location.search.split('lng=')[1]||'').split('&')[0]);\r" +
+    "\n" +
+    "        var fenway = {lat:urlLat, lng: urlLng};\r" +
+    "\n" +
+    "        var map = new google.maps.Map(document.getElementById('map'), {\r" +
+    "\n" +
+    "          center: fenway,\r" +
+    "\n" +
+    "          zoom: 14\r" +
+    "\n" +
+    "        });\r" +
+    "\n" +
+    "        var panorama = new google.maps.StreetViewPanorama(\r" +
+    "\n" +
+    "            document.getElementById('pano'), {\r" +
+    "\n" +
+    "              position: fenway,\r" +
+    "\n" +
+    "              pov: {\r" +
+    "\n" +
+    "                heading: 34,\r" +
+    "\n" +
+    "                pitch: 10\r" +
+    "\n" +
+    "              }\r" +
+    "\n" +
+    "            });\r" +
+    "\n" +
+    "        map.setStreetView(panorama);\r" +
+    "\n" +
     "      }\n" +
     "</script>\n" +
     "<script async defer src=\"https://maps.googleapis.com/maps/api/js?callback=initialize\">\n" +
@@ -3878,7 +3986,7 @@ L.drawLocal = {
     "<button type=button class=btn ng-class=\"{active: mapctrl.ZoekenOpLocatie==true}\" ng-click=\"mapctrl.ZoekenOpLocatie=true\" prevent-default><i class=\"fa fa-map-marker\"></i></button>\n" +
     "<button type=button class=btn ng-class=\"{active: mapctrl.ZoekenOpLocatie==false}\" ng-click=\"mapctrl.ZoekenOpLocatie=false\" prevent-default><i class=\"fa fa-download\"></i></button>\n" +
     "</div>\n" +
-    "<div class=\"ll zoekbalken\">\n" +
+    "<div id=zoekbalken class=\"ll zoekbalken\">\n" +
     "<input id=locatiezoek class=\"zoekbalk typeahead\" ng-show=\"mapctrl.ZoekenOpLocatie == true\" placeholder=\"Geef een X,Y / locatie of POI in.\" prevent-default>\n" +
     "<input type=search class=zoekbalk ng-show=\"mapctrl.ZoekenOpLocatie == false\" placeholder=\"Geef een zoekterm\" prevent-default ng-keyup=\"$event.keyCode == 13 && mapctrl.zoekLaag(mapctrl.laagquery)\" ng-model=mapctrl.laagquery>\n" +
     "<select ng-options=\"layer as layer.name for layer in mapctrl.SelectableLayers()\" ng-model=mapctrl.selectedLayer ng-show=\"mapctrl.activeInteractieKnop=='select' && mapctrl.SelectableLayers().length > 1\" ng-change=mapctrl.layerChange() prevent-default></select>\n" +
