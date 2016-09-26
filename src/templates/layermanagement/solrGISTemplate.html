@@ -19,20 +19,8 @@
             tink-total-items="numberofrecordsmatched" tink-items-per-page="recordsAPage"></tink-pagination>
     </div>
     <div class="col-md-8">
-        <div ng-if="copySelectedTheme !== null">
-            <button ng-if="copySelectedTheme.Added != false" data-ng-click="AddOrUpdateTheme()">Update</button>
-            <p>{{copySelectedTheme.Description}}</p>
-            <p><small><a ng-href="{{copySelectedTheme.CleanUrl}}" target="_blank">Details</a></small></p>
-            <div class="layercontroller-checkbox">
-                <input indeterminate-checkbox child-list="copySelectedTheme.AllLayers" property="enabled" type="checkbox" ng-model="copySelectedTheme.enabled"
-                    id="{{copySelectedTheme.name}}">
-                <label for="{{copySelectedTheme.name}}"> {{copySelectedTheme.name | limitTo: 99}}</label>
-                <div ng-repeat="mainlayer in copySelectedTheme.Layers">
-                    <tink-managementlayer layer="mainlayer">
-                    </tink-managementlayer>
-                </div>
-            </div>
-            <button ng-if="copySelectedTheme.Added == false" data-ng-click="AddOrUpdateTheme()">Toevoegen</button>
-        </div>
+        <preview-layer  theme="copySelectedTheme" addorupdatefunc="AddOrUpdateTheme()">
+
+        </preview-layer>
     </div>
 </div>

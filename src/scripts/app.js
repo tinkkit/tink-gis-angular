@@ -19,7 +19,6 @@
     module.directive('preventDefault', function () {
         return {
             link: function (scope, element, attrs) {
-                console.log(element);
                 element.on('click', function (event) {
                     event.preventDefault();
                     event.stopPropagation();

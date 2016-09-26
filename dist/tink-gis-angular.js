@@ -17,7 +17,6 @@
     module.directive('preventDefault', function () {
         return {
             link: function link(scope, element, attrs) {
-                console.log(element);
                 element.on('click', function (event) {
                     event.preventDefault();
                     event.stopPropagation();
@@ -337,6 +336,25 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
     } catch (e) {
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
     }
+    module.controller('previewLayerController', ['$scope', function ($scope) {
+        // var vm = this;
+        // vm.theme = $scope.theme;
+        // console.log("previewLayerController INIT", $scope.theme);
+        // $scope.$watch('theme', function (theme) {
+        //     console.log('WATCH HAPPENED', $scope.theme);
+        //     // vm.theme = $scope.theme;
+        // })
+    }]);
+})();
+;'use strict';
+
+(function (module) {
+    var module;
+    try {
+        module = angular.module('tink.gis');
+    } catch (e) {
+        module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
+    }
     module.controller('solrGISController', ['$scope', 'ThemeCreater', '$q', 'MapService', 'MapData', 'GISService', 'LayerManagementService', 'WMSService', '$window', '$http', 'GeopuntService', function ($scope, ThemeCreater, $q, MapService, MapData, GISService, LayerManagementService, WMSService, $window, $http, GeopuntService) {
         $scope.pagingCount = null;
         $scope.numberofrecordsmatched = 0;
@@ -593,6 +611,23 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             }
         };
     }]);
+})();
+;'use strict';
+
+(function (module) {
+    module = angular.module('tink.gis');
+    module.directive('previewLayer', function () {
+        return {
+            replace: true,
+            scope: {
+                theme: '=',
+                addorupdatefunc: '&'
+            },
+            templateUrl: 'templates/layermanagement/previewLayerTemplate.html',
+            controller: 'previewLayerController',
+            controllerAs: 'previewctrl'
+        };
+    });
 })();
 ;'use strict';
 
@@ -1177,41 +1212,45 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                         });
                     });
                 });
+                var thelist = scope.$eval(childList);
                 //https://tech.small-improvements.com/2014/06/11/deep-watching-circular-data-structures-in-angular/
                 function watchChildrenListWithProperty() {
-                    return scope.$eval(childList).map(function (x) {
+                    return thelist.map(function (x) {
                         return x[property];
                     });
                 }
-                // Watch the children for changes
-                scope.$watch(watchChildrenListWithProperty, function (newValue, oldValue) {
-                    if (newValue !== oldValue) {
-                        var hasChecked = false;
-                        var hasUnchecked = false;
-                        // Loop through the children
-                        angular.forEach(newValue, function (child) {
-                            if (child) {
-                                hasChecked = true;
+                if (thelist) {
+
+                    // Watch the children for changes
+                    scope.$watch(watchChildrenListWithProperty, function (newValue, oldValue) {
+                        if (newValue !== oldValue) {
+                            var hasChecked = false;
+                            var hasUnchecked = false;
+                            // Loop through the children
+                            angular.forEach(newValue, function (child) {
+                                if (child) {
+                                    hasChecked = true;
+                                } else {
+                                    hasUnchecked = true;
+                                }
+                            });
+                            // Determine which state to put the checkbox in
+                            if (hasChecked && hasUnchecked) {
+                                element.prop('checked', true);
+                                element.prop('indeterminate', true);
+                                if (modelCtrl) {
+                                    modelCtrl.$setViewValue(true);
+                                }
                             } else {
-                                hasUnchecked = true;
-                            }
-                        });
-                        // Determine which state to put the checkbox in
-                        if (hasChecked && hasUnchecked) {
-                            element.prop('checked', true);
-                            element.prop('indeterminate', true);
-                            if (modelCtrl) {
-                                modelCtrl.$setViewValue(true);
-                            }
-                        } else {
-                            element.prop('checked', hasChecked);
-                            element.prop('indeterminate', false);
-                            if (modelCtrl) {
-                                modelCtrl.$setViewValue(hasChecked);
+                                element.prop('checked', hasChecked);
+                                element.prop('indeterminate', false);
+                                if (modelCtrl) {
+                                    modelCtrl.$setViewValue(hasChecked);
+                                }
                             }
                         }
-                    }
-                }, true);
+                    }, true);
+                }
             }
         };
     }]);
@@ -3793,22 +3832,8 @@ L.drawLocal = {
     "<div ng-if=searchIsUrl>\n" +
     "<button ng-click=laadUrl()>Laad url</button>\n" +
     "</div>\n" +
-    "<div ng-if=\"copySelectedTheme !== null\">\n" +
-    "<button ng-if=\"copySelectedTheme.Added != false\" data-ng-click=AddOrUpdateTheme()>Update</button>\n" +
-    "<p>{{copySelectedTheme.Description}}</p>\n" +
-    "<p><small><a ng-href={{copySelectedTheme.CleanUrl}} target=_blank>Details</a></small></p>\n" +
-    "<div class=layercontroller-checkbox>\n" +
-    "<input indeterminate-checkbox child-list=copySelectedTheme.AllLayers property=enabled type=checkbox ng-model=copySelectedTheme.enabled id={{copySelectedTheme.name}}>\n" +
-    "<label for={{copySelectedTheme.name}}> {{copySelectedTheme.name | limitTo: 99}}</label>\n" +
-    "<div ng-repeat=\"mainlayer in copySelectedTheme.Layers\">\n" +
-    "<div class=layercontroller-checkbox>\n" +
-    "<input type=checkbox ng-model=mainlayer.enabled id={{mainlayer.name}}{{mainlayer.id}}>\n" +
-    "<label for={{mainlayer.name}}{{mainlayer.id}}> {{mainlayer.title | limitTo: 99}}</label>\n" +
-    "</div>\n" +
-    "</div>\n" +
-    "</div>\n" +
-    "<button ng-if=\"copySelectedTheme.Added == false\" data-ng-click=AddOrUpdateTheme()>Toevoegen</button>\n" +
-    "</div>\n" +
+    "<preview-layer addorupdatefunc=AddOrUpdateTheme() theme=copySelectedTheme>\n" +
+    "</preview-layer>\n" +
     "</div>\n" +
     "</div>"
   );
@@ -3856,6 +3881,24 @@ L.drawLocal = {
   );
 
 
+  $templateCache.put('templates/layermanagement/previewLayerTemplate.html',
+    "<div ng-show=\"theme !== null\">\n" +
+    "<button ng-if=\"theme.Added != false\" data-ng-click=AddOrUpdateFunc()>Update</button>\n" +
+    "<p>{{theme.Description}}</p>\n" +
+    "<p><small><a ng-href={{theme.CleanUrl}} target=_blank>Details</a></small></p>\n" +
+    "<div class=layercontroller-checkbox>\n" +
+    "<input indeterminate-checkbox child-list=theme.AllLayers property=enabled type=checkbox ng-model=theme.enabled id={{theme.name}}>\n" +
+    "<label for={{theme.name}}> {{theme.name | limitTo: 99}}</label>\n" +
+    "<div ng-repeat=\"mainlayer in theme.Layers\">\n" +
+    "<tink-managementlayer layer=mainlayer>\n" +
+    "</tink-managementlayer>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "<button ng-if=\"theme.Added == false\" data-ng-click=AddOrUpdateFunc()>Toevoegen</button>\n" +
+    "</div>"
+  );
+
+
   $templateCache.put('templates/layermanagement/solrGISTemplate.html',
     "<div class=row>\n" +
     "<div class=col-md-4>\n" +
@@ -3874,20 +3917,8 @@ L.drawLocal = {
     "<tink-pagination ng-hide=\"numberofrecordsmatched <= 5\" tink-items-per-page-values=[5] tink-current-page=currentPage tink-change=pageChanged(page,perPage,next) tink-total-items=numberofrecordsmatched tink-items-per-page=recordsAPage></tink-pagination>\n" +
     "</div>\n" +
     "<div class=col-md-8>\n" +
-    "<div ng-if=\"copySelectedTheme !== null\">\n" +
-    "<button ng-if=\"copySelectedTheme.Added != false\" data-ng-click=AddOrUpdateTheme()>Update</button>\n" +
-    "<p>{{copySelectedTheme.Description}}</p>\n" +
-    "<p><small><a ng-href={{copySelectedTheme.CleanUrl}} target=_blank>Details</a></small></p>\n" +
-    "<div class=layercontroller-checkbox>\n" +
-    "<input indeterminate-checkbox child-list=copySelectedTheme.AllLayers property=enabled type=checkbox ng-model=copySelectedTheme.enabled id={{copySelectedTheme.name}}>\n" +
-    "<label for={{copySelectedTheme.name}}> {{copySelectedTheme.name | limitTo: 99}}</label>\n" +
-    "<div ng-repeat=\"mainlayer in copySelectedTheme.Layers\">\n" +
-    "<tink-managementlayer layer=mainlayer>\n" +
-    "</tink-managementlayer>\n" +
-    "</div>\n" +
-    "</div>\n" +
-    "<button ng-if=\"copySelectedTheme.Added == false\" data-ng-click=AddOrUpdateTheme()>Toevoegen</button>\n" +
-    "</div>\n" +
+    "<preview-layer theme=copySelectedTheme addorupdatefunc=AddOrUpdateTheme()>\n" +
+    "</preview-layer>\n" +
     "</div>\n" +
     "</div>"
   );
