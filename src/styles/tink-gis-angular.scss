@@ -239,6 +239,13 @@ button.btn.active {
   }
 }
 
+//Add this class to .main to override default padding
+.full-width {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    transform: translate(0, 0) !important
+}
+
 // Wtf tink ???
 // input[type="checkbox"], input[type="radio"] {
 //      opacity: 1;
@@ -513,15 +520,14 @@ div.table-sort-pagination {
 }
 
 // adjusting the left sidenav width when collapsed
-html.has-nav-left.nav-left-can-always-close .nav-left {
+html.has-nav-left .nav-left {
   transform: translate(rem(-$left-nav-aside-width) , 0);
 }
 
-// not necessary when using the Tink classes .nav-left-can-always-close .nav-right-can-always-close
-// not using .nav-right-can-always-close-and-starts-open because it messes up the map buttons
-// .nav-right {
-//   transform: translate(15.7142857143rem , 0);
-// }
+// not using .nav-right-can-always-close classes because they create unwanted menu item on top nav
+.nav-right {
+  transform: translate(15.7142857143rem , 0);
+}
 
 .map-buttons-left {
   height: 100%;
@@ -543,10 +549,9 @@ html.nav-left-open {
   .map-buttons-left {
     left: rem($left-nav-aside-width);
   }
-  // not necessary when using the Tink classes
-  // .nav-left {
-  //   transform: translate(0, 0);
-  // }
+  .nav-left {
+    transform: translate(0, 0);
+  }
   .nav-left-toggle {
     &:before {
       content: "\f100";
@@ -559,10 +564,9 @@ html.nav-right-open {
   .map-buttons-right {
     right: rem($nav-aside-width + $nav-aside-extra-body-padding);
   }
-  // not necessary when using the Tink classes
-  // .nav-right {
-  //   transform: translate(0, 0);
-  // }
+  .nav-right {
+    transform: translate(0, 0);
+  }
   .nav-right-toggle {
     &:before {
       content: "\f101";
@@ -642,4 +646,3 @@ html.print.landscape {
     cursor: pointer;
 	}
 }
-
