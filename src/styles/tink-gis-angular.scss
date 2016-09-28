@@ -370,6 +370,21 @@ button.trash {
   height: 90%;
 }
 
+// customize pagination
+.table-sort-options {
+  .table-sort-info {
+    display: none;
+  }
+  .table-sort-pagination {
+    margin: 0;
+    .prev,
+    .next {
+      span {
+        display: none;
+      }
+    }
+  }
+}
 
 /**
  * Typeahead styling
@@ -462,12 +477,13 @@ button.trash {
   color: lightgrey !important;
 }
 
-a.btn.prev,a.btn.next {
-  display: none;
-}
-div.table-sort-pagination {
-      float: left !important;
-}
+// This breaks pagination
+// a.btn.prev,a.btn.next {
+//   display: none;
+// }
+// div.table-sort-pagination {
+//       float: left !important;
+// }
 .nav-tabs {
   margin:  5px 0px 5px 0px;
 }

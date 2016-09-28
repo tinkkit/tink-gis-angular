@@ -138,20 +138,30 @@ angular.module('tink.gis').run(['$templateCache', function($templateCache) {
 
   $templateCache.put('templates/layermanagement/solrGISTemplate.html',
     "<div class=\"row set-height\">\n" +
-    "<div class=\"col-md-4 scrollable\">\n" +
+    "<div class=\"col-md-4 set-height\">\n" +
+    "<div class=\"row set-height\">\n" +
+    "<div class=col-xs-12>\n" +
     "<input class=searchbox ng-model=searchTerm ng-change=searchChanged() ng-model-options=\"{debounce: 250}\" placeholder=\"Geef een trefwoord\">\n" +
+    "</div>\n" +
+    "<div class=\"col-xs-12 scrollable\">\n" +
     "<div ng-repeat=\"theme in availableThemes\">\n" +
     "<div ng-click=solrThemeChanged(theme) class=greytext>\n" +
     "{{theme.name}}\n" +
     "<div style=\"margin-left: 20px\" ng-repeat=\"layer in theme.layers\">\n" +
-    "<span ng-class=\"{'blacktext': layer.isMatch}\">{{layer.naam}}<span ng-show=\"layer.featuresCount > 0\"> ({{layer.featuresCount}})</span> </span>\n" +
+    "<span ng-class=\"{'blacktext': layer.isMatch}\">{{layer.naam}}\n" +
+    "<span ng-show=\"layer.featuresCount > 0\"> ({{layer.featuresCount}})</span>\n" +
+    "</span>\n" +
     "<div class=\"blacktext featureinsolr\">\n" +
     "{{layer.features.join(', ')}}\n" +
     "</div>\n" +
     "</div>\n" +
     "</div>\n" +
     "</div>\n" +
-    "<tink-pagination ng-hide=\"numberofrecordsmatched <= 5\" tink-items-per-page-values=[5] tink-current-page=currentPage tink-change=pageChanged(page,perPage,next) tink-total-items=numberofrecordsmatched tink-items-per-page=recordsAPage></tink-pagination>\n" +
+    "</div>\n" +
+    "<div class=col-xs-12>\n" +
+    "<tink-pagination ng-hide=\"numberofrecordsmatched <= 5\" tink-current-page=currentPage tink-change=pageChanged(page,perPage,next) tink-total-items=numberofrecordsmatched tink-items-per-page=recordsAPage></tink-pagination>\n" +
+    "</div>\n" +
+    "</div>\n" +
     "</div>\n" +
     "<div class=\"col-md-8 scrollable\">\n" +
     "<div ng-if=\"copySelectedTheme !== null\">\n" +
