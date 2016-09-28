@@ -3695,34 +3695,20 @@ L.drawLocal = {
     "<meta charset=utf-8>\n" +
     "<title>Street View side-by-side</title>\n" +
     "<style>\n" +
-    "html, body {\r" +
-    "\n" +
-    "        height: 100%;\r" +
-    "\n" +
-    "        margin: 0;\r" +
-    "\n" +
-    "        padding: 0;\r" +
-    "\n" +
-    "      }\r" +
-    "\n" +
-    "      #map,  {\r" +
-    "\n" +
-    "        float: left;\r" +
-    "\n" +
-    "        height: 0%;\r" +
-    "\n" +
-    "        width: 0%;\r" +
-    "\n" +
-    "      }\r" +
-    "\n" +
-    "       #pano {\r" +
-    "\n" +
-    "        float: left;\r" +
-    "\n" +
-    "        height: 100%;\r" +
-    "\n" +
-    "        width: 100%;\r" +
-    "\n" +
+    "html, body {\n" +
+    "        height: 100%;\n" +
+    "        margin: 0;\n" +
+    "        padding: 0;\n" +
+    "      }\n" +
+    "      #map,  {\n" +
+    "        float: left;\n" +
+    "        height: 0%;\n" +
+    "        width: 0%;\n" +
+    "      }\n" +
+    "       #pano {\n" +
+    "        float: left;\n" +
+    "        height: 100%;\n" +
+    "        width: 100%;\n" +
     "      }\n" +
     "</style>\n" +
     "</head>\n" +
@@ -3730,42 +3716,24 @@ L.drawLocal = {
     "<div id=map></div>\n" +
     "<div id=pano></div>\n" +
     "<script>\n" +
-    "function initialize() {\r" +
-    "\n" +
-    "        \r" +
-    "\n" +
-    "        var urlLat = parseFloat((location.search.split('lat=')[1]||'').split('&')[0]);\r" +
-    "\n" +
-    "        var urlLng = parseFloat((location.search.split('lng=')[1]||'').split('&')[0]);\r" +
-    "\n" +
-    "        var fenway = {lat:urlLat, lng: urlLng};\r" +
-    "\n" +
-    "        var map = new google.maps.Map(document.getElementById('map'), {\r" +
-    "\n" +
-    "          center: fenway,\r" +
-    "\n" +
-    "          zoom: 14\r" +
-    "\n" +
-    "        });\r" +
-    "\n" +
-    "        var panorama = new google.maps.StreetViewPanorama(\r" +
-    "\n" +
-    "            document.getElementById('pano'), {\r" +
-    "\n" +
-    "              position: fenway,\r" +
-    "\n" +
-    "              pov: {\r" +
-    "\n" +
-    "                heading: 34,\r" +
-    "\n" +
-    "                pitch: 10\r" +
-    "\n" +
-    "              }\r" +
-    "\n" +
-    "            });\r" +
-    "\n" +
-    "        map.setStreetView(panorama);\r" +
-    "\n" +
+    "function initialize() {\n" +
+    "        \n" +
+    "        var urlLat = parseFloat((location.search.split('lat=')[1]||'').split('&')[0]);\n" +
+    "        var urlLng = parseFloat((location.search.split('lng=')[1]||'').split('&')[0]);\n" +
+    "        var fenway = {lat:urlLat, lng: urlLng};\n" +
+    "        var map = new google.maps.Map(document.getElementById('map'), {\n" +
+    "          center: fenway,\n" +
+    "          zoom: 14\n" +
+    "        });\n" +
+    "        var panorama = new google.maps.StreetViewPanorama(\n" +
+    "            document.getElementById('pano'), {\n" +
+    "              position: fenway,\n" +
+    "              pov: {\n" +
+    "                heading: 34,\n" +
+    "                pitch: 10\n" +
+    "              }\n" +
+    "            });\n" +
+    "        map.setStreetView(panorama);\n" +
     "      }\n" +
     "</script>\n" +
     "<script async defer src=\"https://maps.googleapis.com/maps/api/js?callback=initialize\">\n" +
@@ -3777,7 +3745,7 @@ L.drawLocal = {
 
   $templateCache.put('templates/layermanagement/geoPuntTemplate.html',
     "<div class=row>\n" +
-    "<div class=col-md-4>\n" +
+    "<div class=\"col-md-4 scrollable\">\n" +
     "<input class=searchbox ng-model=searchTerm ng-change=searchChanged() ng-model-options=\"{debounce: 500}\" placeholder=\"Geef een trefwoord of een url in\">\n" +
     "<input disabled value=https://geodata.antwerpen.be/arcgissql/services/P_SiK/Groeninventaris/MapServer/WMSServer>\n" +
     "<div ng-if=!searchIsUrl ng-repeat=\"theme in availableThemes\">\n" +
@@ -3789,7 +3757,7 @@ L.drawLocal = {
     "</div>\n" +
     "<tink-pagination ng-hide=\"numberofrecordsmatched <= 5\" tink-items-per-page-values=[5] tink-current-page=currentPage tink-change=pageChanged(page,perPage,next) tink-total-items=numberofrecordsmatched tink-items-per-page=recordsAPage></tink-pagination>\n" +
     "</div>\n" +
-    "<div class=col-md-8>\n" +
+    "<div class=\"col-md-8 scrollable\">\n" +
     "<div ng-if=searchIsUrl>\n" +
     "<button ng-click=laadUrl()>Laad url</button>\n" +
     "</div>\n" +
@@ -3810,7 +3778,7 @@ L.drawLocal = {
     "<button ng-if=\"copySelectedTheme.Added == false\" data-ng-click=AddOrUpdateTheme()>Toevoegen</button>\n" +
     "</div>\n" +
     "</div>\n" +
-    "</div>"
+    "</div>\n"
   );
 
 
@@ -3820,7 +3788,7 @@ L.drawLocal = {
     "<button type=button style=float:right data-ng-click=cancel()><i class=\"fa fa-times\"></i></button>\n" +
     "<h4 class=model-title>Laag toevoegen\n" +
     "</h4></div>\n" +
-    "<div class=modal-content>\n" +
+    "<div class=modal-body>\n" +
     "<ul class=nav-tabs>\n" +
     "<li role=presentation ng-class=\"{'active': active=='solr'}\"><a href=\"\" ng-click=\"active='solr'\">Stad</a></li>\n" +
     "<li role=presentation ng-class=\"{'active': active=='geopunt'}\"><a href=# ng-click=\"active='geopunt'\">GeoPunt</a></li>\n" +
@@ -3832,7 +3800,7 @@ L.drawLocal = {
     "<div class=modal-footer>\n" +
     "<button data-ng-click=ok()>Klaar</button>\n" +
     "</div>\n" +
-    "</div>"
+    "</div>\n"
   );
 
 
@@ -3857,23 +3825,33 @@ L.drawLocal = {
 
 
   $templateCache.put('templates/layermanagement/solrGISTemplate.html',
-    "<div class=row>\n" +
-    "<div class=col-md-4>\n" +
+    "<div class=\"row set-height\">\n" +
+    "<div class=\"col-md-4 set-height\">\n" +
+    "<div class=\"row set-height\">\n" +
+    "<div class=col-xs-12>\n" +
     "<input class=searchbox ng-model=searchTerm ng-change=searchChanged() ng-model-options=\"{debounce: 250}\" placeholder=\"Geef een trefwoord\">\n" +
+    "</div>\n" +
+    "<div class=\"col-xs-12 scrollable\">\n" +
     "<div ng-repeat=\"theme in availableThemes\">\n" +
     "<div ng-click=solrThemeChanged(theme) class=greytext>\n" +
     "{{theme.name}}\n" +
     "<div style=\"margin-left: 20px\" ng-repeat=\"layer in theme.layers\">\n" +
-    "<span ng-class=\"{'blacktext': layer.isMatch}\">{{layer.naam}}<span ng-show=\"layer.featuresCount > 0\"> ({{layer.featuresCount}})</span> </span>\n" +
+    "<span ng-class=\"{'blacktext': layer.isMatch}\">{{layer.naam}}\n" +
+    "<span ng-show=\"layer.featuresCount > 0\"> ({{layer.featuresCount}})</span>\n" +
+    "</span>\n" +
     "<div class=\"blacktext featureinsolr\">\n" +
     "{{layer.features.join(', ')}}\n" +
     "</div>\n" +
     "</div>\n" +
     "</div>\n" +
     "</div>\n" +
-    "<tink-pagination ng-hide=\"numberofrecordsmatched <= 5\" tink-items-per-page-values=[5] tink-current-page=currentPage tink-change=pageChanged(page,perPage,next) tink-total-items=numberofrecordsmatched tink-items-per-page=recordsAPage></tink-pagination>\n" +
     "</div>\n" +
-    "<div class=col-md-8>\n" +
+    "<div class=col-xs-12>\n" +
+    "<tink-pagination ng-hide=\"numberofrecordsmatched <= 5\" tink-current-page=currentPage tink-change=pageChanged(page,perPage,next) tink-total-items=numberofrecordsmatched tink-items-per-page=recordsAPage></tink-pagination>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "<div class=\"col-md-8 scrollable\">\n" +
     "<div ng-if=\"copySelectedTheme !== null\">\n" +
     "<button ng-if=\"copySelectedTheme.Added != false\" data-ng-click=AddOrUpdateTheme()>Update</button>\n" +
     "<p>{{copySelectedTheme.Description}}</p>\n" +
@@ -3889,7 +3867,7 @@ L.drawLocal = {
     "<button ng-if=\"copySelectedTheme.Added == false\" data-ng-click=AddOrUpdateTheme()>Toevoegen</button>\n" +
     "</div>\n" +
     "</div>\n" +
-    "</div>"
+    "</div>\n"
   );
 
 
