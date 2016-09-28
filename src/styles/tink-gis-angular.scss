@@ -354,6 +354,20 @@ button.trash {
   z-index: 9998;
 }
 
+.modal-body {
+  height: 60vh;
+}
+
+.scrollable { // make the div content vertical scrollable
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.set-height {
+  height: 90%;
+}
+
 
 /**
  * Typeahead styling

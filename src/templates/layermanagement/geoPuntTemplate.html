@@ -1,5 +1,5 @@
 <div class="row">
-    <div class="col-md-4">
+    <div class="col-md-4 scrollable">
         <input class="searchbox" type="text" ng-model="searchTerm" ng-change="searchChanged()" ng-model-options="{debounce: 500}"
             placeholder="Geef een trefwoord of een url in" />
         <input type="text" disabled="disabled" value="https://geodata.antwerpen.be/arcgissql/services/P_SiK/Groeninventaris/MapServer/WMSServer"
@@ -15,7 +15,7 @@
         <tink-pagination ng-hide="numberofrecordsmatched <= 5" tink-items-per-page-values="[5]" tink-current-page="currentPage" tink-change="pageChanged(page,perPage,next)"
             tink-total-items="numberofrecordsmatched" tink-items-per-page="recordsAPage"></tink-pagination>
     </div>
-    <div class="col-md-8">
+    <div class="col-md-8 scrollable">
         <div ng-if="searchIsUrl">
             <button ng-click="laadUrl()">Laad url</button>
         </div>
