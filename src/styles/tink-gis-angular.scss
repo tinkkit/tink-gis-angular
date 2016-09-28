@@ -325,9 +325,9 @@ button.trash {
  */
 
 .modal-header {
-    padding: 15px;
-    border-bottom: 1px solid gray;
-    // text-align: left;
+  border-bottom: 1px solid gray;
+  padding: rem(15);
+  // text-align: left;
 }
 
 .modal-title {
@@ -335,13 +335,13 @@ button.trash {
     line-height: 1.42857143;
 }
 .modal-content {
-    padding: 15px;
+    // padding: 15px;
     // text-align: left;
 }
 .modal-footer {
-    padding: 15px;
-    border-top: 1px solid gray;
-    // text-align: left;
+  border-top: 1px solid gray;
+  padding: rem(15);
+  // text-align: left;
 }
 
 .modal-dialog{
@@ -356,6 +356,8 @@ button.trash {
 
 .modal-body {
   height: 60vh;
+  padding: rem(15);
+  // position: relative;
 }
 
 .scrollable { // make the div content vertical scrollable
