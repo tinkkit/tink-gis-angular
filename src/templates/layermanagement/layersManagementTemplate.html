@@ -1,4 +1,4 @@
-<div class="row">
+<div class="row margin-top">
     <div class="col-md-4">
         <input class="searchbox" type="text" ng-model="searchTerm" ng-change="searchChanged()" placeholder="Geef een trefwoord" />
         <div ng-repeat="theme in availableThemes | filter:{name: searchTerm}">

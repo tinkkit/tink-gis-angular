@@ -1,10 +1,10 @@
-<div class="row set-height">
-    <div class="col-md-4 set-height">
-        <div class="row set-height">
+<div class="row margin-top">
+    <div class="col-md-4">
+        <div class="row">
             <div class="col-xs-12">
                 <input class="searchbox" type="text" ng-model="searchTerm" ng-change="searchChanged()" ng-model-options="{debounce: 250}" placeholder="Geef een trefwoord" />
             </div>
-            <div class="col-xs-12 scrollable">
+            <div class="col-xs-12 scrollable-themes">
                 <div ng-repeat="theme in availableThemes">
                     <div ng-click="solrThemeChanged(theme)" class="greytext">
                     <!-- ng-class="{'greytext': theme.Type != 'wms' &&  theme.Type != 'esri'}"-->
@@ -20,7 +20,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-xs-12">
+            <div class="col-xs-12 margin-top">
                 <tink-pagination  ng-hide="numberofrecordsmatched <= 5" tink-current-page="currentPage" tink-change="pageChanged(page,perPage,next)" tink-total-items="numberofrecordsmatched" tink-items-per-page="recordsAPage"></tink-pagination>
             </div>
         </div>

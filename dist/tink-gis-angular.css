@@ -410,19 +410,22 @@ button.trash {
   height: 60vh;
   padding: 1.0714285714rem ; }
 
-.scrollable {
-  height: 100%;
+.scrollable-themes {
+  height: 38vh;
   overflow-x: hidden;
   overflow-y: auto; }
 
-.set-height {
-  height: 90%; }
+.scrollable-preview {
+  height: 34vh;
+  overflow-x: hidden;
+  overflow-y: auto; }
 
 .table-sort-options .table-sort-info {
   display: none; }
 
 .table-sort-options .table-sort-pagination {
-  margin: 0; }
+  margin: 0;
+  padding-top: 2px; }
   .table-sort-options .table-sort-pagination .prev span,
   .table-sort-options .table-sort-pagination .next span {
     display: none; }
