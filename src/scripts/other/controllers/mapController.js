@@ -10,7 +10,6 @@
                 ExternService.Import(externproj);
             }
         } ();
-        // vm.MapData = MapData;
         vm.layerId = '';
         vm.ZoekenOpLocatie = true;
         vm.activeInteractieKnop = MapData.ActiveInteractieKnop;

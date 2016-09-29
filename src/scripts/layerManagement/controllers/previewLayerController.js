@@ -8,6 +8,12 @@
     }
     module.controller('previewLayerController', ['$scope',
         function ($scope) {
+            $scope.delTheme = function() {
+                $scope.theme.AllLayers.forEach(lay => {
+                    lay.enabled = false;
+                })
+                $scope.addorupdatefunc();
+            }
             // var vm = this;
             // vm.theme = $scope.theme;
             // console.log("previewLayerController INIT", $scope.theme);

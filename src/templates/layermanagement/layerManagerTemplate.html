@@ -1,19 +1,16 @@
 <div style="">
     <div class="modal-header">
         <button type="button" style="float:right" data-ng-click="cancel()"><i class="fa fa-times"></i></button>
-        <h4 style="" class="model-title">Laag toevoegen</h5>
-
+        <h4 style="" class="model-title">Lagenbeheer</h5>
     </div>
     <div class="modal-content">
         <ul class="nav-tabs">
             <li role="presentation" ng-class="{'active': active=='solr'}"><a href="" ng-click="active='solr'">Stad</a></li>
             <li role="presentation" ng-class="{'active': active=='geopunt'}"><a href="#" ng-click="active='geopunt'">GeoPunt</a></li>
-            <li role="presentation" ng-class="{'active': active=='Beheer'}"><a href="" ng-click="active='beheer'">Beheer</a></li>
+            <li role="presentation" ng-class="{'active': active=='beheer'}"><a href="" ng-click="active='beheer'">Beheer</a></li>
         </ul>
         <solr-gis ng-show="active=='solr'"></solr-gis>
         <geo-punt ng-show="active=='geopunt'"></geo-punt>
-    </div>
-    <div class="modal-footer">
-        <button data-ng-click="ok()">Klaar</button>
+        <layers-management ng-if="active=='beheer'"></layers-management>
     </div>
 </div>

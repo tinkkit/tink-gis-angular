@@ -120,6 +120,8 @@
                 project.themes.forEach(theme => { // lets order them, since we get themesArray filled by async calls, the order can be wrong, thats why we make an ordered array
                     var realTheme = themesArray.find(x => x.CleanUrl == theme.cleanUrl);
                     orderedArray.unshift(realTheme);
+                    realTheme.status = ThemeStatus.NEW; // and make sure they are new, ready to be added.
+
                 });
                 ThemeService.AddAndUpdateThemes(orderedArray);
                 console.log('all loaded');

@@ -15,9 +15,7 @@
             MapData.SetZIndexes(newVal);
         });
         vm.updatethemevisibility = function (theme) {
-            
             ThemeService.UpdateThemeVisibleLayers(theme); 
-            
         };
         vm.Lagenbeheer = function () {
             var addLayerInstance = $modal.open({

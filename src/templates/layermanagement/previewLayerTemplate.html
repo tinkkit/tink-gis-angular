@@ -1,15 +1,16 @@
 <div ng-show="theme !== null">
-    <button ng-if="theme.Added != false" data-ng-click="AddOrUpdateFunc()">Update</button>
+    <button ng-if="theme.Added != false" ng-click="addorupdatefunc()">Update</button>
+    <button ng-if="theme.Added != false" ng-click="delTheme()">Delete</button>
     <p>{{theme.Description}}</p>
     <p><small><a ng-href="{{theme.CleanUrl}}" target="_blank">Details</a></small></p>
     <div class="layercontroller-checkbox">
         <input indeterminate-checkbox child-list="theme.AllLayers" property="enabled" type="checkbox" ng-model="theme.enabled"
             id="{{theme.name}}">
-        <label for="{{theme.name}}"> {{theme.name | limitTo: 99}}</label>
+        <label for="{{theme.name}}">{{theme.name}}</label>
         <div ng-repeat="mainlayer in theme.Layers">
             <tink-managementlayer layer="mainlayer">
             </tink-managementlayer>
         </div>
     </div>
-    <button ng-if="theme.Added == false" data-ng-click="AddOrUpdateFunc()">Toevoegen</button>
+    <button ng-if="theme.Added == false" ng-click="addorupdatefunc()">Toevoegen</button>
 </div>

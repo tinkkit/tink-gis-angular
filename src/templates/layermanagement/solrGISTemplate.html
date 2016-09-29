@@ -19,7 +19,7 @@
             tink-total-items="numberofrecordsmatched" tink-items-per-page="recordsAPage"></tink-pagination>
     </div>
     <div class="col-md-8">
-        <preview-layer  theme="copySelectedTheme" addorupdatefunc="AddOrUpdateTheme()">
+        <preview-layer ng-if="copySelectedTheme"  theme="copySelectedTheme" addorupdatefunc="AddOrUpdateTheme()">
 
         </preview-layer>
     </div>

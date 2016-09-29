@@ -6,14 +6,11 @@
     } catch (e) {
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
     }
-    module.controller('solrGISController', ['$scope', 'ThemeCreater', '$q', 'MapService', 'MapData', 'GISService', 'LayerManagementService', 'WMSService', '$window', '$http', 'GeopuntService',
-        function ($scope, ThemeCreater, $q, MapService, MapData, GISService, LayerManagementService, WMSService, $window, $http, GeopuntService) {
+    module.controller('solrGISController', ['$scope', 'ThemeCreater', '$q', 'MapService', 'MapData', 'GISService', 'LayerManagementService', 'WMSService', '$window', '$http', 'GeopuntService', 'ThemeService',
+        function ($scope, ThemeCreater, $q, MapService, MapData, GISService, LayerManagementService, WMSService, $window, $http, GeopuntService, ThemeService) {
             $scope.pagingCount = null;
             $scope.numberofrecordsmatched = 0;
-            // $scope.currentPage = 1;
-            LayerManagementService.EnabledThemes.length = 0;
             LayerManagementService.AvailableThemes.length = 0;
-            LayerManagementService.EnabledThemes = angular.copy(MapData.Themes);
             $scope.availableThemes = [];
             $scope.allThemes = [];
             var init = function () {
@@ -51,7 +48,7 @@
                                         layers: [],
                                         layersCount: 0,
                                         name: themeName,
-                                        cleanUrl: Gis.BaseUrl + '/arcgissql/rest/services/P_Stad/' + themeName + '/MapServer',
+                                        cleanUrl: Gis.BaseUrl + 'arcgissql/rest/services/P_Stad/' + themeName + '/MapServer',
                                         url: 'services/P_Stad/' + themeName + '/MapServer'
                                     }
                                     themes.push(theme);
@@ -83,16 +80,14 @@
                                         layers: [],
                                         layersCount: itemMetData.doclist.numFound,
                                         name: themeName,
-                                        cleanUrl: Gis.BaseUrl + '/arcgissql/rest/services/P_Stad/' + themeName + '/MapServer',
+                                        cleanUrl: Gis.BaseUrl + 'arcgissql/rest/services/P_Stad/' + themeName + '/MapServer',
                                         url: 'services/P_Stad/' + themeName + '/MapServer'
                                     }
                                     themes.push(theme);
                                 }
                                 else {
                                     theme.layersCount = itemMetData.doclist.numFound;
-                                    // theme.isMatch = true;
                                 }
-
                                 itemMetData.doclist.docs.forEach(item => {
                                     var layer = theme.layers.find(x => x.id == item.key);
                                     if (!layer) {
@@ -108,15 +103,12 @@
                                     else {
                                         layer.isMatch = true;
                                     }
-
                                 });
-
                                 break;
                             default:
                                 console.log("UNKOWN TYPE:", item)
                                 break;
                         }
-
                     });
                     $scope.availableThemes = themes.slice(0, 5);
                     $scope.allThemes = themes;
@@ -137,6 +129,10 @@
             $scope.previewTheme = function (theme) {
                 console.log('themeChanged');
                 console.log(theme);
+                var alreadyExistingTheme = MapData.Themes.find(x => { return x.CleanUrl === theme.CleanUrl });
+                if (alreadyExistingTheme) {
+                    theme = alreadyExistingTheme;
+                }
                 $scope.selectedTheme = theme;
                 $scope.copySelectedTheme = angular.copy(theme);
             };
@@ -158,9 +154,13 @@
                 console.log('AddOrUpdateTheme');
                 var allChecked = true;
                 var noneChecked = true;
+                var hasAChange = false;
                 for (var x = 0; x < $scope.copySelectedTheme.AllLayers.length; x++) { // aha dus update gebeurt, we gaan deze toevoegen.
                     var copyLayer = $scope.copySelectedTheme.AllLayers[x];
                     var realLayer = $scope.selectedTheme.AllLayers[x];
+                    if (realLayer.enabled != copyLayer.enabled) {
+                        hasAChange = true;
+                    }
                     realLayer.enabled = copyLayer.enabled;
                     if (copyLayer.enabled === false) { // check or all the checkboxes are checked
                         allChecked = false;
@@ -169,50 +169,37 @@
                         noneChecked = false;
                     }
                 }
-                var alreadyAdded = LayerManagementService.EnabledThemes.find(x => { return x.CleanUrl === $scope.selectedTheme.CleanUrl }) != undefined;
-                if (noneChecked) {
-                    //Niks is checked, dus we moeten deze 'deleten'.
-                    $scope.selectedTheme.Added = false;
-                    if ($scope.selectedTheme.status != ThemeStatus.NEW) { // als deze new is dan zette we deze gewoon op niets want we verwijderen die.
+                var alreadyAdded = MapData.Themes.find(x => { return x.CleanUrl === $scope.selectedTheme.CleanUrl }) != undefined;
+                if (alreadyAdded) {
+                    if (hasAChange) {
+                        $scope.selectedTheme.status = ThemeStatus.UPDATED;
+                    } else {
+                        $scope.selectedTheme.status = ThemeStatus.UNMODIFIED;
+                    }
+                    if (noneChecked) {
                         $scope.selectedTheme.status = ThemeStatus.DELETED;
                     }
-                    else {
-                        if (alreadyAdded) {
-                            var index = LayerManagementService.EnabledThemes.indexOf($scope.selectedTheme);
-                            if (index > -1) {
-                                LayerManagementService.EnabledThemes.splice(index, 1);
-                            }
-                        }
-                    }
                 }
-                else { // het is dus geen delete
-                    if (allChecked) {
-                        $scope.selectedTheme.Added = true; // here we can set the Added to true when they are all added
-                    }
-                    else {
-                        $scope.selectedTheme.Added = null; // if not all added then we put it to null
-                    }
-                    if (alreadyAdded == false) { // it is a new theme!
-                        LayerManagementService.EnabledThemes.push($scope.selectedTheme);
-                    } else { // already exist! It is an update!
-                        if ($scope.selectedTheme.status != ThemeStatus.NEW) {
-                            $scope.selectedTheme.status = ThemeStatus.UPDATED;
-                            console.log('changed naar updated');
-                        }
-                        else {
-                            console.log('Hij is al new, dus moet hij niet naar updated changen.');
-                        }
-                    }
+                else {
+                    $scope.selectedTheme.status = ThemeStatus.NEW;
                 }
-                console.log('AddOrUpdateTheme');
-
+                if (allChecked && $scope.selectedTheme != ThemeStatus.DELETED) {
+                    $scope.selectedTheme.Added = true; // here we can set the Added to true when they are all added
+                }
+                if (!allChecked && !noneChecked && $scope.selectedTheme != ThemeStatus.DELETED) {
+                    $scope.selectedTheme.Added = null; // if not all added then we put it to null
+                }
+                if ($scope.selectedTheme == ThemeStatus.DELETED) {
+                    $scope.selectedTheme.Added = false;
+                }
+                ThemeService.AddAndUpdateThemes([$scope.selectedTheme]);
                 $scope.selectedTheme = null;
                 $scope.copySelectedTheme = null;
             };
 
             $scope.ok = function () {
-                console.log(LayerManagementService.EnabledThemes);
-                $modalInstance.$close(LayerManagementService.EnabledThemes); // return the themes.
+                // console.log(LayerManagementService.EnabledThemes);
+                $modalInstance.$close(); // return the themes.
             };
             $scope.cancel = function () {
                 $modalInstance.$dismiss('cancel is pressed'); // To close the controller with a dismiss message

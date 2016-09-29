@@ -18,8 +18,7 @@
         <div ng-if="searchIsUrl">
             <button ng-click="laadUrl()">Laad url</button>
         </div>
-        <preview-layer addorupdatefunc="AddOrUpdateTheme()" theme="copySelectedTheme">
-
+        <preview-layer ng-if="copySelectedTheme" addorupdatefunc="AddOrUpdateTheme()" theme="copySelectedTheme">
         </preview-layer>
     </div>
 </div>

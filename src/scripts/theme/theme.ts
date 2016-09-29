@@ -65,7 +65,7 @@ namespace TinkGis {
             this.Added = false;
             this.enabled = true;
             this.Type = ThemeType.ESRI;
-            this.status = ThemeStatus.NEW;
+            this.status = ThemeStatus.UNMODIFIED;
             this.MapData = {};
             let convertedLayers = rawlayers.map(x => new arcgislayer(x, this));
             convertedLayers.forEach(argislay => {
@@ -122,11 +122,9 @@ namespace TinkGis {
             layers.forEach(layer => {
                 let lay = new wmslayer(layer, this);
                 this.Layers.push(lay);
-                // this.AllLayers.push(lay);
             });
         }
         UpdateMap(map: L.Map) {
-            // this.RecalculateVisibleLayerIds();
             map.removeLayer(this.MapData);
             map.addLayer(this.MapData);
         }
