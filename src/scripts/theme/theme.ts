@@ -56,11 +56,10 @@ namespace TinkGis {
         constructor(rawdata: any, themeData: any) {
             super();
             let rawlayers: any[] = rawdata.layers;
-            this.Naam = rawdata.documentInfo.Title;
-            this.name = rawdata.documentInfo.Title;
+            this.name = this.Naam = rawdata.documentInfo.Title;
             this.Description = rawdata.documentInfo.Subject;
             this.CleanUrl = themeData.cleanUrl;
-            this.Url = themeData.url;
+            this.Url = themeData.url || 'services/P_Stad/' + themeData.naam + '/MapServer';
             this.Visible = true;
             this.Added = false;
             this.enabled = true;

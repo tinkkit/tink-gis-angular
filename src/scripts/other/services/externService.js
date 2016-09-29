@@ -31,12 +31,12 @@
             var arr = MapData.Themes.map(theme => {
                 let returnitem = {};
                 returnitem.Naam = theme.Naam;
-                if (theme.CleanUrl) {
-                    returnitem.CleanUrl = theme.CleanUrl;
-                }
-                else {
+                if (theme.Type == ThemeType.ESRI) {
                     returnitem.CleanUrl = theme.Url;
+                } else {
+                    returnitem.CleanUrl = theme.CleanUrl || theme.Url;
                 }
+
                 returnitem.Type = theme.Type;
                 returnitem.Visible = theme.Visible;
                 returnitem.Layers = theme.AllLayers.filter(x => { return x.enabled == true; }).map(layer => {
@@ -68,7 +68,7 @@
 
             project.themes.forEach(theme => {
                 if (theme.type == ThemeType.ESRI) {
-                    theme.cleanUrl = Gis.BaseUrl + 'arcgissql/rest/' + theme.cleanUrl;
+                    theme.cleanUrl = Gis.BaseUrl + 'arcgissql/rest/' + theme.Naam + '/MapServer/';
                     let prom = GISService.GetThemeData(theme.cleanUrl);
                     promises.push(prom);
                     prom.then(function (data) {

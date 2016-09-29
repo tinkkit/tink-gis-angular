@@ -2008,11 +2008,12 @@ var esri2geo = {};
             var arr = MapData.Themes.map(function (theme) {
                 var returnitem = {};
                 returnitem.Naam = theme.Naam;
-                if (theme.CleanUrl) {
-                    returnitem.CleanUrl = theme.CleanUrl;
-                } else {
+                if (theme.Type == ThemeType.ESRI) {
                     returnitem.CleanUrl = theme.Url;
+                } else {
+                    returnitem.CleanUrl = theme.CleanUrl || theme.Url;
                 }
+
                 returnitem.Type = theme.Type;
                 returnitem.Visible = theme.Visible;
                 returnitem.Layers = theme.AllLayers.filter(function (x) {
@@ -2046,7 +2047,7 @@ var esri2geo = {};
 
             project.themes.forEach(function (theme) {
                 if (theme.type == ThemeType.ESRI) {
-                    theme.cleanUrl = Gis.BaseUrl + 'arcgissql/rest/' + theme.cleanUrl;
+                    theme.cleanUrl = Gis.BaseUrl + 'arcgissql/rest/' + theme.Naam + '/MapServer/';
                     var prom = GISService.GetThemeData(theme.cleanUrl);
                     promises.push(prom);
                     prom.then(function (data) {
@@ -4625,11 +4626,10 @@ var TinkGis;
             var _this2 = _possibleConstructorReturn(this, (ArcGIStheme.__proto__ || Object.getPrototypeOf(ArcGIStheme)).call(this));
 
             var rawlayers = rawdata.layers;
-            _this2.Naam = rawdata.documentInfo.Title;
-            _this2.name = rawdata.documentInfo.Title;
+            _this2.name = _this2.Naam = rawdata.documentInfo.Title;
             _this2.Description = rawdata.documentInfo.Subject;
             _this2.CleanUrl = themeData.cleanUrl;
-            _this2.Url = themeData.url;
+            _this2.Url = themeData.url || 'services/P_Stad/' + themeData.naam + '/MapServer';
             _this2.Visible = true;
             _this2.Added = false;
             _this2.enabled = true;
