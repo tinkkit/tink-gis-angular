@@ -360,14 +360,16 @@ button.trash {
   // position: relative;
 }
 
-.scrollable { // make the div content vertical scrollable
-  height: 100%;
+.scrollable-themes { // make the div content vertical scrollable
+  height: 38vh;
   overflow-x: hidden;
   overflow-y: auto;
 }
 
-.set-height {
-  height: 90%;
+.scrollable-preview { // make the div content vertical scrollable
+  height: 34vh;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 // customize pagination
@@ -377,6 +379,7 @@ button.trash {
   }
   .table-sort-pagination {
     margin: 0;
+    padding-top: 2px;
     .prev,
     .next {
       span {
