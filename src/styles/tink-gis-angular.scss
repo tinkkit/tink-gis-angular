@@ -325,9 +325,9 @@ button.trash {
  */
 
 .modal-header {
-    padding: 15px;
-    border-bottom: 1px solid gray;
-    // text-align: left;
+  border-bottom: 1px solid gray;
+  padding: rem(15);
+  // text-align: left;
 }
 
 .modal-title {
@@ -335,13 +335,13 @@ button.trash {
     line-height: 1.42857143;
 }
 .modal-content {
-    padding: 15px;
+    // padding: 15px;
     // text-align: left;
 }
 .modal-footer {
-    padding: 15px;
-    border-top: 1px solid gray;
-    // text-align: left;
+  border-top: 1px solid gray;
+  padding: rem(15);
+  // text-align: left;
 }
 
 .modal-dialog{
@@ -354,6 +354,37 @@ button.trash {
   z-index: 9998;
 }
 
+.modal-body {
+  height: 60vh;
+  padding: rem(15);
+  // position: relative;
+}
+
+.scrollable { // make the div content vertical scrollable
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.set-height {
+  height: 90%;
+}
+
+// customize pagination
+.table-sort-options {
+  .table-sort-info {
+    display: none;
+  }
+  .table-sort-pagination {
+    margin: 0;
+    .prev,
+    .next {
+      span {
+        display: none;
+      }
+    }
+  }
+}
 
 /**
  * Typeahead styling
@@ -446,12 +477,13 @@ button.trash {
   color: lightgrey !important;
 }
 
-a.btn.prev,a.btn.next {
-  display: none;
-}
-div.table-sort-pagination {
-      float: left !important;
-}
+// This breaks pagination
+// a.btn.prev,a.btn.next {
+//   display: none;
+// }
+// div.table-sort-pagination {
+//       float: left !important;
+// }
 .nav-tabs {
   margin:  5px 0px 5px 0px;
 }

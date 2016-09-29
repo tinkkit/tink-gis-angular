@@ -315,6 +315,147 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
 ;'use strict';
 
 (function (module) {
+    var module;
+    try {
+        module = angular.module('tink.gis');
+    } catch (e) {
+        module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
+    }
+    module.controller('layersManagementController', ['$scope', 'MapData', 'ThemeService', function ($scope, MapData, ThemeService) {
+        $scope.pagingCount = null;
+        $scope.numberofrecordsmatched = 0;
+        $scope.availableThemes = MapData.Themes;
+        $scope.allThemes = [];
+        var init = function () {
+            $scope.searchTerm = '';
+        }();
+        $scope.searchChanged = function () {};
+
+        $scope.pageChanged = function (page, recordsAPage) {
+            var startItem = (page - 1) * recordsAPage;
+            $scope.availableThemes = $scope.allThemes.slice(startItem, startItem + recordsAPage);
+            // console.log(page, recordsAPage);
+            // $scope.QueryGISSOLR($scope.searchTerm, page);
+        };
+        $scope.selectedTheme = null;
+        $scope.copySelectedTheme = null;
+        $scope.previewTheme = function (theme) {
+            console.log('themeChanged');
+            console.log(theme);
+            var alreadyExistingTheme = MapData.Themes.find(function (x) {
+                return x.CleanUrl === theme.CleanUrl;
+            });
+            if (alreadyExistingTheme) {
+                theme = alreadyExistingTheme;
+            }
+            $scope.selectedTheme = theme;
+            $scope.copySelectedTheme = angular.copy(theme);
+        };
+        $scope.clearPreview = function () {
+            $scope.selectedTheme = null;
+            $scope.copySelectedTheme = null;
+        };
+        $scope.ThemeChanged = function (theme) {
+            $scope.previewTheme(theme);
+        };
+
+        $scope.AddOrUpdateTheme = function () {
+            console.log('AddOrUpdateTheme');
+            var allChecked = true;
+            var noneChecked = true;
+            var hasAChange = false;
+            for (var x = 0; x < $scope.copySelectedTheme.AllLayers.length; x++) {
+                // aha dus update gebeurt, we gaan deze toevoegen.
+                var copyLayer = $scope.copySelectedTheme.AllLayers[x];
+                var realLayer = $scope.selectedTheme.AllLayers[x];
+                if (realLayer.enabled != copyLayer.enabled) {
+                    hasAChange = true;
+                }
+                realLayer.enabled = copyLayer.enabled;
+                if (copyLayer.enabled === false) {
+                    // check or all the checkboxes are checked
+                    allChecked = false;
+                } else {
+                    noneChecked = false;
+                }
+            }
+
+            var alreadyAdded = MapData.Themes.find(function (x) {
+                return x.CleanUrl === $scope.selectedTheme.CleanUrl;
+            }) != undefined;
+
+            if (alreadyAdded) {
+                if (hasAChange) {
+                    $scope.selectedTheme.status = ThemeStatus.UPDATED;
+                } else {
+                    $scope.selectedTheme.status = ThemeStatus.UNMODIFIED;
+                }
+                if (noneChecked) {
+                    $scope.selectedTheme.status = ThemeStatus.DELETED;
+                }
+            } else {
+                $scope.selectedTheme.status = ThemeStatus.NEW;
+            }
+            if (allChecked && $scope.selectedTheme != ThemeStatus.DELETED) {
+                $scope.selectedTheme.Added = true; // here we can set the Added to true when they are all added
+            }
+            if (!allChecked && !noneChecked && $scope.selectedTheme != ThemeStatus.DELETED) {
+                $scope.selectedTheme.Added = null; // if not all added then we put it to null
+            }
+            if ($scope.selectedTheme == ThemeStatus.DELETED) {
+                $scope.selectedTheme.Added = false;
+            }
+            ThemeService.AddAndUpdateThemes([$scope.selectedTheme]);
+            $scope.selectedTheme = null;
+            $scope.copySelectedTheme = null;
+            // if (noneChecked) {
+            //     //Niks is checked, dus we moeten deze 'deleten'.
+            //     $scope.selectedTheme.Added = false;
+            //     if ($scope.selectedTheme.status != ThemeStatus.NEW) { // als deze new is dan zette we deze gewoon op niets want we verwijderen die.
+            //         $scope.selectedTheme.status = ThemeStatus.DELETED;
+            //     }
+            //     else {
+            //         if (alreadyAdded) {
+            //             var index = MapData.Themes.indexOf($scope.selectedTheme);
+            //             if (index > -1) {
+            //                 MapData.Themes.splice(index, 1);
+            //             }
+            //         }
+            //     }
+            // }
+            // else { // het is dus geen delete
+            //     if (allChecked) {
+            //         $scope.selectedTheme.Added = true; // here we can set the Added to true when they are all added
+            //     }
+            //     else {
+            //         $scope.selectedTheme.Added = null; // if not all added then we put it to null
+            //     }
+            //     if (alreadyAdded == false) { // it is a new theme!
+            //         MapData.Themes.push($scope.selectedTheme);
+            //     } else { // already exist! It is an update!
+            //         if ($scope.selectedTheme.status != ThemeStatus.NEW) {
+            //             $scope.selectedTheme.status = ThemeStatus.UPDATED;
+            //             console.log('changed naar updated');
+            //         }
+            //         else {
+            //             console.log('Hij is al new, dus moet hij niet naar updated changen.');
+            //         }
+            //     }
+            // }
+        };
+
+        $scope.ok = function () {
+            // console.log(LayerManagementService.EnabledThemes);
+            // $modalInstance.$close(); // return the themes.
+        };
+        $scope.cancel = function () {
+            // $modalInstance.$dismiss('cancel is pressed'); // To close the controller with a dismiss message
+        };
+    }]);
+})();
+;'use strict';
+
+(function (module) {
     var module = angular.module('tink.gis');
     var theController = module.controller('managementLayerController', function ($scope) {
         var vm = this;
@@ -337,6 +478,12 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
     }
     module.controller('previewLayerController', ['$scope', function ($scope) {
+        $scope.delTheme = function () {
+            $scope.theme.AllLayers.forEach(function (lay) {
+                lay.enabled = false;
+            });
+            $scope.addorupdatefunc();
+        };
         // var vm = this;
         // vm.theme = $scope.theme;
         // console.log("previewLayerController INIT", $scope.theme);
@@ -355,13 +502,10 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
     } catch (e) {
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
     }
-    module.controller('solrGISController', ['$scope', 'ThemeCreater', '$q', 'MapService', 'MapData', 'GISService', 'LayerManagementService', 'WMSService', '$window', '$http', 'GeopuntService', function ($scope, ThemeCreater, $q, MapService, MapData, GISService, LayerManagementService, WMSService, $window, $http, GeopuntService) {
+    module.controller('solrGISController', ['$scope', 'ThemeCreater', '$q', 'MapService', 'MapData', 'GISService', 'LayerManagementService', 'WMSService', '$window', '$http', 'GeopuntService', 'ThemeService', function ($scope, ThemeCreater, $q, MapService, MapData, GISService, LayerManagementService, WMSService, $window, $http, GeopuntService, ThemeService) {
         $scope.pagingCount = null;
         $scope.numberofrecordsmatched = 0;
-        // $scope.currentPage = 1;
-        LayerManagementService.EnabledThemes.length = 0;
         LayerManagementService.AvailableThemes.length = 0;
-        LayerManagementService.EnabledThemes = angular.copy(MapData.Themes);
         $scope.availableThemes = [];
         $scope.allThemes = [];
         var init = function () {
@@ -400,7 +544,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                                     layers: [],
                                     layersCount: 0,
                                     name: themeName,
-                                    cleanUrl: Gis.BaseUrl + '/arcgissql/rest/services/P_Stad/' + themeName + '/MapServer',
+                                    cleanUrl: Gis.BaseUrl + 'arcgissql/rest/services/P_Stad/' + themeName + '/MapServer',
                                     url: 'services/P_Stad/' + themeName + '/MapServer'
                                 };
                                 themes.push(theme);
@@ -436,15 +580,13 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                                     layers: [],
                                     layersCount: itemMetData.doclist.numFound,
                                     name: themeName,
-                                    cleanUrl: Gis.BaseUrl + '/arcgissql/rest/services/P_Stad/' + themeName + '/MapServer',
+                                    cleanUrl: Gis.BaseUrl + 'arcgissql/rest/services/P_Stad/' + themeName + '/MapServer',
                                     url: 'services/P_Stad/' + themeName + '/MapServer'
                                 };
                                 themes.push(theme);
                             } else {
                                 theme.layersCount = itemMetData.doclist.numFound;
-                                // theme.isMatch = true;
                             }
-
                             itemMetData.doclist.docs.forEach(function (item) {
                                 var layer = theme.layers.find(function (x) {
                                     return x.id == item.key;
@@ -462,7 +604,6 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                                     layer.isMatch = true;
                                 }
                             });
-
                             break;
                         default:
                             console.log("UNKOWN TYPE:", item);
@@ -488,6 +629,12 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         $scope.previewTheme = function (theme) {
             console.log('themeChanged');
             console.log(theme);
+            var alreadyExistingTheme = MapData.Themes.find(function (x) {
+                return x.CleanUrl === theme.CleanUrl;
+            });
+            if (alreadyExistingTheme) {
+                theme = alreadyExistingTheme;
+            }
             $scope.selectedTheme = theme;
             $scope.copySelectedTheme = angular.copy(theme);
         };
@@ -509,10 +656,14 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             console.log('AddOrUpdateTheme');
             var allChecked = true;
             var noneChecked = true;
+            var hasAChange = false;
             for (var x = 0; x < $scope.copySelectedTheme.AllLayers.length; x++) {
                 // aha dus update gebeurt, we gaan deze toevoegen.
                 var copyLayer = $scope.copySelectedTheme.AllLayers[x];
                 var realLayer = $scope.selectedTheme.AllLayers[x];
+                if (realLayer.enabled != copyLayer.enabled) {
+                    hasAChange = true;
+                }
                 realLayer.enabled = copyLayer.enabled;
                 if (copyLayer.enabled === false) {
                     // check or all the checkboxes are checked
@@ -521,52 +672,38 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                     noneChecked = false;
                 }
             }
-            var alreadyAdded = LayerManagementService.EnabledThemes.find(function (x) {
+            var alreadyAdded = MapData.Themes.find(function (x) {
                 return x.CleanUrl === $scope.selectedTheme.CleanUrl;
             }) != undefined;
-            if (noneChecked) {
-                //Niks is checked, dus we moeten deze 'deleten'.
-                $scope.selectedTheme.Added = false;
-                if ($scope.selectedTheme.status != ThemeStatus.NEW) {
-                    // als deze new is dan zette we deze gewoon op niets want we verwijderen die.
-                    $scope.selectedTheme.status = ThemeStatus.DELETED;
+            if (alreadyAdded) {
+                if (hasAChange) {
+                    $scope.selectedTheme.status = ThemeStatus.UPDATED;
                 } else {
-                    if (alreadyAdded) {
-                        var index = LayerManagementService.EnabledThemes.indexOf($scope.selectedTheme);
-                        if (index > -1) {
-                            LayerManagementService.EnabledThemes.splice(index, 1);
-                        }
-                    }
+                    $scope.selectedTheme.status = ThemeStatus.UNMODIFIED;
+                }
+                if (noneChecked) {
+                    $scope.selectedTheme.status = ThemeStatus.DELETED;
                 }
             } else {
-                // het is dus geen delete
-                if (allChecked) {
-                    $scope.selectedTheme.Added = true; // here we can set the Added to true when they are all added
-                } else {
-                    $scope.selectedTheme.Added = null; // if not all added then we put it to null
-                }
-                if (alreadyAdded == false) {
-                    // it is a new theme!
-                    LayerManagementService.EnabledThemes.push($scope.selectedTheme);
-                } else {
-                    // already exist! It is an update!
-                    if ($scope.selectedTheme.status != ThemeStatus.NEW) {
-                        $scope.selectedTheme.status = ThemeStatus.UPDATED;
-                        console.log('changed naar updated');
-                    } else {
-                        console.log('Hij is al new, dus moet hij niet naar updated changen.');
-                    }
-                }
+                $scope.selectedTheme.status = ThemeStatus.NEW;
             }
-            console.log('AddOrUpdateTheme');
-
+            if (allChecked && $scope.selectedTheme != ThemeStatus.DELETED) {
+                $scope.selectedTheme.Added = true; // here we can set the Added to true when they are all added
+            }
+            if (!allChecked && !noneChecked && $scope.selectedTheme != ThemeStatus.DELETED) {
+                $scope.selectedTheme.Added = null; // if not all added then we put it to null
+            }
+            if ($scope.selectedTheme == ThemeStatus.DELETED) {
+                $scope.selectedTheme.Added = false;
+            }
+            ThemeService.AddAndUpdateThemes([$scope.selectedTheme]);
             $scope.selectedTheme = null;
             $scope.copySelectedTheme = null;
         };
 
         $scope.ok = function () {
-            console.log(LayerManagementService.EnabledThemes);
-            $modalInstance.$close(LayerManagementService.EnabledThemes); // return the themes.
+            // console.log(LayerManagementService.EnabledThemes);
+            $modalInstance.$close(); // return the themes.
         };
         $scope.cancel = function () {
             $modalInstance.$dismiss('cancel is pressed'); // To close the controller with a dismiss message
@@ -611,6 +748,22 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             }
         };
     }]);
+})();
+;'use strict';
+
+(function (module) {
+    module = angular.module('tink.gis');
+    module.directive('layersManagement', function () {
+        return {
+            replace: true,
+            // scope: {
+            //     layer: '='
+            // },
+            templateUrl: 'templates/layermanagement/layersManagementTemplate.html',
+            controller: 'layersManagementController',
+            controllerAs: 'layersManagementctrl'
+        };
+    });
 })();
 ;'use strict';
 
@@ -816,7 +969,6 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             MapData.SetZIndexes(newVal);
         });
         vm.updatethemevisibility = function (theme) {
-
             ThemeService.UpdateThemeVisibleLayers(theme);
         };
         vm.Lagenbeheer = function () {
@@ -850,7 +1002,6 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 ExternService.Import(externproj);
             }
         }();
-        // vm.MapData = MapData;
         vm.layerId = '';
         vm.ZoekenOpLocatie = true;
         vm.activeInteractieKnop = MapData.ActiveInteractieKnop;
@@ -1950,6 +2101,7 @@ var esri2geo = {};
                         return x.CleanUrl == theme.cleanUrl;
                     });
                     orderedArray.unshift(realTheme);
+                    realTheme.status = ThemeStatus.NEW; // and make sure they are new, ready to be added.
                 });
                 ThemeService.AddAndUpdateThemes(orderedArray);
                 console.log('all loaded');
@@ -3816,7 +3968,7 @@ L.drawLocal = {
 
   $templateCache.put('templates/layermanagement/geoPuntTemplate.html',
     "<div class=row>\n" +
-    "<div class=col-md-4>\n" +
+    "<div class=\"col-md-4 scrollable\">\n" +
     "<input class=searchbox ng-model=searchTerm ng-change=searchChanged() ng-model-options=\"{debounce: 500}\" placeholder=\"Geef een trefwoord of een url in\">\n" +
     "<input disabled value=https://geodata.antwerpen.be/arcgissql/services/P_SiK/Groeninventaris/MapServer/WMSServer>\n" +
     "<div ng-if=!searchIsUrl ng-repeat=\"theme in availableThemes\">\n" +
@@ -3828,14 +3980,14 @@ L.drawLocal = {
     "</div>\n" +
     "<tink-pagination ng-hide=\"numberofrecordsmatched <= 5\" tink-items-per-page-values=[5] tink-current-page=currentPage tink-change=pageChanged(page,perPage,next) tink-total-items=numberofrecordsmatched tink-items-per-page=recordsAPage></tink-pagination>\n" +
     "</div>\n" +
-    "<div class=col-md-8>\n" +
+    "<div class=\"col-md-8 scrollable\">\n" +
     "<div ng-if=searchIsUrl>\n" +
     "<button ng-click=laadUrl()>Laad url</button>\n" +
     "</div>\n" +
-    "<preview-layer addorupdatefunc=AddOrUpdateTheme() theme=copySelectedTheme>\n" +
+    "<preview-layer ng-if=copySelectedTheme addorupdatefunc=AddOrUpdateTheme() theme=copySelectedTheme>\n" +
     "</preview-layer>\n" +
     "</div>\n" +
-    "</div>"
+    "</div>\n"
   );
 
 
@@ -3843,19 +3995,35 @@ L.drawLocal = {
     "<div>\n" +
     "<div class=modal-header>\n" +
     "<button type=button style=float:right data-ng-click=cancel()><i class=\"fa fa-times\"></i></button>\n" +
-    "<h4 class=model-title>Laag toevoegen\n" +
+    "<h4 class=model-title>Lagenbeheer\n" +
     "</h4></div>\n" +
-    "<div class=modal-content>\n" +
+    "<div class=modal-body>\n" +
     "<ul class=nav-tabs>\n" +
     "<li role=presentation ng-class=\"{'active': active=='solr'}\"><a href=\"\" ng-click=\"active='solr'\">Stad</a></li>\n" +
     "<li role=presentation ng-class=\"{'active': active=='geopunt'}\"><a href=# ng-click=\"active='geopunt'\">GeoPunt</a></li>\n" +
-    "<li role=presentation ng-class=\"{'active': active=='Beheer'}\"><a href=\"\" ng-click=\"active='beheer'\">Beheer</a></li>\n" +
+    "<li role=presentation ng-class=\"{'active': active=='beheer'}\"><a href=\"\" ng-click=\"active='beheer'\">Beheer</a></li>\n" +
     "</ul>\n" +
     "<solr-gis ng-show=\"active=='solr'\"></solr-gis>\n" +
     "<geo-punt ng-show=\"active=='geopunt'\"></geo-punt>\n" +
+    "<layers-management ng-if=\"active=='beheer'\"></layers-management>\n" +
     "</div>\n" +
-    "<div class=modal-footer>\n" +
-    "<button data-ng-click=ok()>Klaar</button>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('templates/layermanagement/layersManagementTemplate.html',
+    "<div class=row>\n" +
+    "<div class=col-md-4>\n" +
+    "<input class=searchbox ng-model=searchTerm ng-change=searchChanged() placeholder=\"Geef een trefwoord\">\n" +
+    "<div ng-repeat=\"theme in availableThemes | filter:{name: searchTerm}\">\n" +
+    "<div ng-click=ThemeChanged(theme)>\n" +
+    "{{theme.name}}\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "<div class=col-md-8>\n" +
+    "<preview-layer ng-if=copySelectedTheme theme=copySelectedTheme addorupdatefunc=AddOrUpdateTheme()>\n" +
+    "</preview-layer>\n" +
     "</div>\n" +
     "</div>"
   );
@@ -3883,41 +4051,52 @@ L.drawLocal = {
 
   $templateCache.put('templates/layermanagement/previewLayerTemplate.html',
     "<div ng-show=\"theme !== null\">\n" +
-    "<button ng-if=\"theme.Added != false\" data-ng-click=AddOrUpdateFunc()>Update</button>\n" +
+    "<button ng-if=\"theme.Added != false\" ng-click=addorupdatefunc()>Update</button>\n" +
+    "<button ng-if=\"theme.Added != false\" ng-click=delTheme()>Delete</button>\n" +
     "<p>{{theme.Description}}</p>\n" +
     "<p><small><a ng-href={{theme.CleanUrl}} target=_blank>Details</a></small></p>\n" +
     "<div class=layercontroller-checkbox>\n" +
     "<input indeterminate-checkbox child-list=theme.AllLayers property=enabled type=checkbox ng-model=theme.enabled id={{theme.name}}>\n" +
-    "<label for={{theme.name}}> {{theme.name | limitTo: 99}}</label>\n" +
+    "<label for={{theme.name}}>{{theme.name}}</label>\n" +
     "<div ng-repeat=\"mainlayer in theme.Layers\">\n" +
     "<tink-managementlayer layer=mainlayer>\n" +
     "</tink-managementlayer>\n" +
     "</div>\n" +
     "</div>\n" +
-    "<button ng-if=\"theme.Added == false\" data-ng-click=AddOrUpdateFunc()>Toevoegen</button>\n" +
+    "<button ng-if=\"theme.Added == false\" ng-click=addorupdatefunc()>Toevoegen</button>\n" +
     "</div>"
   );
 
 
   $templateCache.put('templates/layermanagement/solrGISTemplate.html',
-    "<div class=row>\n" +
-    "<div class=col-md-4>\n" +
+    "<div class=\"row set-height\">\n" +
+    "<div class=\"col-md-4 set-height\">\n" +
+    "<div class=\"row set-height\">\n" +
+    "<div class=col-xs-12>\n" +
     "<input class=searchbox ng-model=searchTerm ng-change=searchChanged() ng-model-options=\"{debounce: 250}\" placeholder=\"Geef een trefwoord\">\n" +
+    "</div>\n" +
+    "<div class=\"col-xs-12 scrollable\">\n" +
     "<div ng-repeat=\"theme in availableThemes\">\n" +
     "<div ng-click=solrThemeChanged(theme) class=greytext>\n" +
     "{{theme.name}}\n" +
     "<div style=\"margin-left: 20px\" ng-repeat=\"layer in theme.layers\">\n" +
-    "<span ng-class=\"{'blacktext': layer.isMatch}\">{{layer.naam}}<span ng-show=\"layer.featuresCount > 0\"> ({{layer.featuresCount}})</span> </span>\n" +
+    "<span ng-class=\"{'blacktext': layer.isMatch}\">{{layer.naam}}\n" +
+    "<span ng-show=\"layer.featuresCount > 0\"> ({{layer.featuresCount}})</span>\n" +
+    "</span>\n" +
     "<div class=\"blacktext featureinsolr\">\n" +
     "{{layer.features.join(', ')}}\n" +
     "</div>\n" +
     "</div>\n" +
     "</div>\n" +
     "</div>\n" +
-    "<tink-pagination ng-hide=\"numberofrecordsmatched <= 5\" tink-items-per-page-values=[5] tink-current-page=currentPage tink-change=pageChanged(page,perPage,next) tink-total-items=numberofrecordsmatched tink-items-per-page=recordsAPage></tink-pagination>\n" +
+    "</div>\n" +
+    "<div class=col-xs-12>\n" +
+    "<tink-pagination ng-hide=\"numberofrecordsmatched <= 5\" tink-current-page=currentPage tink-change=pageChanged(page,perPage,next) tink-total-items=numberofrecordsmatched tink-items-per-page=recordsAPage></tink-pagination>\n" +
+    "</div>\n" +
+    "</div>\n" +
     "</div>\n" +
     "<div class=col-md-8>\n" +
-    "<preview-layer theme=copySelectedTheme addorupdatefunc=AddOrUpdateTheme()>\n" +
+    "<preview-layer ng-if=copySelectedTheme theme=copySelectedTheme addorupdatefunc=AddOrUpdateTheme()>\n" +
     "</preview-layer>\n" +
     "</div>\n" +
     "</div>"
@@ -4455,7 +4634,7 @@ var TinkGis;
             _this2.Added = false;
             _this2.enabled = true;
             _this2.Type = ThemeType.ESRI;
-            _this2.status = ThemeStatus.NEW;
+            _this2.status = ThemeStatus.UNMODIFIED;
             _this2.MapData = {};
             var convertedLayers = rawlayers.map(function (x) {
                 return new TinkGis.arcgislayer(x, _this2);
