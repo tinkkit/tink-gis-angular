@@ -334,6 +334,13 @@ button.btn.active {
       right: 1.0714285714rem ;
       top: 1.0714285714rem ; } }
 
+.full-width {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  -webkit-transform: translate(0, 0) !important;
+      -ms-transform: translate(0, 0) !important;
+          transform: translate(0, 0) !important; }
+
 /**
  * Rightside layer menu
  */
@@ -528,10 +535,15 @@ div.table-sort-pagination {
   .nav-right-toggle:before {
     content: "\f100"; }
 
-html.has-nav-left.nav-left-can-always-close .nav-left {
+html.has-nav-left .nav-left {
   -webkit-transform: translate(-22.8571428571rem , 0);
       -ms-transform: translate(-22.8571428571rem , 0);
           transform: translate(-22.8571428571rem , 0); }
+
+.nav-right {
+  -webkit-transform: translate(15.7142857143rem, 0);
+      -ms-transform: translate(15.7142857143rem, 0);
+          transform: translate(15.7142857143rem, 0); }
 
 .map-buttons-left {
   height: 100%;
@@ -549,11 +561,21 @@ html.has-nav-left.nav-left-can-always-close .nav-left {
 html.nav-left-open .map-buttons-left {
   left: 22.8571428571rem ; }
 
+html.nav-left-open .nav-left {
+  -webkit-transform: translate(0, 0);
+      -ms-transform: translate(0, 0);
+          transform: translate(0, 0); }
+
 html.nav-left-open .nav-left-toggle:before {
   content: "\f100"; }
 
 html.nav-right-open .map-buttons-right {
   right: 15.7142857143rem ; }
+
+html.nav-right-open .nav-right {
+  -webkit-transform: translate(0, 0);
+      -ms-transform: translate(0, 0);
+          transform: translate(0, 0); }
 
 html.nav-right-open .nav-right-toggle:before {
   content: "\f101"; }
