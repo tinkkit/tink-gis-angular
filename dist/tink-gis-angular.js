@@ -153,7 +153,6 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             $scope.searchTerm = '';
             $scope.searchIsUrl = false;
         }();
-
         $scope.searchChanged = function () {
             if ($scope.searchTerm != null && $scope.searchTerm != '' && $scope.searchTerm.length > 2) {
                 $scope.clearPreview();
@@ -175,9 +174,6 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 $scope.currentrecord = metadata.currentrecord;
                 $scope.nextrecord = metadata.nextrecord;
                 $scope.numberofrecordsmatched = metadata.numberofrecordsmatched;
-                // $scope.numberofrecordsreturned = metadata.numberofrecordsreturned;
-                // $scope.currentPage = Math.ceil($scope.pagingStart / $scope.recordsAPage)
-                console.log(metadata);
             }, function (reason) {
                 console.log(reason);
             });
@@ -196,9 +192,10 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         };
 
         var createWMS = function createWMS(url) {
-            if (MapData.Themes.find(function (x) {
+            var wms = MapData.Themes.find(function (x) {
                 return x.CleanUrl == url;
-            }) == undefined) {
+            });
+            if (wms == undefined) {
                 var getwms = WMSService.GetThemeData(url);
                 getwms.success(function (data, status, headers, config) {
                     var wmstheme = ThemeCreater.createWMSThemeFromJSON(data, url);
@@ -207,7 +204,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                     $window.alert('error');
                 });
             } else {
-                alert('Deze is al toegevoegd aan de map.');
+                $scope.previewTheme(wms);
             }
         };
         $scope.selectedTheme = null;
@@ -3859,7 +3856,9 @@ L.drawLocal = {
     "<geo-punt ng-show=\"active=='geopunt'\"></geo-punt>\n" +
     "<layers-management ng-if=\"active=='beheer'\"></layers-management>\n" +
     "</div>\n" +
-    "</div>\n"
+    "<div class=modal-footer>\n" +
+    "</div>\n" +
+    "</div>"
   );
 
 
