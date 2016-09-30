@@ -341,6 +341,29 @@ button.btn.active {
       -ms-transform: translate(0, 0) !important;
           transform: translate(0, 0) !important; }
 
+.relative-container {
+  height: 60vh;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex; }
+
+.flex-column {
+  -webkit-flex-grow: 1;
+      -ms-flex-positive: 1;
+          flex-grow: 1;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+      -ms-flex-direction: column;
+          flex-direction: column; }
+
+.scrollable-list {
+  overflow: auto;
+  -webkit-flex-grow: 1;
+      -ms-flex-positive: 1;
+          flex-grow: 1; }
+
 /**
  * Rightside layer menu
  */
@@ -404,21 +427,8 @@ button.trash {
   z-index: 9999; }
 
 .modal {
+  overflow: hidden;
   z-index: 9998; }
-
-.modal-body {
-  height: 60vh;
-  padding: 1.0714285714rem ; }
-
-.scrollable-themes {
-  height: 38vh;
-  overflow-x: hidden;
-  overflow-y: auto; }
-
-.scrollable-preview {
-  height: 34vh;
-  overflow-x: hidden;
-  overflow-y: auto; }
 
 .table-sort-options .table-sort-info {
   display: none; }
