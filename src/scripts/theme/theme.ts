@@ -52,14 +52,15 @@ namespace TinkGis {
     }
     export class ArcGIStheme extends Theme {
         VisibleLayerIds: Array<number>;
-
+        // SuffixUrl: string;
         constructor(rawdata: any, themeData: any) {
             super();
             let rawlayers: any[] = rawdata.layers;
             this.name = this.Naam = rawdata.documentInfo.Title;
             this.Description = rawdata.documentInfo.Subject;
             this.CleanUrl = themeData.cleanUrl;
-            this.Url = themeData.url || 'services/P_Stad/' + themeData.naam + '/MapServer';
+            let cleanurlSplitted = themeData.cleanUrl.split('/');
+            this.Url = cleanurlSplitted[5] + '/' + cleanurlSplitted[6] + '/' + cleanurlSplitted[7] + '/' + cleanurlSplitted[8];
             this.Visible = true;
             this.Added = false;
             this.enabled = true;

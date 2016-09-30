@@ -97,7 +97,8 @@ var ActiveInteractieButton = {
     WATISHIER: 'watishier'
 };
 var Gis = {
-    BaseUrl: 'https://geoint.antwerpen.be/'
+    BaseUrl: 'https://geoint.antwerpen.be/',
+    Arcgissql: 'https://geoint.antwerpen.be/arcgissql/rest/'
 };
 var DrawingOption = {
     NIETS: '',
@@ -144,13 +145,11 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         $scope.searchIsUrl = false;
         $scope.pagingCount = null;
         $scope.numberofrecordsmatched = 0;
-        // $scope.currentPage = 1;
         LayerManagementService.EnabledThemes.length = 0;
         LayerManagementService.AvailableThemes.length = 0;
         LayerManagementService.EnabledThemes = angular.copy(MapData.Themes);
         $scope.availableThemes = [];
         var init = function () {
-            // $scope.searchTerm = 'Laden...';
             $scope.searchTerm = '';
             $scope.searchIsUrl = false;
         }();
@@ -214,8 +213,6 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         $scope.selectedTheme = null;
         $scope.copySelectedTheme = null;
         $scope.previewTheme = function (theme) {
-            console.log('themeChanged');
-            console.log(theme);
             $scope.selectedTheme = theme;
             $scope.copySelectedTheme = angular.copy(theme);
         };
@@ -225,70 +222,8 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         };
 
         $scope.AddOrUpdateTheme = function () {
-            console.log('AddOrUpdateTheme');
-            var allChecked = true;
-            var noneChecked = true;
-            for (var x = 0; x < $scope.copySelectedTheme.AllLayers.length; x++) {
-                // aha dus update gebeurt, we gaan deze toevoegen.
-                var copyLayer = $scope.copySelectedTheme.AllLayers[x];
-                var realLayer = $scope.selectedTheme.AllLayers[x];
-                realLayer.enabled = copyLayer.enabled;
-                if (copyLayer.enabled === false) {
-                    // check or all the checkboxes are checked
-                    allChecked = false;
-                } else {
-                    noneChecked = false;
-                }
-            }
-            var alreadyAdded = LayerManagementService.EnabledThemes.find(function (x) {
-                return x.CleanUrl === $scope.selectedTheme.CleanUrl;
-            }) != undefined;
-            if (noneChecked) {
-                //Niks is checked, dus we moeten deze 'deleten'.
-                $scope.selectedTheme.Added = false;
-                if ($scope.selectedTheme.status != ThemeStatus.NEW) {
-                    // als deze new is dan zette we deze gewoon op niets want we verwijderen die.
-                    $scope.selectedTheme.status = ThemeStatus.DELETED;
-                } else {
-                    if (alreadyAdded) {
-                        var index = LayerManagementService.EnabledThemes.indexOf($scope.selectedTheme);
-                        if (index > -1) {
-                            LayerManagementService.EnabledThemes.splice(index, 1);
-                        }
-                    }
-                }
-            } else {
-                // het is dus geen delete
-                if (allChecked) {
-                    $scope.selectedTheme.Added = true; // here we can set the Added to true when they are all added
-                } else {
-                    $scope.selectedTheme.Added = null; // if not all added then we put it to null
-                }
-                if (alreadyAdded == false) {
-                    // it is a new theme!
-                    LayerManagementService.EnabledThemes.push($scope.selectedTheme);
-                } else {
-                    // already exist! It is an update!
-                    if ($scope.selectedTheme.status != ThemeStatus.NEW) {
-                        $scope.selectedTheme.status = ThemeStatus.UPDATED;
-                        console.log('changed naar updated');
-                    } else {
-                        console.log('Hij is al new, dus moet hij niet naar updated changen.');
-                    }
-                }
-            }
-            console.log('AddOrUpdateTheme');
-
-            $scope.selectedTheme = null;
-            $scope.copySelectedTheme = null;
-        };
-
-        $scope.ok = function () {
-            console.log(LayerManagementService.EnabledThemes);
-            $modalInstance.$close(LayerManagementService.EnabledThemes); // return the themes.
-        };
-        $scope.cancel = function () {
-            $modalInstance.$dismiss('cancel is pressed'); // To close the controller with a dismiss message
+            LayerManagementService.AddOrUpdateTheme($scope.selectedTheme, $scope.copySelectedTheme);
+            $scope.clearPreview();
         };
     }]);
 })();
@@ -305,7 +240,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         $scope.active = 'solr';
 
         $scope.ok = function () {
-            $modalInstance.$close(LayerManagementService.EnabledThemes); // return the themes.
+            $modalInstance.$close(); // return the themes.
         };
         $scope.cancel = function () {
             $modalInstance.$dismiss('cancel is pressed'); // To close the controller with a dismiss message
@@ -321,7 +256,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
     } catch (e) {
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
     }
-    module.controller('layersManagementController', ['$scope', 'MapData', 'ThemeService', function ($scope, MapData, ThemeService) {
+    module.controller('layersManagementController', ['$scope', 'MapData', 'ThemeService', 'LayerManagementService', function ($scope, MapData, ThemeService, LayerManagementService) {
         $scope.pagingCount = null;
         $scope.numberofrecordsmatched = 0;
         $scope.availableThemes = MapData.Themes;
@@ -360,96 +295,8 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         };
 
         $scope.AddOrUpdateTheme = function () {
-            console.log('AddOrUpdateTheme');
-            var allChecked = true;
-            var noneChecked = true;
-            var hasAChange = false;
-            for (var x = 0; x < $scope.copySelectedTheme.AllLayers.length; x++) {
-                // aha dus update gebeurt, we gaan deze toevoegen.
-                var copyLayer = $scope.copySelectedTheme.AllLayers[x];
-                var realLayer = $scope.selectedTheme.AllLayers[x];
-                if (realLayer.enabled != copyLayer.enabled) {
-                    hasAChange = true;
-                }
-                realLayer.enabled = copyLayer.enabled;
-                if (copyLayer.enabled === false) {
-                    // check or all the checkboxes are checked
-                    allChecked = false;
-                } else {
-                    noneChecked = false;
-                }
-            }
-
-            var alreadyAdded = MapData.Themes.find(function (x) {
-                return x.CleanUrl === $scope.selectedTheme.CleanUrl;
-            }) != undefined;
-
-            if (alreadyAdded) {
-                if (hasAChange) {
-                    $scope.selectedTheme.status = ThemeStatus.UPDATED;
-                } else {
-                    $scope.selectedTheme.status = ThemeStatus.UNMODIFIED;
-                }
-                if (noneChecked) {
-                    $scope.selectedTheme.status = ThemeStatus.DELETED;
-                }
-            } else {
-                $scope.selectedTheme.status = ThemeStatus.NEW;
-            }
-            if (allChecked && $scope.selectedTheme != ThemeStatus.DELETED) {
-                $scope.selectedTheme.Added = true; // here we can set the Added to true when they are all added
-            }
-            if (!allChecked && !noneChecked && $scope.selectedTheme != ThemeStatus.DELETED) {
-                $scope.selectedTheme.Added = null; // if not all added then we put it to null
-            }
-            if ($scope.selectedTheme == ThemeStatus.DELETED) {
-                $scope.selectedTheme.Added = false;
-            }
-            ThemeService.AddAndUpdateThemes([$scope.selectedTheme]);
-            $scope.selectedTheme = null;
-            $scope.copySelectedTheme = null;
-            // if (noneChecked) {
-            //     //Niks is checked, dus we moeten deze 'deleten'.
-            //     $scope.selectedTheme.Added = false;
-            //     if ($scope.selectedTheme.status != ThemeStatus.NEW) { // als deze new is dan zette we deze gewoon op niets want we verwijderen die.
-            //         $scope.selectedTheme.status = ThemeStatus.DELETED;
-            //     }
-            //     else {
-            //         if (alreadyAdded) {
-            //             var index = MapData.Themes.indexOf($scope.selectedTheme);
-            //             if (index > -1) {
-            //                 MapData.Themes.splice(index, 1);
-            //             }
-            //         }
-            //     }
-            // }
-            // else { // het is dus geen delete
-            //     if (allChecked) {
-            //         $scope.selectedTheme.Added = true; // here we can set the Added to true when they are all added
-            //     }
-            //     else {
-            //         $scope.selectedTheme.Added = null; // if not all added then we put it to null
-            //     }
-            //     if (alreadyAdded == false) { // it is a new theme!
-            //         MapData.Themes.push($scope.selectedTheme);
-            //     } else { // already exist! It is an update!
-            //         if ($scope.selectedTheme.status != ThemeStatus.NEW) {
-            //             $scope.selectedTheme.status = ThemeStatus.UPDATED;
-            //             console.log('changed naar updated');
-            //         }
-            //         else {
-            //             console.log('Hij is al new, dus moet hij niet naar updated changen.');
-            //         }
-            //     }
-            // }
-        };
-
-        $scope.ok = function () {
-            // console.log(LayerManagementService.EnabledThemes);
-            // $modalInstance.$close(); // return the themes.
-        };
-        $scope.cancel = function () {
-            // $modalInstance.$dismiss('cancel is pressed'); // To close the controller with a dismiss message
+            LayerManagementService.AddOrUpdateTheme($scope.selectedTheme, $scope.copySelectedTheme);
+            $scope.clearPreview();
         };
     }]);
 })();
@@ -653,52 +500,8 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             });
         };
         $scope.AddOrUpdateTheme = function () {
-            console.log('AddOrUpdateTheme');
-            var allChecked = true;
-            var noneChecked = true;
-            var hasAChange = false;
-            for (var x = 0; x < $scope.copySelectedTheme.AllLayers.length; x++) {
-                // aha dus update gebeurt, we gaan deze toevoegen.
-                var copyLayer = $scope.copySelectedTheme.AllLayers[x];
-                var realLayer = $scope.selectedTheme.AllLayers[x];
-                if (realLayer.enabled != copyLayer.enabled) {
-                    hasAChange = true;
-                }
-                realLayer.enabled = copyLayer.enabled;
-                if (copyLayer.enabled === false) {
-                    // check or all the checkboxes are checked
-                    allChecked = false;
-                } else {
-                    noneChecked = false;
-                }
-            }
-            var alreadyAdded = MapData.Themes.find(function (x) {
-                return x.CleanUrl === $scope.selectedTheme.CleanUrl;
-            }) != undefined;
-            if (alreadyAdded) {
-                if (hasAChange) {
-                    $scope.selectedTheme.status = ThemeStatus.UPDATED;
-                } else {
-                    $scope.selectedTheme.status = ThemeStatus.UNMODIFIED;
-                }
-                if (noneChecked) {
-                    $scope.selectedTheme.status = ThemeStatus.DELETED;
-                }
-            } else {
-                $scope.selectedTheme.status = ThemeStatus.NEW;
-            }
-            if (allChecked && $scope.selectedTheme != ThemeStatus.DELETED) {
-                $scope.selectedTheme.Added = true; // here we can set the Added to true when they are all added
-            }
-            if (!allChecked && !noneChecked && $scope.selectedTheme != ThemeStatus.DELETED) {
-                $scope.selectedTheme.Added = null; // if not all added then we put it to null
-            }
-            if ($scope.selectedTheme == ThemeStatus.DELETED) {
-                $scope.selectedTheme.Added = false;
-            }
-            ThemeService.AddAndUpdateThemes([$scope.selectedTheme]);
-            $scope.selectedTheme = null;
-            $scope.copySelectedTheme = null;
+            LayerManagementService.AddOrUpdateTheme($scope.selectedTheme, $scope.copySelectedTheme);
+            $scope.clearPreview();
         };
 
         $scope.ok = function () {
@@ -879,42 +682,60 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
 
 (function () {
     var module = angular.module('tink.gis');
-    var service = function service(MapData, $http, $q, GISService, ThemeCreater) {
+    var service = function service(MapData, $http, $q, GISService, ThemeCreater, ThemeService) {
         var _service = {};
         _service.EnabledThemes = [];
         _service.AvailableThemes = [];
-        _service.GetAditionalLayerInfo = function (theme) {
-            var promLegend = GISService.GetLegendData(theme.CleanUrl);
-            promLegend.then(function (data) {
-                theme.AllLayers.forEach(function (layer) {
-                    var layerid = layer.id;
-                    var layerInfo = data.layers.find(function (x) {
-                        return x.layerId == layerid;
-                    });
-                    layer.legend = [];
-                    if (layerInfo) {
-                        layer.legend = layerInfo.legend;
-                        layer.legend.forEach(function (legenditem) {
-                            legenditem.fullurl = theme.CleanUrl + '/' + layerInfo.layerId + '/images/' + legenditem.url;
-                        });
-                    }
-                });
-            });
-            var promLayerData = GISService.GetThemeLayerData(theme.CleanUrl);
-            promLayerData.then(function (data) {
-                theme.AllLayers.forEach(function (layer) {
-                    var layerid = layer.id;
-                    var layerInfo = data.layers.find(function (x) {
-                        return x.id == layerid;
-                    });
-                    layer.displayField = layerInfo.displayField;
-                    layer.fields = layerInfo.fields;
-                });
-            });
+
+        _service.AddOrUpdateTheme = function (selectedTheme, copySelectedTheme) {
+            console.log('AddOrUpdateTheme');
+            var allChecked = true;
+            var noneChecked = true;
+            var hasAChange = false;
+            for (var x = 0; x < copySelectedTheme.AllLayers.length; x++) {
+                // aha dus update gebeurt, we gaan deze toevoegen.
+                var copyLayer = copySelectedTheme.AllLayers[x];
+                var realLayer = selectedTheme.AllLayers[x];
+                if (realLayer.enabled != copyLayer.enabled) {
+                    hasAChange = true;
+                }
+                realLayer.enabled = copyLayer.enabled;
+                if (copyLayer.enabled === false) {
+                    // check or all the checkboxes are checked
+                    allChecked = false;
+                } else {
+                    noneChecked = false;
+                }
+            }
+            var alreadyAdded = MapData.Themes.find(function (x) {
+                return x.CleanUrl === selectedTheme.CleanUrl;
+            }) != undefined;
+            if (alreadyAdded) {
+                if (hasAChange) {
+                    selectedTheme.status = ThemeStatus.UPDATED;
+                } else {
+                    selectedTheme.status = ThemeStatus.UNMODIFIED;
+                }
+                if (noneChecked) {
+                    selectedTheme.status = ThemeStatus.DELETED;
+                }
+            } else {
+                selectedTheme.status = ThemeStatus.NEW;
+            }
+            if (allChecked && selectedTheme != ThemeStatus.DELETED) {
+                selectedTheme.Added = true; // here we can set the Added to true when they are all added
+            }
+            if (!allChecked && !noneChecked && selectedTheme != ThemeStatus.DELETED) {
+                selectedTheme.Added = null; // if not all added then we put it to null
+            }
+            if (selectedTheme == ThemeStatus.DELETED) {
+                selectedTheme.Added = false;
+            }
+            ThemeService.AddAndUpdateThemes([selectedTheme]);
         };
         return _service;
     };
-    module.$inject = ['MapData', '$http', '$q', 'GISService', 'ThemeCreater'];
+    module.$inject = ['MapData', '$http', '$q', 'GISService', 'ThemeCreater', 'ThemeService'];
     module.factory('LayerManagementService', service);
 })();
 ;// 'use strict';
@@ -980,8 +801,8 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                     keyboard: true
                 }
             });
-            addLayerInstance.result.then(function (selectedThemes) {
-                ThemeService.AddAndUpdateThemes(selectedThemes);
+            addLayerInstance.result.then(function () {
+                // ThemeService.AddAndUpdateThemes(selectedThemes);
             }, function (obj) {
                 console.log('Modal dismissed at: ' + new Date()); // The contoller is closed by the use of the $dismiss call
             });
@@ -1570,6 +1391,36 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             });
             return prom.promise;
         };
+        _service.GetAditionalLayerInfo = function (theme) {
+
+            var promLegend = _service.GetLegendData(theme.CleanUrl);
+            promLegend.then(function (data) {
+                theme.AllLayers.forEach(function (layer) {
+                    var layerid = layer.id;
+                    var layerInfo = data.layers.find(function (x) {
+                        return x.layerId == layerid;
+                    });
+                    layer.legend = [];
+                    if (layerInfo) {
+                        layer.legend = layerInfo.legend;
+                        layer.legend.forEach(function (legenditem) {
+                            legenditem.fullurl = theme.CleanUrl + '/' + layerInfo.layerId + '/images/' + legenditem.url;
+                        });
+                    }
+                });
+            });
+            var promLayerData = _service.GetThemeLayerData(theme.CleanUrl);
+            promLayerData.then(function (data) {
+                theme.AllLayers.forEach(function (layer) {
+                    var layerid = layer.id;
+                    var layerInfo = data.layers.find(function (x) {
+                        return x.id == layerid;
+                    });
+                    layer.displayField = layerInfo.displayField;
+                    layer.fields = layerInfo.fields;
+                });
+            });
+        };
         return _service;
     };
     module.$inject = ['$http', 'HelperService', '$q'];
@@ -2047,7 +1898,7 @@ var esri2geo = {};
 
             project.themes.forEach(function (theme) {
                 if (theme.type == ThemeType.ESRI) {
-                    theme.cleanUrl = Gis.BaseUrl + 'arcgissql/rest/' + theme.Naam + '/MapServer/';
+                    theme.cleanUrl = Gis.Arcgissql + theme.cleanUrl;
                     var prom = GISService.GetThemeData(theme.cleanUrl);
                     promises.push(prom);
                     prom.then(function (data) {
@@ -2967,7 +2818,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 (function () {
     var module = angular.module('tink.gis');
-    var service = function service(map, ThemeCreater, MapData, LayerManagementService) {
+    var service = function service(map, ThemeCreater, MapData, GISService) {
         var _service = {};
         _service.AddAndUpdateThemes = function (themesBatch) {
             console.log('Themes batch for add and updates...');
@@ -2980,7 +2831,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 switch (theme.status) {
                     case ThemeStatus.NEW:
                         if (theme.Type == ThemeType.ESRI) {
-                            LayerManagementService.GetAditionalLayerInfo(theme);
+                            GISService.GetAditionalLayerInfo(theme);
                             theme.UpdateDisplayed(MapData.GetScale());
                         }
                         _service.AddNewTheme(theme);
@@ -3123,7 +2974,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
         return _service;
     };
-    module.$inject = ['map', 'ThemeCreater', 'MapData', 'LayerManagementService'];
+    module.$inject = ['map', 'ThemeCreater', 'MapData', 'GISService'];
     module.factory('ThemeService', service);
 })();
 ;'use strict';
@@ -3887,20 +3738,34 @@ L.drawLocal = {
     "<meta charset=utf-8>\n" +
     "<title>Street View side-by-side</title>\n" +
     "<style>\n" +
-    "html, body {\n" +
-    "        height: 100%;\n" +
-    "        margin: 0;\n" +
-    "        padding: 0;\n" +
-    "      }\n" +
-    "      #map,  {\n" +
-    "        float: left;\n" +
-    "        height: 0%;\n" +
-    "        width: 0%;\n" +
-    "      }\n" +
-    "       #pano {\n" +
-    "        float: left;\n" +
-    "        height: 100%;\n" +
-    "        width: 100%;\n" +
+    "html, body {\r" +
+    "\n" +
+    "        height: 100%;\r" +
+    "\n" +
+    "        margin: 0;\r" +
+    "\n" +
+    "        padding: 0;\r" +
+    "\n" +
+    "      }\r" +
+    "\n" +
+    "      #map,  {\r" +
+    "\n" +
+    "        float: left;\r" +
+    "\n" +
+    "        height: 0%;\r" +
+    "\n" +
+    "        width: 0%;\r" +
+    "\n" +
+    "      }\r" +
+    "\n" +
+    "       #pano {\r" +
+    "\n" +
+    "        float: left;\r" +
+    "\n" +
+    "        height: 100%;\r" +
+    "\n" +
+    "        width: 100%;\r" +
+    "\n" +
     "      }\n" +
     "</style>\n" +
     "</head>\n" +
@@ -3908,24 +3773,42 @@ L.drawLocal = {
     "<div id=map></div>\n" +
     "<div id=pano></div>\n" +
     "<script>\n" +
-    "function initialize() {\n" +
-    "        \n" +
-    "        var urlLat = parseFloat((location.search.split('lat=')[1]||'').split('&')[0]);\n" +
-    "        var urlLng = parseFloat((location.search.split('lng=')[1]||'').split('&')[0]);\n" +
-    "        var fenway = {lat:urlLat, lng: urlLng};\n" +
-    "        var map = new google.maps.Map(document.getElementById('map'), {\n" +
-    "          center: fenway,\n" +
-    "          zoom: 14\n" +
-    "        });\n" +
-    "        var panorama = new google.maps.StreetViewPanorama(\n" +
-    "            document.getElementById('pano'), {\n" +
-    "              position: fenway,\n" +
-    "              pov: {\n" +
-    "                heading: 34,\n" +
-    "                pitch: 10\n" +
-    "              }\n" +
-    "            });\n" +
-    "        map.setStreetView(panorama);\n" +
+    "function initialize() {\r" +
+    "\n" +
+    "        \r" +
+    "\n" +
+    "        var urlLat = parseFloat((location.search.split('lat=')[1]||'').split('&')[0]);\r" +
+    "\n" +
+    "        var urlLng = parseFloat((location.search.split('lng=')[1]||'').split('&')[0]);\r" +
+    "\n" +
+    "        var fenway = {lat:urlLat, lng: urlLng};\r" +
+    "\n" +
+    "        var map = new google.maps.Map(document.getElementById('map'), {\r" +
+    "\n" +
+    "          center: fenway,\r" +
+    "\n" +
+    "          zoom: 14\r" +
+    "\n" +
+    "        });\r" +
+    "\n" +
+    "        var panorama = new google.maps.StreetViewPanorama(\r" +
+    "\n" +
+    "            document.getElementById('pano'), {\r" +
+    "\n" +
+    "              position: fenway,\r" +
+    "\n" +
+    "              pov: {\r" +
+    "\n" +
+    "                heading: 34,\r" +
+    "\n" +
+    "                pitch: 10\r" +
+    "\n" +
+    "              }\r" +
+    "\n" +
+    "            });\r" +
+    "\n" +
+    "        map.setStreetView(panorama);\r" +
+    "\n" +
     "      }\n" +
     "</script>\n" +
     "<script async defer src=\"https://maps.googleapis.com/maps/api/js?callback=initialize\">\n" +
@@ -4610,7 +4493,8 @@ var TinkGis;
             _this2.name = _this2.Naam = rawdata.documentInfo.Title;
             _this2.Description = rawdata.documentInfo.Subject;
             _this2.CleanUrl = themeData.cleanUrl;
-            _this2.Url = themeData.url || 'services/P_Stad/' + themeData.naam + '/MapServer';
+            var cleanurlSplitted = themeData.cleanUrl.split('/');
+            _this2.Url = cleanurlSplitted[5] + '/' + cleanurlSplitted[6] + '/' + cleanurlSplitted[7] + '/' + cleanurlSplitted[8];
             _this2.Visible = true;
             _this2.Added = false;
             _this2.enabled = true;

@@ -12,7 +12,7 @@
 
 
             $scope.ok = function () {
-                $modalInstance.$close(LayerManagementService.EnabledThemes); // return the themes.
+                $modalInstance.$close(); // return the themes.
             };
             $scope.cancel = function () {
                 $modalInstance.$dismiss('cancel is pressed'); // To close the controller with a dismiss message

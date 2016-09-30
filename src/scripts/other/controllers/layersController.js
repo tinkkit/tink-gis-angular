@@ -26,8 +26,8 @@
                     keyboard: true
                 }
             });
-            addLayerInstance.result.then(function (selectedThemes) {
-                ThemeService.AddAndUpdateThemes(selectedThemes);
+            addLayerInstance.result.then(function () {
+                // ThemeService.AddAndUpdateThemes(selectedThemes);
             }, function (obj) {
                 console.log('Modal dismissed at: ' + new Date()); // The contoller is closed by the use of the $dismiss call
             });

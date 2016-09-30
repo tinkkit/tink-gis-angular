@@ -68,7 +68,7 @@
 
             project.themes.forEach(theme => {
                 if (theme.type == ThemeType.ESRI) {
-                    theme.cleanUrl = Gis.BaseUrl + 'arcgissql/rest/' + theme.Naam + '/MapServer/';
+                    theme.cleanUrl = Gis.Arcgissql + theme.cleanUrl;
                     let prom = GISService.GetThemeData(theme.cleanUrl);
                     promises.push(prom);
                     prom.then(function (data) {

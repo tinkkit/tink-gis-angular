@@ -16,7 +16,8 @@ var ActiveInteractieButton = {
     WATISHIER: 'watishier'
 };
 var Gis = {
-    BaseUrl: 'https://geoint.antwerpen.be/'
+    BaseUrl: 'https://geoint.antwerpen.be/',
+    Arcgissql: 'https://geoint.antwerpen.be/arcgissql/rest/'
 }
 const DrawingOption = {
     NIETS: '',

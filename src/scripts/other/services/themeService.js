@@ -1,7 +1,7 @@
 'use strict';
 (function () {
     var module = angular.module('tink.gis');
-    var service = function (map, ThemeCreater, MapData, LayerManagementService) {
+    var service = function (map, ThemeCreater, MapData, GISService) {
         var _service = {};
         _service.AddAndUpdateThemes = function (themesBatch) {
             console.log('Themes batch for add and updates...');
@@ -12,7 +12,7 @@
                 switch (theme.status) {
                     case ThemeStatus.NEW:
                         if (theme.Type == ThemeType.ESRI) {
-                            LayerManagementService.GetAditionalLayerInfo(theme);
+                            GISService.GetAditionalLayerInfo(theme);
                             theme.UpdateDisplayed(MapData.GetScale());
                         }
                         _service.AddNewTheme(theme);
@@ -159,6 +159,6 @@
 
         return _service;
     };
-    module.$inject = ['map', 'ThemeCreater', 'MapData', 'LayerManagementService'];
+    module.$inject = ['map', 'ThemeCreater', 'MapData', 'GISService'];
     module.factory('ThemeService', service);
 })();

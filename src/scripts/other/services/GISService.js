@@ -94,6 +94,32 @@
                 });
             return prom.promise;
         };
+        _service.GetAditionalLayerInfo = function (theme) {
+
+            var promLegend = _service.GetLegendData(theme.CleanUrl);
+            promLegend.then(function (data) {
+                theme.AllLayers.forEach(layer => {
+                    var layerid = layer.id;
+                    var layerInfo = data.layers.find(x => x.layerId == layerid);
+                    layer.legend = [];
+                    if (layerInfo) {
+                        layer.legend = layerInfo.legend;
+                        layer.legend.forEach(legenditem => {
+                            legenditem.fullurl = theme.CleanUrl + '/' + layerInfo.layerId + '/images/' + legenditem.url;
+                        });
+                    }
+                });
+            });
+            var promLayerData = _service.GetThemeLayerData(theme.CleanUrl);
+            promLayerData.then(function (data) {
+                theme.AllLayers.forEach(layer => {
+                    var layerid = layer.id;
+                    var layerInfo = data.layers.find(x => x.id == layerid);
+                    layer.displayField = layerInfo.displayField;
+                    layer.fields = layerInfo.fields;
+                });
+            });
+        };
         return _service;
     };
     module.$inject = ['$http', 'HelperService', '$q'];
