@@ -1,13 +1,15 @@
-<div class="row margin-top">
-    <div class="col-md-4">
-        <input class="searchbox" type="text" ng-model="searchTerm" ng-change="searchChanged()" placeholder="Geef een trefwoord" />
+<div class="row relative-container">
+    <div class="col-md-4 flex-column margin-top margin-bottom">
+        <div>
+            <input class="searchbox" type="text" ng-model="searchTerm" ng-change="searchChanged()" placeholder="Geef een trefwoord" />
+        </div>
         <div ng-repeat="theme in availableThemes | filter:{name: searchTerm}">
             <div ng-click="ThemeChanged(theme)">
                 {{theme.name}}
             </div>
         </div>
     </div>
-    <div class="col-md-8">
+    <div class="col-md-8 flex-column margin-top margin-bottom">
         <preview-layer ng-if="copySelectedTheme" theme="copySelectedTheme" addorupdatefunc="AddOrUpdateTheme()">
 
         </preview-layer>

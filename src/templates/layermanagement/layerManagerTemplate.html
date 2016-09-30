@@ -4,11 +4,15 @@
         <h4 style="" class="model-title">Lagenbeheer</h5>
     </div>
     <div class="modal-body">
-        <ul class="nav-tabs">
-            <li role="presentation" ng-class="{'active': active=='solr'}"><a href="" ng-click="active='solr'">Stad</a></li>
-            <li role="presentation" ng-class="{'active': active=='geopunt'}"><a href="#" ng-click="active='geopunt'">GeoPunt</a></li>
-            <li role="presentation" ng-class="{'active': active=='beheer'}"><a href="" ng-click="active='beheer'">Beheer</a></li>
-        </ul>
+        <div class="row">
+            <div class="col-xs-12">
+                <ul class="nav-tabs">
+                    <li role="presentation" ng-class="{'active': active=='solr'}"><a href="" ng-click="active='solr'">Stad</a></li>
+                    <li role="presentation" ng-class="{'active': active=='geopunt'}"><a href="#" ng-click="active='geopunt'">GeoPunt</a></li>
+                    <li role="presentation" ng-class="{'active': active=='beheer'}"><a href="" ng-click="active='beheer'">Beheer</a></li>
+                </ul>
+            </div>
+        </div>
         <solr-gis ng-show="active=='solr'"></solr-gis>
         <geo-punt ng-show="active=='geopunt'"></geo-punt>
         <layers-management ng-if="active=='beheer'"></layers-management>

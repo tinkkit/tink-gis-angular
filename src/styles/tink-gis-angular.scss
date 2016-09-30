@@ -246,6 +246,29 @@ button.btn.active {
     transform: translate(0, 0) !important
 }
 
+.relative-container {
+  height: 60vh;
+
+  // flex container settings
+  display: flex;
+}
+
+.flex-column {
+  // flex item settings
+  flex-grow: 1;
+
+  // flex container settings
+  display: flex;
+  flex-direction: column;
+}
+
+.scrollable-list {
+  overflow: auto;
+
+  // flex item settings
+  flex-grow: 1;
+}
+
 // Wtf tink ???
 // input[type="checkbox"], input[type="radio"] {
 //      opacity: 1;
@@ -351,25 +374,15 @@ button.trash {
     z-index: 9999;
 }
 .modal {
+  // seems to generate unnecessary scrollbar when using second scrollable-list temporary fix
+  overflow: hidden;
   z-index: 9998;
 }
 
 .modal-body {
-  height: 60vh;
-  padding: rem(15);
+  // height: 60vh;
+  // padding: rem(15);
   // position: relative;
-}
-
-.scrollable-themes { // make the div content vertical scrollable
-  height: 38vh;
-  overflow-x: hidden;
-  overflow-y: auto;
-}
-
-.scrollable-preview { // make the div content vertical scrollable
-  height: 34vh;
-  overflow-x: hidden;
-  overflow-y: auto;
 }
 
 // customize pagination

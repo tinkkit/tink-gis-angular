@@ -1,24 +1,26 @@
-<div class="row margin-top">
-    <div class="col-md-4 scrollable-themes">
-        <input class="searchbox" type="text" ng-model="searchTerm" ng-change="searchChanged()" ng-model-options="{debounce: 500}"
-            placeholder="Geef een trefwoord of een url in" />
-        <input type="text" disabled="disabled" value="https://geodata.antwerpen.be/arcgissql/services/P_SiK/Groeninventaris/MapServer/WMSServer"
-        />
-        <div ng-if="!searchIsUrl" ng-repeat="theme in availableThemes">
+<div class="row relative-container">
+    <div class="col-md-4 flex-column margin-top margin-bottom">
+        <div>
+            <input class="searchbox" type="text" ng-model="searchTerm" ng-change="searchChanged()" ng-model-options="{debounce: 500}" placeholder="Geef een trefwoord of een url in" />
+            <input type="text" disabled="disabled" value="https://geodata.antwerpen.be/arcgissql/services/P_SiK/Groeninventaris/MapServer/WMSServer" />
+        </div>
+        <div class="scrollable-list margin-top margin-bottom" ng-if="!searchIsUrl" ng-repeat="theme in availableThemes">
             <div ng-click="geopuntThemeChanged(theme)" ng-class="{'greytext': theme.Type != 'wms' &&  theme.Type != 'esri'}">
                 {{theme.Naam}}
                 <i ng-if="theme.Added == true" class="fa fa-check-circle"></i>
                 <i ng-if="theme.Added == null" class="fa fa-check-circle-o"></i>
             </div>
         </div>
-        <tink-pagination ng-hide="numberofrecordsmatched <= 5" tink-items-per-page-values="[5]" tink-current-page="currentPage" tink-change="pageChanged(page,perPage,next)"
-            tink-total-items="numberofrecordsmatched" tink-items-per-page="recordsAPage"></tink-pagination>
+        <div>
+            <tink-pagination ng-hide="numberofrecordsmatched <= 5" tink-items-per-page-values="[5]" tink-current-page="currentPage" tink-change="pageChanged(page,perPage,next)" tink-total-items="numberofrecordsmatched" tink-items-per-page="recordsAPage"></tink-pagination>
+        </div>
     </div>
-    <div class="col-md-8">
+    <div class="col-md-8 flex-column margin-top margin-bottom">
         <div ng-if="searchIsUrl">
             <button ng-click="laadUrl()">Laad url</button>
         </div>
         <preview-layer ng-if="copySelectedTheme" addorupdatefunc="AddOrUpdateTheme()" theme="copySelectedTheme">
+
         </preview-layer>
     </div>
 </div>
