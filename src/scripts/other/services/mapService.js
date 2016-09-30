@@ -133,7 +133,7 @@
             if (!layer) {
                 layer = MapData.SelectedLayer;
             }
-            if (layer.id == '') { // alle layers selected
+            if (!layer || layer.id == '') { // alle layers selected
                 MapData.Themes.forEach(theme => { // dus doen we de qry op alle lagen.
                     if (theme.Type === ThemeType.ESRI) {
                         theme.VisibleLayers.forEach(lay => {
@@ -162,7 +162,7 @@
         };
 
         _mapService.Find = function (query) {
-            if (MapData.SelectedLayer.id == '') { // alle layers selected
+            if (MapData.SelectedLayer && MapData.SelectedLayer.id == '') { // alle layers selected
                 MapData.Themes.forEach(theme => { // dus doen we de qry op alle lagen.
                     if (theme.Type === ThemeType.ESRI) {
                         theme.VisibleLayers.forEach(lay => {

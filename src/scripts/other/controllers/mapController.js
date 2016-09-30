@@ -10,13 +10,14 @@
                 ExternService.Import(externproj);
             }
         } ();
-        vm.layerId = '';
         vm.ZoekenOpLocatie = true;
         vm.activeInteractieKnop = MapData.ActiveInteractieKnop;
         vm.SelectableLayers = function () {
             return MapData.VisibleLayers;
         };
-        vm.selectedLayer = MapData.SelectedLayer;
+        vm.selectedLayer = function () {
+            return MapData.SelectedLayer;
+        }
         vm.drawingType = MapData.DrawingType;
         vm.showMetenControls = false;
         vm.showDrawControls = false;

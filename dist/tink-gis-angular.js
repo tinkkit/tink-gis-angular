@@ -820,13 +820,14 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 ExternService.Import(externproj);
             }
         }();
-        vm.layerId = '';
         vm.ZoekenOpLocatie = true;
         vm.activeInteractieKnop = MapData.ActiveInteractieKnop;
         vm.SelectableLayers = function () {
             return MapData.VisibleLayers;
         };
-        vm.selectedLayer = MapData.SelectedLayer;
+        vm.selectedLayer = function () {
+            return MapData.SelectedLayer;
+        };
         vm.drawingType = MapData.DrawingType;
         vm.showMetenControls = false;
         vm.showDrawControls = false;
@@ -2233,6 +2234,25 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         _data.defaultlayer = { id: '', name: 'Alle Layers' };
         _data.SelectedLayer = _data.defaultlayer;
         _data.VisibleLayers.unshift(_data.defaultlayer);
+        _data.ResetVisibleLayers = function () {
+            var curSelectedLayer = _data.SelectedLayer;
+            _data.VisibleLayers.length = 0;
+            _data.Themes.forEach(function (x) {
+                _data.VisibleLayers = _data.VisibleLayers.concat(x.VisibleLayers);
+            });
+            _data.VisibleLayers = _data.VisibleLayers.sort(function (x) {
+                return x.title;
+            });
+            _data.VisibleLayers.unshift(_data.defaultlayer);
+            var reselectLayer = _data.VisibleLayers.find(function (x) {
+                return x.name == curSelectedLayer.name;
+            });
+            if (reselectLayer) {
+                _data.SelectedLayer = reselectLayer;
+            } else {
+                _data.SelectedLayer = _data.defaultlayer;
+            }
+        };
         _data.ActiveInteractieKnop = ActiveInteractieButton.IDENTIFY;
         _data.DrawingType = DrawingOption.NIETS;
         _data.DrawingObject = null;
@@ -2759,7 +2779,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             if (!layer) {
                 layer = MapData.SelectedLayer;
             }
-            if (layer.id == '') {
+            if (!layer || layer.id == '') {
                 // alle layers selected
                 MapData.Themes.forEach(function (theme) {
                     // dus doen we de qry op alle lagen.
@@ -2783,7 +2803,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         };
 
         _mapService.Find = function (query) {
-            if (MapData.SelectedLayer.id == '') {
+            if (MapData.SelectedLayer && MapData.SelectedLayer.id == '') {
                 // alle layers selected
                 MapData.Themes.forEach(function (theme) {
                     // dus doen we de qry op alle lagen.
@@ -2856,13 +2876,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             MapData.SetZIndexes();
         };
         _service.UpdateThemeVisibleLayers = function (theme) {
-            MapData.VisibleLayers.length = 0;
-            MapData.Themes.forEach(function (x) {
-                MapData.VisibleLayers = MapData.VisibleLayers.concat(x.VisibleLayers);
-            });
-            MapData.VisibleLayers = MapData.VisibleLayers.sort(function (x) {
-                return x.title;
-            });
+            MapData.ResetVisibleLayers();
             theme.UpdateMap(map);
         };
         _service.UpdateTheme = function (updatedTheme, existingTheme) {

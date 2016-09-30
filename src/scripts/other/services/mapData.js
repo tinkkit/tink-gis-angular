@@ -13,6 +13,22 @@
         _data.defaultlayer = { id: '', name: 'Alle Layers' };
         _data.SelectedLayer = _data.defaultlayer;
         _data.VisibleLayers.unshift(_data.defaultlayer);
+        _data.ResetVisibleLayers = function () {
+            var curSelectedLayer = _data.SelectedLayer;
+            _data.VisibleLayers.length = 0;
+            _data.Themes.forEach(x => {
+                _data.VisibleLayers = _data.VisibleLayers.concat(x.VisibleLayers);
+            });
+            _data.VisibleLayers = _data.VisibleLayers.sort(x => x.title);
+            _data.VisibleLayers.unshift(_data.defaultlayer);
+            var reselectLayer = _data.VisibleLayers.find(x => x.name == curSelectedLayer.name);
+            if (reselectLayer) {
+                _data.SelectedLayer = reselectLayer;
+            }
+            else {
+                _data.SelectedLayer = _data.defaultlayer;
+            }
+        }
         _data.ActiveInteractieKnop = ActiveInteractieButton.IDENTIFY;
         _data.DrawingType = DrawingOption.NIETS;
         _data.DrawingObject = null;

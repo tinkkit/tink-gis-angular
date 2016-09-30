@@ -42,11 +42,7 @@
             MapData.SetZIndexes();
         };
         _service.UpdateThemeVisibleLayers = function (theme) {
-            MapData.VisibleLayers.length = 0;
-            MapData.Themes.forEach(x => {
-                MapData.VisibleLayers = MapData.VisibleLayers.concat(x.VisibleLayers);
-            });
-            MapData.VisibleLayers = MapData.VisibleLayers.sort(x => x.title);
+            MapData.ResetVisibleLayers();
             theme.UpdateMap(map);
         };
         _service.UpdateTheme = function (updatedTheme, existingTheme) {
