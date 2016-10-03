@@ -1,21 +1,19 @@
 <div class="flex-column">
     <div ng-show="theme !== null">
+        <button class="btn-primary" ng-if="theme.Added == false" ng-click="addorupdatefunc()">Toevoegen</button>
         <button ng-if="theme.Added != false" ng-click="addorupdatefunc()">Update</button>
         <button ng-if="theme.Added != false" ng-click="delTheme()">Delete</button>
     </div>
-    <div>
+    <div class="margin-top">
         <p>{{theme.Description}}</p>
         <p><small><a ng-href="{{theme.CleanUrl}}" target="_blank">Details</a></small></p>
     </div>
-    <div class="layercontroller-checkbox scrollable-list margin-top margin-bottom">
+    <div class="layercontroller-checkbox scrollable-list">
         <input indeterminate-checkbox child-list="theme.AllLayers" property="enabled" type="checkbox" ng-model="theme.enabled" id="{{theme.name}}">
         <label for="{{theme.name}}">{{theme.name}}</label>
         <div ng-repeat="mainlayer in theme.Layers">
             <tink-managementlayer layer="mainlayer"></tink-managementlayer>
         </div>
-    </div>
-    <div>
-        <button class="btn-primary btn-sm" ng-if="theme.Added == false" ng-click="addorupdatefunc()">Toevoegen</button>
     </div>
 </div>
 

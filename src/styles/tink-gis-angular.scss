@@ -263,6 +263,7 @@ button.btn.active {
 }
 
 .scrollable-list {
+  cursor: pointer;
   overflow: auto;
 
   // flex item settings
@@ -391,8 +392,9 @@ button.trash {
     display: none;
   }
   .table-sort-pagination {
+    float: left !important;
     margin: 0;
-    padding-top: 2px;
+    padding: 0;
     .prev,
     .next {
       span {
