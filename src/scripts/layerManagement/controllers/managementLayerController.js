@@ -4,6 +4,7 @@
     var theController = module.controller('managementLayerController', function ($scope) {
         var vm = this;
         vm.layer = $scope.layer;
+        $scope.showLayer = false; // to show and hide the layers
         console.log(vm.layer.AllLayers);
         // console.log(vm.layer.hasLayers());
         // vm.chkChanged = function () {

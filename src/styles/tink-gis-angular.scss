@@ -263,7 +263,7 @@ button.btn.active {
 }
 
 .scrollable-list {
-  cursor: pointer;
+  // cursor: pointer; // too much clickable area
   overflow: auto;
 
   // flex item settings
@@ -305,7 +305,20 @@ button.btn.active {
 
 .layercontroller-checkbox
 {
-    margin-left:10px;
+    margin-left:10px; // better to use list styling
+}
+
+.can-open {
+  span {
+    &:after {
+      content: "\f0d7";
+      display: inline-block;
+      font-family: FontAwesome;
+      font-style: normal;
+      font-weight: normal;
+      padding-left: rem(5);
+    }
+  }
 }
 
 // set a pointer on the clickable items
@@ -688,11 +701,11 @@ html.print.landscape {
 
 
 .mouse-over-toshow {
-	display:none;
+  display:none;
 }
 .mouse-over:hover {
   .mouse-over-toshow {
-		display: inline-block;
+    display: inline-block;
     cursor: pointer;
-	}
+  }
 }
