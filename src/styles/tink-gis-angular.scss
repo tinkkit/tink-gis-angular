@@ -308,15 +308,29 @@ button.btn.active {
     margin-left:10px; // better to use list styling
 }
 
+// .can-open class is also nested in Tink navigation, but doesn't conflict with following styling
 .can-open {
   span {
+    cursor: pointer;
+    display: inline-block;
+    padding: 0 rem(5) 0 rem(5);
+    user-select: none;
+
     &:after {
       content: "\f0d7";
-      display: inline-block;
       font-family: FontAwesome;
       font-style: normal;
       font-weight: normal;
-      padding-left: rem(5);
+      // transition: color $animation-speed linear, transform $animation-speed linear; // doesn't work right now
+    }
+  }
+
+  &.open {
+    span {
+      &:after {
+        content: "\f0d8";
+        // transform: rotate(180deg); // doesn't work right now
+      }
     }
   }
 }
