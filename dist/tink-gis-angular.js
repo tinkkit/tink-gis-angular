@@ -304,6 +304,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
     var theController = module.controller('managementLayerController', function ($scope) {
         var vm = this;
         vm.layer = $scope.layer;
+        $scope.showLayer = false; // to show and hide the layers
         console.log(vm.layer.AllLayers);
         // console.log(vm.layer.hasLayers());
         // vm.chkChanged = function () {
@@ -495,6 +496,12 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                     console.log('ERROR:', data.error);
                 }
             });
+
+            // added to give the selected theme an Active class
+            $scope.selected = theme;
+            $scope.isActive = function (theme) {
+                return $scope.selected === theme;
+            };
         };
         $scope.AddOrUpdateTheme = function () {
             LayerManagementService.AddOrUpdateTheme($scope.selectedTheme, $scope.copySelectedTheme);
@@ -3875,9 +3882,12 @@ L.drawLocal = {
   $templateCache.put('templates/layermanagement/managementLayerTemplate.html',
     "<div ng-if=lyrctrl.layer.hasLayers>\n" +
     "<div class=layercontroller-checkbox>\n" +
+    "<div class=can-open ng-class=\"{'open': showLayer}\">\n" +
     "<input indeterminate-checkbox child-list=lyrctrl.layer.AllLayers property=enabled type=checkbox ng-model=lyrctrl.layer.enabled id={{lyrctrl.layer.name}}{{lyrctrl.layer.id}}>\n" +
     "<label for={{lyrctrl.layer.name}}{{lyrctrl.layer.id}}> {{lyrctrl.layer.title | limitTo: 99}}</label>\n" +
-    "<div ng-repeat=\"lay in lyrctrl.layer.Layers\">\n" +
+    "<span ng-click=\"showLayer = !showLayer\"></span>\n" +
+    "</div>\n" +
+    "<div ng-show=showLayer ng-repeat=\"lay in lyrctrl.layer.Layers\">\n" +
     "<tink-managementlayer layer=lay>\n" +
     "</tink-managementlayer>\n" +
     "</div>\n" +
@@ -3895,22 +3905,20 @@ L.drawLocal = {
   $templateCache.put('templates/layermanagement/previewLayerTemplate.html',
     "<div class=flex-column>\n" +
     "<div ng-show=\"theme !== null\">\n" +
+    "<button class=btn-primary ng-if=\"theme.Added == false\" ng-click=addorupdatefunc()>Toevoegen</button>\n" +
     "<button ng-if=\"theme.Added != false\" ng-click=addorupdatefunc()>Update</button>\n" +
     "<button ng-if=\"theme.Added != false\" ng-click=delTheme()>Delete</button>\n" +
     "</div>\n" +
-    "<div>\n" +
+    "<div class=margin-top>\n" +
     "<p>{{theme.Description}}</p>\n" +
     "<p><small><a ng-href={{theme.CleanUrl}} target=_blank>Details</a></small></p>\n" +
     "</div>\n" +
-    "<div class=\"layercontroller-checkbox scrollable-list margin-top margin-bottom\">\n" +
+    "<div class=\"layercontroller-checkbox scrollable-list\">\n" +
     "<input indeterminate-checkbox child-list=theme.AllLayers property=enabled type=checkbox ng-model=theme.enabled id={{theme.name}}>\n" +
     "<label for={{theme.name}}>{{theme.name}}</label>\n" +
     "<div ng-repeat=\"mainlayer in theme.Layers\">\n" +
     "<tink-managementlayer layer=mainlayer></tink-managementlayer>\n" +
     "</div>\n" +
-    "</div>\n" +
-    "<div>\n" +
-    "<button class=\"btn-primary btn-sm\" ng-if=\"theme.Added == false\" ng-click=addorupdatefunc()>Toevoegen</button>\n" +
     "</div>\n" +
     "</div>\n"
   );
@@ -3925,11 +3933,13 @@ L.drawLocal = {
     "<div class=\"scrollable-list margin-top margin-bottom\">\n" +
     "<div ng-repeat=\"theme in availableThemes\">\n" +
     "<div ng-click=solrThemeChanged(theme) class=greytext>\n" +
-    "{{theme.name}}\n" +
+    "<span ng-class=\"{active: isActive(theme)}\">{{theme.name}}</span>\n" +
     "<div style=\"margin-left: 20px\" ng-repeat=\"layer in theme.layers\">\n" +
+    "<a href=# class=theme-layer>\n" +
     "<span ng-class=\"{'blacktext': layer.isMatch}\">{{layer.naam}}\n" +
     "<span ng-show=\"layer.featuresCount > 0\"> ({{layer.featuresCount}})</span>\n" +
     "</span>\n" +
+    "</a>\n" +
     "<div class=\"blacktext featureinsolr\">\n" +
     "{{layer.features.join(', ')}}\n" +
     "</div>\n" +

@@ -384,6 +384,26 @@ button.btn.active {
 .layercontroller-checkbox {
   margin-left: 10px; }
 
+.theme-layer:hover {
+  text-decoration: none; }
+
+.can-open span {
+  cursor: pointer;
+  display: inline-block;
+  padding: 0 0.3571428571rem  0 0.3571428571rem ;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none; }
+  .can-open span:after {
+    content: "\f0d7";
+    font-family: FontAwesome;
+    font-style: normal;
+    font-weight: normal; }
+
+.can-open.open span:after {
+  content: "\f0d8"; }
+
 a:hover, a:focus,
 input[type="checkbox"]:hover,
 input[type="checkbox"]:focus {
@@ -434,8 +454,9 @@ button.trash {
   display: none; }
 
 .table-sort-options .table-sort-pagination {
+  float: left !important;
   margin: 0;
-  padding-top: 2px; }
+  padding: 0; }
   .table-sort-options .table-sort-pagination .prev span,
   .table-sort-options .table-sort-pagination .next span {
     display: none; }
@@ -508,6 +529,8 @@ button.trash {
 
 .greytext {
   color: lightgrey !important; }
+  .greytext .active {
+    font-weight: 700; }
 
 .nav-tabs {
   margin: 5px 0px 5px 0px; }
