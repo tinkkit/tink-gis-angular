@@ -22,7 +22,7 @@ $left-nav-aside-width: $nav-aside-width + $nav-aside-extra-body-padding + 100px;
 
   .nav-aside {
     top: 0; // is overwritten in specificity by Tink navigation script when using solution
-    z-index: 700; // set above leafletmap
+    z-index: 1000; // set above leafletmap and leaflet-control
 
     dl {
       margin-bottom: rem($font-size-base/2);
@@ -237,6 +237,11 @@ button.btn.active {
     right: rem(15);
     top: rem(15);
   }
+}
+
+.loader-lg {
+  height: rem(80);
+  width: rem(80);
 }
 
 //Add this class to .main to override default padding
