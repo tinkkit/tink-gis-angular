@@ -308,6 +308,12 @@ button.btn.active {
     margin-left:10px; // better to use list styling
 }
 
+.theme-layer { // is a actually an a href
+  &:hover {
+    text-decoration: none;
+  }
+}
+
 // .can-open class is also nested in Tink navigation, but doesn't conflict with following styling
 .can-open {
   span {
@@ -520,6 +526,11 @@ button.trash {
 
 .greytext {
   color: lightgrey !important;
+
+  // show the layer as active
+  .active {
+    font-weight: 700;
+  }
 }
 
 // This breaks pagination

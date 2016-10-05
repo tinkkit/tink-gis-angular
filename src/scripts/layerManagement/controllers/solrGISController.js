@@ -149,6 +149,12 @@
                         console.log('ERROR:', data.error);
                     }
                 });
+
+                // added to give the selected theme an Active class
+                $scope.selected = theme;
+                $scope.isActive = function(theme) {
+                    return $scope.selected === theme;
+                };
             };
             $scope.AddOrUpdateTheme = function () {
                 LayerManagementService.AddOrUpdateTheme($scope.selectedTheme, $scope.copySelectedTheme);
