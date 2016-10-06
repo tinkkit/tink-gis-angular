@@ -4026,7 +4026,7 @@ L.drawLocal = {
     "</div>\n" +
     "<div class=mappart>\n" +
     "<tink-search class=tink-search></tink-search>\n" +
-    "<div id=map class=leafletmap>\n" +
+    "<div id=map class=leafletmap ng-class=\"{'leaflet-crosshair': mapctrl.activeInteractieKnop=='watishier'}\">\n" +
     "<div class=map-buttons-left>\n" +
     "<div class=\"btn-group ll drawingbtns\" ng-show=mapctrl.showDrawControls>\n" +
     "<button ng-click=mapctrl.selectpunt() ng-class=\"{active: mapctrl.drawingType==''}\" type=button class=btn prevent-default><i class=\"fa fa-mouse-pointer\"></i></button>\n" +
@@ -4086,7 +4086,8 @@ L.drawLocal = {
     "<img class=\"float-right print-corner-image\" src=http://images.vectorhq.com/images/previews/111/north-arrow-orienteering-137692.png alt=\"Noord pijl oriëntatielopen\">\n" +
     "</div>\n" +
     "</div>\n" +
-    "</div></div>"
+    "</div>\n" +
+    "</div>"
   );
 
 
@@ -4182,7 +4183,7 @@ L.drawLocal = {
     "<div class=col-xs-8>\n" +
     "<div class=row>\n" +
     "<div class=col-xs-6>\n" +
-    "<button class=\"srchbtn pull-right\" ng-click=srchslctdctrl.buffer()>Zone</button>\n" +
+    "<button class=\"srchbtn pull-right\" ng-click=srchslctdctrl.buffer()>Doordruk</button>\n" +
     "</div>\n" +
     "<div class=col-xs-6>\n" +
     "<button class=\"srchbtn pull-right\" ng-click=srchslctdctrl.buffer()>Buffer</button>\n" +
@@ -4223,7 +4224,7 @@ L.drawLocal = {
     "<tink-search-selected></tink-search-selected>\n" +
     "</div>\n" +
     "<div ng-show=\"srchctrl.Loading > 0\">\n" +
-    "<div class=loader></div> {{srchctrl.LoadedCount()}} / {{srchctrl.MaxLoading}}\n" +
+    "<div class=\"loader-lg center-block margin-top margin-bottom\"></div> {{srchctrl.LoadedCount()}} / {{srchctrl.MaxLoading}}\n" +
     "</div>\n" +
     "</aside>\n" +
     "</div>\n"
