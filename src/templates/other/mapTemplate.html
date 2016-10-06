@@ -17,7 +17,7 @@
     </div>
     <div class="mappart">
         <tink-Search class="tink-search"></tink-Search>
-        <div id="map" class="leafletmap">
+        <div id="map" class="leafletmap" ng-class="{'leaflet-interactive': mapctrl.activeInteractieKnop=='watishier'}">
             <div class="map-buttons-left">
                 <div class="btn-group ll drawingbtns" ng-show="mapctrl.showDrawControls">
                     <button ng-click="mapctrl.selectpunt()" ng-class="{active: mapctrl.drawingType==''}" type="button" class="btn" prevent-default><i class="fa fa-mouse-pointer"></i></button>

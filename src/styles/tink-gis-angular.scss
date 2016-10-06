@@ -355,6 +355,10 @@ input[type="checkbox"] {
   }
 }
 
+// set a pointer when watishier button is selected
+.leaflet-grab.leaflet-interactive {
+  cursor: pointer;
+}
 
 // style the trash can button
 button.trash {
