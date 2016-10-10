@@ -6,6 +6,7 @@
         _data.SelectedFeature = null;
         _data.JsonFeatures = [];
         _data.Loading = 0;
+        _data.TotalLoading = 0;
         _data.EmptyResult = false;
         _data.CleanSearch = function() {
             _data.SelectedFeature = null;

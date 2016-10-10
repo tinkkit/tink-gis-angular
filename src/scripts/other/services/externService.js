@@ -89,7 +89,8 @@
                 }
 
             });
-            $q.all(promises).then(function () {
+            var allpromises = $q.all(promises);
+            allpromises.then(function () {
                 var orderedArray = [];
                 var errorMessages = [];
                 project.themes.forEach(theme => {
@@ -129,6 +130,7 @@
                     alert(errorMessages.join('\n'));
                 }
             });
+            return allpromises.promise;
 
         };
         _externService.setExtent = function (extent) {
