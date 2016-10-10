@@ -441,8 +441,8 @@ angular.module('tink.gis').run(['$templateCache', function($templateCache) {
     "<div class=\"row margin-top margin-bottom\">\n" +
     "<div class=col-xs-12>\n" +
     "<div class=btn-group>\n" +
-    "<button type=button class=btn ng-if=srchslctdctrl.prevResult ng-click=srchslctdctrl.vorige()>Vorige</button>\n" +
-    "<button type=button class=btn ng-if=srchslctdctrl.nextResult ng-click=srchslctdctrl.volgende()>Volgende</button>\n" +
+    "<button type=button class=btn ng-disabled=!srchslctdctrl.prevResult ng-click=srchslctdctrl.vorige()>Vorige</button>\n" +
+    "<button type=button class=btn ng-disabled=!srchslctdctrl.nextResult ng-click=srchslctdctrl.volgende()>Volgende</button>\n" +
     "</div>\n" +
     "<button class=\"srchbtn btn pull-right\" ng-click=srchslctdctrl.delete()>Verwijderen</button>\n" +
     "</div>\n" +

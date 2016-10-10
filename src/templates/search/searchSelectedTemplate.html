@@ -2,8 +2,8 @@
     <div class="row margin-top margin-bottom">
         <div class="col-xs-12">
             <div class="btn-group">
-                <button type="button" class="btn" ng-if="srchslctdctrl.prevResult" ng-click="srchslctdctrl.vorige()">Vorige</button>
-                <button type="button" class="btn" ng-if="srchslctdctrl.nextResult" ng-click="srchslctdctrl.volgende()">Volgende</button>
+                <button type="button" class="btn" ng-disabled="!srchslctdctrl.prevResult" ng-click="srchslctdctrl.vorige()">Vorige</button>
+                <button type="button" class="btn" ng-disabled="!srchslctdctrl.nextResult" ng-click="srchslctdctrl.volgende()">Volgende</button>
             </div>
             <button class="srchbtn btn pull-right" ng-click="srchslctdctrl.delete()">Verwijderen</button>
         </div>
