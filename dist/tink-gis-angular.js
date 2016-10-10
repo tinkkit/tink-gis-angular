@@ -1922,7 +1922,8 @@ var esri2geo = {};
                     });
                 }
             });
-            $q.all(promises).then(function () {
+            var allpromises = $q.all(promises);
+            allpromises.then(function () {
                 var orderedArray = [];
                 var errorMessages = [];
                 project.themes.forEach(function (theme) {
@@ -1966,6 +1967,7 @@ var esri2geo = {};
                     alert(errorMessages.join('\n'));
                 }
             });
+            return allpromises.promise;
         };
         _externService.setExtent = function (extent) {
             map.fitBounds([[extent._northEast.lat, extent._northEast.lng], [extent._southWest.lat, extent._southWest.lng]]);
@@ -3294,6 +3296,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         _data.SelectedFeature = null;
         _data.JsonFeatures = [];
         _data.Loading = 0;
+        _data.TotalLoading = 0;
         _data.EmptyResult = false;
         _data.CleanSearch = function () {
             _data.SelectedFeature = null;
