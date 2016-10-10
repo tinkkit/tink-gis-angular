@@ -14,21 +14,29 @@
             MapData.IsDrawing = false;
             // MapData.CleanDrawings();
         });
-
-        var berkenOmtrek = function (layer) {
-            // Calculating the distance of the polyline
-            var tempLatLng = null;
+        var berekendAfstand = function (arrayOfPoints) {
             var totalDistance = 0.00000;
-            _.each(layer._latlngs, function (latlng) {
-                if (tempLatLng == null) {
-                    tempLatLng = latlng;
-                    return;
+            for (let x = 0; x != arrayOfPoints.length - 1; x++) { // do min 1 because we the last point don t have to calculate distance to the next one
+                var currpoint = arrayOfPoints[x];
+                var nextpoint = arrayOfPoints[x + 1];
+                totalDistance += currpoint.distanceTo(nextpoint);
+            }
+            return totalDistance.toFixed(2);
+        }
+        var berkenOmtrek = function (arrayOfPoints) {
+            var totalDistance = 0.00000;
+            for (let x = 0; x != arrayOfPoints.length; x++) {
+                var currpoint = arrayOfPoints[x];
+                if (x == arrayOfPoints.length - 1) {
+                    var nextpoint = arrayOfPoints[0]; // if it is the last point, check the distance to the first point
+                } else {
+                    var nextpoint = arrayOfPoints[x + 1]; 
                 }
-                totalDistance += tempLatLng.distanceTo(latlng);
-                tempLatLng = latlng;
-            });
+                totalDistance += currpoint.distanceTo(nextpoint); // from this point to the next point the distance and sum it
+            }
             return totalDistance.toFixed(2);
         };
+
 
         map.on('zoomend', function (event) {
             console.log('Zoomend!!!');
@@ -102,15 +110,15 @@
                 case ActiveInteractieButton.METEN:
                     switch (MapData.DrawingType) {
                         case DrawingOption.AFSTAND:
-                            var omtrek = berkenOmtrek(e.layer);
-                            var popup = e.layer.bindPopup('Afstand (m): ' + omtrek + ' ');
+                            var afstand = berekendAfstand(e.layer.layer._latlngs);
+                            var popup = e.layer.bindPopup('Afstand (m): ' + afstand + ' ');
                             popup.on('popupclose', function (event) {
                                 MapData.CleanMap();
                             });
                             e.layer.openPopup();
                             break;
                         case DrawingOption.OPPERVLAKTE:
-                            var omtrek = berkenOmtrek(e.layer);
+                            var omtrek = berkenOmtrek(e.layer.layer._latlngs[0]);
                             var popuptekst = '<p>Opp  (m<sup>2</sup>): ' + (LGeo.area(e.layer)).toFixed(2) + '</p>'
                                 + '<p>Omtrek (m): ' + omtrek + ' </p>';
                             var popup = e.layer.bindPopup(popuptekst);
