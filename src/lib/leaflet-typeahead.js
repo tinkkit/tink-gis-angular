@@ -1,8 +1,8 @@
 L.Control.Typeahead = L.Control.extend({
   options: {
     // topright, topleft, bottomleft, bottomright
-    position: 'topleft',
-    placeholder: 'Search...'
+    position: 'topleft'
+    // placeholder: 'Geef een X,Y / locatie of POI in.' // is not being used because it's also mentioned in mapController.js
   },
   initialize: function (args) {
     // constructor
@@ -20,8 +20,8 @@ L.Control.Typeahead = L.Control.extend({
     var container = L.DomUtil.create('div', '');
     // var container = document.getElementsByClassName("zoekbalken2")[0];
     container.style.position = "absolute";
-    container.style.top = "px";
-    container.style.left = "50px";
+    // container.style.top = "px";
+    // container.style.left = "50px";
     this.typeahead = L.DomUtil.create('input', 'typeahead tt-input', container);
     this.typeahead.type = 'text';
     this.typeahead.placeholder = this.options.placeholder;

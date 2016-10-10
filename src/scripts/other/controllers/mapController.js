@@ -135,7 +135,7 @@
 
             },
             {
-                placeholder: 'Search',
+                placeholder: 'Geef een X,Y / locatie of POI in.',
                 'typeahead:select': function (ev, suggestion) {
                     MapData.CleanWatIsHier();
                     MapData.CleanTempFeatures();
@@ -187,7 +187,7 @@
             MapData.CreateDot(loc);
 
         };
-        //ng-keyup="$event.keyCode == 13 && mapctrl.zoekLocatie(mapctrl.zoekLoc)" 
+        //ng-keyup="$event.keyCode == 13 && mapctrl.zoekLocatie(mapctrl.zoekLoc)"
         vm.zoekXY = function (search) {
 
             search = search.trim();

@@ -3,6 +3,7 @@
 @import "../../bower_components/tink-core/dist/tink/variables";
 
 $left-nav-aside-width: $nav-aside-width + $nav-aside-extra-body-padding + 100px; // making wider for extra detail content
+$twitter-typeahead-position-left: 120px;
 
 /**
  * Map
@@ -118,11 +119,11 @@ button.btn.active {
 }
 
 .interactiebtns {
-  left: rem(10);
+  left: rem(10); // this shouldn't be necessary if it's set in leaflet-control container
   top: rem(100);
 
   @include mq($screen-sm) {
-    left: rem(15);
+    left: rem(15); // this shouldn't be necessary if it's set in leaflet-control container
     top: rem(105);
   }
 }
@@ -450,6 +451,16 @@ button.trash {
  * Typeahead styling
  */
 
+.twitter-typeahead {
+  left: rem($twitter-typeahead-position-left);
+  top: 8px; // need to keep the leaflet-container margin in mind
+  width: rem(200);
+}
+
+input.typeahead.tt-input {
+  background-color: #fff;
+}
+
 .tt-suggestion + .tt-suggestion {
   border-top: 1px solid #ccd6dd;
 }
@@ -458,8 +469,6 @@ button.trash {
     }
 
     .tt-query {
-        -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-        -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
         box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
     }
 
@@ -474,11 +483,7 @@ button.trash {
         background-color: #fff;
         border: 1px solid #ccc;
         border: 1px solid rgba(0, 0, 0, 0.2);
-        -webkit-border-radius: 8px;
-        -moz-border-radius: 8px;
         border-radius: 8px;
-        -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, .2);
-        -moz-box-shadow: 0 5px 10px rgba(0, 0, 0, .2);
         box-shadow: 0 5px 10px rgba(0, 0, 0, .2);
         z-index: 99999;
     }
@@ -513,7 +518,6 @@ button.trash {
     .achtergrondfixvoorpng {
       background-image: url('fa-dot-circle-o_24_0_000000_none.png');
     }
-
 
 
 // Legacy code - needs further checking
@@ -653,6 +657,9 @@ html.nav-left-open {
     &:before {
       content: "\f100";
     }
+  }
+  .twitter-typeahead {
+    left: rem($left-nav-aside-width + $twitter-typeahead-position-left);
   }
 }
 
