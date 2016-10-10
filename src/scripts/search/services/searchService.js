@@ -30,7 +30,7 @@
             var layName = "";
             csvContent += 'Laag;' + "\n"
 
-            ResultsData.JsonFeatures.forEach(function(feature, index) {
+            _.sortBy(ResultsData.JsonFeatures, x=>x.layerName).forEach(function(feature, index) {
                 if (layName !== feature.layerName) {
                     layName = feature.layerName;
                     var tmparr = [];

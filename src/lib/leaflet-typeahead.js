@@ -17,11 +17,11 @@ L.Control.Typeahead = L.Control.extend({
     var that = this;
     // happens after added to map
     //top: -65px; left: 40px
-    // var container = L.DomUtil.create('div', '');
-    var container = document.getElementsByClassName("zoekbalken2")[0];
-    // container.style.position = "absolute";
-    // container.style.top = "px";
-    // container.style.left = "50px";
+    var container = L.DomUtil.create('div', '');
+    // var container = document.getElementsByClassName("zoekbalken2")[0];
+    container.style.position = "absolute";
+    container.style.top = "px";
+    container.style.left = "50px";
     this.typeahead = L.DomUtil.create('input', 'typeahead tt-input', container);
     this.typeahead.type = 'text';
     this.typeahead.placeholder = this.options.placeholder;

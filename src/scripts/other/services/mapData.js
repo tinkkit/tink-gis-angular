@@ -171,7 +171,10 @@
             };
             newScope.WGS84LatLng = latlng.lat.toFixed(6) + ', ' + latlng.lng.toFixed(6);
             var domele = linkFunction(newScope)[0];
-            WatIsHierOriginalMarker.bindPopup(domele, { minWidth: minwidth }).openPopup();
+            var popup = WatIsHierOriginalMarker.bindPopup(domele, { minWidth: minwidth, closeButton: true }).openPopup();
+            popup.on('popupclose', function () {
+                _data.CleanWatIsHier();
+            });
 
         };
         function copyToClipboard(element) {

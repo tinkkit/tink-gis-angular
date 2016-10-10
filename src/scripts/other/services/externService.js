@@ -130,7 +130,7 @@
                     alert(errorMessages.join('\n'));
                 }
             });
-            return allpromises.promise;
+            return allpromises;
 
         };
         _externService.setExtent = function (extent) {

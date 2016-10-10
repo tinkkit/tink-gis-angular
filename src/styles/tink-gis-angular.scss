@@ -743,3 +743,8 @@ html.print.landscape {
     cursor: pointer;
   }
 }
+
+
+.leaflet-popup-close-button {
+  z-index: 9999; //Make sure the close button is clickable when there is a popup!
+}
