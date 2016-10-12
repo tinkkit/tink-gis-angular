@@ -11,8 +11,9 @@
             <tink-search-results></tink-search-results>
             <tink-search-selected></tink-search-selected>
         </div>
-        <div class="" ng-show="srchctrl.LoadingCompleted() == false">
-            <div class="loader-lg center-block margin-top margin-bottom"></div> {{srchctrl.loadingPercentage()}}%
+        <div class="loader-advanced center-block margin-top margin-bottom" ng-show="srchctrl.LoadingCompleted() == false">
+            <span class="loader"></span>
+            <span class="loader-percentage">{{srchctrl.loadingPercentage()}}%</span>
         </div>
     </aside>
 </div>
