@@ -159,8 +159,6 @@
                 }
             }
         ).addTo(map);
-
-
         vm.interactieButtonChanged = function (ActiveButton) {
             MapData.CleanMap();
             MapData.ActiveInteractieKnop = ActiveButton; // If we only could keep the vmactiveInteractieKnop in sync with the one from MapData
@@ -185,7 +183,6 @@
         var setViewAndPutDot = function (loc) {
             MapData.PanToPoint(loc);
             MapData.CreateDot(loc);
-
         };
         //ng-keyup="$event.keyCode == 13 && mapctrl.zoekLocatie(mapctrl.zoekLoc)"
         vm.zoekXY = function (search) {

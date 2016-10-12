@@ -12,6 +12,7 @@
                 vm.featureLayers = _.uniq(_.map(vm.features, 'layerName'));
                 vm.layerGroupFilter = 'geenfilter';
             });
+            // vm.loadingPercentage = ResultsData.GetRequestPercentage();
             $scope.$watch(function () { return ResultsData.SelectedFeature; }, function (newVal, oldVal) {
                 vm.selectedResult = newVal;
             });

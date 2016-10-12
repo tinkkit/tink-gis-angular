@@ -9,6 +9,7 @@
     var mapService = function ($rootScope, MapData, map, ThemeCreater, $q, GISService, ResultsData, HelperService) {
         var _mapService = {};
         _mapService.Identify = function (event, tolerance) {
+            MapData.CleanSearch();
             if (typeof tolerance === 'undefined') { tolerance = 10; }
             _.each(MapData.Themes, function (theme) {
                 // theme.RecalculateVisibleLayerIds();
@@ -20,9 +21,9 @@
                     switch (theme.Type) {
                         case ThemeType.ESRI:
                             var layersVoorIdentify = 'visible: ' + theme.VisibleLayerIds;
-                            ResultsData.Loading++;
+                            ResultsData.RequestStarted++;
                             theme.MapData.identify().on(map).at(event.latlng).layers(layersVoorIdentify).tolerance(tolerance).run(function (error, featureCollection) {
-                                ResultsData.Loading--;
+                                ResultsData.RequestCompleted++;
                                 MapData.AddFeatures(featureCollection, theme);
                             });
                             break;
@@ -32,10 +33,10 @@
                                 console.log(lay);
                                 if (lay.queryable == true) {
 
-                                    ResultsData.Loading++;
+                                    ResultsData.RequestStarted++;
                                     theme.MapData.getFeatureInfo(event.latlng, lay.name).success(function (data, status, xhr) {
                                         data = HelperService.UnwrapProxiedData(data);
-                                        ResultsData.Loading--;
+                                        ResultsData.RequestCompleted++;
                                         console.log('minus');
                                         // data = data.replace('<?xml version="1.0" encoding="UTF-8"?>', '').trim();
                                         // var xmlstring = JXON.xmlToString(data);
@@ -92,21 +93,22 @@
         };
 
         _mapService.Select = function (event) {
+            MapData.CleanSearch();
             console.log(event);
             if (MapData.SelectedLayer.id == '') { // alle layers selected
                 MapData.Themes.filter(x => x.Type == ThemeType.ESRI).forEach(theme => { // dus doen we de qry op alle lagen.
-                    ResultsData.Loading++;
+                    ResultsData.RequestStarted++;
                     theme.MapData.identify().on(map).at(event.latlng).layers('visible: ' + theme.VisibleLayerIds).run(function (error, featureCollection) {
-                        ResultsData.Loading--;
+                        ResultsData.RequestCompleted++;
                         MapData.AddFeatures(featureCollection, theme);
 
                     });
                 });
             }
             else {
-                ResultsData.Loading++;
+                ResultsData.RequestStarted++;
                 MapData.SelectedLayer.theme.MapData.identify().on(map).at(event.latlng).layers('visible: ' + MapData.SelectedLayer.id).run(function (error, featureCollection) {
-                    ResultsData.Loading--;
+                    ResultsData.RequestCompleted++;
                     MapData.AddFeatures(featureCollection, MapData.SelectedLayer.theme);
 
                 });
@@ -130,6 +132,7 @@
         };
 
         _mapService.Query = function (box, layer) {
+            MapData.CleanSearch();
             if (!layer) {
                 layer = MapData.SelectedLayer;
             }
@@ -137,12 +140,12 @@
                 MapData.Themes.forEach(theme => { // dus doen we de qry op alle lagen.
                     if (theme.Type === ThemeType.ESRI) {
                         theme.VisibleLayers.forEach(lay => {
-                            ResultsData.Loading++;
+                            ResultsData.RequestStarted++;
                             theme.MapData.query()
                                 .layer(lay.id)
                                 .intersects(box)
                                 .run(function (error, featureCollection, response) {
-                                    ResultsData.Loading--;
+                                    ResultsData.RequestCompleted++;
                                     MapData.AddFeatures(featureCollection, theme, lay.id);
                                 });
                         });
@@ -150,29 +153,30 @@
                 });
             }
             else {
-                ResultsData.Loading++;
+                ResultsData.RequestStarted++;
                 layer.theme.MapData.query()
                     .layer(layer.id)
                     .intersects(box)
                     .run(function (error, featureCollection, response) {
-                        ResultsData.Loading--;
+                        ResultsData.RequestCompleted++;
                         MapData.AddFeatures(featureCollection, layer.theme, layer.id);
                     });
             }
         };
 
         _mapService.Find = function (query) {
+            MapData.CleanSearch();
             if (MapData.SelectedLayer && MapData.SelectedLayer.id == '') { // alle layers selected
                 MapData.Themes.forEach(theme => { // dus doen we de qry op alle lagen.
                     if (theme.Type === ThemeType.ESRI) {
                         theme.VisibleLayers.forEach(lay => {
-                            ResultsData.Loading++;
+                            ResultsData.RequestStarted++;
                             theme.MapData.find()
                                 .fields(lay.displayField)
                                 .layers(lay.id)
                                 .text(query)
                                 .run(function (error, featureCollection, response) {
-                                    ResultsData.Loading--;
+                                    ResultsData.RequestCompleted++;
                                     MapData.AddFeatures(featureCollection, theme, lay.id);
                                 });
                         });
@@ -180,13 +184,13 @@
                 });
             }
             else {
-                ResultsData.Loading++;
+                ResultsData.RequestStarted++;
                 MapData.SelectedLayer.theme.MapData.find()
                     .fields(MapData.SelectedLayer.displayField)
                     .layers(MapData.SelectedLayer.id)
                     .text(query)
                     .run(function (error, featureCollection, response) {
-                        ResultsData.Loading--;
+                        ResultsData.RequestCompleted++;
                         MapData.AddFeatures(featureCollection, MapData.SelectedLayer.theme, MapData.SelectedLayer.id);
                     });
             }

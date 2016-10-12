@@ -30,7 +30,7 @@
                 if (x == arrayOfPoints.length - 1) {
                     var nextpoint = arrayOfPoints[0]; // if it is the last point, check the distance to the first point
                 } else {
-                    var nextpoint = arrayOfPoints[x + 1]; 
+                    var nextpoint = arrayOfPoints[x + 1];
                 }
                 totalDistance += currpoint.distanceTo(nextpoint); // from this point to the next point the distance and sum it
             }
@@ -56,6 +56,7 @@
                             UIService.OpenLeftSide();
                             break;
                         case ActiveInteractieButton.SELECT:
+                            
                             if (MapData.DrawingType === DrawingOption.NIETS) {
                                 MapService.Select(event);
                                 UIService.OpenLeftSide();
@@ -110,7 +111,7 @@
                 case ActiveInteractieButton.METEN:
                     switch (MapData.DrawingType) {
                         case DrawingOption.AFSTAND:
-                            var afstand = berekendAfstand(e.layer.layer._latlngs);
+                            var afstand = berekendAfstand(e.layer._latlngs);
                             var popup = e.layer.bindPopup('Afstand (m): ' + afstand + ' ');
                             popup.on('popupclose', function (event) {
                                 MapData.CleanMap();
@@ -118,7 +119,7 @@
                             e.layer.openPopup();
                             break;
                         case DrawingOption.OPPERVLAKTE:
-                            var omtrek = berkenOmtrek(e.layer.layer._latlngs[0]);
+                            var omtrek = berkenOmtrek(e.layer._latlngs[0]);
                             var popuptekst = '<p>Opp  (m<sup>2</sup>): ' + (LGeo.area(e.layer)).toFixed(2) + '</p>'
                                 + '<p>Omtrek (m): ' + omtrek + ' </p>';
                             var popup = e.layer.bindPopup(popuptekst);

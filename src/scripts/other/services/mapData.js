@@ -48,7 +48,7 @@
         _data.CleanMap = function () {
             _data.CleanDrawings();
             _data.CleanWatIsHier();
-            _data.CleanSearch();
+            // _data.CleanSearch(); Moet nog alleen maar gebeuren bij nieuwe results
             _data.CleanBuffer();
             _data.CleanTempFeatures();
         };
@@ -262,7 +262,7 @@
             })
         }
         _data.AddFeatures = function (features, theme, layerId) {
-            if (features == null || features.features.length == 0) {
+            if (!features || features.features.length == 0) {
                 ResultsData.EmptyResult = true;
             }
             else {
