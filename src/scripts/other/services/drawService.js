@@ -1,3 +1,21 @@
+L.Draw.Rectangle = L.Draw.Rectangle.extend({
+    _getTooltipText: function () {
+		var tooltipText = L.Draw.SimpleShape.prototype._getTooltipText.call(this),
+			shape = this._shape,
+			latLngs, area, subtext;
+
+		if (shape) {
+			latLngs = this._shape.getLatLngs();
+			area = L.GeometryUtil.geodesicArea(latLngs);
+			subtext = L.GeometryUtil.readableArea(area, this.options.metric);
+		}
+
+		return {
+			text: tooltipText.text,
+			subtext: ''
+		};
+	}
+});
 'use strict';
 (function() {
 
@@ -19,7 +37,7 @@
                 case DrawingOption.POLYGON:
                 case DrawingOption.OPPERVLAKTE:
                     var polygon_options = {
-                        showArea: true,
+                        showArea: false,
                         shapeOptions: {
                             stroke: true,
                             color: '#22528b',
@@ -35,7 +53,7 @@
                     MapData.DrawingObject.enable();
                     break;
                 case DrawingOption.VIERKANT:
-                    MapData.DrawingObject = new L.Draw.Rectangle(map);
+                    MapData.DrawingObject = new L.Draw.Rectangle(map, { metric: false });
                     MapData.DrawingObject.enable();
                     break;
                 default:

@@ -271,10 +271,10 @@
                     var featureItem = features.features[x];
 
                     var layer = {};
-                    if (featureItem.layerId) {
+                    if (featureItem.layerId != null) {
                         layer = theme.AllLayers.find(x => x.id === featureItem.layerId);
                     }
-                    else if (layerId) {
+                    else if (layerId != null) {
                         layer = theme.AllLayers.find(x => x.id === layerId);
                     } else {
                         console.log('NO LAYER ID WAS GIVEN EITHER FROM FEATURE ITEM OR FROM PARAMETER');
@@ -293,11 +293,15 @@
                         if (!featureItem.displayValue) {
                             var displayFieldProperties = layer.fields.find(x => x.name == layer.displayField);
                             if (displayFieldProperties) {
-                                featureItem.displayValue = featureItem.properties[displayFieldProperties.alias];
+                                if (featureItem.properties[displayFieldProperties.alias]) {
+                                    featureItem.displayValue = featureItem.properties[displayFieldProperties.alias];
+                                }
+                                else {
+                                    featureItem.displayValue = 'LEEG';
+                                }
                             } else {
                                 featureItem.displayValue = 'LEEG';
                             }
-
                         }
                         var mapItem = L.geoJson(featureItem, { style: Style.DEFAULT }).addTo(map);
                         _data.VisibleFeatures.push(mapItem);

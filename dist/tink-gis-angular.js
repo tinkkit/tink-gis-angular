@@ -852,73 +852,6 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             output += '<p>Laag: ' + item.layer + '</p></div>';
             return output;
         };
-        // $('#locatiezoek.typeahead').typeahead({
-        //     minLength: 3,
-        //     highlight: true,
-        //     classNames: {
-        //         open: 'is-open',
-        //         empty: 'is-empty',
-        //     }
-        // }, {
-        //         async: true,
-        //         limit: 99,
-        //         display: 'name',
-        //         displayKey: 'name',
-        //         source: function (query, syncResults, asyncResults) {
-        //             if (query.replace(/[^0-9]/g, "").length < 6) { // if less then 6 numbers then we just search
-        //                 GISService.QuerySOLRLocatie(query).then(function (data) {
-        //                     var arr = data.response.docs;
-        //                     asyncResults(arr);
-        //                 });
-        //             }
-        //             else {
-        //                 syncResults([]);
-        //                 vm.zoekXY(query);
-        //             }
-
-        //         },
-        //         templates: {
-        //             suggestion: suggestionfunc,
-        //             notFound: ['<div class="empty-message"><b>Geen match gevonden</b></div>'],
-        //             empty: ['<div class="empty-message"><b>Zoek naar straten, POI en districten</b></div>']
-        //         }
-
-        //     });
-
-
-        // $('#locatiezoek.typeahead').bind('typeahead:change', function (ev, suggestion) {
-        //     console.log("CHANGEEEEEEEEEEEE");
-        //     console.log('Selection: ' + suggestion);
-        // });
-
-        // $('#locatiezoek.typeahead').bind('typeahead:selected', function (ev, suggestion) {
-        //     MapData.CleanWatIsHier();
-        //     MapData.CleanTempFeatures();
-        //     switch (suggestion.layer.toLowerCase()) {
-        //         case 'postzone':
-        //             MapData.QueryForTempFeatures(20, 'ObjectID=' + suggestion.key);
-        //             break;
-        //         case 'district':
-        //             MapData.QueryForTempFeatures(21, 'ObjectID=' + suggestion.key);
-        //             break;
-        //         default:
-        //             var cors = {
-        //                 x: suggestion.x,
-        //                 y: suggestion.y
-        //             };
-        //             var xyWGS84 = HelperService.ConvertLambert72ToWSG84(cors);
-        //             setViewAndPutDot(xyWGS84);
-        //             break;
-
-        //     }
-        // });
-        // $('.typeahead').on('typeahead:asyncrequest', function () {
-        //     $('.Typeahead-spinner').show();
-        // })
-        // $('.typeahead').on('typeahead:asynccancel typeahead:asyncreceive', function () {
-        //     $('.Typeahead-spinner').hide();
-        // });
-
         L.control.typeahead({
             minLength: 3,
             highlight: true,
@@ -1623,6 +1556,27 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
 })();
 ;'use strict';
 
+L.Draw.Rectangle = L.Draw.Rectangle.extend({
+    _getTooltipText: function _getTooltipText() {
+        var tooltipText = L.Draw.SimpleShape.prototype._getTooltipText.call(this),
+            shape = this._shape,
+            latLngs,
+            area,
+            subtext;
+
+        if (shape) {
+            latLngs = this._shape.getLatLngs();
+            area = L.GeometryUtil.geodesicArea(latLngs);
+            subtext = L.GeometryUtil.readableArea(area, this.options.metric);
+        }
+
+        return {
+            text: tooltipText.text,
+            subtext: ''
+        };
+    }
+});
+'use strict';
 (function () {
 
     try {
@@ -1643,7 +1597,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 case DrawingOption.POLYGON:
                 case DrawingOption.OPPERVLAKTE:
                     var polygon_options = {
-                        showArea: true,
+                        showArea: false,
                         shapeOptions: {
                             stroke: true,
                             color: '#22528b',
@@ -1659,7 +1613,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                     MapData.DrawingObject.enable();
                     break;
                 case DrawingOption.VIERKANT:
-                    MapData.DrawingObject = new L.Draw.Rectangle(map);
+                    MapData.DrawingObject = new L.Draw.Rectangle(map, { metric: false });
                     MapData.DrawingObject.enable();
                     break;
                 default:
@@ -2524,11 +2478,11 @@ L.control.typeahead = function (args) {
                     var featureItem = features.features[x];
 
                     var layer = {};
-                    if (featureItem.layerId) {
+                    if (featureItem.layerId != null) {
                         layer = theme.AllLayers.find(function (x) {
                             return x.id === featureItem.layerId;
                         });
-                    } else if (layerId) {
+                    } else if (layerId != null) {
                         layer = theme.AllLayers.find(function (x) {
                             return x.id === layerId;
                         });
@@ -2551,7 +2505,11 @@ L.control.typeahead = function (args) {
                                 return x.name == layer.displayField;
                             });
                             if (displayFieldProperties) {
-                                featureItem.displayValue = featureItem.properties[displayFieldProperties.alias];
+                                if (featureItem.properties[displayFieldProperties.alias]) {
+                                    featureItem.displayValue = featureItem.properties[displayFieldProperties.alias];
+                                } else {
+                                    featureItem.displayValue = 'LEEG';
+                                }
                             } else {
                                 featureItem.displayValue = 'LEEG';
                             }
