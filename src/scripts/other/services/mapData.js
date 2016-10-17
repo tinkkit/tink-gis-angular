@@ -48,7 +48,7 @@
         _data.CleanMap = function () {
             _data.CleanDrawings();
             _data.CleanWatIsHier();
-            _data.CleanSearch();
+            // _data.CleanSearch(); Moet nog alleen maar gebeuren bij nieuwe results
             _data.CleanBuffer();
             _data.CleanTempFeatures();
         };
@@ -171,7 +171,10 @@
             };
             newScope.WGS84LatLng = latlng.lat.toFixed(6) + ', ' + latlng.lng.toFixed(6);
             var domele = linkFunction(newScope)[0];
-            WatIsHierOriginalMarker.bindPopup(domele, { minWidth: minwidth }).openPopup();
+            var popup = WatIsHierOriginalMarker.bindPopup(domele, { minWidth: minwidth, closeButton: true }).openPopup();
+            popup.on('popupclose', function () {
+                _data.CleanWatIsHier();
+            });
 
         };
         function copyToClipboard(element) {
@@ -259,7 +262,7 @@
             })
         }
         _data.AddFeatures = function (features, theme, layerId) {
-            if (features == null || features.features.length == 0) {
+            if (!features || features.features.length == 0) {
                 ResultsData.EmptyResult = true;
             }
             else {
@@ -268,10 +271,10 @@
                     var featureItem = features.features[x];
 
                     var layer = {};
-                    if (featureItem.layerId) {
+                    if (featureItem.layerId != null) {
                         layer = theme.AllLayers.find(x => x.id === featureItem.layerId);
                     }
-                    else if (layerId) {
+                    else if (layerId != null) {
                         layer = theme.AllLayers.find(x => x.id === layerId);
                     } else {
                         console.log('NO LAYER ID WAS GIVEN EITHER FROM FEATURE ITEM OR FROM PARAMETER');
@@ -290,11 +293,15 @@
                         if (!featureItem.displayValue) {
                             var displayFieldProperties = layer.fields.find(x => x.name == layer.displayField);
                             if (displayFieldProperties) {
-                                featureItem.displayValue = featureItem.properties[displayFieldProperties.alias];
+                                if (featureItem.properties[displayFieldProperties.alias]) {
+                                    featureItem.displayValue = featureItem.properties[displayFieldProperties.alias];
+                                }
+                                else {
+                                    featureItem.displayValue = 'LEEG';
+                                }
                             } else {
                                 featureItem.displayValue = 'LEEG';
                             }
-
                         }
                         var mapItem = L.geoJson(featureItem, { style: Style.DEFAULT }).addTo(map);
                         _data.VisibleFeatures.push(mapItem);

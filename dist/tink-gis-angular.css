@@ -334,9 +334,18 @@ button.btn.active {
       right: 1.0714285714rem ;
       top: 1.0714285714rem ; } }
 
-.loader-lg {
+.loader-advanced {
   height: 5.7142857143rem ;
+  text-align: center;
+  position: relative;
   width: 5.7142857143rem ; }
+  .loader-advanced .loader {
+    height: 5em;
+    width: 5em;
+    top: 0.3em; }
+  .loader-advanced .loader-percentage {
+    position: relative;
+    top: -3rem ; }
 
 .full-width {
   padding-left: 0 !important;
@@ -471,6 +480,14 @@ button.trash {
 /**
  * Typeahead styling
  */
+.twitter-typeahead {
+  left: 8.5714285714rem ;
+  top: 8px;
+  width: 14.2857142857rem ; }
+
+input.typeahead.tt-input {
+  background-color: #fff; }
+
 .tt-suggestion + .tt-suggestion {
   border-top: 1px solid #ccd6dd; }
 
@@ -624,6 +641,9 @@ html.nav-left-open .nav-left {
 html.nav-left-open .nav-left-toggle:before {
   content: "\f100"; }
 
+html.nav-left-open .twitter-typeahead {
+  left: 31.4285714286rem ; }
+
 html.nav-right-open .map-buttons-right {
   right: 15.7142857143rem ; }
 
@@ -684,3 +704,6 @@ html.print.landscape .mappart {
 .mouse-over:hover .mouse-over-toshow {
   display: inline-block;
   cursor: pointer; }
+
+.leaflet-popup-close-button {
+  z-index: 9999; }
