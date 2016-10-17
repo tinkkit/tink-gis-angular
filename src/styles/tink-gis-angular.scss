@@ -3,7 +3,7 @@
 @import "../../bower_components/tink-core/dist/tink/variables";
 
 $left-nav-aside-width: $nav-aside-width + $nav-aside-extra-body-padding + 100px; // making wider for extra detail content
-$twitter-typeahead-position-left: 120px;
+$leaflet-control-position-left: 100px;
 
 /**
  * Map
@@ -85,6 +85,17 @@ svg.leaflet-zoom-animated {
     z-index: auto;
 }
 
+.leaflet-top {
+  .leaflet-control {
+    left: rem($leaflet-control-position-left);
+    margin: 0; //reset default leaflet margin so positioning can be done on typeahead
+
+    @include mq($screen-sm) {
+      left: rem($leaflet-control-position-left + 5);
+    }
+  }
+}
+
 /**
  * Map buttons styling
  */
@@ -163,21 +174,24 @@ button.btn.active {
   }
 }
 
-.zoekbalk {
-  width: rem(150);
+// .zoekbalk {// necessary when it width is dependant of the container?
+//   width: rem(150);
 
-  @include mq($screen-sm) {
-    width: rem(200);
-  }
-}
+//   @include mq($screen-sm) {
+//     width: rem(300);
+//   }
+// }
 
 .zoekbalken {
-  left: rem(90);
-  top: rem(10);
+  // left: rem(90);
+  left: rem($leaflet-control-position-left);
+  top: rem(10); // same values as searchbtns
+  width: rem(225);
 
   @include mq($screen-sm) {
-    left: rem(95);
-    top: rem(15);
+    // left: rem(95);
+    left: rem($leaflet-control-position-left + 5);
+    top: rem(15); // same values as searchbtns
   }
 }
 
@@ -191,10 +205,13 @@ button.btn.active {
   }
 }
 
-
-#zoekbalken {
-  width: 200px;
+.hide-element {
+  display: none !important;
 }
+
+// #zoekbalken { // styling set on class, not id
+//   width: 200px;
+// }
 
 
 .zoekbalken2  {
@@ -466,9 +483,13 @@ button.trash {
  */
 
 .twitter-typeahead {
-  left: rem($twitter-typeahead-position-left);
-  top: 8px; // need to keep the leaflet-container margin in mind
-  width: rem(200);
+  left: 0;
+  top: rem(10); // same values as searchbtns
+  width: rem(225);
+
+  @include mq($screen-sm) {
+    top: rem(15);
+  }
 }
 
 input.typeahead.tt-input {
@@ -672,9 +693,13 @@ html.nav-left-open {
       content: "\f100";
     }
   }
-  .twitter-typeahead {
-    left: rem($left-nav-aside-width + $twitter-typeahead-position-left);
+  // .twitter-typeahead {
+  //   left: rem($left-nav-aside-width + $twitter-typeahead-position-left);
+  // }
+  .leaflet-control {
+    left: rem($left-nav-aside-width + $leaflet-control-position-left);
   }
+
 }
 
 // Set padding for map buttons and change toggle icons
