@@ -240,9 +240,20 @@
             }
             map.invalidateSize(false);
         }
+
         vm.ZoekenInLagen = function () {
             vm.ZoekenOpLocatie=false;
             $('.twitter-typeahead').addClass('hide-element');
+        }
+
+        vm.fnZoekenOpLocatie = function () {
+            vm.ZoekenOpLocatie=true;
+            if ($(".twitter-typeahead").hasClass("hide-element")) {
+                $('.twitter-typeahead').removeClass('hide-element');
+            }
+            else {
+                return vm.ZoekenOpLocatie;
+            }
         }
 
     });

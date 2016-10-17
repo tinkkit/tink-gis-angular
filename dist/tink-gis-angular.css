@@ -216,6 +216,13 @@ svg.leaflet-zoom-animated {
 .leaflet-tile-pane {
   z-index: auto; }
 
+.leaflet-top .leaflet-control {
+  left: 7.1428571429rem ;
+  margin: 0; }
+  @media (min-width: 768px) {
+    .leaflet-top .leaflet-control {
+      left: 7.5rem ; } }
+
 /**
  * Map buttons styling
  */
@@ -275,18 +282,13 @@ button.btn.active {
       left: 1.0714285714rem ;
       top: 1.0714285714rem ; } }
 
-.zoekbalk {
-  width: 10.7142857143rem ; }
-  @media (min-width: 768px) {
-    .zoekbalk {
-      width: 14.2857142857rem ; } }
-
 .zoekbalken {
-  left: 6.4285714286rem ;
-  top: 0.7142857143rem ; }
+  left: 7.1428571429rem ;
+  top: 0.7142857143rem ;
+  width: 16.0714285714rem ; }
   @media (min-width: 768px) {
     .zoekbalken {
-      left: 6.7857142857rem ;
+      left: 7.5rem ;
       top: 1.0714285714rem ; } }
 
 .zoekbalken2 {
@@ -297,8 +299,8 @@ button.btn.active {
       left: 18.5714285714rem ;
       top: 1.0714285714rem ; } }
 
-#zoekbalken {
-  width: 200px; }
+.hide-element {
+  display: none !important; }
 
 .zoekbalken2 {
   width: 200px; }
@@ -350,32 +352,20 @@ button.btn.active {
 .full-width {
   padding-left: 0 !important;
   padding-right: 0 !important;
-  -webkit-transform: translate(0, 0) !important;
-      -ms-transform: translate(0, 0) !important;
-          transform: translate(0, 0) !important; }
+  transform: translate(0, 0) !important; }
 
 .relative-container {
   height: 60vh;
-  display: -webkit-flex;
-  display: -ms-flexbox;
   display: flex; }
 
 .flex-column {
-  -webkit-flex-grow: 1;
-      -ms-flex-positive: 1;
-          flex-grow: 1;
-  display: -webkit-flex;
-  display: -ms-flexbox;
+  flex-grow: 1;
   display: flex;
-  -webkit-flex-direction: column;
-      -ms-flex-direction: column;
-          flex-direction: column; }
+  flex-direction: column; }
 
 .scrollable-list {
   overflow: auto;
-  -webkit-flex-grow: 1;
-      -ms-flex-positive: 1;
-          flex-grow: 1; }
+  flex-grow: 1; }
 
 /**
  * Rightside layer menu
@@ -404,10 +394,7 @@ button.btn.active {
   cursor: pointer;
   display: inline-block;
   padding: 0 0.3571428571rem  0 0.3571428571rem ;
-  -webkit-user-select: none;
-     -moz-user-select: none;
-      -ms-user-select: none;
-          user-select: none; }
+  user-select: none; }
   .can-open span:after {
     content: "\f0d7";
     font-family: FontAwesome;
@@ -481,9 +468,12 @@ button.trash {
  * Typeahead styling
  */
 .twitter-typeahead {
-  left: 8.5714285714rem ;
-  top: 8px;
-  width: 14.2857142857rem ; }
+  left: 0;
+  top: 0.7142857143rem ;
+  width: 16.0714285714rem ; }
+  @media (min-width: 768px) {
+    .twitter-typeahead {
+      top: 1.0714285714rem ; } }
 
 input.typeahead.tt-input {
   background-color: #fff; }
@@ -538,7 +528,7 @@ input.typeahead.tt-input {
   color: red; }
 
 .achtergrondfixvoorpng {
-  background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAMAAADXqc3KAAABKVBMVEUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABUJ5OrAAAAYnRSTlMAAQIEBQYICgsNDg8QERITFxgaGyAhJSYoKS8wMTU2ODk7QkRPVFVXXV5fYWJkZ2lrbHF3eHyAg4aMjpSXmJ6jpqirra+wsrS3ucDByszP0dPc3uDi5Obo6evt7/P19/n7/fGWhfoAAAERSURBVBgZXcGHIoJhGIbh5+uXZO+sZK/slZ0tMwkhwn3+B+HtrxTXpapgKOj0n4slC8DX+binWrEcFe8T+uV2qXXhqcSdYvYGmurD/Ylv4M6TLwGk21QSugROVBQBjgKqcFvAmMwNPHiqclfwEpC6gB4VRdeWumQagai0CLcy7hwzK7MPe9IFzMjE8XVKisGr9AyDMhl8C5LagYA+ISLzhm9VUjPgKQvDMtv4hiR1Ak5JWJFpyGPOZMYhI03Bo4oadvKZuJNJwabUDIyqVjfQK+kICmFV1T1BWqYVuA+rIpgCIiqaBD5GVNKXAzZUso7JLkcjQ3NpzIFT2RS11lTVdkzFdbf+aJk+zH4+n813qOwHxGRbFJ0DoNgAAAAASUVORK5CYII="); }
+  background-image: url("fa-dot-circle-o_24_0_000000_none.png"); }
 
 .row-no-padding [class*="col-"] {
   padding-left: 0 !important;
@@ -608,14 +598,10 @@ input.typeahead.tt-input {
     content: "\f100"; }
 
 html.has-nav-left .nav-left {
-  -webkit-transform: translate(-22.8571428571rem , 0);
-      -ms-transform: translate(-22.8571428571rem , 0);
-          transform: translate(-22.8571428571rem , 0); }
+  transform: translate(-22.8571428571rem , 0); }
 
 .nav-right {
-  -webkit-transform: translate(15.7142857143rem, 0);
-      -ms-transform: translate(15.7142857143rem, 0);
-          transform: translate(15.7142857143rem, 0); }
+  transform: translate(15.7142857143rem, 0); }
 
 .map-buttons-left {
   height: 100%;
@@ -634,23 +620,19 @@ html.nav-left-open .map-buttons-left {
   left: 22.8571428571rem ; }
 
 html.nav-left-open .nav-left {
-  -webkit-transform: translate(0, 0);
-      -ms-transform: translate(0, 0);
-          transform: translate(0, 0); }
+  transform: translate(0, 0); }
 
 html.nav-left-open .nav-left-toggle:before {
   content: "\f100"; }
 
-html.nav-left-open .twitter-typeahead {
-  left: 31.4285714286rem ; }
+html.nav-left-open .leaflet-control {
+  left: 30rem ; }
 
 html.nav-right-open .map-buttons-right {
   right: 15.7142857143rem ; }
 
 html.nav-right-open .nav-right {
-  -webkit-transform: translate(0, 0);
-      -ms-transform: translate(0, 0);
-          transform: translate(0, 0); }
+  transform: translate(0, 0); }
 
 html.nav-right-open .nav-right-toggle:before {
   content: "\f101"; }
