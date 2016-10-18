@@ -827,6 +827,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 ExternService.Import(externproj);
             }
         }();
+
         vm.ZoekenOpLocatie = true;
         vm.activeInteractieKnop = MapData.ActiveInteractieKnop;
         vm.SelectableLayers = function () {
@@ -1049,6 +1050,9 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 html.addClass('landscape');
             }
             map.invalidateSize(false);
+        };
+        vm.zoomToGps = function () {
+            map.locate({ setView: true, maxZoom: 16 });
         };
     });
     theController.$inject = ['BaseLayersService', 'ExternService', 'MapService', 'MapData', 'map', 'MapEvents', 'DrawService', 'HelperService', 'GISService'];
@@ -2369,7 +2373,7 @@ L.control.typeahead = function (args) {
             var html = "";
             var minwidth = 0;
             if (straatNaam) {
-                html = '<div class="container container-low-padding">' + '<div class="row row-no-padding">' + '<div class="col-sm-4">' + '<a href="templates/external/streetView.html?lat=' + latlng.lat + '&lng=' + latlng.lng + '" + target="_blank" >' + '<img src="https://maps.googleapis.com/maps/api/streetview?size=100x50&location=' + latlng.lat + ',' + latlng.lng + '&pitch=-0.76" />' + '</a>' + '</div>' + '<div class="col-sm-8 mouse-over">' + '<div class="col-sm-12"><b>' + straatNaam + '</b></div>' + '<div class="col-sm-3" >WGS84:</div><div id="wgs" class="col-sm-8" style="text-align: left;">{{WGS84LatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o mouse-over-toshow" ng-click="CopyWGS()"></i></div>' + '<div class="col-sm-3">Lambert:</div><div id="lambert" class="col-sm-8" style="text-align: left;">{{LambertLatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o mouse-over-toshow"  ng-click="CopyLambert()"></i></div>' + '</div>' + '</div>' + '</div>';
+                html = '<div class="container container-low-padding">' + '<div class="row row-no-padding">' + '<div class="col-sm-4">' + '<a href="http://maps.google.com/maps?q=&layer=c&cbll=' + latlng.lat + ',' + latlng.lng + '" + target="_blank" >' + '<img src="https://maps.googleapis.com/maps/api/streetview?size=100x50&location=' + latlng.lat + ',' + latlng.lng + '&pitch=-0.76" />' + '</a>' + '</div>' + '<div class="col-sm-8 mouse-over">' + '<div class="col-sm-12"><b>' + straatNaam + '</b></div>' + '<div class="col-sm-3" >WGS84:</div><div id="wgs" class="col-sm-8" style="text-align: left;">{{WGS84LatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o mouse-over-toshow" ng-click="CopyWGS()"></i></div>' + '<div class="col-sm-3">Lambert:</div><div id="lambert" class="col-sm-8" style="text-align: left;">{{LambertLatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o mouse-over-toshow"  ng-click="CopyLambert()"></i></div>' + '</div>' + '</div>' + '</div>';
                 minwidth = 300;
             } else {
                 html = '<div class="container container-low-padding">' + '<div class="row row-no-padding mouse-over">' + '<div class="col-sm-3">WGS84:</div><div id="wgs" class="col-sm-8 " style="text-align: left;">{{WGS84LatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o mouse-over-toshow" ng-click="CopyWGS()"></i></div>' + '<div class="col-sm-3">Lambert:</div><div id="lambert" class="col-sm-8" style="text-align: left;">{{LambertLatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o mouse-over-toshow" ng-click="CopyLambert()"></i></div>' + '</div>' + '</div>';
@@ -2667,6 +2671,21 @@ L.control.typeahead = function (args) {
                     break;
             }
             MapData.IsDrawing = false;
+        });
+
+        map.on('locationfound', function (e) {
+            // var radius = e.accuracy / 2;
+
+            var marker = L.marker(e.latlng).addTo(map);
+            var popup = marker.bindPopup("GPS locatie van browser").openPopup();
+            popup.on('popupclose', function (e) {
+                map.removeLayer(marker);
+            });
+            // L.circle(e.latlng, radius).addTo(map);
+        });
+
+        map.on('locationerror', function (e) {
+            console.log('LOCATIONERROR', e);
         });
 
         return _mapEvents;
@@ -4109,11 +4128,8 @@ L.drawLocal = {
     "<div class=\"btn-group btn-group-vertical ll viewbtns\">\n" +
     "<button type=button class=btn ng-click=mapctrl.zoomIn() prevent-default><i class=\"fa fa-plus\"></i></button>\n" +
     "<button type=button class=btn ng-click=mapctrl.zoomOut() prevent-default><i class=\"fa fa-minus\"></i></button>\n" +
-    "<button type=button class=btn ng-click=\"\" prevent-default><i class=\"fa fa-crosshairs\"></i></button>\n" +
+    "<button type=button class=btn ng-click=mapctrl.zoomToGps() prevent-default><i class=\"fa fa-crosshairs\"></i></button>\n" +
     "<button type=button class=btn ng-click=mapctrl.fullExtent() prevent-default><i class=\"fa fa-home\"></i></button>\n" +
-    "</div>\n" +
-    "<div class=\"btn-group btn-group-vertical ll localiseerbtn\">\n" +
-    "<button type=button class=btn prevent-default><i class=\"fa fa-male\"></i></button>\n" +
     "</div>\n" +
     "<div class=\"ll loading\" ng-show=\"mapctrl.Loading > 0\">\n" +
     "<div class=loader></div> {{mapctrl.MaxLoading - mapctrl.Loading}}/ {{mapctrl.MaxLoading}}\n" +

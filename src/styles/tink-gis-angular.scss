@@ -205,23 +205,23 @@ button.btn.active {
  * Map buttons right side
  */
 
-.localiseerbtn {
-  right: rem(10);
-  bottom: rem(20);
+// .localiseerbtn {
+//   right: rem(10);
+//   bottom: rem(20);
 
-  @include mq($screen-sm) {
-    right: rem(15);
-    bottom: rem(20);
-  }
-}
+//   @include mq($screen-sm) {
+//     right: rem(15);
+//     bottom: rem(20);
+//   }
+// }
 
 .viewbtns {
   right: rem(10);
-  bottom: rem(64);
+  bottom: rem(44);
 
   @include mq($screen-sm) {
     right: rem(15);
-    bottom: rem(69);
+    bottom: rem(49);
   }
 }
 

@@ -56,7 +56,7 @@
                             UIService.OpenLeftSide();
                             break;
                         case ActiveInteractieButton.SELECT:
-                            
+
                             if (MapData.DrawingType === DrawingOption.NIETS) {
                                 MapService.Select(event);
                                 UIService.OpenLeftSide();
@@ -139,6 +139,20 @@
             MapData.IsDrawing = false;
         });
 
+        map.on('locationfound', function (e) {
+            // var radius = e.accuracy / 2;
+
+            var marker = L.marker(e.latlng).addTo(map);
+            var popup = marker.bindPopup("GPS locatie van browser").openPopup();
+            popup.on('popupclose', function (e) {
+                map.removeLayer(marker);
+            })
+            // L.circle(e.latlng, radius).addTo(map);
+        });
+
+        map.on('locationerror', function (e) {
+            console.log('LOCATIONERROR', e);
+        });
 
         return _mapEvents;
     };

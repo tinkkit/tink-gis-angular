@@ -10,6 +10,7 @@
                 ExternService.Import(externproj);
             }
         } ();
+
         vm.ZoekenOpLocatie = true;
         vm.activeInteractieKnop = MapData.ActiveInteractieKnop;
         vm.SelectableLayers = function () {
@@ -22,7 +23,7 @@
         vm.showMetenControls = false;
         vm.showDrawControls = false;
         vm.zoekLoc = '';
-        
+
         var suggestionfunc = function (item) {
             var output = '<div>' + item.name;
             if (item.attribute1value) {
@@ -240,8 +241,9 @@
             }
             map.invalidateSize(false);
         }
-
-
+        vm.zoomToGps = function () {
+            map.locate({ setView: true, maxZoom: 16 });
+        }
     });
     theController.$inject = ['BaseLayersService', 'ExternService', 'MapService', 'MapData', 'map', 'MapEvents', 'DrawService', 'HelperService', 'GISService'];
 })();
