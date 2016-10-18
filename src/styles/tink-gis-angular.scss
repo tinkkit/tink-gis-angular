@@ -3,7 +3,11 @@
 @import "../../bower_components/tink-core/dist/tink/variables";
 
 $left-nav-aside-width: $nav-aside-width + $nav-aside-extra-body-padding + 100px; // making wider for extra detail content
-$leaflet-control-position-left: 100px;
+$map-buttons-position-left-xs: 10px;
+$map-buttons-position-left-sm: $map-buttons-position-left-xs + 5px;
+$leaflet-control-position-left-xs: $map-buttons-position-left-xs + 90px;
+$leaflet-control-position-left-sm: $map-buttons-position-left-sm + 90px;
+
 
 /**
  * Map
@@ -87,11 +91,11 @@ svg.leaflet-zoom-animated {
 
 .leaflet-top {
   .leaflet-control {
-    left: rem($leaflet-control-position-left);
+    left: rem($leaflet-control-position-left-xs);
     margin: 0; //reset default leaflet margin so positioning can be done on typeahead
 
     @include mq($screen-sm) {
-      left: rem($leaflet-control-position-left + 5);
+      left: rem($leaflet-control-position-left-sm);
     }
   }
 }
@@ -130,21 +134,21 @@ button.btn.active {
 }
 
 .interactiebtns {
-  left: rem(10); // this shouldn't be necessary if it's set in leaflet-control container
+  left: rem($map-buttons-position-left-xs); // this shouldn't be necessary if it's set in leaflet-control container
   top: rem(100);
 
   @include mq($screen-sm) {
-    left: rem(15); // this shouldn't be necessary if it's set in leaflet-control container
+    left: rem($map-buttons-position-left-sm); // this shouldn't be necessary if it's set in leaflet-control container
     top: rem(105);
   }
 }
 
 .kaarttypes {
-  left: rem(10);
+  left: rem($map-buttons-position-left-xs);
   bottom: rem(10);
 
   @include mq($screen-sm) {
-    left: rem(15);
+    left: rem($map-buttons-position-left-sm);
     bottom: rem(15);
   }
 
@@ -165,11 +169,11 @@ button.btn.active {
 }
 
 .searchbtns {
-  left: rem(10);
+  left: rem($map-buttons-position-left-xs);
   top: rem(10);
 
   @include mq($screen-sm) {
-    left: rem(15);
+    left: rem($map-buttons-position-left-sm);
     top: rem(15);
   }
 }
@@ -184,13 +188,13 @@ button.btn.active {
 
 .zoekbalken {
   // left: rem(90);
-  left: rem($leaflet-control-position-left);
+  left: rem($leaflet-control-position-left-xs);
   top: rem(10); // same values as searchbtns
   width: rem(225);
 
   @include mq($screen-sm) {
     // left: rem(95);
-    left: rem($leaflet-control-position-left + 5);
+    left: rem($leaflet-control-position-left-sm);
     top: rem(15); // same values as searchbtns
   }
 }
@@ -697,9 +701,12 @@ html.nav-left-open {
   //   left: rem($left-nav-aside-width + $twitter-typeahead-position-left);
   // }
   .leaflet-control {
-    left: rem($left-nav-aside-width + $leaflet-control-position-left);
-  }
+    left: rem($left-nav-aside-width + $leaflet-control-position-left-xs);
 
+    @include mq($screen-sm) {
+      left: rem($left-nav-aside-width + $leaflet-control-position-left-sm);
+    }
+  }
 }
 
 // Set padding for map buttons and change toggle icons
