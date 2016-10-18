@@ -256,6 +256,10 @@
             }
         }
 
+        vm.zoomToGps = function () {
+            map.locate({ setView: true, maxZoom: 16 });
+        }
+
     });
     theController.$inject = ['BaseLayersService', 'ExternService', 'MapService', 'MapData', 'map', 'MapEvents', 'DrawService', 'HelperService', 'GISService'];
 })();

@@ -308,21 +308,13 @@ button.btn.active {
 /**
  * Map buttons right side
  */
-.localiseerbtn {
-  right: 0.7142857143rem ;
-  bottom: 1.4285714286rem ; }
-  @media (min-width: 768px) {
-    .localiseerbtn {
-      right: 1.0714285714rem ;
-      bottom: 1.4285714286rem ; } }
-
 .viewbtns {
   right: 0.7142857143rem ;
-  bottom: 4.5714285714rem ; }
+  bottom: 3.1428571429rem ; }
   @media (min-width: 768px) {
     .viewbtns {
       right: 1.0714285714rem ;
-      bottom: 4.9285714286rem ; } }
+      bottom: 3.5rem ; } }
 
 /**
  * Seperate components
