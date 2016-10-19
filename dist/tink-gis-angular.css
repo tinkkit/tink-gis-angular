@@ -435,6 +435,21 @@ button.trash {
   padding-left: 1rem ;
   padding-right: 1rem ; }
 
+.layer01 {
+  display: -webkit-inline-flex;
+  display: -ms-inline-flexbox;
+  display: inline-flex; }
+
+.layer03 {
+  display: -webkit-inline-flex;
+  display: -ms-inline-flexbox;
+  display: inline-flex; }
+  .layer03 .layer-icon {
+    margin-right: 0.3571428571rem ; }
+
+.layer04 {
+  background-color: blue; }
+
 /**
  * Modal styling
  */
@@ -498,6 +513,8 @@ input.typeahead.tt-input {
   color: #999; }
 
 .tt-menu {
+  max-height: 80vh;
+  overflow-y: auto;
   width: 422px;
   margin: 12px 0;
   padding: 8px 0;
@@ -509,9 +526,9 @@ input.typeahead.tt-input {
   z-index: 99999; }
 
 .tt-suggestion {
+  font-size: 1rem ;
+  line-height: 1.428571429;
   padding: 3px 20px;
-  font-size: 18px;
-  line-height: 24px;
   z-index: 99999; }
 
 .tt-suggestion:hover {

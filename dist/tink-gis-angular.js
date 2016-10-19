@@ -4010,24 +4010,37 @@ L.drawLocal = {
 
   $templateCache.put('templates/other/layerTemplate.html',
     "<div class=layercontroller-checkbox ng-class=\"{'hidden-print': lyrctrl.layer.IsEnabledAndVisible == false}\">\n" +
-    "<div ng-if=lyrctrl.layer.hasLayers>\n" +
+    "<div class=\"container container-low-padding\" ng-if=lyrctrl.layer.hasLayers>\n" +
+    "<div class=\"layer01 can-open\">\n" +
+    "<div>\n" +
     "<input class=\"visible-box hidden-print\" type=checkbox id={{lyrctrl.layer.name}}{{lyrctrl.layer.id}} ng-model=lyrctrl.layer.visible ng-change=layercheckboxchange(lyrctrl.layer.theme)>\n" +
     "<label for={{lyrctrl.layer.name}}{{lyrctrl.layer.id}}>{{lyrctrl.layer.name}}</label>\n" +
-    "<div ng-repeat=\"layer in lyrctrl.layer.Layers | filter :  { enabled: true }\">\n" +
+    "</div>\n" +
+    "<div>\n" +
+    "<span></span>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "<div class=layer02 ng-repeat=\"layer in lyrctrl.layer.Layers | filter :  { enabled: true }\">\n" +
     "<tink-layer layer=layer layercheckboxchange=layercheckboxchange(layer.theme)>\n" +
     "</tink-layer>\n" +
     "</div>\n" +
     "</div>\n" +
-    "<div ng-if=!lyrctrl.layer.hasLayers>\n" +
-    "<img style=\"width:20px; height:20px\" ng-if=\"lyrctrl.layer.theme.Type=='esri' && lyrctrl.layer.legend.length==1\" ng-src=\"{{lyrctrl.layer.legend[0].fullurl}} \">\n" +
+    "<div class=layer03 ng-if=!lyrctrl.layer.hasLayers>\n" +
+    "<div class=layer-icon style=\"width:20px; height:20px\">\n" +
+    "<img ng-if=\"lyrctrl.layer.theme.Type=='esri' && lyrctrl.layer.legend.length==1\" ng-src=\"{{lyrctrl.layer.legend[0].fullurl}} \">\n" +
+    "</div>\n" +
+    "<div>\n" +
     "<input class=\"visible-box hidden-print\" type=checkbox ng-model=lyrctrl.layer.visible ng-change=layercheckboxchange(lyrctrl.layer.theme) id=\"{{lyrctrl.layer.name}}{{lyrctrl.layer.id}} \">\n" +
-    "<label ng-class=\"{ 'greytext': lyrctrl.layer.displayed==false} \" for={{lyrctrl.layer.name}}{{lyrctrl.layer.id}}> {{lyrctrl.layer.title}}<span class=hidden-print ng-show=\"lyrctrl.layer.theme.Type=='wms' && lyrctrl.layer.queryable \">(i)</span></label>\n" +
+    "<label ng-class=\"{ 'greytext': lyrctrl.layer.displayed==false} \" for={{lyrctrl.layer.name}}{{lyrctrl.layer.id}}> {{lyrctrl.layer.title}}\n" +
+    "<span class=hidden-print ng-show=\"lyrctrl.layer.theme.Type=='wms' && lyrctrl.layer.queryable \">(i)</span>\n" +
+    "</label>\n" +
+    "</div>\n" +
     "<img ng-if=\"lyrctrl.layer.theme.Type=='wms' \" ng-src={{lyrctrl.layer.legendUrl}}><img>\n" +
-    "<div ng-if=\"lyrctrl.layer.theme.Type=='esri' && lyrctrl.layer.legend.length> 1\" ng-repeat=\"legend in lyrctrl.legends\">\n" +
+    "<div class=layer04 ng-if=\"lyrctrl.layer.theme.Type=='esri' && lyrctrl.layer.legend.length> 1\" ng-repeat=\"legend in lyrctrl.legends\">\n" +
     "<img style=\"width:20px; height:20px\" ng-src={{legend.url}}><img><span>²{{legend.label}}</span>\n" +
     "</div>\n" +
     "</div>\n" +
-    "</div>"
+    "</div>\n"
   );
 
 
