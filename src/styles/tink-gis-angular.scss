@@ -213,12 +213,12 @@ button.btn.active {
   display: none !important;
 }
 
-// #zoekbalken { // styling set on class, not id
+// #zoekbalken { //!! styling set on class, not id
 //   width: 200px;
 // }
 
 
-.zoekbalken2  {
+.zoekbalken2  { //!! what's the use of this class?
   width: 200px;
 }
 
@@ -697,9 +697,6 @@ html.nav-left-open {
       content: "\f100";
     }
   }
-  // .twitter-typeahead {
-  //   left: rem($left-nav-aside-width + $twitter-typeahead-position-left);
-  // }
   .leaflet-control {
     left: rem($left-nav-aside-width + $leaflet-control-position-left-xs);
 
