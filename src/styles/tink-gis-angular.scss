@@ -421,6 +421,23 @@ button.trash {
   padding-right: rem(14);
 }
 
+.layer01 {
+  // background-color: green;
+  display: inline-flex;
+}
+
+.layer02 { // has image icon
+  // background-color: tan;
+}
+
+.layer03 {
+  // background-color: yellow;
+  display: inline-flex;
+}
+
+.layer04 {
+  background-color: blue;
+}
 
 /**
  * Modal styling
