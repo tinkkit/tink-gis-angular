@@ -516,6 +516,8 @@ input.typeahead.tt-input {
     }
 
     .tt-menu {
+      max-height: 80vh;
+      overflow-y: auto;
         width: 422px;
         margin: 12px 0;
         padding: 8px 0;
