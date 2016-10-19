@@ -433,6 +433,9 @@ button.trash {
 .layer03 {
   // background-color: yellow;
   display: inline-flex;
+  .layer-icon {
+    margin-right: rem(5);
+  }
 }
 
 .layer04 {
