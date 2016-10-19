@@ -547,9 +547,11 @@ input.typeahead.tt-input {
     }
 
     .tt-suggestion {
+      font-size: rem($font-size-base);
+      line-height: $line-height-base;
         padding: 3px 20px;
-        font-size: 18px;
-        line-height: 24px;
+        // font-size: 18px;
+        // line-height: 24px;
         z-index: 99999;
     }
 
