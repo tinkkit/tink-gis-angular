@@ -1,5 +1,6 @@
-/* global ThemeStatus, LayerType */
-var ThemeStatus = { // http://stijndewitt.com/2014/01/26/enums-in-javascript/
+'use strict';
+
+var ThemeStatus = {
     UNMODIFIED: 0,
     NEW: 1,
     UPDATED: 2,
@@ -19,8 +20,8 @@ var Gis = {
     BaseUrl: 'https://geoint.antwerpen.be/',
     Arcgissql: Gis.BaseUrl + 'arcgissql/rest/',
     GeometryUrl: 'https://geoint.antwerpen.be/arcgissql/rest/services/Utilities/Geometry/GeometryServer/buffer'
-}
-const DrawingOption = {
+};
+var DrawingOption = {
     NIETS: '',
     AFSTAND: 'afstand',
     OPPERVLAKTE: 'oppervlakte',
@@ -51,28 +52,4 @@ var Style = {
         fillOpacity: 0.3
     }
 };
-
-var Scales = [
-    250000,
-    200000,
-    150000,
-    100000,
-    50000,
-    25000,
-    20000,
-    15000,
-    12500,
-    10000,
-    7500,
-    5000,
-    2500,
-    2000,
-    1500,
-    1250,
-    1000,
-    750,
-    500,
-    250,
-    100
-];
-// (<any>window).Scales = Scales;
+var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500, 10000, 7500, 5000, 2500, 2000, 1500, 1250, 1000, 750, 500, 250, 100];

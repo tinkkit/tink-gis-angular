@@ -1,4 +1,5 @@
 'use strict';
+
 (function (module) {
     module = angular.module('tink.gis');
     var theController = module.controller('mapController', function ($scope, ExternService, BaseLayersService, MapService, MapData, map, MapEvents, DrawService, HelperService, GISService) {
@@ -9,7 +10,7 @@
                 var externproj = JSON.parse('{"naam":"Velo en fietspad!!","extent":{"_northEast":{"lat":"51.2336102032025","lng":"4.41993402409611"},"_southWest":{"lat":"51.1802290498612","lng":"4.38998297870121"}},"guid":"bfc88ea3-8581-4204-bdbc-b5f54f46050d","extentString":"51.2336102032025,4.41993402409611,51.1802290498612,4.38998297870121","isKaart":true,"uniqId":3,"creatorId":6,"creator":null,"createDate":"2016-08-22T10:55:15.525994","updaterId":6,"updater":null,"lastUpdated":"2016-08-22T10:55:15.525994","themes":[{"cleanUrl":"services/P_Stad/Mobiliteit/MapServer","naam":"Mobiliteit","type":"esri","visible":true,"layers":[{"id":"9","name":"fietspad","visible":true},{"id":"6","name":"velo","visible":true},{"id":"0","name":"Fiets en voetganger","visible":true}]}],"isReadOnly":false}');
                 ExternService.Import(externproj);
             }
-        } ();
+        }();
         vm.ZoekenOpLocatie = true;
         vm.activeInteractieKnop = MapData.ActiveInteractieKnop;
         vm.SelectableLayers = function () {
@@ -17,13 +18,13 @@
         };
         vm.selectedLayer = function () {
             return MapData.SelectedLayer;
-        }
+        };
         vm.drawingType = MapData.DrawingType;
         vm.showMetenControls = false;
         vm.showDrawControls = false;
         vm.zoekLoc = '';
 
-        var suggestionfunc = function (item) {
+        var suggestionfunc = function suggestionfunc(item) {
             var output = '<div>' + item.name;
             if (item.attribute1value) {
                 output += '<p>' + item.attribute1name + ': ' + item.attribute1value + '</p>';
@@ -34,64 +35,61 @@
             }
             output += '<p>Laag: ' + item.layer + '</p></div>';
             return output;
-        }
+        };
         L.control.typeahead({
             minLength: 3,
             highlight: true,
             classNames: {
                 open: 'is-open',
-                empty: 'is-empty',
+                empty: 'is-empty'
             }
         }, {
-                async: true,
-                limit: 99,
-                display: 'name',
-                displayKey: 'name',
-                source: function (query, syncResults, asyncResults) {
-                    if (query.replace(/[^0-9]/g, "").length < 6) { // if less then 6 numbers then we just search
-                        GISService.QuerySOLRLocatie(query).then(function (data) {
-                            var arr = data.response.docs;
-                            asyncResults(arr);
-                        });
-                    }
-                    else {
-                        syncResults([]);
-                        vm.zoekXY(query);
-                    }
-
-                },
-                templates: {
-                    suggestion: suggestionfunc,
-                    notFound: ['<div class="empty-message"><b>Geen match gevonden</b></div>'],
-                    empty: ['<div class="empty-message"><b>Zoek naar straten, POI en districten</b></div>']
+            async: true,
+            limit: 99,
+            display: 'name',
+            displayKey: 'name',
+            source: function source(query, syncResults, asyncResults) {
+                if (query.replace(/[^0-9]/g, "").length < 6) {
+                    // if less then 6 numbers then we just search
+                    GISService.QuerySOLRLocatie(query).then(function (data) {
+                        var arr = data.response.docs;
+                        asyncResults(arr);
+                    });
+                } else {
+                    syncResults([]);
+                    vm.zoekXY(query);
                 }
-
             },
-            {
-                placeholder: 'Geef een X,Y / locatie of POI in.',
-                'typeahead:select': function (ev, suggestion) {
-                    MapData.CleanWatIsHier();
-                    MapData.CleanTempFeatures();
-                    switch (suggestion.layer.toLowerCase()) {
-                        case 'postzone':
-                            MapData.QueryForTempFeatures(20, 'ObjectID=' + suggestion.key);
-                            break;
-                        case 'district':
-                            MapData.QueryForTempFeatures(21, 'ObjectID=' + suggestion.key);
-                            break;
-                        default:
-                            var cors = {
-                                x: suggestion.x,
-                                y: suggestion.y
-                            };
-                            var xyWGS84 = HelperService.ConvertLambert72ToWSG84(cors);
-                            setViewAndPutDot(xyWGS84);
-                            break;
+            templates: {
+                suggestion: suggestionfunc,
+                notFound: ['<div class="empty-message"><b>Geen match gevonden</b></div>'],
+                empty: ['<div class="empty-message"><b>Zoek naar straten, POI en districten</b></div>']
+            }
 
-                    }
+        }, {
+            placeholder: 'Geef een X,Y / locatie of POI in.',
+            'typeahead:select': function typeaheadSelect(ev, suggestion) {
+                MapData.CleanWatIsHier();
+                MapData.CleanTempFeatures();
+                switch (suggestion.layer.toLowerCase()) {
+                    case 'postzone':
+                        MapData.QueryForTempFeatures(20, 'ObjectID=' + suggestion.key);
+                        break;
+                    case 'district':
+                        MapData.QueryForTempFeatures(21, 'ObjectID=' + suggestion.key);
+                        break;
+                    default:
+                        var cors = {
+                            x: suggestion.x,
+                            y: suggestion.y
+                        };
+                        var xyWGS84 = HelperService.ConvertLambert72ToWSG84(cors);
+                        setViewAndPutDot(xyWGS84);
+                        break;
+
                 }
             }
-        ).addTo(map);
+        }).addTo(map);
         vm.interactieButtonChanged = function (ActiveButton) {
             MapData.CleanMap();
             MapData.ActiveInteractieKnop = ActiveButton; // If we only could keep the vmactiveInteractieKnop in sync with the one from MapData
@@ -113,7 +111,7 @@
             MapData.CleanMap();
             MapService.Find(search);
         };
-        var setViewAndPutDot = function (loc) {
+        var setViewAndPutDot = function setViewAndPutDot(loc) {
             MapData.PanToPoint(loc);
             MapData.CreateDot(loc);
         };
@@ -124,7 +122,6 @@
             var WGS84Check = HelperService.getWGS84CordsFromString(search);
             if (WGS84Check.hasCordinates) {
                 setViewAndPutDot(WGS84Check);
-
             } else {
                 var lambertCheck = HelperService.getLambartCordsFromString(search);
                 if (lambertCheck.hasCordinates) {
@@ -136,19 +133,18 @@
             }
         };
 
-
-
         vm.drawingButtonChanged = function (drawOption) {
             MapData.CleanMap();
             MapData.DrawingType = drawOption; // pff must be possible to be able to sync them...
             vm.drawingType = drawOption;
             DrawService.StartDraw(drawOption);
-
         };
         vm.Loading = 0;
         vm.MaxLoading = 0;
 
-        $scope.$watch(function () { return MapData.Loading; }, function (newVal, oldVal) {
+        $scope.$watch(function () {
+            return MapData.Loading;
+        }, function (newVal, oldVal) {
             console.log('MapData.Loading at start', MapData.Loading);
             vm.Loading = newVal;
             if (oldVal == 0) {
@@ -162,7 +158,6 @@
             }
             console.log('MapLoading val: ' + newVal + '/' + vm.MaxLoading);
             console.log('MapData.Loading at the end', MapData.Loading);
-
         });
         vm.selectpunt = function () {
             MapData.CleanMap();
@@ -196,30 +191,29 @@
         };
         vm.baseMap1Naam = function () {
             return BaseLayersService.basemap1Naam;
-        }
+        };
         vm.baseMap2Naam = function () {
             return BaseLayersService.basemap2Naam;
-        }
+        };
         vm.cancelPrint = function () {
-            let html = $('html');
+            var html = $('html');
             if (html.hasClass('print')) {
                 html.removeClass('print');
             }
             vm.portrait(); // also put it back to portrait view
-
-        }
+        };
         vm.print = function () {
             window.print();
-        }
+        };
         vm.printStyle = 'portrait';
-        var cssPagedMedia = (function () {
+        var cssPagedMedia = function () {
             var style = document.createElement('style');
             document.head.appendChild(style);
             return function (rule) {
                 style.id = 'tempstyle';
                 style.innerHTML = rule;
             };
-        } ());
+        }();
 
         cssPagedMedia.size = function (oriantation) {
             cssPagedMedia('@page {size: A4 ' + oriantation + '}');
@@ -231,41 +225,39 @@
         vm.setPrintStyle('portrait');
 
         vm.portrait = function () {
-            let html = $('html');
+            var html = $('html');
             vm.setPrintStyle('portrait');
             if (html.hasClass('landscape')) {
                 html.removeClass('landscape');
             }
             map.invalidateSize(false);
-        }
+        };
         vm.landscape = function () {
-            let html = $('html');
+            var html = $('html');
             vm.setPrintStyle('landscape');
             if (!html.hasClass('landscape')) {
                 html.addClass('landscape');
             }
             map.invalidateSize(false);
-        }
+        };
 
         vm.ZoekenInLagen = function () {
             vm.ZoekenOpLocatie = false;
             $('.twitter-typeahead').addClass('hide-element');
-        }
+        };
 
         vm.fnZoekenOpLocatie = function () {
             vm.ZoekenOpLocatie = true;
             if ($(".twitter-typeahead").hasClass("hide-element")) {
                 $('.twitter-typeahead').removeClass('hide-element');
-            }
-            else {
+            } else {
                 return vm.ZoekenOpLocatie;
             }
-        }
+        };
 
         vm.zoomToGps = function () {
             map.locate({ setView: true, maxZoom: 16 });
-        }
-
+        };
     });
     theController.$inject = ['BaseLayersService', 'ExternService', 'MapService', 'MapData', 'map', 'MapEvents', 'DrawService', 'HelperService', 'GISService'];
 })();

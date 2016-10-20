@@ -1,7 +1,8 @@
 'use strict';
+
 (function () {
     var module = angular.module('tink.gis');
-    var service = function ($http, MapService, MapData) {
+    var service = function service($http, MapService, MapData) {
         var _service = {};
 
         _service.Buffer = function (location, distance, selectedlayer) {
@@ -32,7 +33,7 @@
             console.log(location);
             MapService.Query(location);
         };
-        var getGeo = function (geometry) {
+        var getGeo = function getGeo(geometry) {
             var geoconverted = {};
             // geoconverted.inSr = 4326;
 
@@ -74,8 +75,7 @@
             if (geometry.type === 'Feature') {
                 // get the geometry of the geojson feature
                 geometry = geometry.geometry;
-            }
-            else {
+            } else {
                 geoconverted.geometry = L.esri.Util.geojsonToArcGIS(geometry);
                 geoconverted.geometryType = L.esri.Util.geojsonTypeToArcGIS(geometry.type);
             }
@@ -90,7 +90,7 @@
 
             // return geoconverted;
         };
-        var serialize = function (params) {
+        var serialize = function serialize(params) {
             var data = '';
             for (var key in params) {
                 if (params.hasOwnProperty(key)) {
@@ -101,7 +101,7 @@
                         data += ',';
                     }
                     if (type === '[object Array]') {
-                        value = (Object.prototype.toString.call(param[0]) === '[object Object]') ? JSON.stringify(param) : param.join(',');
+                        value = Object.prototype.toString.call(param[0]) === '[object Object]' ? JSON.stringify(param) : param.join(',');
                     } else if (type === '[object Object]') {
                         value = JSON.stringify(param);
                     } else if (type === '[object Date]') {
