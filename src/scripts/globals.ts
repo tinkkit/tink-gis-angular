@@ -16,10 +16,12 @@ var ActiveInteractieButton = {
     WATISHIER: 'watishier'
 };
 var Gis = {
+    Arcgissql: '',
     BaseUrl: 'https://geoint.antwerpen.be/',
-    Arcgissql: Gis.BaseUrl + 'arcgissql/rest/',
     GeometryUrl: 'https://geoint.antwerpen.be/arcgissql/rest/services/Utilities/Geometry/GeometryServer/buffer'
 }
+Gis.Arcgissql = Gis.BaseUrl + 'arcgissql/rest/';
+
 const DrawingOption = {
     NIETS: '',
     AFSTAND: 'afstand',
