@@ -1,16 +1,16 @@
 <div class="layercontroller-checkbox" ng-class="{'hidden-print': lyrctrl.layer.IsEnabledAndVisible == false}" >
     <div class="container container-low-padding" ng-if="lyrctrl.layer.hasLayers">
-        <div class="layer01 can-open">
+        <div class="layer01 can-open" ng-class="{'open': showLayer}">
             <div class="">
                 <input class="visible-box hidden-print" type="checkbox" id="{{lyrctrl.layer.name}}{{lyrctrl.layer.id}}" ng-model="lyrctrl.layer.visible" ng-change="layercheckboxchange(lyrctrl.layer.theme)">
                 <label for="{{lyrctrl.layer.name}}{{lyrctrl.layer.id}}">{{lyrctrl.layer.name}}</label>
             </div>
             <div class="">
-                <span></span>
+                <span ng-click="showLayer = !showLayer"></span>
             </div>
         </div>
 
-        <div class="layer02" ng-repeat="layer in lyrctrl.layer.Layers | filter :  { enabled: true }">
+        <div class="layer02" ng-show="showLayer" ng-repeat="layer in lyrctrl.layer.Layers | filter :  { enabled: true }">
             <tink-Layer layer="layer" layercheckboxchange="layercheckboxchange(layer.theme)">
             </tink-Layer>
         </div>
