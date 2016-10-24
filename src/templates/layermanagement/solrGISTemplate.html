@@ -5,20 +5,20 @@
         </div>
         <div class="scrollable-list margin-top margin-bottom">
             <div ng-repeat="theme in availableThemes">
-                <div ng-click="solrThemeChanged(theme)" class="greytext">
+                <dl ng-class="{active: isActive(theme)}">
                 <!-- ng-class="{'greytext': theme.Type != 'wms' &&  theme.Type != 'esri'}"-->
-                    <span ng-class="{active: isActive(theme)}">{{theme.name}}</span>
-                    <div style="margin-left: 20px;" ng-repeat="layer in theme.layers">
-                        <a href="#" class="theme-layer">
-                        <span ng-class="{'blacktext': layer.isMatch}">{{layer.naam}}
+                    <a href="#" class="theme-layer" ng-click="solrThemeChanged(theme)">
+                        <dt>{{theme.name}}</dt>
+                    </a>
+                    <dd ng-repeat="layer in theme.layers">
+                        <span class="">{{layer.naam}}
                             <span ng-show="layer.featuresCount > 0"> ({{layer.featuresCount}})</span>
                         </span>
-                        </a>
-                        <div class="blacktext featureinsolr">
+                        <div class="featureinsolr">
                             {{layer.features.join(', ')}}
                         </div>
-                    </div>
-                </div>
+                    </dd>
+                </dl>
             </div>
         </div>
         <div>

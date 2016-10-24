@@ -304,11 +304,36 @@ button.btn.active {
 }
 
 .scrollable-list {
-  // cursor: pointer; // too much clickable area
   overflow: auto;
 
   // flex item settings
   flex-grow: 1;
+
+  dl {
+    margin-bottom: rem(10);
+
+    dd {
+      color: #888;
+      cursor: default;
+      margin-left: rem(10);
+    }
+
+    dt {
+      cursor: pointer;
+    }
+
+    &.active {
+      a {
+        dt {
+          color: darken($link-color, 15%);
+        }
+      }
+
+      dd {
+        color: darken(#888, 25%);
+      }
+    }
+  }
 }
 
 // Wtf tink ???
@@ -597,11 +622,6 @@ input.typeahead.tt-input {
 
 .greytext {
   color: lightgrey !important;
-
-  // show the layer as active
-  .active {
-    font-weight: 700;
-  }
 }
 
 // This breaks pagination
