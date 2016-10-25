@@ -43,6 +43,11 @@
             };
             $scope.ThemeChanged = function (theme) {
                 $scope.previewTheme(theme);
+                // added to give the selected theme an Active class
+                $scope.selected = theme;
+                $scope.isActive = function(theme) {
+                    return $scope.selected === theme;
+                };
             };
 
             $scope.AddOrUpdateTheme = function () {

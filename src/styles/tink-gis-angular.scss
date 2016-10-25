@@ -313,24 +313,27 @@ button.btn.active {
     margin-bottom: rem(10);
 
     dd {
-      color: #888;
+      color: $gray;
       cursor: default;
       margin-left: rem(10);
+      transition: all $animation-speed linear;
     }
 
     dt {
+      color: $gray-light;
       cursor: pointer;
+      transition: all $animation-speed linear;
     }
 
     &.active {
       a {
         dt {
-          color: darken($link-color, 15%);
+          color: $brand;
         }
       }
 
       dd {
-        color: darken(#888, 25%);
+        color: darken($gray, 25%);
       }
     }
   }
