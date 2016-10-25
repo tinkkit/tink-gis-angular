@@ -56,7 +56,6 @@
         //     continuousWorld: true
         // }).addTo(map);
 
-
         map.doubleClickZoom.disable();
         // L.control.scale({ imperial: false }).addTo(map);
         var drawnItems = L.featureGroup().addTo(map);
@@ -291,6 +290,11 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         };
         $scope.ThemeChanged = function (theme) {
             $scope.previewTheme(theme);
+            // added to give the selected theme an Active class
+            $scope.selected = theme;
+            $scope.isActive = function (theme) {
+                return $scope.selected === theme;
+            };
         };
 
         $scope.AddOrUpdateTheme = function () {
@@ -649,9 +653,9 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                     prom.resolve(returnObject);
                     // console.log(getResults['csw:record']);
                 } else {
-                    prom.reject(null);
-                    console.log('EMPTY RESULT');
-                }
+                        prom.reject(null);
+                        console.log('EMPTY RESULT');
+                    }
             }).error(function (data, status, headers, config) {
                 prom.reject(null);
                 console.log('ERROR!', data, status, headers, config);
@@ -1921,10 +1925,10 @@ var esri2geo = {};
                     realTheme.Visible = theme.visible;
                     console.log(theme, ' vs real theme: ', realTheme);
                     if (realTheme.AllLayers.length == theme.layers.length) {
-                        realTheme.Added = true; //all are added 
+                        realTheme.Added = true; //all are added
                     } else {
-                        realTheme.Added = null; // some are added, never false because else we woudn't save it.
-                    }
+                            realTheme.Added = null; // some are added, never false because else we woudn't save it.
+                        }
                     realTheme.AllLayers.forEach(function (layer) {
                         layer.enabled = false; // lets disable all layers first
                     });
@@ -2609,8 +2613,8 @@ L.control.typeahead = function (args) {
                 if (x == arrayOfPoints.length - 1) {
                     var nextpoint = arrayOfPoints[0]; // if it is the last point, check the distance to the first point
                 } else {
-                    var nextpoint = arrayOfPoints[x + 1];
-                }
+                        var nextpoint = arrayOfPoints[x + 1];
+                    }
                 totalDistance += currpoint.distanceTo(nextpoint); // from this point to the next point the distance and sum it
             }
             return totalDistance.toFixed(2);
@@ -3500,7 +3504,6 @@ L.TileLayer.BetterWMS = L.TileLayer.WMS.extend({
                 // var xmlstring = JXON.xmlToString(data);
                 // var returnjson = JXON.stringToJs(xmlstring);
 
-
                 // console.log(returnjson);
             },
             error: function error(xhr, status, _error) {
@@ -3539,6 +3542,15 @@ L.TileLayer.BetterWMS = L.TileLayer.WMS.extend({
 
 });
 
+// showGetFeatureInfo: function(err, latlng, content) {
+//     if (err) { console.log(err); return; } // do nothing if there's an error
+
+//     // Otherwise show the content in a popup, or something.
+//     L.popup({ maxWidth: 800 })
+//         .setLatLng(latlng)
+//         .setContent(content)
+//         .openOn(this._map);
+// }
 L.tileLayer.betterWms = function (url, options) {
     return new L.TileLayer.BetterWMS(url, options);
 };
@@ -3973,9 +3985,13 @@ L.drawLocal = {
     "<div>\n" +
     "<input class=searchbox ng-model=searchTerm ng-change=searchChanged() placeholder=\"Geef een trefwoord\">\n" +
     "</div>\n" +
+    "<div class=\"scrollable-list margin-top margin-bottom\">\n" +
     "<div ng-repeat=\"theme in availableThemes | filter:{name: searchTerm}\">\n" +
-    "<div ng-click=ThemeChanged(theme)>\n" +
-    "{{theme.name}}\n" +
+    "<dl ng-class=\"{active: isActive(theme)}\">\n" +
+    "<a href=# class=theme-layer ng-click=ThemeChanged(theme)>\n" +
+    "<dt>{{theme.name}}</dt>\n" +
+    "</a>\n" +
+    "</dl>\n" +
     "</div>\n" +
     "</div>\n" +
     "</div>\n" +
@@ -4040,19 +4056,19 @@ L.drawLocal = {
     "</div>\n" +
     "<div class=\"scrollable-list margin-top margin-bottom\">\n" +
     "<div ng-repeat=\"theme in availableThemes\">\n" +
-    "<div ng-click=solrThemeChanged(theme) class=greytext>\n" +
-    "<span ng-class=\"{active: isActive(theme)}\">{{theme.name}}</span>\n" +
-    "<div style=\"margin-left: 20px\" ng-repeat=\"layer in theme.layers\">\n" +
-    "<a href=# class=theme-layer>\n" +
-    "<span ng-class=\"{'blacktext': layer.isMatch}\">{{layer.naam}}\n" +
+    "<dl ng-class=\"{active: isActive(theme)}\">\n" +
+    "<a href=# class=theme-layer ng-click=solrThemeChanged(theme)>\n" +
+    "<dt>{{theme.name}}</dt>\n" +
+    "</a>\n" +
+    "<dd ng-repeat=\"layer in theme.layers\">\n" +
+    "<span>{{layer.naam}}\n" +
     "<span ng-show=\"layer.featuresCount > 0\"> ({{layer.featuresCount}})</span>\n" +
     "</span>\n" +
-    "</a>\n" +
-    "<div class=\"blacktext featureinsolr\">\n" +
+    "<div class=featureinsolr>\n" +
     "{{layer.features.join(', ')}}\n" +
     "</div>\n" +
-    "</div>\n" +
-    "</div>\n" +
+    "</dd>\n" +
+    "</dl>\n" +
     "</div>\n" +
     "</div>\n" +
     "<div>\n" +
@@ -4068,10 +4084,10 @@ L.drawLocal = {
 
 
   $templateCache.put('templates/other/layerTemplate.html',
-    "<div class=layercontroller-checkbox ng-class=\"{'hidden-print': lyrctrl.layer.IsEnabledAndVisible == false}\">\n" +
+    "<div ng-class=\"{'hidden-print': lyrctrl.layer.IsEnabledAndVisible == false}\">\n" +
     "<div class=\"container container-low-padding\" ng-if=lyrctrl.layer.hasLayers>\n" +
-    "<div class=\"layer01 can-open\" ng-class=\"{'open': showLayer}\">\n" +
-    "<div>\n" +
+    "<div class=\"toc-item-without-icon can-open\" ng-class=\"{'open': showLayer}\">\n" +
+    "<div class=extra-left-margin>\n" +
     "<input class=\"visible-box hidden-print\" type=checkbox id={{lyrctrl.layer.name}}{{lyrctrl.layer.id}} ng-model=lyrctrl.layer.visible ng-change=layercheckboxchange(lyrctrl.layer.theme)>\n" +
     "<label for={{lyrctrl.layer.name}}{{lyrctrl.layer.id}}>{{lyrctrl.layer.name}}</label>\n" +
     "</div>\n" +
@@ -4079,13 +4095,14 @@ L.drawLocal = {
     "<span ng-click=\"showLayer = !showLayer\"></span>\n" +
     "</div>\n" +
     "</div>\n" +
-    "<div class=layer02 ng-show=showLayer ng-repeat=\"layer in lyrctrl.layer.Layers | filter :  { enabled: true }\">\n" +
+    "<div ng-show=showLayer ng-repeat=\"layer in lyrctrl.layer.Layers | filter :  { enabled: true }\">\n" +
     "<tink-layer layer=layer layercheckboxchange=layercheckboxchange(layer.theme)>\n" +
     "</tink-layer>\n" +
     "</div>\n" +
     "</div>\n" +
-    "<div class=layer03 ng-if=!lyrctrl.layer.hasLayers>\n" +
-    "<div class=layer-icon style=\"width:20px; height:20px\">\n" +
+    "<div>\n" +
+    "<div class=toc-item-with-icon ng-if=!lyrctrl.layer.hasLayers>\n" +
+    "<div class=layer-icon>\n" +
     "<img ng-if=\"lyrctrl.layer.theme.Type=='esri' && lyrctrl.layer.legend.length==1\" ng-src=\"{{lyrctrl.layer.legend[0].fullurl}} \">\n" +
     "</div>\n" +
     "<div>\n" +
@@ -4094,9 +4111,12 @@ L.drawLocal = {
     "<span class=hidden-print ng-show=\"lyrctrl.layer.theme.Type=='wms' && lyrctrl.layer.queryable \">(i)</span>\n" +
     "</label>\n" +
     "</div>\n" +
-    "<img ng-if=\"lyrctrl.layer.theme.Type=='wms' \" ng-src={{lyrctrl.layer.legendUrl}}><img>\n" +
-    "<div class=layer04 ng-if=\"lyrctrl.layer.theme.Type=='esri' && lyrctrl.layer.legend.length> 1\" ng-repeat=\"legend in lyrctrl.legends\">\n" +
+    "</div>\n" +
+    "<div ng-if=\"lyrctrl.layer.theme.Type=='wms'\">\n" +
+    "<img ng-src={{lyrctrl.layer.legendUrl}}><img>\n" +
+    "<div ng-if=\"lyrctrl.layer.theme.Type=='esri' && lyrctrl.layer.legend.length> 1\" ng-repeat=\"legend in lyrctrl.legends\">\n" +
     "<img style=\"width:20px; height:20px\" ng-src={{legend.url}}><img><span>²{{legend.label}}</span>\n" +
+    "</div>\n" +
     "</div>\n" +
     "</div>\n" +
     "</div>\n"
@@ -4147,7 +4167,7 @@ L.drawLocal = {
     "</div>\n" +
     "<div class=mappart>\n" +
     "<tink-search class=tink-search></tink-search>\n" +
-    "<div id=map class=leafletmap ng-class=\"{'leaflet-crosshair': mapctrl.activeInteractieKnop=='watishier'}\">\n" +
+    "<div id=map class=\"leafletmap leaflet-crosshair\">\n" +
     "<div class=map-buttons-left>\n" +
     "<div class=\"btn-group ll drawingbtns\" ng-show=mapctrl.showDrawControls>\n" +
     "<button ng-click=mapctrl.selectpunt() ng-class=\"{active: mapctrl.drawingType==''}\" type=button class=btn prevent-default><i class=\"fa fa-mouse-pointer\"></i></button>\n" +
@@ -4373,7 +4393,7 @@ var TinkGis;
         _inherits(Layer, _LayerJSON);
 
         function Layer() {
-            var _ref;
+            var _Object$getPrototypeO;
 
             _classCallCheck(this, Layer);
 
@@ -4381,7 +4401,7 @@ var TinkGis;
                 args[_key] = arguments[_key];
             }
 
-            var _this = _possibleConstructorReturn(this, (_ref = Layer.__proto__ || Object.getPrototypeOf(Layer)).call.apply(_ref, [this].concat(args)));
+            var _this = _possibleConstructorReturn(this, (_Object$getPrototypeO = Object.getPrototypeOf(Layer)).call.apply(_Object$getPrototypeO, [this].concat(args)));
 
             _this.parent = null;
             _this.Layers = [];
@@ -4453,7 +4473,7 @@ var TinkGis;
         function wmslayer(info, parenttheme) {
             _classCallCheck(this, wmslayer);
 
-            var _this2 = _possibleConstructorReturn(this, (wmslayer.__proto__ || Object.getPrototypeOf(wmslayer)).call(this));
+            var _this2 = _possibleConstructorReturn(this, Object.getPrototypeOf(wmslayer).call(this));
 
             Object.assign(_this2, info);
             _this2.visible = true;
@@ -4492,7 +4512,7 @@ var TinkGis;
         function arcgislayer(info, parenttheme) {
             _classCallCheck(this, arcgislayer);
 
-            var _this3 = _possibleConstructorReturn(this, (arcgislayer.__proto__ || Object.getPrototypeOf(arcgislayer)).call(this));
+            var _this3 = _possibleConstructorReturn(this, Object.getPrototypeOf(arcgislayer).call(this));
 
             Object.assign(_this3, info);
             _this3.visible = info.defaultVisibility;
@@ -4597,7 +4617,7 @@ var TinkGis;
         function ArcGIStheme(rawdata, themeData) {
             _classCallCheck(this, ArcGIStheme);
 
-            var _this2 = _possibleConstructorReturn(this, (ArcGIStheme.__proto__ || Object.getPrototypeOf(ArcGIStheme)).call(this));
+            var _this2 = _possibleConstructorReturn(this, Object.getPrototypeOf(ArcGIStheme).call(this));
 
             var rawlayers = rawdata.layers;
             _this2.name = _this2.Naam = rawdata.documentInfo.Title;
@@ -4650,7 +4670,7 @@ var TinkGis;
         function wmstheme(data, url) {
             _classCallCheck(this, wmstheme);
 
-            var _this3 = _possibleConstructorReturn(this, (wmstheme.__proto__ || Object.getPrototypeOf(wmstheme)).call(this));
+            var _this3 = _possibleConstructorReturn(this, Object.getPrototypeOf(wmstheme).call(this));
 
             _this3.Version = data['version'];
             _this3.name = data.service.title;
