@@ -291,6 +291,11 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         };
         $scope.ThemeChanged = function (theme) {
             $scope.previewTheme(theme);
+            // added to give the selected theme an Active class
+            $scope.selected = theme;
+            $scope.isActive = function (theme) {
+                return $scope.selected === theme;
+            };
         };
 
         $scope.AddOrUpdateTheme = function () {
@@ -3832,34 +3837,20 @@ L.drawLocal = {
     "<meta charset=utf-8>\n" +
     "<title>Street View side-by-side</title>\n" +
     "<style>\n" +
-    "html, body {\r" +
-    "\n" +
-    "        height: 100%;\r" +
-    "\n" +
-    "        margin: 0;\r" +
-    "\n" +
-    "        padding: 0;\r" +
-    "\n" +
-    "      }\r" +
-    "\n" +
-    "      #map,  {\r" +
-    "\n" +
-    "        float: left;\r" +
-    "\n" +
-    "        height: 0%;\r" +
-    "\n" +
-    "        width: 0%;\r" +
-    "\n" +
-    "      }\r" +
-    "\n" +
-    "       #pano {\r" +
-    "\n" +
-    "        float: left;\r" +
-    "\n" +
-    "        height: 100%;\r" +
-    "\n" +
-    "        width: 100%;\r" +
-    "\n" +
+    "html, body {\n" +
+    "        height: 100%;\n" +
+    "        margin: 0;\n" +
+    "        padding: 0;\n" +
+    "      }\n" +
+    "      #map,  {\n" +
+    "        float: left;\n" +
+    "        height: 0%;\n" +
+    "        width: 0%;\n" +
+    "      }\n" +
+    "       #pano {\n" +
+    "        float: left;\n" +
+    "        height: 100%;\n" +
+    "        width: 100%;\n" +
     "      }\n" +
     "</style>\n" +
     "</head>\n" +
@@ -3867,42 +3858,24 @@ L.drawLocal = {
     "<div id=map></div>\n" +
     "<div id=pano></div>\n" +
     "<script>\n" +
-    "function initialize() {\r" +
-    "\n" +
-    "        \r" +
-    "\n" +
-    "        var urlLat = parseFloat((location.search.split('lat=')[1]||'').split('&')[0]);\r" +
-    "\n" +
-    "        var urlLng = parseFloat((location.search.split('lng=')[1]||'').split('&')[0]);\r" +
-    "\n" +
-    "        var fenway = {lat:urlLat, lng: urlLng};\r" +
-    "\n" +
-    "        var map = new google.maps.Map(document.getElementById('map'), {\r" +
-    "\n" +
-    "          center: fenway,\r" +
-    "\n" +
-    "          zoom: 14\r" +
-    "\n" +
-    "        });\r" +
-    "\n" +
-    "        var panorama = new google.maps.StreetViewPanorama(\r" +
-    "\n" +
-    "            document.getElementById('pano'), {\r" +
-    "\n" +
-    "              position: fenway,\r" +
-    "\n" +
-    "              pov: {\r" +
-    "\n" +
-    "                heading: 34,\r" +
-    "\n" +
-    "                pitch: 10\r" +
-    "\n" +
-    "              }\r" +
-    "\n" +
-    "            });\r" +
-    "\n" +
-    "        map.setStreetView(panorama);\r" +
-    "\n" +
+    "function initialize() {\n" +
+    "        \n" +
+    "        var urlLat = parseFloat((location.search.split('lat=')[1]||'').split('&')[0]);\n" +
+    "        var urlLng = parseFloat((location.search.split('lng=')[1]||'').split('&')[0]);\n" +
+    "        var fenway = {lat:urlLat, lng: urlLng};\n" +
+    "        var map = new google.maps.Map(document.getElementById('map'), {\n" +
+    "          center: fenway,\n" +
+    "          zoom: 14\n" +
+    "        });\n" +
+    "        var panorama = new google.maps.StreetViewPanorama(\n" +
+    "            document.getElementById('pano'), {\n" +
+    "              position: fenway,\n" +
+    "              pov: {\n" +
+    "                heading: 34,\n" +
+    "                pitch: 10\n" +
+    "              }\n" +
+    "            });\n" +
+    "        map.setStreetView(panorama);\n" +
     "      }\n" +
     "</script>\n" +
     "<script async defer src=\"https://maps.googleapis.com/maps/api/js?callback=initialize\">\n" +
@@ -3973,9 +3946,13 @@ L.drawLocal = {
     "<div>\n" +
     "<input class=searchbox ng-model=searchTerm ng-change=searchChanged() placeholder=\"Geef een trefwoord\">\n" +
     "</div>\n" +
+    "<div class=\"scrollable-list margin-top margin-bottom\">\n" +
     "<div ng-repeat=\"theme in availableThemes | filter:{name: searchTerm}\">\n" +
-    "<div ng-click=ThemeChanged(theme)>\n" +
-    "{{theme.name}}\n" +
+    "<dl ng-class=\"{active: isActive(theme)}\">\n" +
+    "<a href=# class=theme-layer ng-click=ThemeChanged(theme)>\n" +
+    "<dt>{{theme.name}}</dt>\n" +
+    "</a>\n" +
+    "</dl>\n" +
     "</div>\n" +
     "</div>\n" +
     "</div>\n" +
@@ -4040,19 +4017,19 @@ L.drawLocal = {
     "</div>\n" +
     "<div class=\"scrollable-list margin-top margin-bottom\">\n" +
     "<div ng-repeat=\"theme in availableThemes\">\n" +
-    "<div ng-click=solrThemeChanged(theme) class=greytext>\n" +
-    "<span ng-class=\"{active: isActive(theme)}\">{{theme.name}}</span>\n" +
-    "<div style=\"margin-left: 20px\" ng-repeat=\"layer in theme.layers\">\n" +
-    "<a href=# class=theme-layer>\n" +
-    "<span ng-class=\"{'blacktext': layer.isMatch}\">{{layer.naam}}\n" +
+    "<dl ng-class=\"{active: isActive(theme)}\">\n" +
+    "<a href=# class=theme-layer ng-click=solrThemeChanged(theme)>\n" +
+    "<dt>{{theme.name}}</dt>\n" +
+    "</a>\n" +
+    "<dd ng-repeat=\"layer in theme.layers\">\n" +
+    "<span>{{layer.naam}}\n" +
     "<span ng-show=\"layer.featuresCount > 0\"> ({{layer.featuresCount}})</span>\n" +
     "</span>\n" +
-    "</a>\n" +
-    "<div class=\"blacktext featureinsolr\">\n" +
+    "<div class=featureinsolr>\n" +
     "{{layer.features.join(', ')}}\n" +
     "</div>\n" +
-    "</div>\n" +
-    "</div>\n" +
+    "</dd>\n" +
+    "</dl>\n" +
     "</div>\n" +
     "</div>\n" +
     "<div>\n" +
@@ -4068,10 +4045,10 @@ L.drawLocal = {
 
 
   $templateCache.put('templates/other/layerTemplate.html',
-    "<div class=layercontroller-checkbox ng-class=\"{'hidden-print': lyrctrl.layer.IsEnabledAndVisible == false}\">\n" +
+    "<div ng-class=\"{'hidden-print': lyrctrl.layer.IsEnabledAndVisible == false}\">\n" +
     "<div class=\"container container-low-padding\" ng-if=lyrctrl.layer.hasLayers>\n" +
-    "<div class=\"layer01 can-open\" ng-class=\"{'open': showLayer}\">\n" +
-    "<div>\n" +
+    "<div class=\"toc-item-without-icon can-open\" ng-class=\"{'open': showLayer}\">\n" +
+    "<div class=extra-left-margin>\n" +
     "<input class=\"visible-box hidden-print\" type=checkbox id={{lyrctrl.layer.name}}{{lyrctrl.layer.id}} ng-model=lyrctrl.layer.visible ng-change=layercheckboxchange(lyrctrl.layer.theme)>\n" +
     "<label for={{lyrctrl.layer.name}}{{lyrctrl.layer.id}}>{{lyrctrl.layer.name}}</label>\n" +
     "</div>\n" +
@@ -4079,13 +4056,14 @@ L.drawLocal = {
     "<span ng-click=\"showLayer = !showLayer\"></span>\n" +
     "</div>\n" +
     "</div>\n" +
-    "<div class=layer02 ng-show=showLayer ng-repeat=\"layer in lyrctrl.layer.Layers | filter :  { enabled: true }\">\n" +
+    "<div ng-show=showLayer ng-repeat=\"layer in lyrctrl.layer.Layers | filter :  { enabled: true }\">\n" +
     "<tink-layer layer=layer layercheckboxchange=layercheckboxchange(layer.theme)>\n" +
     "</tink-layer>\n" +
     "</div>\n" +
     "</div>\n" +
-    "<div class=layer03 ng-if=!lyrctrl.layer.hasLayers>\n" +
-    "<div class=layer-icon style=\"width:20px; height:20px\">\n" +
+    "<div>\n" +
+    "<div class=toc-item-with-icon ng-if=!lyrctrl.layer.hasLayers>\n" +
+    "<div class=layer-icon>\n" +
     "<img ng-if=\"lyrctrl.layer.theme.Type=='esri' && lyrctrl.layer.legend.length==1\" ng-src=\"{{lyrctrl.layer.legend[0].fullurl}} \">\n" +
     "</div>\n" +
     "<div>\n" +
@@ -4094,9 +4072,12 @@ L.drawLocal = {
     "<span class=hidden-print ng-show=\"lyrctrl.layer.theme.Type=='wms' && lyrctrl.layer.queryable \">(i)</span>\n" +
     "</label>\n" +
     "</div>\n" +
-    "<img ng-if=\"lyrctrl.layer.theme.Type=='wms' \" ng-src={{lyrctrl.layer.legendUrl}}><img>\n" +
-    "<div class=layer04 ng-if=\"lyrctrl.layer.theme.Type=='esri' && lyrctrl.layer.legend.length> 1\" ng-repeat=\"legend in lyrctrl.legends\">\n" +
+    "</div>\n" +
+    "<div ng-if=\"lyrctrl.layer.theme.Type=='wms'\">\n" +
+    "<img ng-src={{lyrctrl.layer.legendUrl}}><img>\n" +
+    "<div ng-if=\"lyrctrl.layer.theme.Type=='esri' && lyrctrl.layer.legend.length> 1\" ng-repeat=\"legend in lyrctrl.legends\">\n" +
     "<img style=\"width:20px; height:20px\" ng-src={{legend.url}}><img><span>²{{legend.label}}</span>\n" +
+    "</div>\n" +
     "</div>\n" +
     "</div>\n" +
     "</div>\n"
@@ -4147,7 +4128,7 @@ L.drawLocal = {
     "</div>\n" +
     "<div class=mappart>\n" +
     "<tink-search class=tink-search></tink-search>\n" +
-    "<div id=map class=leafletmap ng-class=\"{'leaflet-crosshair': mapctrl.activeInteractieKnop=='watishier'}\">\n" +
+    "<div id=map class=\"leafletmap leaflet-crosshair\">\n" +
     "<div class=map-buttons-left>\n" +
     "<div class=\"btn-group ll drawingbtns\" ng-show=mapctrl.showDrawControls>\n" +
     "<button ng-click=mapctrl.selectpunt() ng-class=\"{active: mapctrl.drawingType==''}\" type=button class=btn prevent-default><i class=\"fa fa-mouse-pointer\"></i></button>\n" +
