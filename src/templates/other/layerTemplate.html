@@ -16,20 +16,23 @@
         </div>
 
     </div>
-    <div class="layer03" ng-if="!lyrctrl.layer.hasLayers">
-        <div class="layer-icon" style="width:20px; height:20px;">
-            <img ng-if="lyrctrl.layer.theme.Type=='esri' && lyrctrl.layer.legend.length==1" ng-src="{{lyrctrl.layer.legend[0].fullurl}} "></img>
+    <div>
+        <div class="layer03" ng-if="!lyrctrl.layer.hasLayers">
+            <div class="layer-icon" style="width:20px; height:20px;">
+                <img ng-if="lyrctrl.layer.theme.Type=='esri' && lyrctrl.layer.legend.length==1" ng-src="{{lyrctrl.layer.legend[0].fullurl}} "></img>
+            </div>
+            <div class="">
+                <input  class="visible-box hidden-print" type="checkbox" ng-model="lyrctrl.layer.visible" ng-change="layercheckboxchange(lyrctrl.layer.theme)" id="{{lyrctrl.layer.name}}{{lyrctrl.layer.id}} ">
+                <label ng-class="{ 'greytext': lyrctrl.layer.displayed==false} " for="{{lyrctrl.layer.name}}{{lyrctrl.layer.id}}"> {{lyrctrl.layer.title}}
+                    <span class="hidden-print" ng-show="lyrctrl.layer.theme.Type=='wms' && lyrctrl.layer.queryable ">(i)</span>
+                </label>
+            </div>
         </div>
-        <div class="">
-            <input  class="visible-box hidden-print" type="checkbox" ng-model="lyrctrl.layer.visible" ng-change="layercheckboxchange(lyrctrl.layer.theme)" id="{{lyrctrl.layer.name}}{{lyrctrl.layer.id}} ">
-            <label ng-class="{ 'greytext': lyrctrl.layer.displayed==false} " for="{{lyrctrl.layer.name}}{{lyrctrl.layer.id}}"> {{lyrctrl.layer.title}}
-                <span class="hidden-print" ng-show="lyrctrl.layer.theme.Type=='wms' && lyrctrl.layer.queryable ">(i)</span>
-            </label>
-        </div>
-
-        <img ng-if="lyrctrl.layer.theme.Type=='wms' " ng-src="{{lyrctrl.layer.legendUrl}}"><img>
-        <div class="layer04" ng-if="lyrctrl.layer.theme.Type=='esri' && lyrctrl.layer.legend.length> 1" ng-repeat="legend in lyrctrl.legends">
-            <img style="width:20px; height:20px;" ng-src="{{legend.url}}"><img><span>²{{legend.label}}</span>
+        <div ng-if="lyrctrl.layer.theme.Type=='wms'">
+            <img ng-src="{{lyrctrl.layer.legendUrl}}"><img>
+            <div class="layer04" ng-if="lyrctrl.layer.theme.Type=='esri' && lyrctrl.layer.legend.length> 1" ng-repeat="legend in lyrctrl.legends">
+                <img style="width:20px; height:20px;" ng-src="{{legend.url}}"><img><span>²{{legend.label}}</span>
+            </div>
         </div>
     </div>
 </div>

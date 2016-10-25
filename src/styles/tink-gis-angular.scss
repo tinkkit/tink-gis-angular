@@ -847,3 +847,7 @@ html.print.landscape {
     display: none;
   }
 }
+.nav-aside.nav-right {
+  min-width: rem($nav-aside-width);
+  width: auto;
+}
