@@ -1,27 +1,27 @@
-<div class="layercontroller-checkbox" ng-class="{'hidden-print': lyrctrl.layer.IsEnabledAndVisible == false}" >
+<div ng-class="{'hidden-print': lyrctrl.layer.IsEnabledAndVisible == false}" >
     <div class="container container-low-padding" ng-if="lyrctrl.layer.hasLayers">
-        <div class="layer01 can-open" ng-class="{'open': showLayer}">
-            <div class="">
+        <div class="toc-item-without-icon can-open" ng-class="{'open': showLayer}">
+            <div class="extra-left-margin">
                 <input class="visible-box hidden-print" type="checkbox" id="{{lyrctrl.layer.name}}{{lyrctrl.layer.id}}" ng-model="lyrctrl.layer.visible" ng-change="layercheckboxchange(lyrctrl.layer.theme)">
                 <label for="{{lyrctrl.layer.name}}{{lyrctrl.layer.id}}">{{lyrctrl.layer.name}}</label>
             </div>
-            <div class="">
+            <div>
                 <span ng-click="showLayer = !showLayer"></span>
             </div>
         </div>
 
-        <div class="layer02" ng-show="showLayer" ng-repeat="layer in lyrctrl.layer.Layers | filter :  { enabled: true }">
+        <div ng-show="showLayer" ng-repeat="layer in lyrctrl.layer.Layers | filter :  { enabled: true }">
             <tink-Layer layer="layer" layercheckboxchange="layercheckboxchange(layer.theme)">
             </tink-Layer>
         </div>
 
     </div>
     <div>
-        <div class="layer03" ng-if="!lyrctrl.layer.hasLayers">
-            <div class="layer-icon" style="width:20px; height:20px;">
+        <div class="toc-item-with-icon" ng-if="!lyrctrl.layer.hasLayers">
+            <div class="layer-icon">
                 <img ng-if="lyrctrl.layer.theme.Type=='esri' && lyrctrl.layer.legend.length==1" ng-src="{{lyrctrl.layer.legend[0].fullurl}} "></img>
             </div>
-            <div class="">
+            <div>
                 <input  class="visible-box hidden-print" type="checkbox" ng-model="lyrctrl.layer.visible" ng-change="layercheckboxchange(lyrctrl.layer.theme)" id="{{lyrctrl.layer.name}}{{lyrctrl.layer.id}} ">
                 <label ng-class="{ 'greytext': lyrctrl.layer.displayed==false} " for="{{lyrctrl.layer.name}}{{lyrctrl.layer.id}}"> {{lyrctrl.layer.title}}
                     <span class="hidden-print" ng-show="lyrctrl.layer.theme.Type=='wms' && lyrctrl.layer.queryable ">(i)</span>
@@ -30,7 +30,7 @@
         </div>
         <div ng-if="lyrctrl.layer.theme.Type=='wms'">
             <img ng-src="{{lyrctrl.layer.legendUrl}}"><img>
-            <div class="layer04" ng-if="lyrctrl.layer.theme.Type=='esri' && lyrctrl.layer.legend.length> 1" ng-repeat="legend in lyrctrl.legends">
+            <div ng-if="lyrctrl.layer.theme.Type=='esri' && lyrctrl.layer.legend.length> 1" ng-repeat="legend in lyrctrl.legends">
                 <img style="width:20px; height:20px;" ng-src="{{legend.url}}"><img><span>²{{legend.label}}</span>
             </div>
         </div>

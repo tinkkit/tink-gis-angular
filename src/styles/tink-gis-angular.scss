@@ -100,6 +100,7 @@ svg.leaflet-zoom-animated {
   }
 }
 
+
 /**
  * Map buttons styling
  */
@@ -222,6 +223,7 @@ button.btn.active {
   width: 200px;
 }
 
+
 /**
  * Map buttons right side
  */
@@ -248,7 +250,7 @@ button.btn.active {
 
 
 /**
- * Seperate components
+ * Loader
  */
 
 .loading {
@@ -280,6 +282,11 @@ button.btn.active {
 
 }
 
+
+/**
+ * Separate components
+ */
+
 //Add this class to .main to override default padding
 .full-width {
     padding-left: 0 !important;
@@ -287,12 +294,14 @@ button.btn.active {
     transform: translate(0, 0) !important
 }
 
+//Creating parent container for flex column and scrollable list
 .relative-container {
   height: 60vh;
 
   // flex container settings
   display: flex;
 }
+
 
 .flex-column {
   // flex item settings
@@ -302,6 +311,7 @@ button.btn.active {
   display: flex;
   flex-direction: column;
 }
+
 
 .scrollable-list {
   overflow: auto;
@@ -339,52 +349,11 @@ button.btn.active {
   }
 }
 
-// Wtf tink ???
-// input[type="checkbox"], input[type="radio"] {
-//      opacity: 1;
-//      position: static;
-// }
-// .visible-box {
-//     padding-top: 4px;
-// }
 
-
-/**
- * Rightside layer menu
- */
-
-// Lagenbeheer
-.addlayerbtn {
-    margin-left: auto;
-    margin-right: auto;
-    margin-top: 5px;
-    margin-bottom: 5px;
-    display: block;
-}
-
-// solrGISTemplate
-.blacktext {
-  color: black !important;
-}
-
-.featureinsolr {
-  font-style: italic;
-  font-size: 10px;
-}
-
-.layercontroller-checkbox
-{
-    margin-left:10px; // better to use list styling
-}
-
-.theme-layer { // is a actually an a href
-  &:hover {
-    text-decoration: none;
-  }
-}
-
-// .can-open class is also nested in Tink navigation, but doesn't conflict with following styling
+/* List toggle */
+// FYI .can-open class is also nested in Tink navigation, but doesn't conflict with following styling
 .can-open {
+
   span {
     cursor: pointer;
     display: inline-block;
@@ -410,16 +379,21 @@ button.btn.active {
   }
 }
 
-// set a pointer on the clickable items
-a,
-input[type="checkbox"] {
-  &:hover,
-  &:focus {
-    cursor: pointer;
-  }
+/**
+ * Rightside layer menu
+ */
+
+/* Lagenbeheer */
+.addlayerbtn {
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    display: block;
 }
 
-// style the trash can button
+
+/* Trash can button */
 button.trash {
   background-color: transparent;
   color: #bbb;
@@ -438,31 +412,62 @@ button.trash {
   }
 }
 
+
+/* Table of content */
+
+.toc-item-without-icon {
+  display: inline-flex; //set as inline-level flex container
+
+  .extra-left-margin {
+    // margin-left: rem(18);
+  }
+}
+
+.toc-item-with-icon {
+  display: inline-flex;
+  .layer-icon {
+    height: rem(18);
+    // margin-left: rem(18);
+    margin-right: rem(5);
+    width: rem(18);
+  }
+}
+
+/* Lagenresultaat */
+.theme-layer { // is a actually an a href
+  &:hover {
+    text-decoration: none;
+  }
+}
+
+// solrGISTemplate
+.blacktext {
+  color: black !important;
+}
+
+.featureinsolr {
+  font-style: italic;
+  font-size: 10px;
+}
+
+.layercontroller-checkbox
+{
+    margin-left:10px; // better to use list styling
+}
+
+// set a pointer on the clickable items
+a,
+input[type="checkbox"] {
+  &:hover,
+  &:focus {
+    cursor: pointer;
+  }
+}
+
 // give the elements in de sidenav some more padding on both sides
 .nav-aside-padding {
   padding-left: rem(14);
   padding-right: rem(14);
-}
-
-.layer01 {
-  // background-color: green;
-  display: inline-flex;
-}
-
-.layer02 { // has image icon
-  // background-color: tan;
-}
-
-.layer03 {
-  // background-color: yellow;
-  display: inline-flex;
-  .layer-icon {
-    margin-right: rem(5);
-  }
-}
-
-.layer04 {
-  background-color: blue;
 }
 
 /**
