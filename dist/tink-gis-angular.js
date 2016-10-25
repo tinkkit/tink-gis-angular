@@ -56,7 +56,6 @@
         //     continuousWorld: true
         // }).addTo(map);
 
-
         map.doubleClickZoom.disable();
         // L.control.scale({ imperial: false }).addTo(map);
         var drawnItems = L.featureGroup().addTo(map);
@@ -654,9 +653,9 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                     prom.resolve(returnObject);
                     // console.log(getResults['csw:record']);
                 } else {
-                    prom.reject(null);
-                    console.log('EMPTY RESULT');
-                }
+                        prom.reject(null);
+                        console.log('EMPTY RESULT');
+                    }
             }).error(function (data, status, headers, config) {
                 prom.reject(null);
                 console.log('ERROR!', data, status, headers, config);
@@ -1926,10 +1925,10 @@ var esri2geo = {};
                     realTheme.Visible = theme.visible;
                     console.log(theme, ' vs real theme: ', realTheme);
                     if (realTheme.AllLayers.length == theme.layers.length) {
-                        realTheme.Added = true; //all are added 
+                        realTheme.Added = true; //all are added
                     } else {
-                        realTheme.Added = null; // some are added, never false because else we woudn't save it.
-                    }
+                            realTheme.Added = null; // some are added, never false because else we woudn't save it.
+                        }
                     realTheme.AllLayers.forEach(function (layer) {
                         layer.enabled = false; // lets disable all layers first
                     });
@@ -2614,8 +2613,8 @@ L.control.typeahead = function (args) {
                 if (x == arrayOfPoints.length - 1) {
                     var nextpoint = arrayOfPoints[0]; // if it is the last point, check the distance to the first point
                 } else {
-                    var nextpoint = arrayOfPoints[x + 1];
-                }
+                        var nextpoint = arrayOfPoints[x + 1];
+                    }
                 totalDistance += currpoint.distanceTo(nextpoint); // from this point to the next point the distance and sum it
             }
             return totalDistance.toFixed(2);
@@ -3505,7 +3504,6 @@ L.TileLayer.BetterWMS = L.TileLayer.WMS.extend({
                 // var xmlstring = JXON.xmlToString(data);
                 // var returnjson = JXON.stringToJs(xmlstring);
 
-
                 // console.log(returnjson);
             },
             error: function error(xhr, status, _error) {
@@ -3544,6 +3542,15 @@ L.TileLayer.BetterWMS = L.TileLayer.WMS.extend({
 
 });
 
+// showGetFeatureInfo: function(err, latlng, content) {
+//     if (err) { console.log(err); return; } // do nothing if there's an error
+
+//     // Otherwise show the content in a popup, or something.
+//     L.popup({ maxWidth: 800 })
+//         .setLatLng(latlng)
+//         .setContent(content)
+//         .openOn(this._map);
+// }
 L.tileLayer.betterWms = function (url, options) {
     return new L.TileLayer.BetterWMS(url, options);
 };
@@ -3837,20 +3844,34 @@ L.drawLocal = {
     "<meta charset=utf-8>\n" +
     "<title>Street View side-by-side</title>\n" +
     "<style>\n" +
-    "html, body {\n" +
-    "        height: 100%;\n" +
-    "        margin: 0;\n" +
-    "        padding: 0;\n" +
-    "      }\n" +
-    "      #map,  {\n" +
-    "        float: left;\n" +
-    "        height: 0%;\n" +
-    "        width: 0%;\n" +
-    "      }\n" +
-    "       #pano {\n" +
-    "        float: left;\n" +
-    "        height: 100%;\n" +
-    "        width: 100%;\n" +
+    "html, body {\r" +
+    "\n" +
+    "        height: 100%;\r" +
+    "\n" +
+    "        margin: 0;\r" +
+    "\n" +
+    "        padding: 0;\r" +
+    "\n" +
+    "      }\r" +
+    "\n" +
+    "      #map,  {\r" +
+    "\n" +
+    "        float: left;\r" +
+    "\n" +
+    "        height: 0%;\r" +
+    "\n" +
+    "        width: 0%;\r" +
+    "\n" +
+    "      }\r" +
+    "\n" +
+    "       #pano {\r" +
+    "\n" +
+    "        float: left;\r" +
+    "\n" +
+    "        height: 100%;\r" +
+    "\n" +
+    "        width: 100%;\r" +
+    "\n" +
     "      }\n" +
     "</style>\n" +
     "</head>\n" +
@@ -3858,24 +3879,42 @@ L.drawLocal = {
     "<div id=map></div>\n" +
     "<div id=pano></div>\n" +
     "<script>\n" +
-    "function initialize() {\n" +
-    "        \n" +
-    "        var urlLat = parseFloat((location.search.split('lat=')[1]||'').split('&')[0]);\n" +
-    "        var urlLng = parseFloat((location.search.split('lng=')[1]||'').split('&')[0]);\n" +
-    "        var fenway = {lat:urlLat, lng: urlLng};\n" +
-    "        var map = new google.maps.Map(document.getElementById('map'), {\n" +
-    "          center: fenway,\n" +
-    "          zoom: 14\n" +
-    "        });\n" +
-    "        var panorama = new google.maps.StreetViewPanorama(\n" +
-    "            document.getElementById('pano'), {\n" +
-    "              position: fenway,\n" +
-    "              pov: {\n" +
-    "                heading: 34,\n" +
-    "                pitch: 10\n" +
-    "              }\n" +
-    "            });\n" +
-    "        map.setStreetView(panorama);\n" +
+    "function initialize() {\r" +
+    "\n" +
+    "        \r" +
+    "\n" +
+    "        var urlLat = parseFloat((location.search.split('lat=')[1]||'').split('&')[0]);\r" +
+    "\n" +
+    "        var urlLng = parseFloat((location.search.split('lng=')[1]||'').split('&')[0]);\r" +
+    "\n" +
+    "        var fenway = {lat:urlLat, lng: urlLng};\r" +
+    "\n" +
+    "        var map = new google.maps.Map(document.getElementById('map'), {\r" +
+    "\n" +
+    "          center: fenway,\r" +
+    "\n" +
+    "          zoom: 14\r" +
+    "\n" +
+    "        });\r" +
+    "\n" +
+    "        var panorama = new google.maps.StreetViewPanorama(\r" +
+    "\n" +
+    "            document.getElementById('pano'), {\r" +
+    "\n" +
+    "              position: fenway,\r" +
+    "\n" +
+    "              pov: {\r" +
+    "\n" +
+    "                heading: 34,\r" +
+    "\n" +
+    "                pitch: 10\r" +
+    "\n" +
+    "              }\r" +
+    "\n" +
+    "            });\r" +
+    "\n" +
+    "        map.setStreetView(panorama);\r" +
+    "\n" +
     "      }\n" +
     "</script>\n" +
     "<script async defer src=\"https://maps.googleapis.com/maps/api/js?callback=initialize\">\n" +
@@ -4354,7 +4393,7 @@ var TinkGis;
         _inherits(Layer, _LayerJSON);
 
         function Layer() {
-            var _ref;
+            var _Object$getPrototypeO;
 
             _classCallCheck(this, Layer);
 
@@ -4362,7 +4401,7 @@ var TinkGis;
                 args[_key] = arguments[_key];
             }
 
-            var _this = _possibleConstructorReturn(this, (_ref = Layer.__proto__ || Object.getPrototypeOf(Layer)).call.apply(_ref, [this].concat(args)));
+            var _this = _possibleConstructorReturn(this, (_Object$getPrototypeO = Object.getPrototypeOf(Layer)).call.apply(_Object$getPrototypeO, [this].concat(args)));
 
             _this.parent = null;
             _this.Layers = [];
@@ -4434,7 +4473,7 @@ var TinkGis;
         function wmslayer(info, parenttheme) {
             _classCallCheck(this, wmslayer);
 
-            var _this2 = _possibleConstructorReturn(this, (wmslayer.__proto__ || Object.getPrototypeOf(wmslayer)).call(this));
+            var _this2 = _possibleConstructorReturn(this, Object.getPrototypeOf(wmslayer).call(this));
 
             Object.assign(_this2, info);
             _this2.visible = true;
@@ -4473,7 +4512,7 @@ var TinkGis;
         function arcgislayer(info, parenttheme) {
             _classCallCheck(this, arcgislayer);
 
-            var _this3 = _possibleConstructorReturn(this, (arcgislayer.__proto__ || Object.getPrototypeOf(arcgislayer)).call(this));
+            var _this3 = _possibleConstructorReturn(this, Object.getPrototypeOf(arcgislayer).call(this));
 
             Object.assign(_this3, info);
             _this3.visible = info.defaultVisibility;
@@ -4578,7 +4617,7 @@ var TinkGis;
         function ArcGIStheme(rawdata, themeData) {
             _classCallCheck(this, ArcGIStheme);
 
-            var _this2 = _possibleConstructorReturn(this, (ArcGIStheme.__proto__ || Object.getPrototypeOf(ArcGIStheme)).call(this));
+            var _this2 = _possibleConstructorReturn(this, Object.getPrototypeOf(ArcGIStheme).call(this));
 
             var rawlayers = rawdata.layers;
             _this2.name = _this2.Naam = rawdata.documentInfo.Title;
@@ -4631,7 +4670,7 @@ var TinkGis;
         function wmstheme(data, url) {
             _classCallCheck(this, wmstheme);
 
-            var _this3 = _possibleConstructorReturn(this, (wmstheme.__proto__ || Object.getPrototypeOf(wmstheme)).call(this));
+            var _this3 = _possibleConstructorReturn(this, Object.getPrototypeOf(wmstheme).call(this));
 
             _this3.Version = data['version'];
             _this3.name = data.service.title;
