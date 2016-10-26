@@ -2,6 +2,8 @@
     <div class="col-md-4 flex-column margin-top margin-bottom">
         <div>
             <input class="searchbox" type="text" ng-model="searchTerm" ng-change="searchChanged()" ng-model-options="{debounce: 500}" placeholder="Geef een trefwoord of een url in" />
+        </div>
+        <div class="margin-top">
             <input type="text" disabled="disabled" value="https://geodata.antwerpen.be/arcgissql/services/P_SiK/Groeninventaris/MapServer/WMSServer" />
         </div>
         <div class="scrollable-list margin-top margin-bottom" ng-if="!searchIsUrl" ng-repeat="theme in availableThemes">
@@ -19,7 +21,7 @@
         <div ng-if="searchIsUrl">
             <button ng-click="laadUrl()">Laad url</button>
         </div>
-        <preview-layer ng-if="copySelectedTheme" addorupdatefunc="AddOrUpdateTheme()" theme="copySelectedTheme">
+        <preview-layer class="margin-top" ng-if="copySelectedTheme" addorupdatefunc="AddOrUpdateTheme()" theme="copySelectedTheme">
 
         </preview-layer>
     </div>
