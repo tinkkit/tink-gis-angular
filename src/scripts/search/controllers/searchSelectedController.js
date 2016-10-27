@@ -14,12 +14,34 @@
                     if (tmplayer._latlngs) { // with s so it is an array, so not a point so we can set the style
                         tmplayer.setStyle(Style.DEFAULT);
                     }
+                    else {
+                        var myicon = L.icon({
+                            iconUrl: 'bower_components/leaflet/dist/images/marker-icon.png',
+                            iconRetinaUrl: 'bower_components/leaflet/dist/images/marker-icon-2x.png',
+                            shadowUrl: 'bower_components/leaflet/dist/images/marker-shadow.png',
+                            iconSize: [25, 41],
+                            iconAnchor: [12, 41],
+                            popupAnchor: [1, -34],
+                            tooltipAnchor: [16, -28],
+                            shadowSize: [41, 41]
+                        });
+                        tmplayer.setIcon(myicon)
+
+                    }
                 }
                 if (newVal) {
                     if (newVal.mapItem) {
                         var tmplayer = newVal.mapItem._layers[Object.keys(newVal.mapItem._layers)[0]];
                         if (tmplayer._latlngs) { // with s so it is an array, so not a point so we can set the style
                             tmplayer.setStyle(Style.HIGHLIGHT);
+                        }
+                        else {
+                            var myIcon = L.AwesomeMarkers.icon({
+                                icon: 'fa-dot-circle-o',
+                                markerColor: 'red'
+                            });
+
+                            tmplayer.setIcon(myIcon)
                         }
                     }
                     vm.selectedResult = newVal;

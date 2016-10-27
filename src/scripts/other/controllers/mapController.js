@@ -49,12 +49,11 @@
                 displayKey: 'name',
                 source: function (query, syncResults, asyncResults) {
                     if (query.replace(/[^0-9]/g, "").length < 6) { // if less then 6 numbers then we just search
-                        GISService.QuerySOLRLocatie(query).then(function (data) {
+                        GISService.QuerySOLRLocatie(query.trim()).then(function (data) {
                             var arr = data.response.docs;
                             asyncResults(arr);
                         });
-                    }
-                    else {
+                    } else {
                         syncResults([]);
                         vm.zoekXY(query);
                     }

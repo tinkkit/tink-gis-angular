@@ -874,7 +874,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             source: function source(query, syncResults, asyncResults) {
                 if (query.replace(/[^0-9]/g, "").length < 6) {
                     // if less then 6 numbers then we just search
-                    GISService.QuerySOLRLocatie(query).then(function (data) {
+                    GISService.QuerySOLRLocatie(query.trim()).then(function (data) {
                         var arr = data.response.docs;
                         asyncResults(arr);
                     });
@@ -2117,6 +2117,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                     getals.push(currgetal);
                 }
             }
+
             if (aantalmetcorrectesize == 2 && getals.length == 2) {
                 returnobject.x = getals[0].replace(',', '.');
                 returnobject.y = getals[1].replace(',', '.');
@@ -2195,7 +2196,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 }
                 getals.push(currgetal);
             }
-
+            var getals = getals.filter(function (x) {
+                return x.trim() != '';
+            });
             if (aantalmet6size == 2 && getals.length == 2) {
                 returnobject.x = getals[0].replace(',', '.');
                 returnobject.y = getals[1].replace(',', '.');
@@ -3143,7 +3146,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         vm.features = ResultsData.JsonFeatures;
         vm.EmptyResult = ResultsData.EmptyResult;
         vm.LoadingCompleted = function () {
-            return ResultsData.GetRequestPercentage() == 100;
+            return ResultsData.GetRequestPercentage() >= 100;
         };
         vm.loadingPercentage = function () {
             return ResultsData.GetRequestPercentage();
@@ -3227,6 +3230,18 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 if (tmplayer._latlngs) {
                     // with s so it is an array, so not a point so we can set the style
                     tmplayer.setStyle(Style.DEFAULT);
+                } else {
+                    var myicon = L.icon({
+                        iconUrl: 'bower_components/leaflet/dist/images/marker-icon.png',
+                        iconRetinaUrl: 'bower_components/leaflet/dist/images/marker-icon-2x.png',
+                        shadowUrl: 'bower_components/leaflet/dist/images/marker-shadow.png',
+                        iconSize: [25, 41],
+                        iconAnchor: [12, 41],
+                        popupAnchor: [1, -34],
+                        tooltipAnchor: [16, -28],
+                        shadowSize: [41, 41]
+                    });
+                    tmplayer.setIcon(myicon);
                 }
             }
             if (newVal) {
@@ -3235,6 +3250,13 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                     if (tmplayer._latlngs) {
                         // with s so it is an array, so not a point so we can set the style
                         tmplayer.setStyle(Style.HIGHLIGHT);
+                    } else {
+                        var myIcon = L.AwesomeMarkers.icon({
+                            icon: 'fa-dot-circle-o',
+                            markerColor: 'red'
+                        });
+
+                        tmplayer.setIcon(myIcon);
                     }
                 }
                 vm.selectedResult = newVal;
@@ -3375,8 +3397,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         _data.CleanSearch = function () {
             _data.SelectedFeature = null;
             _data.JsonFeatures.length = 0;
+            _data.RequestStarted = _data.RequestStarted - _data.RequestCompleted;
             _data.RequestCompleted = 0;
-            _data.RequestStarted = 0;
         };
         return _data;
     };
