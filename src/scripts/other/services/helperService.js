@@ -117,6 +117,7 @@
                     getals.push(currgetal);
                 }
             }
+
             if (aantalmetcorrectesize == 2 && getals.length == 2) {
                 returnobject.x = getals[0].replace(',', '.');
                 returnobject.y = getals[1].replace(',', '.');
@@ -181,7 +182,7 @@
                 }
                 getals.push(currgetal);
             }
-
+            var getals = getals.filter(x=>x.trim() != '');
             if (aantalmet6size == 2 && getals.length == 2) {
                 returnobject.x = getals[0].replace(',', '.');
                 returnobject.y = getals[1].replace(',', '.');

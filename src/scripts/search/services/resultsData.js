@@ -18,8 +18,8 @@
         _data.CleanSearch = function () {
             _data.SelectedFeature = null;
             _data.JsonFeatures.length = 0;
+            _data.RequestStarted = _data.RequestStarted - _data.RequestCompleted;
             _data.RequestCompleted = 0;
-            _data.RequestStarted = 0;
         };
         return _data;
     };

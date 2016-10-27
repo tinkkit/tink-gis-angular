@@ -56,6 +56,7 @@
         //     continuousWorld: true
         // }).addTo(map);
 
+
         map.doubleClickZoom.disable();
         // L.control.scale({ imperial: false }).addTo(map);
         var drawnItems = L.featureGroup().addTo(map);
@@ -653,9 +654,9 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                     prom.resolve(returnObject);
                     // console.log(getResults['csw:record']);
                 } else {
-                        prom.reject(null);
-                        console.log('EMPTY RESULT');
-                    }
+                    prom.reject(null);
+                    console.log('EMPTY RESULT');
+                }
             }).error(function (data, status, headers, config) {
                 prom.reject(null);
                 console.log('ERROR!', data, status, headers, config);
@@ -873,7 +874,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             source: function source(query, syncResults, asyncResults) {
                 if (query.replace(/[^0-9]/g, "").length < 6) {
                     // if less then 6 numbers then we just search
-                    GISService.QuerySOLRLocatie(query).then(function (data) {
+                    GISService.QuerySOLRLocatie(query.trim()).then(function (data) {
                         var arr = data.response.docs;
                         asyncResults(arr);
                     });
@@ -1925,10 +1926,10 @@ var esri2geo = {};
                     realTheme.Visible = theme.visible;
                     console.log(theme, ' vs real theme: ', realTheme);
                     if (realTheme.AllLayers.length == theme.layers.length) {
-                        realTheme.Added = true; //all are added
+                        realTheme.Added = true; //all are added 
                     } else {
-                            realTheme.Added = null; // some are added, never false because else we woudn't save it.
-                        }
+                        realTheme.Added = null; // some are added, never false because else we woudn't save it.
+                    }
                     realTheme.AllLayers.forEach(function (layer) {
                         layer.enabled = false; // lets disable all layers first
                     });
@@ -2116,6 +2117,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                     getals.push(currgetal);
                 }
             }
+
             if (aantalmetcorrectesize == 2 && getals.length == 2) {
                 returnobject.x = getals[0].replace(',', '.');
                 returnobject.y = getals[1].replace(',', '.');
@@ -2194,7 +2196,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 }
                 getals.push(currgetal);
             }
-
+            var getals = getals.filter(function (x) {
+                return x.trim() != '';
+            });
             if (aantalmet6size == 2 && getals.length == 2) {
                 returnobject.x = getals[0].replace(',', '.');
                 returnobject.y = getals[1].replace(',', '.');
@@ -2613,8 +2617,8 @@ L.control.typeahead = function (args) {
                 if (x == arrayOfPoints.length - 1) {
                     var nextpoint = arrayOfPoints[0]; // if it is the last point, check the distance to the first point
                 } else {
-                        var nextpoint = arrayOfPoints[x + 1];
-                    }
+                    var nextpoint = arrayOfPoints[x + 1];
+                }
                 totalDistance += currpoint.distanceTo(nextpoint); // from this point to the next point the distance and sum it
             }
             return totalDistance.toFixed(2);
@@ -3142,7 +3146,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         vm.features = ResultsData.JsonFeatures;
         vm.EmptyResult = ResultsData.EmptyResult;
         vm.LoadingCompleted = function () {
-            return ResultsData.GetRequestPercentage() == 100;
+            return ResultsData.GetRequestPercentage() >= 100;
         };
         vm.loadingPercentage = function () {
             return ResultsData.GetRequestPercentage();
@@ -3226,6 +3230,18 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 if (tmplayer._latlngs) {
                     // with s so it is an array, so not a point so we can set the style
                     tmplayer.setStyle(Style.DEFAULT);
+                } else {
+                    var myicon = L.icon({
+                        iconUrl: 'bower_components/leaflet/dist/images/marker-icon.png',
+                        iconRetinaUrl: 'bower_components/leaflet/dist/images/marker-icon-2x.png',
+                        shadowUrl: 'bower_components/leaflet/dist/images/marker-shadow.png',
+                        iconSize: [25, 41],
+                        iconAnchor: [12, 41],
+                        popupAnchor: [1, -34],
+                        tooltipAnchor: [16, -28],
+                        shadowSize: [41, 41]
+                    });
+                    tmplayer.setIcon(myicon);
                 }
             }
             if (newVal) {
@@ -3234,6 +3250,13 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                     if (tmplayer._latlngs) {
                         // with s so it is an array, so not a point so we can set the style
                         tmplayer.setStyle(Style.HIGHLIGHT);
+                    } else {
+                        var myIcon = L.AwesomeMarkers.icon({
+                            icon: 'fa-dot-circle-o',
+                            markerColor: 'red'
+                        });
+
+                        tmplayer.setIcon(myIcon);
                     }
                 }
                 vm.selectedResult = newVal;
@@ -3374,8 +3397,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         _data.CleanSearch = function () {
             _data.SelectedFeature = null;
             _data.JsonFeatures.length = 0;
+            _data.RequestStarted = _data.RequestStarted - _data.RequestCompleted;
             _data.RequestCompleted = 0;
-            _data.RequestStarted = 0;
         };
         return _data;
     };
@@ -3504,6 +3527,7 @@ L.TileLayer.BetterWMS = L.TileLayer.WMS.extend({
                 // var xmlstring = JXON.xmlToString(data);
                 // var returnjson = JXON.stringToJs(xmlstring);
 
+
                 // console.log(returnjson);
             },
             error: function error(xhr, status, _error) {
@@ -3542,15 +3566,6 @@ L.TileLayer.BetterWMS = L.TileLayer.WMS.extend({
 
 });
 
-// showGetFeatureInfo: function(err, latlng, content) {
-//     if (err) { console.log(err); return; } // do nothing if there's an error
-
-//     // Otherwise show the content in a popup, or something.
-//     L.popup({ maxWidth: 800 })
-//         .setLatLng(latlng)
-//         .setContent(content)
-//         .openOn(this._map);
-// }
 L.tileLayer.betterWms = function (url, options) {
     return new L.TileLayer.BetterWMS(url, options);
 };
@@ -4393,7 +4408,7 @@ var TinkGis;
         _inherits(Layer, _LayerJSON);
 
         function Layer() {
-            var _Object$getPrototypeO;
+            var _ref;
 
             _classCallCheck(this, Layer);
 
@@ -4401,7 +4416,7 @@ var TinkGis;
                 args[_key] = arguments[_key];
             }
 
-            var _this = _possibleConstructorReturn(this, (_Object$getPrototypeO = Object.getPrototypeOf(Layer)).call.apply(_Object$getPrototypeO, [this].concat(args)));
+            var _this = _possibleConstructorReturn(this, (_ref = Layer.__proto__ || Object.getPrototypeOf(Layer)).call.apply(_ref, [this].concat(args)));
 
             _this.parent = null;
             _this.Layers = [];
@@ -4473,7 +4488,7 @@ var TinkGis;
         function wmslayer(info, parenttheme) {
             _classCallCheck(this, wmslayer);
 
-            var _this2 = _possibleConstructorReturn(this, Object.getPrototypeOf(wmslayer).call(this));
+            var _this2 = _possibleConstructorReturn(this, (wmslayer.__proto__ || Object.getPrototypeOf(wmslayer)).call(this));
 
             Object.assign(_this2, info);
             _this2.visible = true;
@@ -4512,7 +4527,7 @@ var TinkGis;
         function arcgislayer(info, parenttheme) {
             _classCallCheck(this, arcgislayer);
 
-            var _this3 = _possibleConstructorReturn(this, Object.getPrototypeOf(arcgislayer).call(this));
+            var _this3 = _possibleConstructorReturn(this, (arcgislayer.__proto__ || Object.getPrototypeOf(arcgislayer)).call(this));
 
             Object.assign(_this3, info);
             _this3.visible = info.defaultVisibility;
@@ -4617,7 +4632,7 @@ var TinkGis;
         function ArcGIStheme(rawdata, themeData) {
             _classCallCheck(this, ArcGIStheme);
 
-            var _this2 = _possibleConstructorReturn(this, Object.getPrototypeOf(ArcGIStheme).call(this));
+            var _this2 = _possibleConstructorReturn(this, (ArcGIStheme.__proto__ || Object.getPrototypeOf(ArcGIStheme)).call(this));
 
             var rawlayers = rawdata.layers;
             _this2.name = _this2.Naam = rawdata.documentInfo.Title;
@@ -4670,7 +4685,7 @@ var TinkGis;
         function wmstheme(data, url) {
             _classCallCheck(this, wmstheme);
 
-            var _this3 = _possibleConstructorReturn(this, Object.getPrototypeOf(wmstheme).call(this));
+            var _this3 = _possibleConstructorReturn(this, (wmstheme.__proto__ || Object.getPrototypeOf(wmstheme)).call(this));
 
             _this3.Version = data['version'];
             _this3.name = data.service.title;
