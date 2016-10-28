@@ -417,17 +417,13 @@ button.trash {
 
 .toc-item-without-icon {
   display: inline-flex; //set as inline-level flex container
-
-  .extra-left-margin {
-    // margin-left: rem(18);
-  }
+  margin-left: rem(23); // width of layer-icon + margin-right
 }
 
 .toc-item-with-icon {
   display: inline-flex;
   .layer-icon {
     height: rem(18);
-    // margin-left: rem(18);
     margin-right: rem(5);
     width: rem(18);
   }
@@ -473,7 +469,7 @@ input[type="checkbox"] {
 // make identation with ul list
 ul {
   ul {
-    margin-left: rem(14);
+    margin-left: rem(24);
   }
 }
 /**
@@ -858,7 +854,7 @@ html.print.landscape {
     display: none;
   }
 }
-.nav-aside.nav-right {
-  min-width: rem($nav-aside-width);
-  width: auto;
+.nav-aside.nav-right { // auto gives problems with collapse and right side map buttons
+  // min-width: rem($nav-aside-width);
+  // width: auto;
 }

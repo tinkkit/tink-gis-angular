@@ -16,11 +16,9 @@
         </div>
 
     </div>
-    <ul>
+
         <li class="li-item toc-item-with-icon" ng-if="!lyrctrl.layer.hasLayers">
-            <div class="layer-icon">
-                <img ng-if="lyrctrl.layer.theme.Type=='esri' && lyrctrl.layer.legend.length==1" ng-src="{{lyrctrl.layer.legend[0].fullurl}} "></img>
-            </div>
+            <img class="layer-icon" ng-if="lyrctrl.layer.theme.Type=='esri' && lyrctrl.layer.legend.length==1"  ng-src="{{lyrctrl.layer.legend[0].fullurl}} "></img>
             <div>
                 <input  class="visible-box hidden-print" type="checkbox" ng-model="lyrctrl.layer.visible" ng-change="layercheckboxchange(lyrctrl.layer.theme)" id="{{lyrctrl.layer.name}}{{lyrctrl.layer.id}} ">
                 <label ng-class="{ 'greytext': lyrctrl.layer.displayed==false} " for="{{lyrctrl.layer.name}}{{lyrctrl.layer.id}}"> {{lyrctrl.layer.title}}
@@ -34,5 +32,5 @@
                 <img style="width:20px; height:20px;" ng-src="{{legend.url}}"><img><span>²{{legend.label}}</span>
             </div>
         </li>
-    </ul>
+
 </div>
