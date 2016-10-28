@@ -424,12 +424,21 @@ button.trash {
   position: relative;
   .layer-icon {
     height: rem(18);
-    margin-right: rem(5);
-    width: rem(18);
-    position: absolute;
     left: rem(-25);
+    margin-right: rem(5);
+    position: absolute;
+    width: rem(18);
   }
 }
+
+// indentingwise more correct but visually not better
+// .li-item {
+//   position: relative;
+//   .wms-legend {
+//     left: rem(-25);
+//     position: absolute;
+//   }
+// }
 
 /* Lagenresultaat */
 .theme-layer { // is a actually an a href
