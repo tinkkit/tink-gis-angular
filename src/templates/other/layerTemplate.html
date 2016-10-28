@@ -10,10 +10,10 @@
             </div>
         </li>
 
-        <div class="" ng-show="showLayer" ng-repeat="layer in lyrctrl.layer.Layers | filter :  { enabled: true }">
+        <ul class="" ng-show="showLayer" ng-repeat="layer in lyrctrl.layer.Layers | filter :  { enabled: true }">
             <tink-Layer layer="layer" layercheckboxchange="layercheckboxchange(layer.theme)">
             </tink-Layer>
-        </div>
+        </ul>
 
     </div>
 

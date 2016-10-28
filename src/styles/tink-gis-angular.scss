@@ -417,15 +417,17 @@ button.trash {
 
 .toc-item-without-icon {
   display: inline-flex; //set as inline-level flex container
-  margin-left: rem(23); // width of layer-icon + margin-right
 }
 
 .toc-item-with-icon {
   display: inline-flex;
+  position: relative;
   .layer-icon {
     height: rem(18);
     margin-right: rem(5);
     width: rem(18);
+    position: absolute;
+    left: rem(-25);
   }
 }
 
