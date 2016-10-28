@@ -940,7 +940,6 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         };
         //ng-keyup="$event.keyCode == 13 && mapctrl.zoekLocatie(mapctrl.zoekLoc)"
         vm.zoekXY = function (search) {
-
             search = search.trim();
             var WGS84Check = HelperService.getWGS84CordsFromString(search);
             if (WGS84Check.hasCordinates) {
@@ -955,7 +954,6 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 }
             }
         };
-
         vm.drawingButtonChanged = function (drawOption) {
             MapData.CleanMap();
             MapData.DrawingType = drawOption; // pff must be possible to be able to sync them...
@@ -2724,9 +2722,9 @@ L.control.typeahead = function (args) {
 
         map.on('locationfound', function (e) {
             // var radius = e.accuracy / 2;
-
-            var marker = L.marker(e.latlng).addTo(map);
-            var popup = marker.bindPopup("GPS locatie van browser").openPopup();
+            var gpsicon = L.divIcon({ className: 'fa fa-crosshairs fa-2x', style: 'color: blue' });
+            var marker = L.marker(e.latlng, { icon: gpsicon }).addTo(map);
+            var popup = marker.bindPopup("GPS").openPopup();
             popup.on('popupclose', function (e) {
                 map.removeLayer(marker);
             });
