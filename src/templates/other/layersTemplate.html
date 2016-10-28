@@ -12,11 +12,11 @@
             <button class="btn btn-primary addlayerbtn" ng-click="lyrsctrl.Lagenbeheer()">Lagenbeheer</button>
         </div>
         <div class="nav-aside-padding">
-            <ul id="sortableThemes" ui-sortable="lyrsctrl.sortableOptions" ng-model="lyrsctrl.themes">
-                <div ng-repeat="theme in lyrsctrl.themes">
+            <ul class="ul-level" id="sortableThemes" ui-sortable="lyrsctrl.sortableOptions" ng-model="lyrsctrl.themes">
+                <li class="li-item" ng-repeat="theme in lyrsctrl.themes">
                     <tink-Theme theme="theme" layercheckboxchange="lyrsctrl.updatethemevisibility(theme)" hidedelete="false">
                     </tink-Theme>
-                </div>
+                </li>
             </ul>
         </div>
     </aside>

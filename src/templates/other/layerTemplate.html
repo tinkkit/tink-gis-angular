@@ -1,23 +1,23 @@
 <div ng-class="{'hidden-print': lyrctrl.layer.IsEnabledAndVisible == false}" >
-    <div class="container container-low-padding" ng-if="lyrctrl.layer.hasLayers">
-        <div class="toc-item-without-icon can-open" ng-class="{'open': showLayer}">
-            <div class="extra-left-margin">
+    <div class="" ng-if="lyrctrl.layer.hasLayers">
+        <li class="li-item toc-item-without-icon can-open" ng-class="{'open': showLayer}">
+            <div>
                 <input class="visible-box hidden-print" type="checkbox" id="{{lyrctrl.layer.name}}{{lyrctrl.layer.id}}" ng-model="lyrctrl.layer.visible" ng-change="layercheckboxchange(lyrctrl.layer.theme)">
                 <label for="{{lyrctrl.layer.name}}{{lyrctrl.layer.id}}">{{lyrctrl.layer.name}}</label>
             </div>
             <div>
                 <span ng-click="showLayer = !showLayer"></span>
             </div>
-        </div>
+        </li>
 
-        <div ng-show="showLayer" ng-repeat="layer in lyrctrl.layer.Layers | filter :  { enabled: true }">
+        <div class="" ng-show="showLayer" ng-repeat="layer in lyrctrl.layer.Layers | filter :  { enabled: true }">
             <tink-Layer layer="layer" layercheckboxchange="layercheckboxchange(layer.theme)">
             </tink-Layer>
         </div>
 
     </div>
-    <div>
-        <div class="toc-item-with-icon" ng-if="!lyrctrl.layer.hasLayers">
+    <ul>
+        <li class="li-item toc-item-with-icon" ng-if="!lyrctrl.layer.hasLayers">
             <div class="layer-icon">
                 <img ng-if="lyrctrl.layer.theme.Type=='esri' && lyrctrl.layer.legend.length==1" ng-src="{{lyrctrl.layer.legend[0].fullurl}} "></img>
             </div>
@@ -27,12 +27,12 @@
                     <span class="hidden-print" ng-show="lyrctrl.layer.theme.Type=='wms' && lyrctrl.layer.queryable ">(i)</span>
                 </label>
             </div>
-        </div>
-        <div ng-if="lyrctrl.layer.theme.Type=='wms'">
+        </li>
+        <li class="li-item" ng-if="lyrctrl.layer.theme.Type=='wms'">
             <img ng-src="{{lyrctrl.layer.legendUrl}}"><img>
             <div ng-if="lyrctrl.layer.theme.Type=='esri' && lyrctrl.layer.legend.length> 1" ng-repeat="legend in lyrctrl.legends">
                 <img style="width:20px; height:20px;" ng-src="{{legend.url}}"><img><span>²{{legend.label}}</span>
             </div>
-        </div>
-    </div>
+        </li>
+    </ul>
 </div>

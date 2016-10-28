@@ -452,7 +452,7 @@ button.trash {
 
 .layercontroller-checkbox
 {
-    margin-left:10px; // better to use list styling
+    // margin-left:10px; // better to use list styling
 }
 
 // set a pointer on the clickable items
@@ -470,6 +470,12 @@ input[type="checkbox"] {
   padding-right: rem(14);
 }
 
+// make identation with ul list
+ul {
+  ul {
+    margin-left: rem(14);
+  }
+}
 /**
  * Modal styling
  */
