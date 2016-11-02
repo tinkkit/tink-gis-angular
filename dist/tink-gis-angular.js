@@ -856,9 +856,19 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             if (item.attribute2value) {
                 output += '<p>' + item.attribute2name + ': ' + item.attribute2value + '</p>';
             }
-            output += '<p>Laag: ' + item.layer + '</p></div>';
+            if (item.layer) {
+                output += '<p>Laag: ' + item.layer + '</p>';
+            }
+            output += '</div>';
             return output;
         };
+        function CheckForStringWithInteger() {
+            return;
+        }
+        var isCharDigit = function isCharDigit(n) {
+            return n != ' ' && n > -1;
+        };
+        var features = [];
         L.control.typeahead({
             minLength: 3,
             highlight: true,
@@ -872,12 +882,42 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             display: 'name',
             displayKey: 'name',
             source: function source(query, syncResults, asyncResults) {
-                if (query.replace(/[^0-9]/g, "").length < 6) {
+                if (query.replace(/[^0-9]/g, '').length < 6) {
                     // if less then 6 numbers then we just search
-                    GISService.QuerySOLRLocatie(query.trim()).then(function (data) {
-                        var arr = data.response.docs;
-                        asyncResults(arr);
+                    var splitquery = query.split(' ');
+                    var numbers = splitquery.filter(function (x) {
+                        return isCharDigit(x[0]);
                     });
+                    var notnumbers = splitquery.filter(function (x) {
+                        return !isCharDigit(x[0]);
+                    });
+
+                    if (numbers.length == 1 && notnumbers.length == 1) {
+                        var huisnummer = numbers[0];
+                        var straatnaam = notnumbers.join(' ');
+                        console.log(straatnaam, huisnummer);
+                        GISService.QueryCrab(straatnaam, huisnummer).then(function (data) {
+                            console.log(data);
+                            features = data.features.map(function (feature) {
+                                var obj = {};
+                                obj.straatnaam = feature.attributes.STRAATNM;
+                                obj.huisnummer = feature.attributes.HUISNR;
+                                obj.busnummer = feature.attributes.BUSNR;
+                                obj.id = feature.attributes.OBJECTID;
+                                obj.x = feature.geometry.x;
+                                obj.y = feature.geometry.y;
+                                obj.name = (obj.straatnaam + " " + obj.huisnummer + " " + obj.busnummer).trim();
+                                return obj;
+                            }).slice(0, 10);
+                            console.log(features);
+                            asyncResults(features);
+                        });
+                    } else {
+                        GISService.QuerySOLRLocatie(query.trim()).then(function (data) {
+                            var arr = data.response.docs;
+                            asyncResults(arr);
+                        });
+                    }
                 } else {
                     syncResults([]);
                     vm.zoekXY(query);
@@ -894,22 +934,26 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             'typeahead:select': function typeaheadSelect(ev, suggestion) {
                 MapData.CleanWatIsHier();
                 MapData.CleanTempFeatures();
-                switch (suggestion.layer.toLowerCase()) {
-                    case 'postzone':
-                        MapData.QueryForTempFeatures(20, 'ObjectID=' + suggestion.key);
-                        break;
-                    case 'district':
-                        MapData.QueryForTempFeatures(21, 'ObjectID=' + suggestion.key);
-                        break;
-                    default:
-                        var cors = {
-                            x: suggestion.x,
-                            y: suggestion.y
-                        };
-                        var xyWGS84 = HelperService.ConvertLambert72ToWSG84(cors);
-                        setViewAndPutDot(xyWGS84);
-                        break;
+                if (suggestion.layer) {
+                    switch (suggestion.layer.toLowerCase()) {
+                        case 'postzone':
+                            MapData.QueryForTempFeatures(20, 'ObjectID=' + suggestion.key);
+                            break;
+                        case 'district':
+                            MapData.QueryForTempFeatures(21, 'ObjectID=' + suggestion.key);
+                            break;
+                        default:
 
+                            break;
+
+                    }
+                } else {
+                    var cors = {
+                        x: suggestion.x,
+                        y: suggestion.y
+                    };
+                    var xyWGS84 = HelperService.ConvertLambert72ToWSG84(cors);
+                    setViewAndPutDot(xyWGS84);
                 }
             }
         }).addTo(map);
@@ -1284,6 +1328,19 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             });
             return prom;
         };
+        _service.QueryCrab = function (straatnaam, huisnummer) {
+            var prom = $q.defer();
+
+            $http.get('https://geoint-a.antwerpen.be/arcgissql/rest/services/A_DA/crab_adrespunten_edit/MapServer/0/query?where=GEMEENTE%3D%27Antwerpen%27+and+STRAATNM+%3D%27' + straatnaam + ' %27+and+HUISNR+like+%27' + huisnummer + '%25%27&text=&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=*&returnGeometry=true&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&f=pjson').success(function (data, status, headers, config) {
+                // data = HelperService.UnwrapProxiedData(data);
+                prom.resolve(data);
+            }).error(function (data, status, headers, config) {
+                prom.reject(null);
+                console.log('ERROR!', data, status, headers, config);
+            });
+            return prom.promise;
+        };
+
         _service.QuerySOLRGIS = function (search) {
             var prom = $q.defer();
             // select?q=school&wt=json&indent=true&facet=true&facet.field=parent&group=true&group.field=parent&group.limit=2
@@ -3039,7 +3096,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                         maxZoom: 19,
                         minZoom: 0,
                         format: 'image/png',
-                        layers: theme.VisibleLayerIds,
+                        layers: theme.VisibleLayerIds.join(','),
                         transparent: true,
                         continuousWorld: true,
                         useCors: true
@@ -3942,6 +3999,8 @@ L.drawLocal = {
     "<div class=\"col-md-4 flex-column margin-top margin-bottom\">\n" +
     "<div>\n" +
     "<input class=searchbox ng-model=searchTerm ng-change=searchChanged() ng-model-options=\"{debounce: 500}\" placeholder=\"Geef een trefwoord of een url in\">\n" +
+    "</div>\n" +
+    "<div class=margin-top>\n" +
     "<input disabled value=https://geodata.antwerpen.be/arcgissql/services/P_SiK/Groeninventaris/MapServer/WMSServer>\n" +
     "</div>\n" +
     "<div class=\"scrollable-list margin-top margin-bottom\" ng-if=!searchIsUrl ng-repeat=\"theme in availableThemes\">\n" +
@@ -3959,7 +4018,7 @@ L.drawLocal = {
     "<div ng-if=searchIsUrl>\n" +
     "<button ng-click=laadUrl()>Laad url</button>\n" +
     "</div>\n" +
-    "<preview-layer ng-if=copySelectedTheme addorupdatefunc=AddOrUpdateTheme() theme=copySelectedTheme>\n" +
+    "<preview-layer class=margin-top ng-if=copySelectedTheme addorupdatefunc=AddOrUpdateTheme() theme=copySelectedTheme>\n" +
     "</preview-layer>\n" +
     "</div>\n" +
     "</div>\n"
@@ -4098,40 +4157,36 @@ L.drawLocal = {
 
   $templateCache.put('templates/other/layerTemplate.html',
     "<div ng-class=\"{'hidden-print': lyrctrl.layer.IsEnabledAndVisible == false}\">\n" +
-    "<div class=\"container container-low-padding\" ng-if=lyrctrl.layer.hasLayers>\n" +
-    "<div class=\"toc-item-without-icon can-open\" ng-class=\"{'open': showLayer}\">\n" +
-    "<div class=extra-left-margin>\n" +
+    "<div ng-if=lyrctrl.layer.hasLayers>\n" +
+    "<li class=\"li-item toc-item-without-icon can-open\" ng-class=\"{'open': showLayer}\">\n" +
+    "<div>\n" +
     "<input class=\"visible-box hidden-print\" type=checkbox id={{lyrctrl.layer.name}}{{lyrctrl.layer.id}} ng-model=lyrctrl.layer.visible ng-change=layercheckboxchange(lyrctrl.layer.theme)>\n" +
     "<label for={{lyrctrl.layer.name}}{{lyrctrl.layer.id}}>{{lyrctrl.layer.name}}</label>\n" +
     "</div>\n" +
     "<div>\n" +
     "<span ng-click=\"showLayer = !showLayer\"></span>\n" +
     "</div>\n" +
-    "</div>\n" +
-    "<div ng-show=showLayer ng-repeat=\"layer in lyrctrl.layer.Layers | filter :  { enabled: true }\">\n" +
+    "</li>\n" +
+    "<ul ng-show=showLayer ng-repeat=\"layer in lyrctrl.layer.Layers | filter :  { enabled: true }\">\n" +
     "<tink-layer layer=layer layercheckboxchange=layercheckboxchange(layer.theme)>\n" +
     "</tink-layer>\n" +
+    "</ul>\n" +
     "</div>\n" +
-    "</div>\n" +
-    "<div>\n" +
-    "<div class=toc-item-with-icon ng-if=!lyrctrl.layer.hasLayers>\n" +
-    "<div class=layer-icon>\n" +
-    "<img ng-if=\"lyrctrl.layer.theme.Type=='esri' && lyrctrl.layer.legend.length==1\" ng-src=\"{{lyrctrl.layer.legend[0].fullurl}} \">\n" +
-    "</div>\n" +
+    "<li class=\"li-item toc-item-with-icon\" ng-if=!lyrctrl.layer.hasLayers>\n" +
+    "<img class=layer-icon ng-if=\"lyrctrl.layer.theme.Type=='esri' && lyrctrl.layer.legend.length==1\" ng-src=\"{{lyrctrl.layer.legend[0].fullurl}} \">\n" +
     "<div>\n" +
     "<input class=\"visible-box hidden-print\" type=checkbox ng-model=lyrctrl.layer.visible ng-change=layercheckboxchange(lyrctrl.layer.theme) id=\"{{lyrctrl.layer.name}}{{lyrctrl.layer.id}} \">\n" +
     "<label ng-class=\"{ 'greytext': lyrctrl.layer.displayed==false} \" for={{lyrctrl.layer.name}}{{lyrctrl.layer.id}}> {{lyrctrl.layer.title}}\n" +
     "<span class=hidden-print ng-show=\"lyrctrl.layer.theme.Type=='wms' && lyrctrl.layer.queryable \">(i)</span>\n" +
     "</label>\n" +
     "</div>\n" +
-    "</div>\n" +
-    "<div ng-if=\"lyrctrl.layer.theme.Type=='wms'\">\n" +
+    "</li>\n" +
+    "<li class=li-item ng-if=\"lyrctrl.layer.theme.Type=='wms'\">\n" +
     "<img ng-src={{lyrctrl.layer.legendUrl}}><img>\n" +
     "<div ng-if=\"lyrctrl.layer.theme.Type=='esri' && lyrctrl.layer.legend.length> 1\" ng-repeat=\"legend in lyrctrl.legends\">\n" +
     "<img style=\"width:20px; height:20px\" ng-src={{legend.url}}><img><span>²{{legend.label}}</span>\n" +
     "</div>\n" +
-    "</div>\n" +
-    "</div>\n" +
+    "</li>\n" +
     "</div>\n"
   );
 
@@ -4149,11 +4204,11 @@ L.drawLocal = {
     "<button class=\"btn btn-primary addlayerbtn\" ng-click=lyrsctrl.Lagenbeheer()>Lagenbeheer</button>\n" +
     "</div>\n" +
     "<div class=nav-aside-padding>\n" +
-    "<ul id=sortableThemes ui-sortable=lyrsctrl.sortableOptions ng-model=lyrsctrl.themes>\n" +
-    "<div ng-repeat=\"theme in lyrsctrl.themes\">\n" +
+    "<ul class=ul-level id=sortableThemes ui-sortable=lyrsctrl.sortableOptions ng-model=lyrsctrl.themes>\n" +
+    "<li class=li-item ng-repeat=\"theme in lyrsctrl.themes\">\n" +
     "<tink-theme theme=theme layercheckboxchange=lyrsctrl.updatethemevisibility(theme) hidedelete=false>\n" +
     "</tink-theme>\n" +
-    "</div>\n" +
+    "</li>\n" +
     "</ul>\n" +
     "</div>\n" +
     "</aside>\n" +
@@ -4246,10 +4301,10 @@ L.drawLocal = {
     "<input class=\"visible-box hidden-print\" type=checkbox id=chk{{thmctrl.theme.Naam}} ng-model=thmctrl.theme.Visible ng-change=layercheckboxchange(thmctrl.theme)>\n" +
     "<label for=chk{{thmctrl.theme.Naam}}> {{thmctrl.theme.Naam}} <span class=hidden-print ng-show=\"thmctrl.theme.Type=='esri'\">(stad)</span><span class=hidden-print ng-hide=\"thmctrl.theme.Type=='esri'\">({{thmctrl.theme.Type}})</span></label>\n" +
     "<button ng-hide=\"hidedelete == true\" class=\"trash pull-right\" ng-click=thmctrl.deleteTheme()></button>\n" +
-    "<div class=layercontroller-checkbox ng-repeat=\"layer in thmctrl.theme.Layers | filter: { enabled: true }\">\n" +
+    "<ul class=\"ul-level layercontroller-checkbox\" ng-repeat=\"layer in thmctrl.theme.Layers | filter: { enabled: true }\">\n" +
     "<tink-layer layer=layer layercheckboxchange=layercheckboxchange(layer.theme)>\n" +
     "</tink-layer>\n" +
-    "</div>\n" +
+    "</ul>\n" +
     "</div>\n"
   );
 
@@ -4686,8 +4741,7 @@ var TinkGis;
             var _this3 = _possibleConstructorReturn(this, (wmstheme.__proto__ || Object.getPrototypeOf(wmstheme)).call(this));
 
             _this3.Version = data['version'];
-            _this3.name = data.service.title;
-            _this3.Naam = data.service.title;
+            _this3.name = _this3.Naam = data.service.title;
             _this3.enabled = true;
             _this3.Visible = true;
             _this3.CleanUrl = url;
@@ -4696,6 +4750,9 @@ var TinkGis;
             _this3.Description = data.service.abstract;
             _this3.Type = ThemeType.WMS;
             var layers = data.capability.layer.layer;
+            if (layers.layer) {
+                layers = layers.layer;
+            }
             var lays = [];
             if (layers) {
                 if (layers.length == undefined) {
@@ -4706,7 +4763,7 @@ var TinkGis;
             } else {
                 lays.push(data.capability.layer);
             }
-            layers.forEach(function (layer) {
+            lays.forEach(function (layer) {
                 var lay = new TinkGis.wmslayer(layer, _this3);
                 _this3.Layers.push(lay);
             });
@@ -4716,8 +4773,8 @@ var TinkGis;
         _createClass(wmstheme, [{
             key: 'UpdateMap',
             value: function UpdateMap(map) {
-                map.removeLayer(this.MapData);
-                map.addLayer(this.MapData);
+                this.MapData.options.layers = this.MapData.wmsParams.layers = this.VisibleLayerIds.join(',');
+                this.MapData.redraw();
             }
         }]);
 

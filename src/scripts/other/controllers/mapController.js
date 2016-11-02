@@ -32,9 +32,19 @@
             if (item.attribute2value) {
                 output += '<p>' + item.attribute2name + ': ' + item.attribute2value + '</p>';
             }
-            output += '<p>Laag: ' + item.layer + '</p></div>';
+            if (item.layer) {
+                output += '<p>Laag: ' + item.layer + '</p>';
+            }
+            output += '</div>'
             return output;
         }
+        function CheckForStringWithInteger() {
+            return
+        }
+        let isCharDigit = function (n) {
+            return n != ' ' && n > -1;
+        };
+        var features = [];
         L.control.typeahead({
             minLength: 3,
             highlight: true,
@@ -48,11 +58,39 @@
                 display: 'name',
                 displayKey: 'name',
                 source: function (query, syncResults, asyncResults) {
-                    if (query.replace(/[^0-9]/g, "").length < 6) { // if less then 6 numbers then we just search
-                        GISService.QuerySOLRLocatie(query.trim()).then(function (data) {
-                            var arr = data.response.docs;
-                            asyncResults(arr);
-                        });
+                    if (query.replace(/[^0-9]/g, '').length < 6) { // if less then 6 numbers then we just search
+                        var splitquery = query.split(' ');
+                        var numbers = splitquery.filter(x => isCharDigit(x[0]));
+                        var notnumbers = splitquery.filter(x => !isCharDigit(x[0]));
+
+                        if (numbers.length == 1 && notnumbers.length == 1) {
+                            var huisnummer = numbers[0];
+                            var straatnaam = notnumbers.join(' ');
+                            console.log(straatnaam, huisnummer);
+                            GISService.QueryCrab(straatnaam, huisnummer).then(function (data) {
+                                console.log(data);
+                                features = data.features.map(function (feature) {
+                                    var obj = {};
+                                    obj.straatnaam = feature.attributes.STRAATNM;
+                                    obj.huisnummer = feature.attributes.HUISNR;
+                                    obj.busnummer = feature.attributes.BUSNR;
+                                    obj.id = feature.attributes.OBJECTID;
+                                    obj.x = feature.geometry.x;
+                                    obj.y = feature.geometry.y;
+                                    obj.name = (obj.straatnaam + " " + obj.huisnummer + " " + obj.busnummer).trim();
+                                    return obj;
+                                }).slice(0, 10);
+                                console.log(features);
+                                asyncResults(features);
+
+                            });
+                        } else {
+                            GISService.QuerySOLRLocatie(query.trim()).then(function (data) {
+                                var arr = data.response.docs;
+                                asyncResults(arr);
+                            });
+                        }
+
                     } else {
                         syncResults([]);
                         vm.zoekXY(query);
@@ -71,23 +109,29 @@
                 'typeahead:select': function (ev, suggestion) {
                     MapData.CleanWatIsHier();
                     MapData.CleanTempFeatures();
-                    switch (suggestion.layer.toLowerCase()) {
-                        case 'postzone':
-                            MapData.QueryForTempFeatures(20, 'ObjectID=' + suggestion.key);
-                            break;
-                        case 'district':
-                            MapData.QueryForTempFeatures(21, 'ObjectID=' + suggestion.key);
-                            break;
-                        default:
-                            var cors = {
-                                x: suggestion.x,
-                                y: suggestion.y
-                            };
-                            var xyWGS84 = HelperService.ConvertLambert72ToWSG84(cors);
-                            setViewAndPutDot(xyWGS84);
-                            break;
+                    if (suggestion.layer) {
+                        switch (suggestion.layer.toLowerCase()) {
+                            case 'postzone':
+                                MapData.QueryForTempFeatures(20, 'ObjectID=' + suggestion.key);
+                                break;
+                            case 'district':
+                                MapData.QueryForTempFeatures(21, 'ObjectID=' + suggestion.key);
+                                break;
+                            default:
 
+                                break;
+
+                        }
                     }
+                    else {
+                        var cors = {
+                            x: suggestion.x,
+                            y: suggestion.y
+                        };
+                        var xyWGS84 = HelperService.ConvertLambert72ToWSG84(cors);
+                        setViewAndPutDot(xyWGS84);
+                    }
+
                 }
             }
         ).addTo(map);

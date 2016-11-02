@@ -93,12 +93,12 @@ namespace TinkGis {
     export class wmstheme extends Theme {
         Version: string;
         VisibleLayerIds: Array<string>;
-
+        // MapData: L.TileLayer.WMS;
         constructor(data, url) {
             super();
             this.Version = data['version'];
-            this.name = data.service.title;
-            this.Naam = data.service.title;
+            this.name = this.Naam = data.service.title;
+            // this.Naam = data.service.title;
             // this.Title = returnjson.service.title;
             this.enabled = true;
             this.Visible = true;
@@ -108,6 +108,9 @@ namespace TinkGis {
             this.Description = data.service.abstract;
             this.Type = ThemeType.WMS;
             var layers = data.capability.layer.layer;
+            if (layers.layer) { // some are 1 level deeper
+                layers = layers.layer;
+            }
             var lays = [];
             if (layers) {
                 if (layers.length == undefined) { // array, it has a length
@@ -119,14 +122,15 @@ namespace TinkGis {
             } else {
                 lays.push(data.capability.layer)
             }
-            layers.forEach(layer => {
+            lays.forEach(layer => {
                 let lay = new wmslayer(layer, this);
                 this.Layers.push(lay);
             });
         }
         UpdateMap(map: L.Map) {
-            map.removeLayer(this.MapData);
-            map.addLayer(this.MapData);
+            this.MapData.options.layers =  this.MapData.wmsParams.layers =this.VisibleLayerIds.join(',');
+            this.MapData.redraw(); 
+            // map.addLayer(this.MapData);
         }
     }
 }

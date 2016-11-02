@@ -440,10 +440,13 @@ button.trash {
 .toc-item-with-icon {
   display: -webkit-inline-flex;
   display: -ms-inline-flexbox;
-  display: inline-flex; }
+  display: inline-flex;
+  position: relative; }
   .toc-item-with-icon .layer-icon {
     height: 1.2857142857rem ;
+    left: -1.7857142857rem ;
     margin-right: 0.3571428571rem ;
+    position: absolute;
     width: 1.2857142857rem ; }
 
 /* Lagenresultaat */
@@ -457,9 +460,6 @@ button.trash {
   font-style: italic;
   font-size: 10px; }
 
-.layercontroller-checkbox {
-  margin-left: 10px; }
-
 a:hover, a:focus,
 input[type="checkbox"]:hover,
 input[type="checkbox"]:focus {
@@ -468,6 +468,9 @@ input[type="checkbox"]:focus {
 .nav-aside-padding {
   padding-left: 1rem ;
   padding-right: 1rem ; }
+
+ul ul {
+  margin-left: 1.7142857143rem ; }
 
 /**
  * Modal styling
@@ -744,7 +747,3 @@ html.print.landscape .mappart {
 
 .sweet-alert .fieldset {
   display: none; }
-
-.nav-aside.nav-right {
-  min-width: 15.7142857143rem ;
-  width: auto; }

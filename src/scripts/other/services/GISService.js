@@ -18,6 +18,21 @@
             return prom;
 
         };
+        _service.QueryCrab = function (straatnaam, huisnummer) {
+            var prom = $q.defer();
+            
+            $http.get('https://geoint-a.antwerpen.be/arcgissql/rest/services/A_DA/crab_adrespunten_edit/MapServer/0/query?where=GEMEENTE%3D%27Antwerpen%27+and+STRAATNM+%3D%27' + straatnaam + ' %27+and+HUISNR+like+%27' + huisnummer +'%25%27&text=&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=*&returnGeometry=true&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&f=pjson')
+                .success(function (data, status, headers, config) {
+                    // data = HelperService.UnwrapProxiedData(data);
+                    prom.resolve(data);
+                }).error(function (data, status, headers, config) {
+                    prom.reject(null);
+                    console.log('ERROR!', data, status, headers, config);
+                });
+            return prom.promise;
+        }
+
+
         _service.QuerySOLRGIS = function (search) {
             var prom = $q.defer();
             // select?q=school&wt=json&indent=true&facet=true&facet.field=parent&group=true&group.field=parent&group.limit=2

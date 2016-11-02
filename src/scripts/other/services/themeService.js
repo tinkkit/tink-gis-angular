@@ -106,7 +106,7 @@
                         maxZoom: 19,
                         minZoom: 0,
                         format: 'image/png',
-                        layers: theme.VisibleLayerIds,
+                        layers: theme.VisibleLayerIds.join(','),
                         transparent: true,
                         continuousWorld: true,
                         useCors: true
