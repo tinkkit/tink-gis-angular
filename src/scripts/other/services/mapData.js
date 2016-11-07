@@ -136,7 +136,7 @@
                     '<div class="container container-low-padding">' +
                     '<div class="row row-no-padding">' +
                     '<div class="col-sm-4">' +
-                    '<a href="http://maps.google.com/maps?q=&layer=c&cbll=' + latlng.lat  + ',' + latlng.lng + '" + target="_blank" >'  +
+                    '<a href="http://maps.google.com/maps?q=&layer=c&cbll=' + latlng.lat + ',' + latlng.lng + '" + target="_blank" >' +
                     '<img src="https://maps.googleapis.com/maps/api/streetview?size=100x50&location=' + latlng.lat + ',' + latlng.lng + '&pitch=-0.76" />' +
                     '</a>' +
                     '</div>' +
@@ -264,8 +264,7 @@
         _data.AddFeatures = function (features, theme, layerId) {
             if (!features || features.features.length == 0) {
                 ResultsData.EmptyResult = true;
-            }
-            else {
+            } else {
                 ResultsData.EmptyResult = false;
                 for (var x = 0; x < features.features.length; x++) {
                     var featureItem = features.features[x];
@@ -302,6 +301,9 @@
                             } else {
                                 featureItem.displayValue = 'LEEG';
                             }
+                        }
+                        if (featureItem.displayValue.trim() == '') {
+                            featureItem.displayValue = 'LEEG'
                         }
                         var mapItem = L.geoJson(featureItem, { style: Style.DEFAULT }).addTo(map);
                         _data.VisibleFeatures.push(mapItem);

@@ -943,7 +943,12 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                             MapData.QueryForTempFeatures(21, 'ObjectID=' + suggestion.key);
                             break;
                         default:
-
+                            var cors = {
+                                x: suggestion.x,
+                                y: suggestion.y
+                            };
+                            var xyWGS84 = HelperService.ConvertLambert72ToWSG84(cors);
+                            setViewAndPutDot(xyWGS84);
                             break;
 
                     }
@@ -2621,6 +2626,9 @@ L.control.typeahead = function (args) {
                             } else {
                                 featureItem.displayValue = 'LEEG';
                             }
+                        }
+                        if (featureItem.displayValue.trim() == '') {
+                            featureItem.displayValue = 'LEEG';
                         }
                         var mapItem = L.geoJson(featureItem, { style: Style.DEFAULT }).addTo(map);
                         _data.VisibleFeatures.push(mapItem);
