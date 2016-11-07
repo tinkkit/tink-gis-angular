@@ -2627,7 +2627,7 @@ L.control.typeahead = function (args) {
                                 featureItem.displayValue = 'LEEG';
                             }
                         }
-                        if (featureItem.displayValue.trim() == '') {
+                        if (featureItem.displayValue.toString().trim() == '') {
                             featureItem.displayValue = 'LEEG';
                         }
                         var mapItem = L.geoJson(featureItem, { style: Style.DEFAULT }).addTo(map);
