@@ -52,6 +52,7 @@ module.exports = function (config) {
             'bower_components/ng-lodash/build/ng-lodash.js',
             'bower_components/tink-helper-safe-apply-angular/dist/tink-helper-safe-apply-angular.js',
             'bower_components/tink-pagination-angular/dist/tink-pagination-angular.js',
+            'bower_components/tink-tooltip-angular/dist/tink-tooltip-angular.js',
 
             'bower_components/leaflet-geodesy/leaflet-geodesy.js',
             'bower_components/esri-leaflet/dist/esri-leaflet.js',

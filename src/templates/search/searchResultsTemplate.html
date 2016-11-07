@@ -5,21 +5,22 @@
     </select>
     <ul ng-repeat="layerGroupName in srchrsltsctrl.featureLayers">
         <tink-accordion ng-if="srchrsltsctrl.layerGroupFilter=='geenfilter' || srchrsltsctrl.layerGroupFilter==layerGroupName " data-start-open="true"
-        data-one-at-a-time="false">
+            data-one-at-a-time="false">
             <tink-accordion-panel>
                 <data-header>
                     <p class="nav-aside-title">{{layerGroupName}} ({{srchrsltsctrl.aantalFeaturesMetType(layerGroupName)}})
-                        <button prevent-default ng-click="srchrsltsctrl.deleteFeatureGroup(layerGroupName)"  class="trash pull-right"></button>
+                        <button prevent-default ng-click="srchrsltsctrl.deleteFeatureGroup(layerGroupName)" class="trash pull-right"></button>
                     </p>
-                    <!--Accordion with callback function-->
                 </data-header>
                 <data-content>
-                    <li ng-repeat="feature in srchrsltsctrl.features | filter: { layerName:layerGroupName } :true" ng-mouseover="srchrsltsctrl.HoverOver(feature)"> <!-- ng-mouseleave="feature.hoverEdit = false -->
-                        <a ng-if="!feature.hoverEdit" ng-click="srchrsltsctrl.showDetails(feature)">{{ feature.displayValue | limitTo : 23}}</a>
-                        <div ng-if="feature.hoverEdit">
-                            <a ng-click="srchrsltsctrl.showDetails(feature)">{{ feature.displayValue}}
+                    <li ng-repeat="feature in srchrsltsctrl.features | filter: { layerName:layerGroupName } :true" ng-mouseover="srchrsltsctrl.HoverOver(feature)">
+                        <!-- ng-mouseleave="feature.hoverEdit = false -->
+                        <!--<a ng-if="!feature.hoverEdit" ng-click="srchrsltsctrl.showDetails(feature)">{{ feature.displayValue | limitTo : 23}}</a>-->
+                        <!--<div ng-if="feature.hoverEdit">-->
+                        <div class="mouse-over">
+                            <a tink-tooltip="{{feature.displayValue}}" tink-tooltip-align="bottom" ng-click="srchrsltsctrl.showDetails(feature)">{{ feature.displayValue| limitTo : 23 }}
                                  </a>
-                            <button class="trash pull-right" prevent-default ng-click="srchrsltsctrl.deleteFeature(feature)"></button>
+                            <button class="trash pull-right mouse-over-toshow" prevent-default ng-click="srchrsltsctrl.deleteFeature(feature)"></button>
                         </div>
                     </li>
                 </data-content>

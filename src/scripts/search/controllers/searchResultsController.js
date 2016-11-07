@@ -22,14 +22,14 @@
             vm.aantalFeaturesMetType = function (type) {
                 return vm.features.filter(x => x.layerName == type).length;
             };
-            vm.HoveredFeature = null;
-            vm.HoverOver = function (feature) {
-                if (vm.HoveredFeature) {
-                    vm.HoveredFeature.hoverEdit = false;
-                }
-                feature.hoverEdit = true;
-                vm.HoveredFeature = feature;
-            };
+            // vm.HoveredFeature = null;
+            // vm.HoverOver = function (feature) {
+            //     if (vm.HoveredFeature) {
+            //         vm.HoveredFeature.hoverEdit = false;
+            //     }
+            //     feature.hoverEdit = true;
+            //     vm.HoveredFeature = feature;
+            // };
             vm.deleteFeatureGroup = function (featureGroupName) {
                 SearchService.DeleteFeatureGroup(featureGroupName);
             };
