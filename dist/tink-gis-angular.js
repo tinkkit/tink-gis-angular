@@ -2030,8 +2030,8 @@ var esri2geo = {};
             ThemeService.CleanThemes();
         };
         _externService.LoadConfig = function (config) {
-            Gis.GeometryUrl = config.GeometryUrl;
-            Gis.BaseUrl = config.BaseUrl;
+            Gis.GeometryUrl = config.Gis.GeometryUrl;
+            Gis.BaseUrl = config.Gis.BaseUrl;
             Style.Default = config.Style.Default;
             Style.HIGHLIGHT = config.Style.HIGHLIGHT;
             Style.BUFFER = config.Style.BUFFER;

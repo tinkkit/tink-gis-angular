@@ -460,6 +460,9 @@ button.trash {
   font-style: italic;
   font-size: 10px; }
 
+.layercontroller-checkbox {
+  margin-left: 10px; }
+
 a:hover, a:focus,
 input[type="checkbox"]:hover,
 input[type="checkbox"]:focus {
