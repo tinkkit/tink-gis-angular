@@ -141,7 +141,7 @@
 
         map.on('locationfound', function (e) {
             // var radius = e.accuracy / 2;
-            var gpsicon = L.divIcon({className: 'fa fa-crosshairs fa-2x', style:'color: blue'});
+            var gpsicon = L.divIcon({className: 'fa fa-crosshairs fa-2x blue', style:'color: blue'});
             var marker = L.marker(e.latlng, {icon: gpsicon }).addTo(map);
             var popup = marker.bindPopup("GPS").openPopup();
             popup.on('popupclose', function (e) {

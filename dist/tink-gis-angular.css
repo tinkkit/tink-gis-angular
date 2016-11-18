@@ -302,6 +302,9 @@ button.btn.active {
 .hide-element {
   display: none !important; }
 
+.blue {
+  color: blue; }
+
 .zoekbalken2 {
   width: 200px; }
 

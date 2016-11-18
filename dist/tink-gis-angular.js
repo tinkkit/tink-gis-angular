@@ -825,13 +825,16 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
 
 (function (module) {
     module = angular.module('tink.gis');
-    var theController = module.controller('mapController', function ($scope, ExternService, BaseLayersService, MapService, MapData, map, MapEvents, DrawService, HelperService, GISService) {
+    var theController = module.controller('mapController', function ($scope, ExternService, BaseLayersService, MapService, MapData, map, MapEvents, DrawService, HelperService, GISService, PopupService) {
         //We need to include MapEvents, even tho we don t call it just to make sure it gets loaded!
         var vm = this;
         var init = function () {
             if (window.location.href.startsWith('http://localhost:9000/')) {
                 var externproj = JSON.parse('{"naam":"Velo en fietspad!!","extent":{"_northEast":{"lat":"51.2336102032025","lng":"4.41993402409611"},"_southWest":{"lat":"51.1802290498612","lng":"4.38998297870121"}},"guid":"bfc88ea3-8581-4204-bdbc-b5f54f46050d","extentString":"51.2336102032025,4.41993402409611,51.1802290498612,4.38998297870121","isKaart":true,"uniqId":3,"creatorId":6,"creator":null,"createDate":"2016-08-22T10:55:15.525994","updaterId":6,"updater":null,"lastUpdated":"2016-08-22T10:55:15.525994","themes":[{"cleanUrl":"services/P_Stad/Mobiliteit/MapServer","naam":"Mobiliteit","type":"esri","visible":true,"layers":[{"id":"9","name":"fietspad","visible":true},{"id":"6","name":"velo","visible":true},{"id":"0","name":"Fiets en voetganger","visible":true}]}],"isReadOnly":false}');
                 ExternService.Import(externproj);
+                PopupService.Info('Velo en fietspad loaded because you are in DEV.', null, function () {
+                    alert('onclicktestje');
+                });
             }
         }();
         vm.ZoekenOpLocatie = true;
@@ -1129,7 +1132,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             map.locate({ setView: true, maxZoom: 16 });
         };
     });
-    theController.$inject = ['BaseLayersService', 'ExternService', 'MapService', 'MapData', 'map', 'MapEvents', 'DrawService', 'HelperService', 'GISService'];
+    theController.$inject = ['BaseLayersService', 'ExternService', 'MapService', 'MapData', 'map', 'MapEvents', 'DrawService', 'HelperService', 'GISService', 'PopupService'];
 })();
 ;'use strict';
 
@@ -1336,7 +1339,9 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         _service.QueryCrab = function (straatnaam, huisnummer) {
             var prom = $q.defer();
 
-            $http.get('https://geoint-a.antwerpen.be/arcgissql/rest/services/A_DA/crab_adrespunten_edit/MapServer/0/query?where=GEMEENTE%3D%27Antwerpen%27+and+STRAATNM+%3D%27' + straatnaam + ' %27+and+HUISNR+like+%27' + huisnummer + '%25%27&text=&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=*&returnGeometry=true&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&f=pjson').success(function (data, status, headers, config) {
+            $http.get('http://app10.p.gis.local/arcgis/rest/services/P_Stad/CRAB_adresposities/MapServer/0/query?where=GEMEENTE%3D%27Antwerpen%27+and+STRAATNM+%3D%27' + straatnaam + ' %27+and+HUISNR+like+%27' + huisnummer + '%25%27&text=&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=*&returnGeometry=true&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&f=pjson')
+            // $http.get('https://geoint-a.antwerpen.be/arcgissql/rest/services/A_DA/crab_adrespunten_edit/MapServer/0/query?where=GEMEENTE%3D%27Antwerpen%27+and+STRAATNM+%3D%27' + straatnaam + ' %27+and+HUISNR+like+%27' + huisnummer +'%25%27&text=&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=*&returnGeometry=true&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&f=pjson')
+            .success(function (data, status, headers, config) {
                 // data = HelperService.UnwrapProxiedData(data);
                 prom.resolve(data);
             }).error(function (data, status, headers, config) {
@@ -2787,7 +2792,7 @@ L.control.typeahead = function (args) {
 
         map.on('locationfound', function (e) {
             // var radius = e.accuracy / 2;
-            var gpsicon = L.divIcon({ className: 'fa fa-crosshairs fa-2x', style: 'color: blue' });
+            var gpsicon = L.divIcon({ className: 'fa fa-crosshairs fa-2x blue', style: 'color: blue' });
             var marker = L.marker(e.latlng, { icon: gpsicon }).addTo(map);
             var popup = marker.bindPopup("GPS").openPopup();
             popup.on('popupclose', function (e) {
@@ -2996,6 +3001,53 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     };
     module.$inject = ['$rootScope', 'MapData', 'map', 'ThemeCreater', '$q', 'GISService', 'ResultsData', 'HelperService'];
     module.factory('MapService', mapService);
+})();
+;'use strict';
+
+(function () {
+    var module;
+    try {
+        module = angular.module('tink.gis');
+    } catch (e) {
+        module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'tink.modal']); //'leaflet-directive'
+    }
+    // module.$inject = ['MapData', 'map', 'GISService', 'ThemeCreater', 'WMSService', 'ThemeService', '$q','BaseLayersService'];
+
+    var popupService = function popupService(MapData, map, GISService, ThemeCreater, WMSService, ThemeService, $q, BaseLayersService) {
+        var _popupService = {};
+        _popupService.Init = function () {
+            toastr.options.timeOut = 10000; // How long the toast will display without user interaction
+            toastr.options.extendedTimeOut = 10000; // How long the toast will display after a user hovers over it
+            toastr.options.closeButton = true;
+        }();
+        _popupService.popupGenerator = function (type, message, title, callback, options) {
+            var messagetype = type.toLowerCase().trim();
+            if (messagetype != 'error' && messagetype != 'warning' && messagetype != 'info' && messagetype != 'success') {
+                throw "Invalid toastr type(info, error, warning,  success): " + messagetype;
+            }
+            if (!options) {
+                options = {};
+            }
+            if (callback) {
+                options = { onclick: callback };
+            }
+            toastr[messagetype](message, null, options);
+        };
+        _popupService.Error = function (message, title, callback, options) {
+            _popupService.popupGenerator('Error', message, title, callback, options);
+        };
+        _popupService.Warning = function (message, title, callback, options) {
+            _popupService.popupGenerator('Warning', message, title, callback, options);
+        };
+        _popupService.Info = function (message, title, callback, options) {
+            _popupService.popupGenerator('Info', message, title, callback, options);
+        };
+        _popupService.Success = function (message, title, callback, options) {
+            _popupService.popupGenerator('Success', message, title, callback, options);
+        };
+        return _popupService;
+    };
+    module.factory('PopupService', popupService);
 })();
 ;'use strict';
 
