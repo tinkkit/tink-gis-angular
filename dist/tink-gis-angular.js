@@ -825,7 +825,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
 
 (function (module) {
     module = angular.module('tink.gis');
-    var theController = module.controller('mapController', function ($scope, ExternService, BaseLayersService, MapService, MapData, map, MapEvents, DrawService, HelperService, GISService, PopupService) {
+    var theController = module.controller('mapController', function ($scope, ExternService, BaseLayersService, MapService, MapData, map, MapEvents, DrawService, HelperService, GISService, PopupService, $interval) {
         //We need to include MapEvents, even tho we don t call it just to make sure it gets loaded!
         var vm = this;
         var init = function () {
@@ -1127,12 +1127,24 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 return vm.ZoekenOpLocatie;
             }
         };
-
+        vm.gpstracking = false;
+        var gpstracktimer = null;
         vm.zoomToGps = function () {
-            map.locate({ setView: true, maxZoom: 16 });
+            vm.gpstracking = !vm.gpstracking;
+
+            if (vm.gpstracking == false) {
+                $interval.cancel(gpstracktimer);
+                MapEvents.ClearGPS();
+            } else {
+                map.locate({ setView: true, maxZoom: 16 });
+                gpstracktimer = $interval(function () {
+                    map.locate({ setView: false });
+                    console.log('gps refresh');
+                }, 5000);
+            }
         };
     });
-    theController.$inject = ['BaseLayersService', 'ExternService', 'MapService', 'MapData', 'map', 'MapEvents', 'DrawService', 'HelperService', 'GISService', 'PopupService'];
+    theController.$inject = ['BaseLayersService', 'ExternService', 'MapService', 'MapData', 'map', 'MapEvents', 'DrawService', 'HelperService', 'GISService', 'PopupService', '$interval'];
 })();
 ;'use strict';
 
@@ -1338,10 +1350,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         };
         _service.QueryCrab = function (straatnaam, huisnummer) {
             var prom = $q.defer();
-
-            $http.get('http://app10.p.gis.local/arcgis/rest/services/P_Stad/CRAB_adresposities/MapServer/0/query?where=GEMEENTE%3D%27Antwerpen%27+and+STRAATNM+%3D%27' + straatnaam + ' %27+and+HUISNR+like+%27' + huisnummer + '%25%27&text=&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=*&returnGeometry=true&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&f=pjson')
-            // $http.get('https://geoint-a.antwerpen.be/arcgissql/rest/services/A_DA/crab_adrespunten_edit/MapServer/0/query?where=GEMEENTE%3D%27Antwerpen%27+and+STRAATNM+%3D%27' + straatnaam + ' %27+and+HUISNR+like+%27' + huisnummer +'%25%27&text=&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=*&returnGeometry=true&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&f=pjson')
-            .success(function (data, status, headers, config) {
+            $http.get('https://geoint.antwerpen.be/arcgissql/rest/services/P_Stad/CRAB_adresposities/MapServer/0/query?where=GEMEENTE%3D%27Antwerpen%27+and+STRAATNM+%3D%27' + straatnaam + ' %27+and+HUISNR+like+%27' + huisnummer + '%25%27&text=&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=*&returnGeometry=true&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&f=pjson').success(function (data, status, headers, config) {
                 // data = HelperService.UnwrapProxiedData(data);
                 prom.resolve(data);
             }).error(function (data, status, headers, config) {
@@ -2789,18 +2798,23 @@ L.control.typeahead = function (args) {
             }
             MapData.IsDrawing = false;
         });
-
+        var gpsmarker = null;
         map.on('locationfound', function (e) {
             // var radius = e.accuracy / 2;
+            _mapEvents.ClearGPS();
             var gpsicon = L.divIcon({ className: 'fa fa-crosshairs fa-2x blue', style: 'color: blue' });
-            var marker = L.marker(e.latlng, { icon: gpsicon }).addTo(map);
-            var popup = marker.bindPopup("GPS").openPopup();
-            popup.on('popupclose', function (e) {
-                map.removeLayer(marker);
-            });
+            gpsmarker = L.marker(e.latlng, { icon: gpsicon }).addTo(map);
+            // var popup = marker.bindPopup("GPS").openPopup();
+            // popup.on('popupclose', function (e) {
+            //     map.removeLayer(marker);
+            // })
             // L.circle(e.latlng, radius).addTo(map);
         });
-
+        _mapEvents.ClearGPS = function () {
+            if (gpsmarker) {
+                gpsmarker.removeFrom(map);
+            }
+        };
         map.on('locationerror', function (e) {
             console.log('LOCATIONERROR', e);
         });
@@ -4330,8 +4344,7 @@ L.drawLocal = {
     "<div class=\"btn-group btn-group-vertical ll viewbtns\">\n" +
     "<button type=button class=btn ng-click=mapctrl.zoomIn() prevent-default><i class=\"fa fa-plus\"></i></button>\n" +
     "<button type=button class=btn ng-click=mapctrl.zoomOut() prevent-default><i class=\"fa fa-minus\"></i></button>\n" +
-    "<button type=button class=btn ng-click=mapctrl.zoomToGps() prevent-default><i class=\"fa fa-crosshairs\"></i></button>\n" +
-    "<button type=button class=btn ng-click=mapctrl.fullExtent() prevent-default><i class=\"fa fa-home\"></i></button>\n" +
+    "<button type=button class=btn ng-click=mapctrl.zoomToGps() ng-class=\"{active: mapctrl.gpstracking==true}\" prevent-default><i class=\"fa fa-crosshairs\"></i></button>\n" +
     "</div>\n" +
     "<div class=\"ll loading\" ng-show=\"mapctrl.Loading > 0\">\n" +
     "<div class=loader></div> {{mapctrl.MaxLoading - mapctrl.Loading}}/ {{mapctrl.MaxLoading}}\n" +

@@ -76,8 +76,8 @@
                 <div class="btn-group btn-group-vertical ll viewbtns">
                     <button type="button" class="btn" ng-click="mapctrl.zoomIn()" prevent-default><i class="fa fa-plus"></i></button>
                     <button type="button" class="btn" ng-click="mapctrl.zoomOut()" prevent-default><i class="fa fa-minus"></i></button>
-                    <button type="button" class="btn" ng-click="mapctrl.zoomToGps()" prevent-default><i class="fa fa-crosshairs"></i></button>
-                    <button type="button" class="btn" ng-click="mapctrl.fullExtent()" prevent-default><i class="fa fa-home"></i></button>
+                    <button type="button" class="btn" ng-click="mapctrl.zoomToGps()" ng-class="{active: mapctrl.gpstracking==true}" prevent-default><i class="fa fa-crosshairs"></i></button>
+                    <!--<button type="button" class="btn" ng-click="mapctrl.fullExtent()" prevent-default><i class="fa fa-home"></i></button>-->
                 </div>
                 <!--<div class="btn-group btn-group-vertical ll localiseerbtn">
                     <button type="button" class="btn" prevent-default><i class="fa fa-male"></i></button>
