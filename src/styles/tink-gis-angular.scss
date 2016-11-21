@@ -462,6 +462,11 @@ button.trash {
     margin-left:10px; // better to use list styling
 }
 
+img {
+  .normal-size {
+    max-width: inherit;
+  }
+}
 // set a pointer on the clickable items
 a,
 input[type="checkbox"] {

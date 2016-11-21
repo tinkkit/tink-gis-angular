@@ -1,5 +1,5 @@
 <div ng-if="lyrctrl.layer.hasLayers">
-    <div class="layercontroller-checkbox">
+    <div class="layercontroller-checkbox managementLayerTemplate">
         <div class="can-open" ng-class="{'open': showLayer}">
             <input indeterminate-checkbox child-list="lyrctrl.layer.AllLayers" property="enabled" type="checkbox" ng-model="lyrctrl.layer.enabled"
                 id="{{lyrctrl.layer.name}}{{lyrctrl.layer.id}}">
@@ -15,7 +15,7 @@
     </div>
 </div>
 <div ng-if="!lyrctrl.layer.hasLayers">
-    <div class="layercontroller-checkbox">
+    <div class="layercontroller-checkbox managementLayerTemplate">
         <input type="checkbox" ng-model="lyrctrl.layer.enabled " id="{{lyrctrl.layer.name}}{{lyrctrl.layer.id}}">
         <label for="{{lyrctrl.layer.name}}{{lyrctrl.layer.id}} "> {{lyrctrl.layer.title | limitTo: 99}}</label>
     </div>
