@@ -4151,7 +4151,7 @@ L.drawLocal = {
 
   $templateCache.put('templates/layermanagement/managementLayerTemplate.html',
     "<div ng-if=lyrctrl.layer.hasLayers>\n" +
-    "<div class=layercontroller-checkbox>\n" +
+    "<div class=\"layercontroller-checkbox managementLayerTemplate\">\n" +
     "<div class=can-open ng-class=\"{'open': showLayer}\">\n" +
     "<input indeterminate-checkbox child-list=lyrctrl.layer.AllLayers property=enabled type=checkbox ng-model=lyrctrl.layer.enabled id={{lyrctrl.layer.name}}{{lyrctrl.layer.id}}>\n" +
     "<label for={{lyrctrl.layer.name}}{{lyrctrl.layer.id}}> {{lyrctrl.layer.title | limitTo: 99}}</label>\n" +
@@ -4164,7 +4164,7 @@ L.drawLocal = {
     "</div>\n" +
     "</div>\n" +
     "<div ng-if=!lyrctrl.layer.hasLayers>\n" +
-    "<div class=layercontroller-checkbox>\n" +
+    "<div class=\"layercontroller-checkbox managementLayerTemplate\">\n" +
     "<input type=checkbox ng-model=\"lyrctrl.layer.enabled \" id={{lyrctrl.layer.name}}{{lyrctrl.layer.id}}>\n" +
     "<label for=\"{{lyrctrl.layer.name}}{{lyrctrl.layer.id}} \"> {{lyrctrl.layer.title | limitTo: 99}}</label>\n" +
     "</div>\n" +
@@ -4374,7 +4374,7 @@ L.drawLocal = {
     "<input class=\"visible-box hidden-print\" type=checkbox id=chk{{thmctrl.theme.Naam}} ng-model=thmctrl.theme.Visible ng-change=layercheckboxchange(thmctrl.theme)>\n" +
     "<label for=chk{{thmctrl.theme.Naam}}> {{thmctrl.theme.Naam}} <span class=hidden-print ng-show=\"thmctrl.theme.Type=='esri'\">(stad)</span><span class=hidden-print ng-hide=\"thmctrl.theme.Type=='esri'\">({{thmctrl.theme.Type}})</span></label>\n" +
     "<button ng-hide=\"hidedelete == true\" class=\"trash pull-right\" ng-click=thmctrl.deleteTheme()></button>\n" +
-    "<ul class=\"ul-level layercontroller-checkbox\" ng-repeat=\"layer in thmctrl.theme.Layers | filter: { enabled: true }\">\n" +
+    "<ul class=\"ul-level no-theme-layercontroller-checkbox\" ng-repeat=\"layer in thmctrl.theme.Layers | filter: { enabled: true }\">\n" +
     "<tink-layer layer=layer layercheckboxchange=layercheckboxchange(layer.theme)>\n" +
     "</tink-layer>\n" +
     "</ul>\n" +
