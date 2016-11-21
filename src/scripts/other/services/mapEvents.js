@@ -138,18 +138,23 @@
             }
             MapData.IsDrawing = false;
         });
-
+        var gpsmarker = null;
         map.on('locationfound', function (e) {
             // var radius = e.accuracy / 2;
-            var gpsicon = L.divIcon({className: 'fa fa-crosshairs fa-2x blue', style:'color: blue'});
-            var marker = L.marker(e.latlng, {icon: gpsicon }).addTo(map);
-            var popup = marker.bindPopup("GPS").openPopup();
-            popup.on('popupclose', function (e) {
-                map.removeLayer(marker);
-            })
+            _mapEvents.ClearGPS();
+            var gpsicon = L.divIcon({ className: 'fa fa-crosshairs fa-2x blue', style: 'color: blue' });
+            gpsmarker = L.marker(e.latlng, { icon: gpsicon }).addTo(map);
+            // var popup = marker.bindPopup("GPS").openPopup();
+            // popup.on('popupclose', function (e) {
+            //     map.removeLayer(marker);
+            // })
             // L.circle(e.latlng, radius).addTo(map);
         });
-
+        _mapEvents.ClearGPS = function () {
+            if (gpsmarker) {
+                gpsmarker.removeFrom(map);
+            }
+        }
         map.on('locationerror', function (e) {
             console.log('LOCATIONERROR', e);
         });
