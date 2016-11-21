@@ -1,13 +1,14 @@
 'use strict';
 (function (module) {
     module = angular.module('tink.gis');
-    var theController = module.controller('mapController', function ($scope, ExternService, BaseLayersService, MapService, MapData, map, MapEvents, DrawService, HelperService, GISService) {
+    var theController = module.controller('mapController', function ($scope, ExternService, BaseLayersService, MapService, MapData, map, MapEvents, DrawService, HelperService, GISService,PopupService) {
         //We need to include MapEvents, even tho we don t call it just to make sure it gets loaded!
         var vm = this;
         var init = function () {
             if (window.location.href.startsWith('http://localhost:9000/')) {
                 var externproj = JSON.parse('{"naam":"Velo en fietspad!!","extent":{"_northEast":{"lat":"51.2336102032025","lng":"4.41993402409611"},"_southWest":{"lat":"51.1802290498612","lng":"4.38998297870121"}},"guid":"bfc88ea3-8581-4204-bdbc-b5f54f46050d","extentString":"51.2336102032025,4.41993402409611,51.1802290498612,4.38998297870121","isKaart":true,"uniqId":3,"creatorId":6,"creator":null,"createDate":"2016-08-22T10:55:15.525994","updaterId":6,"updater":null,"lastUpdated":"2016-08-22T10:55:15.525994","themes":[{"cleanUrl":"services/P_Stad/Mobiliteit/MapServer","naam":"Mobiliteit","type":"esri","visible":true,"layers":[{"id":"9","name":"fietspad","visible":true},{"id":"6","name":"velo","visible":true},{"id":"0","name":"Fiets en voetganger","visible":true}]}],"isReadOnly":false}');
                 ExternService.Import(externproj);
+                PopupService.Info('Velo en fietspad loaded because you are in DEV.', null, function () { alert('onclicktestje');})
             }
         } ();
         vm.ZoekenOpLocatie = true;
@@ -118,7 +119,12 @@
                                 MapData.QueryForTempFeatures(21, 'ObjectID=' + suggestion.key);
                                 break;
                             default:
-
+                                var cors = {
+                                    x: suggestion.x,
+                                    y: suggestion.y
+                                };
+                                var xyWGS84 = HelperService.ConvertLambert72ToWSG84(cors);
+                                setViewAndPutDot(xyWGS84);
                                 break;
 
                         }
@@ -305,5 +311,5 @@
         }
 
     });
-    theController.$inject = ['BaseLayersService', 'ExternService', 'MapService', 'MapData', 'map', 'MapEvents', 'DrawService', 'HelperService', 'GISService'];
+    theController.$inject = ['BaseLayersService', 'ExternService', 'MapService', 'MapData', 'map', 'MapEvents', 'DrawService', 'HelperService', 'GISService', 'PopupService'];
 })();

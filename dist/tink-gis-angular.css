@@ -302,6 +302,9 @@ button.btn.active {
 .hide-element {
   display: none !important; }
 
+.blue {
+  color: blue; }
+
 .zoekbalken2 {
   width: 200px; }
 
@@ -459,6 +462,9 @@ button.trash {
 .featureinsolr {
   font-style: italic;
   font-size: 10px; }
+
+.layercontroller-checkbox {
+  margin-left: 10px; }
 
 a:hover, a:focus,
 input[type="checkbox"]:hover,

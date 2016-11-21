@@ -5,7 +5,7 @@
     try {
         module = angular.module('tink.gis');
     } catch (e) {
-        module = angular.module('tink.gis', ['tink.navigation', 'tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter', 'tink.pagination']); //'leaflet-directive'
+        module = angular.module('tink.gis', ['tink.navigation', 'tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter', 'tink.pagination', 'tink.tooltip']); //'leaflet-directive'
     }
     module.constant('appConfig', {
         templateUrl: '/digipolis.stadinkaart.webui',
@@ -825,13 +825,16 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
 
 (function (module) {
     module = angular.module('tink.gis');
-    var theController = module.controller('mapController', function ($scope, ExternService, BaseLayersService, MapService, MapData, map, MapEvents, DrawService, HelperService, GISService) {
+    var theController = module.controller('mapController', function ($scope, ExternService, BaseLayersService, MapService, MapData, map, MapEvents, DrawService, HelperService, GISService, PopupService) {
         //We need to include MapEvents, even tho we don t call it just to make sure it gets loaded!
         var vm = this;
         var init = function () {
             if (window.location.href.startsWith('http://localhost:9000/')) {
                 var externproj = JSON.parse('{"naam":"Velo en fietspad!!","extent":{"_northEast":{"lat":"51.2336102032025","lng":"4.41993402409611"},"_southWest":{"lat":"51.1802290498612","lng":"4.38998297870121"}},"guid":"bfc88ea3-8581-4204-bdbc-b5f54f46050d","extentString":"51.2336102032025,4.41993402409611,51.1802290498612,4.38998297870121","isKaart":true,"uniqId":3,"creatorId":6,"creator":null,"createDate":"2016-08-22T10:55:15.525994","updaterId":6,"updater":null,"lastUpdated":"2016-08-22T10:55:15.525994","themes":[{"cleanUrl":"services/P_Stad/Mobiliteit/MapServer","naam":"Mobiliteit","type":"esri","visible":true,"layers":[{"id":"9","name":"fietspad","visible":true},{"id":"6","name":"velo","visible":true},{"id":"0","name":"Fiets en voetganger","visible":true}]}],"isReadOnly":false}');
                 ExternService.Import(externproj);
+                PopupService.Info('Velo en fietspad loaded because you are in DEV.', null, function () {
+                    alert('onclicktestje');
+                });
             }
         }();
         vm.ZoekenOpLocatie = true;
@@ -943,7 +946,12 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                             MapData.QueryForTempFeatures(21, 'ObjectID=' + suggestion.key);
                             break;
                         default:
-
+                            var cors = {
+                                x: suggestion.x,
+                                y: suggestion.y
+                            };
+                            var xyWGS84 = HelperService.ConvertLambert72ToWSG84(cors);
+                            setViewAndPutDot(xyWGS84);
                             break;
 
                     }
@@ -1124,7 +1132,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             map.locate({ setView: true, maxZoom: 16 });
         };
     });
-    theController.$inject = ['BaseLayersService', 'ExternService', 'MapService', 'MapData', 'map', 'MapEvents', 'DrawService', 'HelperService', 'GISService'];
+    theController.$inject = ['BaseLayersService', 'ExternService', 'MapService', 'MapData', 'map', 'MapEvents', 'DrawService', 'HelperService', 'GISService', 'PopupService'];
 })();
 ;'use strict';
 
@@ -1331,7 +1339,9 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         _service.QueryCrab = function (straatnaam, huisnummer) {
             var prom = $q.defer();
 
-            $http.get('https://geoint-a.antwerpen.be/arcgissql/rest/services/A_DA/crab_adrespunten_edit/MapServer/0/query?where=GEMEENTE%3D%27Antwerpen%27+and+STRAATNM+%3D%27' + straatnaam + ' %27+and+HUISNR+like+%27' + huisnummer + '%25%27&text=&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=*&returnGeometry=true&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&f=pjson').success(function (data, status, headers, config) {
+            $http.get('http://app10.p.gis.local/arcgis/rest/services/P_Stad/CRAB_adresposities/MapServer/0/query?where=GEMEENTE%3D%27Antwerpen%27+and+STRAATNM+%3D%27' + straatnaam + ' %27+and+HUISNR+like+%27' + huisnummer + '%25%27&text=&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=*&returnGeometry=true&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&f=pjson')
+            // $http.get('https://geoint-a.antwerpen.be/arcgissql/rest/services/A_DA/crab_adrespunten_edit/MapServer/0/query?where=GEMEENTE%3D%27Antwerpen%27+and+STRAATNM+%3D%27' + straatnaam + ' %27+and+HUISNR+like+%27' + huisnummer +'%25%27&text=&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=*&returnGeometry=true&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&f=pjson')
+            .success(function (data, status, headers, config) {
                 // data = HelperService.UnwrapProxiedData(data);
                 prom.resolve(data);
             }).error(function (data, status, headers, config) {
@@ -2025,8 +2035,8 @@ var esri2geo = {};
             ThemeService.CleanThemes();
         };
         _externService.LoadConfig = function (config) {
-            Gis.GeometryUrl = config.GeometryUrl;
-            Gis.BaseUrl = config.BaseUrl;
+            Gis.GeometryUrl = config.Gis.GeometryUrl;
+            Gis.BaseUrl = config.Gis.BaseUrl;
             Style.Default = config.Style.Default;
             Style.HIGHLIGHT = config.Style.HIGHLIGHT;
             Style.BUFFER = config.Style.BUFFER;
@@ -2477,7 +2487,7 @@ L.control.typeahead = function (args) {
             var html = "";
             var minwidth = 0;
             if (straatNaam) {
-                html = '<div class="container container-low-padding">' + '<div class="row row-no-padding">' + '<div class="col-sm-4">' + '<a href="http://maps.google.com/maps?q=&layer=c&cbll=' + latlng.lat + ',' + latlng.lng + '" + target="_blank" >' + '<img src="https://maps.googleapis.com/maps/api/streetview?size=100x50&location=' + latlng.lat + ',' + latlng.lng + '&pitch=-0.76" />' + '</a>' + '</div>' + '<div class="col-sm-8 mouse-over">' + '<div class="col-sm-12"><b>' + straatNaam + '</b></div>' + '<div class="col-sm-3" >WGS84:</div><div id="wgs" class="col-sm-8" style="text-align: left;">{{WGS84LatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o mouse-over-toshow" ng-click="CopyWGS()"></i></div>' + '<div class="col-sm-3">Lambert:</div><div id="lambert" class="col-sm-8" style="text-align: left;">{{LambertLatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o mouse-over-toshow"  ng-click="CopyLambert()"></i></div>' + '</div>' + '</div>' + '</div>';
+                html = '<div class="container container-low-padding">' + '<div class="row row-no-padding">' + '<div class="col-sm-4">' + '<a href="http://maps.google.com/maps?q=&layer=c&cbll=' + latlng.lat + ',' + latlng.lng + '" + target="_blank" >' + '<img src="https://maps.googleapis.com/maps/api/streetview?size=100x50&location=' + latlng.lat + ',' + latlng.lng + '&pitch=-0.76" />' + '</a>' + '</div>' + '<div class="col-sm-8 mouse-over">' + '<div class="col-sm-12"><b>' + straatNaam + '</b></div>' + '<div class="col-sm-3">WGS84:</div><div id="wgs" class="col-sm-8" style="text-align: left;">{{WGS84LatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o mouse-over-toshow" ng-click="CopyWGS()"></i></div>' + '<div class="col-sm-3">Lambert:</div><div id="lambert" class="col-sm-8" style="text-align: left;">{{LambertLatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o mouse-over-toshow"  ng-click="CopyLambert()"></i></div>' + '</div>' + '</div>' + '</div>';
                 minwidth = 300;
             } else {
                 html = '<div class="container container-low-padding">' + '<div class="row row-no-padding mouse-over">' + '<div class="col-sm-3">WGS84:</div><div id="wgs" class="col-sm-8 " style="text-align: left;">{{WGS84LatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o mouse-over-toshow" ng-click="CopyWGS()"></i></div>' + '<div class="col-sm-3">Lambert:</div><div id="lambert" class="col-sm-8" style="text-align: left;">{{LambertLatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o mouse-over-toshow" ng-click="CopyLambert()"></i></div>' + '</div>' + '</div>';
@@ -2621,6 +2631,9 @@ L.control.typeahead = function (args) {
                             } else {
                                 featureItem.displayValue = 'LEEG';
                             }
+                        }
+                        if (featureItem.displayValue.toString().trim() == '') {
+                            featureItem.displayValue = 'LEEG';
                         }
                         var mapItem = L.geoJson(featureItem, { style: Style.DEFAULT }).addTo(map);
                         _data.VisibleFeatures.push(mapItem);
@@ -2779,7 +2792,7 @@ L.control.typeahead = function (args) {
 
         map.on('locationfound', function (e) {
             // var radius = e.accuracy / 2;
-            var gpsicon = L.divIcon({ className: 'fa fa-crosshairs fa-2x', style: 'color: blue' });
+            var gpsicon = L.divIcon({ className: 'fa fa-crosshairs fa-2x blue', style: 'color: blue' });
             var marker = L.marker(e.latlng, { icon: gpsicon }).addTo(map);
             var popup = marker.bindPopup("GPS").openPopup();
             popup.on('popupclose', function (e) {
@@ -2988,6 +3001,53 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     };
     module.$inject = ['$rootScope', 'MapData', 'map', 'ThemeCreater', '$q', 'GISService', 'ResultsData', 'HelperService'];
     module.factory('MapService', mapService);
+})();
+;'use strict';
+
+(function () {
+    var module;
+    try {
+        module = angular.module('tink.gis');
+    } catch (e) {
+        module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'tink.modal']); //'leaflet-directive'
+    }
+    // module.$inject = ['MapData', 'map', 'GISService', 'ThemeCreater', 'WMSService', 'ThemeService', '$q','BaseLayersService'];
+
+    var popupService = function popupService(MapData, map, GISService, ThemeCreater, WMSService, ThemeService, $q, BaseLayersService) {
+        var _popupService = {};
+        _popupService.Init = function () {
+            toastr.options.timeOut = 10000; // How long the toast will display without user interaction
+            toastr.options.extendedTimeOut = 10000; // How long the toast will display after a user hovers over it
+            toastr.options.closeButton = true;
+        }();
+        _popupService.popupGenerator = function (type, message, title, callback, options) {
+            var messagetype = type.toLowerCase().trim();
+            if (messagetype != 'error' && messagetype != 'warning' && messagetype != 'info' && messagetype != 'success') {
+                throw "Invalid toastr type(info, error, warning,  success): " + messagetype;
+            }
+            if (!options) {
+                options = {};
+            }
+            if (callback) {
+                options = { onclick: callback };
+            }
+            toastr[messagetype](message, null, options);
+        };
+        _popupService.Error = function (message, title, callback, options) {
+            _popupService.popupGenerator('Error', message, title, callback, options);
+        };
+        _popupService.Warning = function (message, title, callback, options) {
+            _popupService.popupGenerator('Warning', message, title, callback, options);
+        };
+        _popupService.Info = function (message, title, callback, options) {
+            _popupService.popupGenerator('Info', message, title, callback, options);
+        };
+        _popupService.Success = function (message, title, callback, options) {
+            _popupService.popupGenerator('Success', message, title, callback, options);
+        };
+        return _popupService;
+    };
+    module.factory('PopupService', popupService);
 })();
 ;'use strict';
 
@@ -3239,14 +3299,14 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 return x.layerName == type;
             }).length;
         };
-        vm.HoveredFeature = null;
-        vm.HoverOver = function (feature) {
-            if (vm.HoveredFeature) {
-                vm.HoveredFeature.hoverEdit = false;
-            }
-            feature.hoverEdit = true;
-            vm.HoveredFeature = feature;
-        };
+        // vm.HoveredFeature = null;
+        // vm.HoverOver = function (feature) {
+        //     if (vm.HoveredFeature) {
+        //         vm.HoveredFeature.hoverEdit = false;
+        //     }
+        //     feature.hoverEdit = true;
+        //     vm.HoveredFeature = feature;
+        // };
         vm.deleteFeatureGroup = function (featureGroupName) {
             SearchService.DeleteFeatureGroup(featureGroupName);
         };
@@ -4343,11 +4403,10 @@ L.drawLocal = {
     "</data-header>\n" +
     "<data-content>\n" +
     "<li ng-repeat=\"feature in srchrsltsctrl.features | filter: { layerName:layerGroupName } :true\" ng-mouseover=srchrsltsctrl.HoverOver(feature)>\n" +
-    "<a ng-if=!feature.hoverEdit ng-click=srchrsltsctrl.showDetails(feature)>{{ feature.displayValue | limitTo : 23}}</a>\n" +
-    "<div ng-if=feature.hoverEdit>\n" +
-    "<a ng-click=srchrsltsctrl.showDetails(feature)>{{ feature.displayValue}}\n" +
+    "<div class=mouse-over>\n" +
+    "<a tink-tooltip={{feature.displayValue}} tink-tooltip-align=bottom ng-click=srchrsltsctrl.showDetails(feature)>{{ feature.displayValue| limitTo : 23 }}\n" +
     "</a>\n" +
-    "<button class=\"trash pull-right\" prevent-default ng-click=srchrsltsctrl.deleteFeature(feature)></button>\n" +
+    "<button class=\"trash pull-right mouse-over-toshow\" prevent-default ng-click=srchrsltsctrl.deleteFeature(feature)></button>\n" +
     "</div>\n" +
     "</li>\n" +
     "</data-content>\n" +
@@ -4355,7 +4414,7 @@ L.drawLocal = {
     "</tink-accordion>\n" +
     "</ul>\n" +
     "<button class=\"btn-sm margin-left margin-top\" ng-click=srchrsltsctrl.exportToCSV()>Exporteer naar CSV</button>\n" +
-    "</div>\n"
+    "</div>"
   );
 
 

@@ -128,8 +128,8 @@ namespace TinkGis {
             });
         }
         UpdateMap(map: L.Map) {
-            this.MapData.options.layers =  this.MapData.wmsParams.layers =this.VisibleLayerIds.join(',');
-            this.MapData.redraw(); 
+            this.MapData.options.layers = this.MapData.wmsParams.layers = this.VisibleLayerIds.join(',');
+            this.MapData.redraw();
             // map.addLayer(this.MapData);
         }
     }

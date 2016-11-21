@@ -136,13 +136,13 @@
                     '<div class="container container-low-padding">' +
                     '<div class="row row-no-padding">' +
                     '<div class="col-sm-4">' +
-                    '<a href="http://maps.google.com/maps?q=&layer=c&cbll=' + latlng.lat  + ',' + latlng.lng + '" + target="_blank" >'  +
+                    '<a href="http://maps.google.com/maps?q=&layer=c&cbll=' + latlng.lat + ',' + latlng.lng + '" + target="_blank" >' +
                     '<img src="https://maps.googleapis.com/maps/api/streetview?size=100x50&location=' + latlng.lat + ',' + latlng.lng + '&pitch=-0.76" />' +
                     '</a>' +
                     '</div>' +
                     '<div class="col-sm-8 mouse-over">' +
                     '<div class="col-sm-12"><b>' + straatNaam + '</b></div>' +
-                    '<div class="col-sm-3" >WGS84:</div><div id="wgs" class="col-sm-8" style="text-align: left;">{{WGS84LatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o mouse-over-toshow" ng-click="CopyWGS()"></i></div>' +
+                    '<div class="col-sm-3">WGS84:</div><div id="wgs" class="col-sm-8" style="text-align: left;">{{WGS84LatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o mouse-over-toshow" ng-click="CopyWGS()"></i></div>' +
                     '<div class="col-sm-3">Lambert:</div><div id="lambert" class="col-sm-8" style="text-align: left;">{{LambertLatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o mouse-over-toshow"  ng-click="CopyLambert()"></i></div>' +
                     '</div>' +
                     '</div>' +
@@ -264,8 +264,7 @@
         _data.AddFeatures = function (features, theme, layerId) {
             if (!features || features.features.length == 0) {
                 ResultsData.EmptyResult = true;
-            }
-            else {
+            } else {
                 ResultsData.EmptyResult = false;
                 for (var x = 0; x < features.features.length; x++) {
                     var featureItem = features.features[x];
@@ -302,6 +301,9 @@
                             } else {
                                 featureItem.displayValue = 'LEEG';
                             }
+                        }
+                        if (featureItem.displayValue.toString().trim() == '') {
+                            featureItem.displayValue = 'LEEG'
                         }
                         var mapItem = L.geoJson(featureItem, { style: Style.DEFAULT }).addTo(map);
                         _data.VisibleFeatures.push(mapItem);
