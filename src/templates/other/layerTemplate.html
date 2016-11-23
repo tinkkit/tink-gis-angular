@@ -26,11 +26,18 @@
                 </label>
             </div>
         </li>
-        <li class="li-item" ng-if="lyrctrl.layer.theme.Type=='wms'">
-            <img ng-src="{{lyrctrl.layer.legendUrl}}"><img>
-            <div ng-if="lyrctrl.layer.theme.Type=='esri' && lyrctrl.layer.legend.length> 1" ng-repeat="legend in lyrctrl.legends">
+        <ul ng-if="lyrctrl.layer.theme.Type=='wms'">
+            <li class="li-item toc-item-without-icon can-open" ng-class="{'open': showLayer}">WMS
+                <span ng-click="showLayer = !showLayer"></span>
+            </li>
+            <li>
+                <img class="normal-size" ng-src="{{lyrctrl.layer.legendUrl}}" ng-show="showLayer"><img>
+            </li>
+        </ul>
+        <ul ng-if="lyrctrl.layer.theme.Type=='esri' && lyrctrl.layer.legend.length> 1" ng-repeat="legend in lyrctrl.legends">
+            <li class="li-item toc-item-with-icon">
                 <img style="width:20px; height:20px;" ng-src="{{legend.url}}"><img><span>²{{legend.label}}</span>
-            </div>
-        </li>
+            </li>
+        </ul>
 
 </div>

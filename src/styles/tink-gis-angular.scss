@@ -465,8 +465,8 @@ button.trash {
 }
 
 img {
-  .normal-size {
-    // max-width: inherit;
+  &.normal-size {
+    max-width: initial;
   }
 }
 // set a pointer on the clickable items
