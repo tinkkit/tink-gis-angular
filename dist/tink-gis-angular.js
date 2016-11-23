@@ -832,9 +832,11 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             if (window.location.href.startsWith('http://localhost:9000/')) {
                 var externproj = JSON.parse('{"naam":"Velo en fietspad!!","extent":{"_northEast":{"lat":"51.2336102032025","lng":"4.41993402409611"},"_southWest":{"lat":"51.1802290498612","lng":"4.38998297870121"}},"guid":"bfc88ea3-8581-4204-bdbc-b5f54f46050d","extentString":"51.2336102032025,4.41993402409611,51.1802290498612,4.38998297870121","isKaart":true,"uniqId":3,"creatorId":6,"creator":null,"createDate":"2016-08-22T10:55:15.525994","updaterId":6,"updater":null,"lastUpdated":"2016-08-22T10:55:15.525994","themes":[{"cleanUrl":"services/P_Stad/Mobiliteit/MapServer","naam":"Mobiliteit","type":"esri","visible":true,"layers":[{"id":"9","name":"fietspad","visible":true},{"id":"6","name":"velo","visible":true},{"id":"0","name":"Fiets en voetganger","visible":true}]}],"isReadOnly":false}');
                 ExternService.Import(externproj);
-                PopupService.Info('Velo en fietspad loaded because you are in DEV.', null, function () {
+                PopupService.Info("Dev autoload", 'Velo en fietspad loaded because you are in DEV.', function () {
                     alert('onclicktestje');
                 });
+                // PopupService.ExceptionFunc = function(exception) { alert(exception.message); }
+                // PopupService.ErrorWithException("exceptiontest", "exceptiontextmessage", { message: 'OH NO EXCEP'})
             }
         }();
         vm.ZoekenOpLocatie = true;
@@ -3027,14 +3029,14 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     }
     // module.$inject = ['MapData', 'map', 'GISService', 'ThemeCreater', 'WMSService', 'ThemeService', '$q','BaseLayersService'];
 
-    var popupService = function popupService(MapData, map, GISService, ThemeCreater, WMSService, ThemeService, $q, BaseLayersService) {
+    var popupService = function popupService() {
         var _popupService = {};
         _popupService.Init = function () {
             toastr.options.timeOut = 10000; // How long the toast will display without user interaction
             toastr.options.extendedTimeOut = 10000; // How long the toast will display after a user hovers over it
             toastr.options.closeButton = true;
         }();
-        _popupService.popupGenerator = function (type, message, title, callback, options) {
+        _popupService.popupGenerator = function (type, title, message, callback, options) {
             var messagetype = type.toLowerCase().trim();
             if (messagetype != 'error' && messagetype != 'warning' && messagetype != 'info' && messagetype != 'success') {
                 throw "Invalid toastr type(info, error, warning,  success): " + messagetype;
@@ -3045,19 +3047,28 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             if (callback) {
                 options = { onclick: callback };
             }
-            toastr[messagetype](message, null, options);
+            toastr[messagetype](message, title, options);
         };
-        _popupService.Error = function (message, title, callback, options) {
-            _popupService.popupGenerator('Error', message, title, callback, options);
+        _popupService.ExceptionFunc = function (exception) {
+            console.log(exception);
         };
-        _popupService.Warning = function (message, title, callback, options) {
-            _popupService.popupGenerator('Warning', message, title, callback, options);
+        _popupService.ErrorWithException = function (title, message, exception, options) {
+            var callback = function callback() {
+                _popupService.ExceptionFunc(exception);
+            };
+            _popupService.popupGenerator('Error', title, message, callback, options);
         };
-        _popupService.Info = function (message, title, callback, options) {
-            _popupService.popupGenerator('Info', message, title, callback, options);
+        _popupService.Error = function (title, message, callback, options) {
+            _popupService.popupGenerator('Error', title, message, callback, options);
         };
-        _popupService.Success = function (message, title, callback, options) {
-            _popupService.popupGenerator('Success', message, title, callback, options);
+        _popupService.Warning = function (title, message, callback, options) {
+            _popupService.popupGenerator('Warning', title, message, callback, options);
+        };
+        _popupService.Info = function (title, message, callback, options) {
+            _popupService.popupGenerator('Info', title, message, callback, options);
+        };
+        _popupService.Success = function (title, message, callback, options) {
+            _popupService.popupGenerator('Success', title, message, callback, options);
         };
         return _popupService;
     };
