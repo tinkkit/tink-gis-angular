@@ -11,7 +11,7 @@
     var popupService = function () {
         var _popupService = {};
         _popupService.Init = function () {
-            toastr.options.timeOut = 10000; // How long the toast will display without user interaction
+            toastr.options.timeOut = 5000; // How long the toast will display without user interaction
             toastr.options.extendedTimeOut = 10000; // How long the toast will display after a user hovers over it
             toastr.options.closeButton = true;
         } ();
@@ -24,7 +24,7 @@
                 options = {}
             }
             if (callback) {
-                options = { onclick: callback }
+                options.onclick = callback;
             }
             toastr[messagetype](message, title, options);
         }
@@ -45,6 +45,18 @@
             _popupService.popupGenerator('Info', title, message, callback, options)
         };
         _popupService.Success = function (title, message, callback, options) {
+            if (!options) {
+                options = {};
+            }
+            if (!options.timeOut) {
+                options.timeOut = 1000;
+            }
+            if (!options.extendedTimeOut) {
+                options.extendedTimeOut = 1000;
+            }
+            if (!options.closeButton) {
+                options.closeButton = false;
+            }
             _popupService.popupGenerator('Success', title, message, callback, options)
         };
         return _popupService;
