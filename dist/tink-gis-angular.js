@@ -102,6 +102,9 @@ var Gis = {
     GeometryUrl: 'https://geoint.antwerpen.be/arcgissql/rest/services/Utilities/Geometry/GeometryServer/buffer'
 };
 Gis.Arcgissql = Gis.BaseUrl + 'arcgissql/rest/';
+var Solr = {
+    BaseUrl: 'https://esb-app1-o.antwerpen.be/v1/'
+};
 var DrawingOption = {
     NIETS: '',
     AFSTAND: 'afstand',
@@ -143,7 +146,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
     } catch (e) {
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
     }
-    module.controller('geoPuntController', ['$scope', 'ThemeCreater', '$q', 'MapService', 'MapData', 'GISService', 'LayerManagementService', 'WMSService', '$window', '$http', 'GeopuntService', function ($scope, ThemeCreater, $q, MapService, MapData, GISService, LayerManagementService, WMSService, $window, $http, GeopuntService) {
+    module.controller('geoPuntController', ['$scope', 'ThemeCreater', '$q', 'MapService', 'MapData', 'GISService', 'LayerManagementService', 'WMSService', '$window', '$http', 'GeopuntService', 'PopupService', function ($scope, ThemeCreater, $q, MapService, MapData, GISService, LayerManagementService, WMSService, $window, $http, GeopuntService, PopupService) {
         $scope.searchIsUrl = false;
         $scope.pagingCount = null;
         $scope.numberofrecordsmatched = 0;
@@ -202,8 +205,6 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 getwms.success(function (data, status, headers, config) {
                     var wmstheme = ThemeCreater.createWMSThemeFromJSON(data, url);
                     $scope.previewTheme(wmstheme);
-                }).error(function (data, status, headers, config) {
-                    $window.alert('error');
                 });
             } else {
                 $scope.previewTheme(wms);
@@ -626,7 +627,8 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             var url = 'https://metadata.geopunt.be/zoekdienst/srv/dut/csw?service=CSW&version=2.0.2&SortBy=title&request=GetRecords&namespace=xmlns%28csw=http://www.opengis.net/cat/csw%29&resultType=results&outputSchema=http://www.opengis.net/cat/csw/2.0.2&outputFormat=application/xml&startPosition=' + startpos + '&maxRecords=' + recordsAPage + '&typeNames=csw:Record&elementSetName=full&constraintLanguage=CQL_TEXT&constraint_language_version=1.1.0&constraint=AnyText+LIKE+%27%25' + searchterm + '%25%27AND%20Type%20=%20%27service%27%20AND%20Servicetype%20=%27view%27';
             // var url = 'https://metadata.geopunt.be/zoekdienst/srv/dut/q?fast=index&from=' + startpos + '&to=' + recordsAPage + '&any=*' + searchterm + '*&sortBy=title&sortOrder=reverse&hitsperpage=' + recordsAPage;
             var prom = $q.defer();
-            $http.get(helperService.CreateProxyUrl(url)).success(function (data, status, headers, config) {
+            var proxiedurl = helperService.CreateProxyUrl(url);
+            $http.get(proxiedurl).success(function (data, status, headers, config) {
                 if (data) {
                     data = helperService.UnwrapProxiedData(data);
                     var returnjson = JXON.stringToJs(data);
@@ -659,7 +661,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 }
             }).error(function (data, status, headers, config) {
                 prom.reject(null);
-                console.log('ERROR!', data, status, headers, config);
+                PopupService.ErrorFromHttp(data, status, proxiedurl);
             });
             return prom.promise;
         };
@@ -1335,7 +1337,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
 
 (function () {
     var module = angular.module('tink.gis');
-    var service = function service($http, HelperService, $q) {
+    var service = function service($http, HelperService, $q, PopupService) {
         var _service = {};
         _service.ReverseGeocode = function (event) {
             var lambert72Cords = HelperService.ConvertWSG84ToLambert72(event.latlng);
@@ -1346,7 +1348,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             prom.success(function (data, status, headers, config) {
                 // nothing we just give back the prom do the stuff not here!
             }).error(function (data, status, headers, config) {
-                console.log('ERROR!', status, headers, data);
+                PopupService.ErrorFromHttp(data, status, url);
             });
             return prom;
         };
@@ -1357,7 +1359,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 prom.resolve(data);
             }).error(function (data, status, headers, config) {
                 prom.reject(null);
-                console.log('ERROR!', data, status, headers, config);
+                PopupService.ErrorFromHttp(data, status, url);
             });
             return prom.promise;
         };
@@ -1365,25 +1367,25 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         _service.QuerySOLRGIS = function (search) {
             var prom = $q.defer();
             // select?q=school&wt=json&indent=true&facet=true&facet.field=parent&group=true&group.field=parent&group.limit=2
-            var url = 'https://esb-app1-o.antwerpen.be/v1/giszoek/solr/search?q=*' + search + '*&wt=json&indent=true&facet=true&rows=999&facet.field=parent&group=true&group.field=parent&group.limit=5&solrtype=gis';
+            var url = Solr.BaseUrl + 'giszoek/solr/search?q=*' + search + '*&wt=json&indent=true&facet=true&rows=999&facet.field=parent&group=true&group.field=parent&group.limit=5&solrtype=gis';
             $http.get(url).success(function (data, status, headers, config) {
                 // data = HelperService.UnwrapProxiedData(data);
                 prom.resolve(data);
             }).error(function (data, status, headers, config) {
                 prom.reject(null);
-                console.log('ERROR!', data, status, headers, config);
+                PopupService.ErrorFromHttp(data, status, url);
             });
             return prom.promise;
         };
         _service.QuerySOLRLocatie = function (search) {
             var prom = $q.defer();
-            var url = 'https://esb-app1-o.antwerpen.be/v1/giszoek/solr/search?q=*' + search + '*&wt=json&indent=true&rows=50&solrtype=gislocaties&dismax=true&bq=exactName:DISTRICT^20000.0&bq=layer:WEGENREGISTER_STRAATAS_XY^20000.0';
+            var url = Solr.BaseUrl + 'giszoek/solr/search?q=*' + search + '*&wt=json&indent=true&rows=50&solrtype=gislocaties&dismax=true&bq=exactName:DISTRICT^20000.0&bq=layer:WEGENREGISTER_STRAATAS_XY^20000.0';
             $http.get(url).success(function (data, status, headers, config) {
                 // data = HelperService.UnwrapProxiedData(data);
                 prom.resolve(data);
             }).error(function (data, status, headers, config) {
                 prom.reject(null);
-                console.log('ERROR!', data, status, headers, config);
+                PopupService.ErrorFromHttp(data, status, url);
             });
             return prom.promise;
         };
@@ -1403,7 +1405,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 prom.resolve(data);
             }).error(function (data, status, headers, config) {
                 prom.reject(null);
-                console.log('ERROR!', data, status, headers, config);
+                PopupService.ErrorFromHttp(data, status, url);
             });
             return prom.promise;
         };
@@ -1416,7 +1418,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 prom.resolve(data);
             }).error(function (data, status, headers, config) {
                 prom.reject(null);
-                console.log('ERROR!', data, status, headers, config);
+                PopupService.ErrorFromHttp(data, status, url);
             });
             return prom.promise;
         };
@@ -1429,7 +1431,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 prom.resolve(data);
             }).error(function (data, status, headers, config) {
                 prom.reject(null);
-                console.log('ERROR!', data, status, headers, config);
+                PopupService.ErrorFromHttp(data, status, url);
             });
             return prom.promise;
         };
@@ -1465,7 +1467,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         };
         return _service;
     };
-    module.$inject = ['$http', 'HelperService', '$q'];
+    module.$inject = ['$http', 'HelperService', '$q', 'PopupService'];
     module.factory('GISService', service);
 })();
 ;'use strict';
@@ -1599,19 +1601,20 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
 
 (function () {
     var module = angular.module('tink.gis');
-    var service = function service($http, HelperService, $q) {
+    var service = function service($http, HelperService, $q, PopupService) {
         var _service = {};
         _service.GetThemeData = function (url) {
             var fullurl = url + '?request=GetCapabilities&service=WMS&callback=foo';
+            var proxiedurl = HelperService.CreateProxyUrl(fullurl);
             var prom = $http({
                 method: 'GET',
-                url: HelperService.CreateProxyUrl(fullurl),
+                url: proxiedurl,
                 timeout: 10000,
                 transformResponse: function transformResponse(data) {
                     if (data) {
                         data = HelperService.UnwrapProxiedData(data);
                         if (data.listOfHttpError) {
-                            console.log(data.listOfHttpError, fullurl);
+                            // console.log(data.listOfHttpError, fullurl);
                         } else {
                             data = JXON.stringToJs(data).wms_capabilities;
                         }
@@ -1621,13 +1624,13 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             }).success(function (data, status, headers, config) {
                 // console.dir(data);  // XML document object
             }).error(function (data, status, headers, config) {
-                console.log('error: data, status, headers, config:', data, status, headers, config);
+                PopupService.ErrorFromHttp(data, status, proxiedurl);
             });
             return prom;
         };
         return _service;
     };
-    module.$inject = ['$http', 'HelperService', '$q'];
+    module.$inject = ['$http', 'HelperService', '$q', 'PopupService'];
     module.factory('WMSService', service);
 })();
 ;'use strict';
@@ -3058,6 +3061,18 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             };
             _popupService.popupGenerator('Error', title, message, callback, options);
         };
+        _popupService.ErrorFromHttp = function (data, status, url) {
+            _popupService.ErrorFromHTTP(data, status, url);
+        };
+        _popupService.ErrorFromHTTP = function (data, status, url) {
+            var title = 'HTTP error (' + status + ')';
+            var message = 'Er is een fout gebeurt met de call naar: ' + url;
+            var exception = { url: url, data: data, status: status };
+            var callback = function callback() {
+                _popupService.ExceptionFunc(exception);
+            };
+            _popupService.popupGenerator('Error', title, message, callback);
+        };
         _popupService.Error = function (title, message, callback, options) {
             _popupService.popupGenerator('Error', title, message, callback, options);
         };
@@ -3072,10 +3087,10 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 options = {};
             }
             if (!options.timeOut) {
-                options.timeOut = 1000;
+                options.timeOut = 1500;
             }
             if (!options.extendedTimeOut) {
-                options.extendedTimeOut = 1000;
+                options.extendedTimeOut = 1500;
             }
             if (!options.closeButton) {
                 options.closeButton = false;
@@ -3293,18 +3308,18 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 (function (module) {
     module = angular.module('tink.gis');
-    var theController = module.controller('searchController', function ($scope, ResultsData, map) {
+    var theController = module.controller('searchController', function ($scope, ResultsData, map, $interval) {
         var vm = this;
         vm.features = ResultsData.JsonFeatures;
         vm.EmptyResult = ResultsData.EmptyResult;
-        vm.LoadingCompleted = function () {
-            return ResultsData.GetRequestPercentage() >= 100;
-        };
-        vm.loadingPercentage = function () {
-            return ResultsData.GetRequestPercentage();
-        };
+        vm.LoadingCompleted = true;
+        vm.loadingPercentage = 100;
+        var percentageupdater = $interval(function () {
+            vm.loadingPercentage = ResultsData.GetRequestPercentage();
+            vm.LoadingCompleted = vm.loadingPercentage >= 100;
+        }, 333);
     });
-    theController.$inject = ['$scope', 'ResultsData', 'map'];
+    theController.$inject = ['$scope', 'ResultsData', 'map', '$interval'];
 })();
 ;'use strict';
 
@@ -3541,7 +3556,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         _data.GetRequestPercentage = function () {
             var percentage = Math.round(_data.RequestCompleted / _data.RequestStarted * 100);
             if (isNaN(percentage)) {
-                return 100; // if something went wrong there is no point in sending back 0 lets just send back 100
+                percentage = 100; // if something went wrong there is no point in sending back 0 lets just send back 100
             }
             return percentage;
         };
@@ -4519,13 +4534,13 @@ L.drawLocal = {
     "<button class=nav-left-toggle data-tink-sidenav-collapse=asideNavLeft>\n" +
     "<a href=# title=\"Open menu\"><span class=sr-only>Open left menu</span></a>\n" +
     "</button>\n" +
-    "<div ng-show=\"srchctrl.LoadingCompleted() == true\">\n" +
+    "<div ng-show=srchctrl.LoadingCompleted>\n" +
     "<tink-search-results></tink-search-results>\n" +
     "<tink-search-selected></tink-search-selected>\n" +
     "</div>\n" +
-    "<div class=\"loader-advanced center-block margin-top margin-bottom\" ng-show=\"srchctrl.LoadingCompleted() == false\">\n" +
+    "<div class=\"loader-advanced center-block margin-top margin-bottom\" ng-show=\"srchctrl.LoadingCompleted == false\">\n" +
     "<span class=loader></span>\n" +
-    "<span class=loader-percentage>{{srchctrl.loadingPercentage()}}%</span>\n" +
+    "<span class=loader-percentage>{{srchctrl.loadingPercentage}}%</span>\n" +
     "</div>\n" +
     "</aside>\n" +
     "</div>\n"
@@ -4844,7 +4859,10 @@ var TinkGis;
             _this3.status = ThemeStatus.NEW;
             _this3.Description = data.service.abstract;
             _this3.Type = ThemeType.WMS;
-            var layers = data.capability.layer.layer;
+            var layers = data.capability.layer;
+            if (layers.layer) {
+                layers = layers.layer;
+            }
             if (layers.layer) {
                 layers = layers.layer;
             }

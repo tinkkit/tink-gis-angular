@@ -53,7 +53,9 @@ module.exports = function (config) {
             'bower_components/tink-helper-safe-apply-angular/dist/tink-helper-safe-apply-angular.js',
             'bower_components/tink-pagination-angular/dist/tink-pagination-angular.js',
             'bower_components/tink-tooltip-angular/dist/tink-tooltip-angular.js',
+			'bower_components/toastr/toastr.js',
 
+			   
             'bower_components/leaflet-geodesy/leaflet-geodesy.js',
             'bower_components/esri-leaflet/dist/esri-leaflet.js',
             'bower_components/Leaflet.awesome-markers/dist/leaflet.awesome-markers.js',
@@ -80,7 +82,7 @@ module.exports = function (config) {
             'test/scripts/other/services/mapEvents.js',
             'test/scripts/other/services/drawService.js',
             'test/scripts/other/services/externService.js',
-
+			'test/scripts/other/services/popupService.js',
 
             'test/scripts/other/controllers/mapController.js',
             'test/scripts/other/controllers/layersController.js',

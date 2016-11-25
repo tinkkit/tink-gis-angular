@@ -10,7 +10,7 @@
         _data.GetRequestPercentage = function () {
             var percentage = Math.round(_data.RequestCompleted / _data.RequestStarted * 100);
             if (isNaN(percentage)) {
-                return 100; // if something went wrong there is no point in sending back 0 lets just send back 100
+                percentage = 100; // if something went wrong there is no point in sending back 0 lets just send back 100
             }
             return percentage;
         };

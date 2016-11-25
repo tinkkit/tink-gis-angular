@@ -21,7 +21,9 @@ var Gis = {
     GeometryUrl: 'https://geoint.antwerpen.be/arcgissql/rest/services/Utilities/Geometry/GeometryServer/buffer'
 }
 Gis.Arcgissql = Gis.BaseUrl + 'arcgissql/rest/';
-
+var Solr = {
+    BaseUrl: 'https://esb-app1-o.antwerpen.be/v1/'
+}
 const DrawingOption = {
     NIETS: '',
     AFSTAND: 'afstand',

@@ -35,6 +35,16 @@
             var callback = function () { _popupService.ExceptionFunc(exception) };
             _popupService.popupGenerator('Error', title, message, callback, options)
         };
+        _popupService.ErrorFromHttp = function (data, status, url) {
+            _popupService.ErrorFromHTTP(data, status, url);
+        };
+        _popupService.ErrorFromHTTP = function (data, status, url) {
+            var title = 'HTTP error (' + status + ')';
+            var message = 'Er is een fout gebeurt met de call naar: ' + url;
+            var exception = { url: url, data: data, status: status };
+            var callback = function () { _popupService.ExceptionFunc(exception) };
+            _popupService.popupGenerator('Error', title, message, callback)
+        };
         _popupService.Error = function (title, message, callback, options) {
             _popupService.popupGenerator('Error', title, message, callback, options)
         };
@@ -49,10 +59,10 @@
                 options = {};
             }
             if (!options.timeOut) {
-                options.timeOut = 1000;
+                options.timeOut = 1500;
             }
             if (!options.extendedTimeOut) {
-                options.extendedTimeOut = 1000;
+                options.extendedTimeOut = 1500;
             }
             if (!options.closeButton) {
                 options.closeButton = false;

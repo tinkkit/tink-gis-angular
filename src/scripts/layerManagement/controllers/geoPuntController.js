@@ -6,8 +6,8 @@
     } catch (e) {
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
     }
-    module.controller('geoPuntController', ['$scope', 'ThemeCreater', '$q', 'MapService', 'MapData', 'GISService', 'LayerManagementService', 'WMSService', '$window', '$http', 'GeopuntService',
-        function ($scope, ThemeCreater, $q, MapService, MapData, GISService, LayerManagementService, WMSService, $window, $http, GeopuntService) {
+    module.controller('geoPuntController', ['$scope', 'ThemeCreater', '$q', 'MapService', 'MapData', 'GISService', 'LayerManagementService', 'WMSService', '$window', '$http', 'GeopuntService', 'PopupService',
+        function ($scope, ThemeCreater, $q, MapService, MapData, GISService, LayerManagementService, WMSService, $window, $http, GeopuntService, PopupService) {
             $scope.searchIsUrl = false;
             $scope.pagingCount = null;
             $scope.numberofrecordsmatched = 0;
@@ -66,8 +66,6 @@
                     getwms.success(function (data, status, headers, config) {
                         var wmstheme = ThemeCreater.createWMSThemeFromJSON(data, url)
                         $scope.previewTheme(wmstheme);
-                    }).error(function (data, status, headers, config) {
-                        $window.alert('error');
                     });
                 }
                 else {
