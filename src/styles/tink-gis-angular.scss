@@ -356,7 +356,7 @@ button.btn.active {
 // FYI .can-open class is also nested in Tink navigation, but doesn't conflict with following styling
 .can-open {
 
-  span {
+  .show-layer {
     cursor: pointer;
     display: inline-block;
     padding: 0 rem(5) 0 rem(5);
@@ -372,7 +372,7 @@ button.btn.active {
   }
 
   &.open {
-    span {
+    .show-layer {
       &:after {
         content: "\f0d8";
         // transform: rotate(180deg); // doesn't work right now

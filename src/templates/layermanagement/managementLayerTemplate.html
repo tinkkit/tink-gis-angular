@@ -4,7 +4,7 @@
             <input indeterminate-checkbox child-list="lyrctrl.layer.AllLayers" property="enabled" type="checkbox" ng-model="lyrctrl.layer.enabled"
                 id="{{lyrctrl.layer.name}}{{lyrctrl.layer.id}}">
             <label for="{{lyrctrl.layer.name}}{{lyrctrl.layer.id}}"> {{lyrctrl.layer.title | limitTo: 99}}</label>
-            <span ng-click="showLayer = !showLayer"></span>
+            <span class="show-layer" ng-click="showLayer = !showLayer"></span>
         </div>
         <div ng-show="showLayer" ng-repeat="lay in lyrctrl.layer.Layers">
 
