@@ -107,8 +107,11 @@ namespace TinkGis {
             this.status = ThemeStatus.NEW;
             this.Description = data.service.abstract;
             this.Type = ThemeType.WMS;
-            var layers = data.capability.layer.layer;
+            var layers = data.capability.layer;
             if (layers.layer) { // some are 1 level deeper
+                layers = layers.layer;
+            }
+            if (layers.layer) { // some are 2 level deeper
                 layers = layers.layer;
             }
             var lays = [];

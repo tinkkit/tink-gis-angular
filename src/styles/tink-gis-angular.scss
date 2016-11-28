@@ -521,8 +521,8 @@ ul {
     z-index: 9999;
 }
 .modal {
-  // seems to generate unnecessary scrollbar when using second scrollable-list temporary fix
-  overflow: hidden;
+  // seems to generate unnecessary scrollbar when using second scrollable-list - fixed with initial setting
+  overflow: initial;
   z-index: 9998;
 }
 

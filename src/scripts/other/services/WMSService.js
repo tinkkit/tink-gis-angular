@@ -2,19 +2,20 @@
 'use strict';
 (function () {
     var module = angular.module('tink.gis');
-    var service = function ($http, HelperService, $q) {
+    var service = function ($http, HelperService, $q, PopupService) {
         var _service = {};
         _service.GetThemeData = function (url) {
             var fullurl = url + '?request=GetCapabilities&service=WMS&callback=foo';
+            var proxiedurl = HelperService.CreateProxyUrl(fullurl);
             var prom = $http({
                 method: 'GET',
-                url: HelperService.CreateProxyUrl(fullurl),
+                url: proxiedurl,
                 timeout: 10000,
                 transformResponse: function (data) {
                     if (data) {
                         data = HelperService.UnwrapProxiedData(data);
                         if (data.listOfHttpError) {
-                            console.log(data.listOfHttpError, fullurl);
+                            // console.log(data.listOfHttpError, fullurl);
                         }
                         else {
                             data = JXON.stringToJs(data).wms_capabilities;
@@ -25,12 +26,12 @@
             }).success(function (data, status, headers, config) {
                 // console.dir(data);  // XML document object
             }).error(function (data, status, headers, config) {
-                console.log('error: data, status, headers, config:', data, status, headers, config);
+                PopupService.ErrorFromHttp(data, status, proxiedurl);
             });
             return prom;
         };
         return _service;
     };
-    module.$inject = ['$http', 'HelperService', '$q'];
+    module.$inject = ['$http', 'HelperService', '$q', 'PopupService'];
     module.factory('WMSService', service);
 })();
