@@ -22,7 +22,7 @@
             <div class="can-open" ng-class="{'open': showLayer2}">
                 <input  class="visible-box hidden-print" type="checkbox" ng-model="lyrctrl.layer.visible" ng-change="layercheckboxchange(lyrctrl.layer.theme)" id="{{lyrctrl.layer.name}}{{lyrctrl.layer.id}} ">
                 <label ng-class="{ 'greytext': lyrctrl.layer.displayed==false} " for="{{lyrctrl.layer.name}}{{lyrctrl.layer.id}}"> {{lyrctrl.layer.title}}
-                    <span class="hidden-print" ng-show="lyrctrl.layer.theme.Type=='wms' && lyrctrl.layer.queryable ">(i)</span>
+                    <span class="hidden-print greytext" ng-show="lyrctrl.layer.theme.Type=='wms' && lyrctrl.layer.queryable"> <i class="fa fa-info"></i></span>
                 </label>
                 <span class="show-layer" ng-show="lyrctrl.layer.theme.Type=='wms' && lyrctrl.layer.queryable " ng-click="showLayer2 = !showLayer2"></span>
                 <img class="normal-size" ng-src="{{lyrctrl.layer.legendUrl}}" ng-show="showLayer2"><img>
