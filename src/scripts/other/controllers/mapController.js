@@ -76,11 +76,11 @@
                                     var obj = {};
                                     obj.straatnaam = feature.attributes.STRAATNM;
                                     obj.huisnummer = feature.attributes.HUISNR;
-                                    obj.busnummer = feature.attributes.BUSNR;
+                                    // obj.busnummer = feature.attributes.BUSNR;
                                     obj.id = feature.attributes.OBJECTID;
                                     obj.x = feature.geometry.x;
                                     obj.y = feature.geometry.y;
-                                    obj.name = (obj.straatnaam + " " + obj.huisnummer + " " + obj.busnummer).trim();
+                                    obj.name = (obj.straatnaam + " " + obj.huisnummer).trim();
                                     return obj;
                                 }).slice(0, 10);
                                 console.log(features);

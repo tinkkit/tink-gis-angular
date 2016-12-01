@@ -393,7 +393,7 @@ button.btn.active {
       color: #484848; }
 
 /* List toggle */
-.can-open span {
+.can-open .show-layer {
   cursor: pointer;
   display: inline-block;
   padding: 0 0.3571428571rem  0 0.3571428571rem ;
@@ -401,13 +401,13 @@ button.btn.active {
      -moz-user-select: none;
       -ms-user-select: none;
           user-select: none; }
-  .can-open span:after {
+  .can-open .show-layer:after {
     content: "\f0d7";
     font-family: FontAwesome;
     font-style: normal;
     font-weight: normal; }
 
-.can-open.open span:after {
+.can-open.open .show-layer:after {
   content: "\f0d8"; }
 
 /**
@@ -466,6 +466,9 @@ button.trash {
 .layercontroller-checkbox {
   margin-left: 10px; }
 
+img.normal-size {
+  max-width: initial; }
+
 a:hover, a:focus,
 input[type="checkbox"]:hover,
 input[type="checkbox"]:focus {
@@ -500,7 +503,7 @@ ul ul {
   z-index: 9999; }
 
 .modal {
-  overflow: hidden;
+  overflow: initial;
   z-index: 9998; }
 
 .table-sort-options .table-sort-info {
