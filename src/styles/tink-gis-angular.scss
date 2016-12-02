@@ -351,6 +351,41 @@ button.btn.active {
   }
 }
 
+// aside needs overflow initial so it won't scroll
+// WIP <-- //
+
+.component-container {
+
+  height: 100vh;
+
+  // flex settings
+  display: flex;
+  flex-direction: column;
+}
+
+.footer-component {
+  height: 10rem;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.header-component {
+
+}
+
+.scrollable-list-component {
+  overflow: auto;
+
+  // flex item settings
+  // flex-grow: 1;
+}
+
+.nav-aside > aside {
+  overflow: initial;
+}
+
+// -> WIP //
+
 
 /* List toggle */
 // FYI .can-open class is also nested in Tink navigation, but doesn't conflict with following styling

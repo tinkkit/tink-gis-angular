@@ -1,52 +1,58 @@
-<div ng-if="srchslctdctrl.selectedResult" class="nav-aside-padding">
-    <div class="row margin-top margin-bottom">
-        <div class="col-xs-12">
-            <div class="btn-group">
-                <button type="button" class="btn" ng-disabled="!srchslctdctrl.prevResult" ng-click="srchslctdctrl.vorige()">Vorige</button>
-                <button type="button" class="btn" ng-disabled="!srchslctdctrl.nextResult" ng-click="srchslctdctrl.volgende()">Volgende</button>
+<div class="component-container" ng-if="srchslctdctrl.selectedResult" class="nav-aside-padding">
+    <div class="header-component">
+
+            <div class="col-xs-12">
+                <div class="btn-group">
+                    <button type="button" class="btn" ng-disabled="!srchslctdctrl.prevResult" ng-click="srchslctdctrl.vorige()">Vorige</button>
+                    <button type="button" class="btn" ng-disabled="!srchslctdctrl.nextResult" ng-click="srchslctdctrl.volgende()">Volgende</button>
+                </div>
+                <button class="srchbtn btn pull-right" ng-click="srchslctdctrl.delete()">Verwijderen</button>
             </div>
-            <button class="srchbtn btn pull-right" ng-click="srchslctdctrl.delete()">Verwijderen</button>
-        </div>
+
     </div>
-    <dl ng-repeat="prop in srchslctdctrl.props">
-        <dt>{{ prop.key}}</dt>
-        <div ng-if="prop.value.toLowerCase() != 'null'">
-            <a ng-if=" prop.value.indexOf( 'https://')==0 || prop.value.indexOf( 'http://')==0 " ng-href="{{prop.value}}" target="_blank">% Link</a>
-            <dd ng-if="prop.value.indexOf( 'https://') !=0 && prop.value.indexOf( 'http://') !=0 ">{{ prop.value }}</dd>
-        </div>
-    </dl>
-    <div class="row">
-        <div class="col-xs-4">
-            <div class="row">
-                <div class="col-xs-12">
-                    <button class="btn-primary srchbtn" ng-click="srchslctdctrl.toonFeatureOpKaart()">Tonen</button>
-                </div>
+
+    <div class="col-xs-12 scrollable-list-component margin-top">
+        <dl ng-repeat="prop in srchslctdctrl.props">
+            <dt>{{ prop.key}}</dt>
+            <div ng-if="prop.value.toLowerCase() != 'null'">
+                <a ng-if=" prop.value.indexOf( 'https://')==0 || prop.value.indexOf( 'http://')==0 " ng-href="{{prop.value}}" target="_blank">% Link</a>
+                <dd ng-if="prop.value.indexOf( 'https://') !=0 && prop.value.indexOf( 'http://') !=0 ">{{ prop.value }}</dd>
             </div>
-        </div>
-        <div class="col-xs-8">
-            <div class="row">
-                <div class="col-xs-6">
-                    <button class="srchbtn pull-right" ng-click="srchslctdctrl.doordruk()">Doordruk</button>
-                </div>
-                <div class="col-xs-6">
-                    <button class="srchbtn pull-right" ng-click="srchslctdctrl.buffer()">Buffer</button>
-                </div>
-            </div>
-        </div>
+        </dl>
     </div>
-    <div class="row margin-top margin-bottom">
-        <div class="col-xs-4">
-            <div class="row">
-                <div class="col-xs-12">
+
+    <div class="footer-component">
+
+            <div class="col-xs-4">
+                <div class="row">
+                    <div class="col-xs-12">
+                        <button class="btn-primary srchbtn" ng-click="srchslctdctrl.toonFeatureOpKaart()">Tonen</button>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="col-xs-8">
-            <div class="row">
-                <div class="col-xs-12">
-                    <a class="srchbtn pull-right" ng-click="srchslctdctrl.close(srchslctdctrl.selectedResult)">Terug naar resultaten</a>
+            <div class="col-xs-8">
+                <div class="row">
+                    <div class="col-xs-6">
+                        <button class="srchbtn pull-right" ng-click="srchslctdctrl.doordruk()">Doordruk</button>
+                    </div>
+                    <div class="col-xs-6">
+                        <button class="srchbtn pull-right" ng-click="srchslctdctrl.buffer()">Buffer</button>
+                    </div>
                 </div>
             </div>
-        </div>
+
+
+            <div class="col-xs-4">
+            </div>
+            <div class="col-xs-8">
+                <div class="row margin-top">
+                    <div class="col-xs-12">
+                        <a class="srchbtn pull-right" ng-click="srchslctdctrl.close(srchslctdctrl.selectedResult)">Terug naar resultaten</a>
+                    </div>
+                </div>
+
+            </div>
+
+
     </div>
 </div>
