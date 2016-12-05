@@ -365,8 +365,8 @@ button.btn.active {
 
 .footer-component {
   height: 10rem;
-  padding-top: 10px;
-  padding-bottom: 10px;
+  // padding-top: 10px;
+  // padding-bottom: 10px;
 }
 
 .header-component {
@@ -379,10 +379,20 @@ button.btn.active {
   // flex item settings
   // flex-grow: 1;
 }
+.height-100 {
+  height: 100%;
+}
+
+.overflow-wrapper {
+  height: 80%;
+  overflow-y: auto;
+}
 
 .nav-aside > aside {
-  overflow: initial;
+  height: 100vh; // set full height of viewport so the children can set overflow
+  overflow: initial; // so the children can set overflow
 }
+
 
 // -> WIP //
 
@@ -421,13 +431,13 @@ button.btn.active {
  */
 
 /* Lagenbeheer */
-.addlayerbtn {
-    margin-left: auto;
-    margin-right: auto;
-    margin-top: 5px;
-    margin-bottom: 5px;
-    display: block;
-}
+// .addlayerbtn { // obsolete !!
+//     margin-left: auto;
+//     margin-right: auto;
+//     margin-top: 5px;
+//     margin-bottom: 5px;
+//     display: block;
+// }
 
 
 /* Trash can button */
@@ -911,3 +921,5 @@ html.print.landscape {
   // min-width: rem($nav-aside-width);
   // width: auto;
 }
+
+
