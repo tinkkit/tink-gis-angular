@@ -307,11 +307,15 @@ button.btn.active {
 
 .flex-column {
   // flex item settings
-  flex-grow: 1;
+  flex-grow: 1; // necessary?!!
 
   // flex container settings
   display: flex;
   flex-direction: column;
+}
+
+.flex-grow-1 {
+  flex-grow: 1;
 }
 
 
@@ -354,42 +358,12 @@ button.btn.active {
 // aside needs overflow initial so it won't scroll
 // WIP <-- //
 
-.component-container {
-
-  height: 100vh;
-
-  // flex settings
-  display: flex;
-  flex-direction: column;
-}
-
-.footer-component {
-  height: 10rem;
-  // padding-top: 10px;
-  // padding-bottom: 10px;
-}
-
-.header-component {
-
-}
-
 .scrollable-list-component {
   overflow: auto;
-
-  // flex item settings
-  // flex-grow: 1;
-}
-.height-100 {
-  height: 100%;
-}
-
-.overflow-wrapper {
-  height: 80%;
-  overflow-y: auto;
+  width: 100%;
 }
 
 .nav-aside > aside {
-  height: 100vh; // set full height of viewport so the children can set overflow
   overflow: initial; // so the children can set overflow
 }
 

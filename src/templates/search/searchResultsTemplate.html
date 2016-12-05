@@ -1,5 +1,5 @@
-<div class="height-100" ng-if="!srchrsltsctrl.selectedResult && srchrsltsctrl.featureLayers.length > 0">
-    <div class="header-component">
+<div class="flex-column flex-grow-1" ng-if="!srchrsltsctrl.selectedResult && srchrsltsctrl.featureLayers.length > 0">
+    <div class="LinksResultatenScherm">
         <div class="col-xs-12">
             <select ng-model="srchrsltsctrl.layerGroupFilter">
                 <option value="geenfilter" selected="selected">Geen filter ({{srchrsltsctrl.features.length}})</option>
@@ -7,7 +7,7 @@
             </select>
         </div>
     </div>
-    <div class="overflow-wrapper">
+    <div class="scrollable-list-component">
         <ul ng-repeat="layerGroupName in srchrsltsctrl.featureLayers">
             <tink-accordion ng-if="srchrsltsctrl.layerGroupFilter=='geenfilter' || srchrsltsctrl.layerGroupFilter==layerGroupName " data-start-open="true"
                 data-one-at-a-time="false">
@@ -33,7 +33,9 @@
             </tink-accordion>
         </ul>
     </div>
-    <div class="footer-component">
-        <button class="btn-sm margin-left margin-top" ng-click="srchrsltsctrl.exportToCSV()">Exporteer naar CSV</button>
+    <div class="margin-top margin-bottom">
+        <div class="col-xs-12">
+            <button class="btn-sm" ng-click="srchrsltsctrl.exportToCSV()">Exporteer naar CSV</button>
+        </div>
     </div>
 </div>
