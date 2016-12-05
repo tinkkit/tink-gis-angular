@@ -41,7 +41,7 @@
         _popupService.ErrorFromHTTP = function (data, status, url) {
             var title = 'HTTP error (' + status + ')';
             var message = 'Er is een fout gebeurt met de call naar: ' + url;
-            var exception = { url: url, data: data, status: status };
+            var exception = { url: url,  status: status, data: data };
             var callback = function () { _popupService.ExceptionFunc(exception) };
             _popupService.popupGenerator('Error', title, message, callback)
         };

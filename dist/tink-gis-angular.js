@@ -909,11 +909,11 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                                 var obj = {};
                                 obj.straatnaam = feature.attributes.STRAATNM;
                                 obj.huisnummer = feature.attributes.HUISNR;
-                                obj.busnummer = feature.attributes.BUSNR;
+                                // obj.busnummer = feature.attributes.BUSNR;
                                 obj.id = feature.attributes.OBJECTID;
                                 obj.x = feature.geometry.x;
                                 obj.y = feature.geometry.y;
-                                obj.name = (obj.straatnaam + " " + obj.huisnummer + " " + obj.busnummer).trim();
+                                obj.name = (obj.straatnaam + " " + obj.huisnummer).trim();
                                 return obj;
                             }).slice(0, 10);
                             console.log(features);
@@ -1354,7 +1354,9 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         };
         _service.QueryCrab = function (straatnaam, huisnummer) {
             var prom = $q.defer();
-            $http.get('https://geoint.antwerpen.be/arcgissql/rest/services/P_Stad/CRAB_adresposities/MapServer/0/query?where=GEMEENTE%3D%27Antwerpen%27+and+STRAATNM+%3D%27' + straatnaam + ' %27+and+HUISNR+like+%27' + huisnummer + '%25%27&text=&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=*&returnGeometry=true&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&f=pjson').success(function (data, status, headers, config) {
+            $http.get('https://geoint.antwerpen.be/arcgissql/rest/services/P_Stad/CRAB_adresposities/MapServer/0/query?' + 'where=GEMEENTE%3D%27Antwerpen%27%20and%20STRAATNM%20%3D%27' + straatnaam + '%27%20and%20(HUISNR%20like%20%27' + huisnummer + '%27%20or%20Huisnr%20like%20%27' + huisnummer + '%5Ba-z%5D%27)%20and%20APPTNR%20%3D%20%27%27%20and%20busnr%20%3D%20%27%27' +
+            // 'where=GEMEENTE%3D%27Antwerpen%27+and+STRAATNM+%3D%27' + straatnaam + ' %27+and+HUISNR+like+%27' + huisnummer + '%25%27' + 
+            '&text=&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=*&returnGeometry=true&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&f=pjson').success(function (data, status, headers, config) {
                 // data = HelperService.UnwrapProxiedData(data);
                 prom.resolve(data);
             }).error(function (data, status, headers, config) {
@@ -3067,7 +3069,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         _popupService.ErrorFromHTTP = function (data, status, url) {
             var title = 'HTTP error (' + status + ')';
             var message = 'Er is een fout gebeurt met de call naar: ' + url;
-            var exception = { url: url, data: data, status: status };
+            var exception = { url: url, status: status, data: data };
             var callback = function callback() {
                 _popupService.ExceptionFunc(exception);
             };
@@ -4115,11 +4117,13 @@ L.drawLocal = {
     "<div class=margin-top>\n" +
     "<input disabled value=https://geodata.antwerpen.be/arcgissql/services/P_SiK/Groeninventaris/MapServer/WMSServer>\n" +
     "</div>\n" +
-    "<div class=\"scrollable-list margin-top margin-bottom\" ng-if=!searchIsUrl ng-repeat=\"theme in availableThemes\">\n" +
+    "<div class=\"scrollable-list margin-top margin-bottom\">\n" +
+    "<div ng-if=!searchIsUrl ng-repeat=\"theme in availableThemes\">\n" +
     "<div ng-click=geopuntThemeChanged(theme) ng-class=\"{'greytext': theme.Type != 'wms' &&  theme.Type != 'esri'}\">\n" +
     "{{theme.Naam}}\n" +
     "<i ng-if=\"theme.Added == true\" class=\"fa fa-check-circle\"></i>\n" +
     "<i ng-if=\"theme.Added == null\" class=\"fa fa-check-circle-o\"></i>\n" +
+    "</div>\n" +
     "</div>\n" +
     "</div>\n" +
     "<div>\n" +
@@ -4193,7 +4197,7 @@ L.drawLocal = {
     "<div class=can-open ng-class=\"{'open': showLayer}\">\n" +
     "<input indeterminate-checkbox child-list=lyrctrl.layer.AllLayers property=enabled type=checkbox ng-model=lyrctrl.layer.enabled id={{lyrctrl.layer.name}}{{lyrctrl.layer.id}}>\n" +
     "<label for={{lyrctrl.layer.name}}{{lyrctrl.layer.id}}> {{lyrctrl.layer.title | limitTo: 99}}</label>\n" +
-    "<span ng-click=\"showLayer = !showLayer\"></span>\n" +
+    "<span class=show-layer ng-click=\"showLayer = !showLayer\"></span>\n" +
     "</div>\n" +
     "<div ng-show=showLayer ng-repeat=\"lay in lyrctrl.layer.Layers\">\n" +
     "<tink-managementlayer layer=lay>\n" +
@@ -4276,7 +4280,7 @@ L.drawLocal = {
     "<label for={{lyrctrl.layer.name}}{{lyrctrl.layer.id}}>{{lyrctrl.layer.name}}</label>\n" +
     "</div>\n" +
     "<div>\n" +
-    "<span ng-click=\"showLayer = !showLayer\"></span>\n" +
+    "<span class=show-layer ng-click=\"showLayer = !showLayer\"></span>\n" +
     "</div>\n" +
     "</li>\n" +
     "<ul ng-show=showLayer ng-repeat=\"layer in lyrctrl.layer.Layers | filter :  { enabled: true }\">\n" +
@@ -4286,19 +4290,20 @@ L.drawLocal = {
     "</div>\n" +
     "<li class=\"li-item toc-item-with-icon\" ng-if=!lyrctrl.layer.hasLayers>\n" +
     "<img class=layer-icon ng-if=\"lyrctrl.layer.theme.Type=='esri' && lyrctrl.layer.legend.length==1\" ng-src=\"{{lyrctrl.layer.legend[0].fullurl}} \">\n" +
-    "<div>\n" +
+    "<div class=can-open ng-class=\"{'open': showLayer2}\">\n" +
     "<input class=\"visible-box hidden-print\" type=checkbox ng-model=lyrctrl.layer.visible ng-change=layercheckboxchange(lyrctrl.layer.theme) id=\"{{lyrctrl.layer.name}}{{lyrctrl.layer.id}} \">\n" +
     "<label ng-class=\"{ 'greytext': lyrctrl.layer.displayed==false} \" for={{lyrctrl.layer.name}}{{lyrctrl.layer.id}}> {{lyrctrl.layer.title}}\n" +
-    "<span class=hidden-print ng-show=\"lyrctrl.layer.theme.Type=='wms' && lyrctrl.layer.queryable \">(i)</span>\n" +
+    "<span class=\"hidden-print greytext\" ng-show=\"lyrctrl.layer.theme.Type=='wms' && lyrctrl.layer.queryable\"> <i class=\"fa fa-info\"></i></span>\n" +
     "</label>\n" +
+    "<span class=show-layer ng-show=\"lyrctrl.layer.theme.Type=='wms' && lyrctrl.layer.queryable \" ng-click=\"showLayer2 = !showLayer2\"></span>\n" +
+    "<img class=normal-size ng-src={{lyrctrl.layer.legendUrl}} ng-show=showLayer2><img>\n" +
     "</div>\n" +
     "</li>\n" +
-    "<li class=li-item ng-if=\"lyrctrl.layer.theme.Type=='wms'\">\n" +
-    "<img ng-src={{lyrctrl.layer.legendUrl}}><img>\n" +
-    "<div ng-if=\"lyrctrl.layer.theme.Type=='esri' && lyrctrl.layer.legend.length> 1\" ng-repeat=\"legend in lyrctrl.legends\">\n" +
+    "<ul class=li-item ng-if=\"lyrctrl.layer.theme.Type=='wms'\" ng-show=showLayer>\n" +
+    "<li ng-if=\"lyrctrl.layer.theme.Type=='esri' && lyrctrl.layer.legend.length> 1\" ng-repeat=\"legend in lyrctrl.legends\">\n" +
     "<img style=\"width:20px; height:20px\" ng-src={{legend.url}}><img><span>²{{legend.label}}</span>\n" +
-    "</div>\n" +
     "</li>\n" +
+    "</ul>\n" +
     "</div>\n"
   );
 
@@ -4410,7 +4415,7 @@ L.drawLocal = {
   $templateCache.put('templates/other/themeTemplate.html',
     "<div>\n" +
     "<input class=\"visible-box hidden-print\" type=checkbox id=chk{{thmctrl.theme.Naam}} ng-model=thmctrl.theme.Visible ng-change=layercheckboxchange(thmctrl.theme)>\n" +
-    "<label for=chk{{thmctrl.theme.Naam}}> {{thmctrl.theme.Naam}} <span class=hidden-print ng-show=\"thmctrl.theme.Type=='esri'\">(stad)</span><span class=hidden-print ng-hide=\"thmctrl.theme.Type=='esri'\">({{thmctrl.theme.Type}})</span></label>\n" +
+    "<label for=chk{{thmctrl.theme.Naam}}> {{thmctrl.theme.Naam}} <span class=\"label-info hidden-print\" ng-show=\"thmctrl.theme.Type=='esri'\">stad</span><span class=\"label-info hidden-print\" ng-hide=\"thmctrl.theme.Type=='esri'\">{{thmctrl.theme.Type}}</span></label>\n" +
     "<button ng-hide=\"hidedelete == true\" class=\"trash pull-right\" ng-click=thmctrl.deleteTheme()></button>\n" +
     "<ul class=\"ul-level no-theme-layercontroller-checkbox\" ng-repeat=\"layer in thmctrl.theme.Layers | filter: { enabled: true }\">\n" +
     "<tink-layer layer=layer layercheckboxchange=layercheckboxchange(layer.theme)>\n" +
