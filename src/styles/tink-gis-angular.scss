@@ -214,10 +214,6 @@ button.btn.active {
   display: none !important;
 }
 
-// #zoekbalken { //!! styling set on class, not id
-//   width: 200px;
-// }
-
 .blue {
   color: blue;
 }
@@ -296,7 +292,7 @@ button.btn.active {
     transform: translate(0, 0) !important
 }
 
-//Creating parent container for flex column and scrollable list
+//Creating parent container for flex column and overflow-wrapper
 .relative-container {
   height: 60vh;
 
@@ -306,8 +302,6 @@ button.btn.active {
 
 
 .flex-column {
-  // flex item settings
-  flex-grow: 1; // necessary?!!
 
   // flex container settings
   display: flex;
@@ -318,57 +312,46 @@ button.btn.active {
   flex-grow: 1;
 }
 
-
-.scrollable-list {
+.overflow-wrapper {
   overflow: auto;
+  width: 100%;
 
-  // flex item settings
-  flex-grow: 1;
+  &.list-selectable {
 
-  dl {
-    margin-bottom: rem(10);
-
-    dd {
-      color: $gray;
-      cursor: default;
-      margin-left: rem(10);
-      transition: all $animation-speed linear;
-    }
-
-    dt {
-      color: $gray-light;
-      cursor: pointer;
-      transition: all $animation-speed linear;
-    }
-
-    &.active {
-      a {
-        dt {
-          color: $brand;
-        }
-      }
+    dl {
+      margin-bottom: rem(10);
 
       dd {
-        color: darken($gray, 25%);
+        color: $gray;
+        cursor: default;
+        margin-left: rem(10);
+        transition: all $animation-speed linear;
+      }
+
+      dt {
+        color: $gray-light;
+        cursor: pointer;
+        transition: all $animation-speed linear;
+      }
+
+      &.active {
+        a {
+          dt {
+            color: $brand;
+          }
+        }
+
+        dd {
+          color: darken($gray, 25%);
+        }
       }
     }
   }
 }
 
-// aside needs overflow initial so it won't scroll
-// WIP <-- //
-
-.scrollable-list-component {
-  overflow: auto;
-  width: 100%;
-}
-
 .nav-aside > aside {
   overflow: initial; // so the children can set overflow
 }
-
-
-// -> WIP //
 
 
 /* List toggle */
@@ -403,16 +386,6 @@ button.btn.active {
 /**
  * Rightside layer menu
  */
-
-/* Lagenbeheer */
-// .addlayerbtn { // obsolete !!
-//     margin-left: auto;
-//     margin-right: auto;
-//     margin-top: 5px;
-//     margin-bottom: 5px;
-//     display: block;
-// }
-
 
 /* Trash can button */
 button.trash {
@@ -540,7 +513,7 @@ ul {
     z-index: 9999;
 }
 .modal {
-  // seems to generate unnecessary scrollbar when using second scrollable-list - fixed with initial setting
+  // seems to generate unnecessary scrollbar when using second overflow-wrapper - fixed with initial setting !!
   overflow: initial;
   z-index: 9998;
 }
@@ -699,6 +672,7 @@ input.typeahead.tt-input {
   border-width: 2px;
   position: fixed;
   text-align: center;
+  top: 4rem;
   z-index: 700;
 
   &:hover,

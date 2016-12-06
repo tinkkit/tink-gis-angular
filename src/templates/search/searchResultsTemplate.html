@@ -1,5 +1,5 @@
-<div class="flex-column flex-grow-1" ng-if="!srchrsltsctrl.selectedResult && srchrsltsctrl.featureLayers.length > 0">
-    <div class="LinksResultatenScherm">
+<div class="flex-column flex-grow-1 margin-top" ng-if="!srchrsltsctrl.selectedResult && srchrsltsctrl.featureLayers.length > 0">
+    <div>
         <div class="col-xs-12">
             <select ng-model="srchrsltsctrl.layerGroupFilter">
                 <option value="geenfilter" selected="selected">Geen filter ({{srchrsltsctrl.features.length}})</option>
@@ -7,7 +7,7 @@
             </select>
         </div>
     </div>
-    <div class="scrollable-list-component">
+    <div class="overflow-wrapper margin-top">
         <ul ng-repeat="layerGroupName in srchrsltsctrl.featureLayers">
             <tink-accordion ng-if="srchrsltsctrl.layerGroupFilter=='geenfilter' || srchrsltsctrl.layerGroupFilter==layerGroupName " data-start-open="true"
                 data-one-at-a-time="false">

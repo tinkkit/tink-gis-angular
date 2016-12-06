@@ -1,9 +1,9 @@
 <div class="row relative-container">
-    <div class="col-md-4 flex-column margin-top margin-bottom">
+    <div class="col-md-4 flex-column flex-grow-1 margin-top margin-bottom">
         <div>
             <input class="searchbox" type="text" ng-model="searchTerm" ng-change="searchChanged()" placeholder="Geef een trefwoord" />
         </div>
-        <div class="scrollable-list margin-top margin-bottom">
+        <div class="overflow-wrapper list-selectable margin-top margin-bottom">
             <div ng-repeat="theme in availableThemes | filter:{name: searchTerm}">
                 <dl ng-class="{active: isActive(theme)}">
                     <a href="#" class="theme-layer" ng-click="ThemeChanged(theme)">
@@ -13,7 +13,7 @@
             </div>
         </div>
     </div>
-    <div class="col-md-8 flex-column margin-top margin-bottom">
+    <div class="col-md-8 flex-column flex-grow-1 margin-top margin-bottom">
         <preview-layer ng-if="copySelectedTheme" theme="copySelectedTheme" addorupdatefunc="AddOrUpdateTheme()">
 
         </preview-layer>

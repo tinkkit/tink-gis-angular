@@ -1,4 +1,4 @@
-<div class="flex-column">
+<div class="flex-column flex-grow-1">
     <div ng-show="theme !== null">
         <button class="btn-primary" ng-if="theme.Added == false" ng-click="addorupdatefunc()">Toevoegen</button>
         <button ng-if="theme.Added != false" ng-click="addorupdatefunc()">Update</button>
@@ -8,7 +8,7 @@
         <p>{{theme.Description}}</p>
         <p><small><a ng-href="{{theme.CleanUrl}}" target="_blank">Details</a></small></p>
     </div>
-    <div class="layercontroller-checkbox scrollable-list">
+    <div class="layercontroller-checkbox overflow-wrapper">
         <input indeterminate-checkbox child-list="theme.AllLayers" property="enabled" type="checkbox" ng-model="theme.enabled" id="{{theme.name}}">
         <label for="{{theme.name}}">{{theme.name}}</label>
         <div ng-repeat="mainlayer in theme.Layers">

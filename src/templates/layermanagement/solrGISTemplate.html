@@ -1,9 +1,9 @@
 <div class="row relative-container">
-    <div class="col-md-4 flex-column margin-top margin-bottom">
+    <div class="col-md-4 flex-column flex-grow-1 margin-top margin-bottom">
         <div>
             <input class="searchbox" type="text" ng-model="searchTerm" ng-change="searchChanged()" ng-model-options="{debounce: 250}" placeholder="Geef een trefwoord" />
         </div>
-        <div class="scrollable-list margin-top margin-bottom">
+        <div class="overflow-wrapper list-selectable margin-top margin-bottom">
             <div ng-repeat="theme in availableThemes">
                 <dl ng-class="{active: isActive(theme)}">
                 <!-- ng-class="{'greytext': theme.Type != 'wms' &&  theme.Type != 'esri'}"-->
@@ -25,7 +25,7 @@
             <tink-pagination  ng-hide="numberofrecordsmatched <= 5" tink-current-page="currentPage" tink-change="pageChanged(page,perPage,next)" tink-total-items="numberofrecordsmatched" tink-items-per-page="recordsAPage"></tink-pagination>
         </div>
     </div>
-    <div class="col-md-8 flex-column margin-top margin-bottom">
+    <div class="col-md-8 flex-column flex-grow-1 margin-top margin-bottom">
         <preview-layer ng-if="copySelectedTheme"  theme="copySelectedTheme" addorupdatefunc="AddOrUpdateTheme()">
 
         </preview-layer>

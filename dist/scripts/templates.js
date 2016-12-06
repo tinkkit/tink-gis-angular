@@ -57,14 +57,14 @@ angular.module('tink.gis').run(['$templateCache', function($templateCache) {
 
   $templateCache.put('templates/layermanagement/geoPuntTemplate.html',
     "<div class=\"row relative-container\">\n" +
-    "<div class=\"col-md-4 flex-column margin-top margin-bottom\">\n" +
+    "<div class=\"col-md-4 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
     "<div>\n" +
     "<input class=searchbox ng-model=searchTerm ng-change=searchChanged() ng-model-options=\"{debounce: 500}\" placeholder=\"Geef een trefwoord of een url in\">\n" +
     "</div>\n" +
     "<div class=margin-top>\n" +
     "<input disabled value=https://geodata.antwerpen.be/arcgissql/services/P_SiK/Groeninventaris/MapServer/WMSServer>\n" +
     "</div>\n" +
-    "<div class=\"scrollable-list margin-top margin-bottom\">\n" +
+    "<div class=\"overflow-wrapper list-selectable margin-top margin-bottom\">\n" +
     "<div ng-if=!searchIsUrl ng-repeat=\"theme in availableThemes\">\n" +
     "<div ng-click=geopuntThemeChanged(theme) ng-class=\"{'greytext': theme.Type != 'wms' &&  theme.Type != 'esri'}\">\n" +
     "{{theme.Naam}}\n" +
@@ -77,7 +77,7 @@ angular.module('tink.gis').run(['$templateCache', function($templateCache) {
     "<tink-pagination ng-hide=\"numberofrecordsmatched <= 5\" tink-items-per-page-values=[5] tink-current-page=currentPage tink-change=pageChanged(page,perPage,next) tink-total-items=numberofrecordsmatched tink-items-per-page=recordsAPage></tink-pagination>\n" +
     "</div>\n" +
     "</div>\n" +
-    "<div class=\"col-md-8 flex-column margin-top margin-bottom\">\n" +
+    "<div class=\"col-md-8 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
     "<div ng-if=searchIsUrl>\n" +
     "<button ng-click=laadUrl()>Laad url</button>\n" +
     "</div>\n" +
@@ -116,11 +116,11 @@ angular.module('tink.gis').run(['$templateCache', function($templateCache) {
 
   $templateCache.put('templates/layermanagement/layersManagementTemplate.html',
     "<div class=\"row relative-container\">\n" +
-    "<div class=\"col-md-4 flex-column margin-top margin-bottom\">\n" +
+    "<div class=\"col-md-4 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
     "<div>\n" +
     "<input class=searchbox ng-model=searchTerm ng-change=searchChanged() placeholder=\"Geef een trefwoord\">\n" +
     "</div>\n" +
-    "<div class=\"scrollable-list margin-top margin-bottom\">\n" +
+    "<div class=\"overflow-wrapper list-selectable margin-top margin-bottom\">\n" +
     "<div ng-repeat=\"theme in availableThemes | filter:{name: searchTerm}\">\n" +
     "<dl ng-class=\"{active: isActive(theme)}\">\n" +
     "<a href=# class=theme-layer ng-click=ThemeChanged(theme)>\n" +
@@ -130,7 +130,7 @@ angular.module('tink.gis').run(['$templateCache', function($templateCache) {
     "</div>\n" +
     "</div>\n" +
     "</div>\n" +
-    "<div class=\"col-md-8 flex-column margin-top margin-bottom\">\n" +
+    "<div class=\"col-md-8 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
     "<preview-layer ng-if=copySelectedTheme theme=copySelectedTheme addorupdatefunc=AddOrUpdateTheme()>\n" +
     "</preview-layer>\n" +
     "</div>\n" +
@@ -162,7 +162,7 @@ angular.module('tink.gis').run(['$templateCache', function($templateCache) {
 
 
   $templateCache.put('templates/layermanagement/previewLayerTemplate.html',
-    "<div class=flex-column>\n" +
+    "<div class=\"flex-column flex-grow-1\">\n" +
     "<div ng-show=\"theme !== null\">\n" +
     "<button class=btn-primary ng-if=\"theme.Added == false\" ng-click=addorupdatefunc()>Toevoegen</button>\n" +
     "<button ng-if=\"theme.Added != false\" ng-click=addorupdatefunc()>Update</button>\n" +
@@ -172,7 +172,7 @@ angular.module('tink.gis').run(['$templateCache', function($templateCache) {
     "<p>{{theme.Description}}</p>\n" +
     "<p><small><a ng-href={{theme.CleanUrl}} target=_blank>Details</a></small></p>\n" +
     "</div>\n" +
-    "<div class=\"layercontroller-checkbox scrollable-list\">\n" +
+    "<div class=\"layercontroller-checkbox overflow-wrapper\">\n" +
     "<input indeterminate-checkbox child-list=theme.AllLayers property=enabled type=checkbox ng-model=theme.enabled id={{theme.name}}>\n" +
     "<label for={{theme.name}}>{{theme.name}}</label>\n" +
     "<div ng-repeat=\"mainlayer in theme.Layers\">\n" +
@@ -185,11 +185,11 @@ angular.module('tink.gis').run(['$templateCache', function($templateCache) {
 
   $templateCache.put('templates/layermanagement/solrGISTemplate.html',
     "<div class=\"row relative-container\">\n" +
-    "<div class=\"col-md-4 flex-column margin-top margin-bottom\">\n" +
+    "<div class=\"col-md-4 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
     "<div>\n" +
     "<input class=searchbox ng-model=searchTerm ng-change=searchChanged() ng-model-options=\"{debounce: 250}\" placeholder=\"Geef een trefwoord\">\n" +
     "</div>\n" +
-    "<div class=\"scrollable-list margin-top margin-bottom\">\n" +
+    "<div class=\"overflow-wrapper list-selectable margin-top margin-bottom\">\n" +
     "<div ng-repeat=\"theme in availableThemes\">\n" +
     "<dl ng-class=\"{active: isActive(theme)}\">\n" +
     "<a href=# class=theme-layer ng-click=solrThemeChanged(theme)>\n" +
@@ -210,7 +210,7 @@ angular.module('tink.gis').run(['$templateCache', function($templateCache) {
     "<tink-pagination ng-hide=\"numberofrecordsmatched <= 5\" tink-current-page=currentPage tink-change=pageChanged(page,perPage,next) tink-total-items=numberofrecordsmatched tink-items-per-page=recordsAPage></tink-pagination>\n" +
     "</div>\n" +
     "</div>\n" +
-    "<div class=\"col-md-8 flex-column margin-top margin-bottom\">\n" +
+    "<div class=\"col-md-8 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
     "<preview-layer ng-if=copySelectedTheme theme=copySelectedTheme addorupdatefunc=AddOrUpdateTheme()>\n" +
     "</preview-layer>\n" +
     "</div>\n" +
@@ -391,8 +391,8 @@ angular.module('tink.gis').run(['$templateCache', function($templateCache) {
 
 
   $templateCache.put('templates/search/searchResultsTemplate.html',
-    "<div class=\"flex-column flex-grow-1\" ng-if=\"!srchrsltsctrl.selectedResult && srchrsltsctrl.featureLayers.length > 0\">\n" +
-    "<div class=LinksResultatenScherm>\n" +
+    "<div class=\"flex-column flex-grow-1 margin-top\" ng-if=\"!srchrsltsctrl.selectedResult && srchrsltsctrl.featureLayers.length > 0\">\n" +
+    "<div>\n" +
     "<div class=col-xs-12>\n" +
     "<select ng-model=srchrsltsctrl.layerGroupFilter>\n" +
     "<option value=geenfilter selected>Geen filter ({{srchrsltsctrl.features.length}})</option>\n" +
@@ -400,7 +400,7 @@ angular.module('tink.gis').run(['$templateCache', function($templateCache) {
     "</select>\n" +
     "</div>\n" +
     "</div>\n" +
-    "<div class=scrollable-list-component>\n" +
+    "<div class=\"overflow-wrapper margin-top\">\n" +
     "<ul ng-repeat=\"layerGroupName in srchrsltsctrl.featureLayers\">\n" +
     "<tink-accordion ng-if=\"srchrsltsctrl.layerGroupFilter=='geenfilter' || srchrsltsctrl.layerGroupFilter==layerGroupName \" data-start-open=true data-one-at-a-time=false>\n" +
     "<tink-accordion-panel>\n" +
@@ -432,17 +432,17 @@ angular.module('tink.gis').run(['$templateCache', function($templateCache) {
 
 
   $templateCache.put('templates/search/searchSelectedTemplate.html',
-    "<div class=\"flex-column margin-top resultatenDetailScherm\" ng-if=srchslctdctrl.selectedResult class=nav-aside-padding>\n" +
+    "<div class=\"flex-column flex-grow-1 margin-top\" ng-if=srchslctdctrl.selectedResult class=nav-aside-padding>\n" +
     "<div class=margin-bottom>\n" +
     "<div class=col-xs-12>\n" +
     "<div class=btn-group>\n" +
     "<button type=button class=btn ng-disabled=!srchslctdctrl.prevResult ng-click=srchslctdctrl.vorige()>Vorige</button>\n" +
     "<button type=button class=btn ng-disabled=!srchslctdctrl.nextResult ng-click=srchslctdctrl.volgende()>Volgende</button>\n" +
     "</div>\n" +
-    "<button class=\"srchbtn btn pull-right\" ng-click=srchslctdctrl.delete()>Verwijderen</button>\n" +
+    "<button class=\"btn pull-right\" ng-click=srchslctdctrl.delete()>Verwijderen</button>\n" +
     "</div>\n" +
     "</div>\n" +
-    "<div class=\"col-xs-12 scrollable-list-component\">\n" +
+    "<div class=\"col-xs-12 overflow-wrapper\">\n" +
     "<dl ng-repeat=\"prop in srchslctdctrl.props\">\n" +
     "<dt>{{ prop.key}}</dt>\n" +
     "<div ng-if=\"prop.value.toLowerCase() != 'null'\">\n" +
@@ -451,34 +451,16 @@ angular.module('tink.gis').run(['$templateCache', function($templateCache) {
     "</div>\n" +
     "</dl>\n" +
     "</div>\n" +
-    "<div class=margin-top>\n" +
+    "<div class=\"margin-top margin-bottom\">\n" +
     "<div class=col-xs-12>\n" +
-    "<div class=col-xs-4>\n" +
-    "<div class=row>\n" +
-    "<div class=col-xs-12>\n" +
-    "<button class=\"btn-primary srchbtn\" ng-click=srchslctdctrl.toonFeatureOpKaart()>Tonen</button>\n" +
+    "<button class=btn-primary ng-click=srchslctdctrl.toonFeatureOpKaart()>Tonen</button>\n" +
+    "<div class=pull-right>\n" +
+    "<button class=margin-right ng-click=srchslctdctrl.doordruk()>Doordruk</button>\n" +
+    "<button ng-click=srchslctdctrl.buffer()>Buffer</button>\n" +
     "</div>\n" +
     "</div>\n" +
-    "</div>\n" +
-    "<div class=col-xs-8>\n" +
-    "<div class=row>\n" +
-    "<div class=col-xs-6>\n" +
-    "<button class=\"srchbtn pull-right\" ng-click=srchslctdctrl.doordruk()>Doordruk</button>\n" +
-    "</div>\n" +
-    "<div class=col-xs-6>\n" +
-    "<button class=\"srchbtn pull-right\" ng-click=srchslctdctrl.buffer()>Buffer</button>\n" +
-    "</div>\n" +
-    "</div>\n" +
-    "</div>\n" +
-    "<div class=col-xs-4>\n" +
-    "</div>\n" +
-    "<div class=col-xs-8>\n" +
-    "<div class=\"row margin-top\">\n" +
-    "<div class=col-xs-12>\n" +
-    "<a class=\"srchbtn pull-right\" ng-click=srchslctdctrl.close(srchslctdctrl.selectedResult)>Terug naar resultaten</a>\n" +
-    "</div>\n" +
-    "</div>\n" +
-    "</div>\n" +
+    "<div class=\"col-xs-12 margin-top\">\n" +
+    "<a class=pull-right ng-click=srchslctdctrl.close(srchslctdctrl.selectedResult)>Terug naar resultaten</a>\n" +
     "</div>\n" +
     "</div>\n" +
     "</div>\n"
@@ -487,7 +469,7 @@ angular.module('tink.gis').run(['$templateCache', function($templateCache) {
 
   $templateCache.put('templates/search/searchTemplate.html',
     "<div data-tink-nav-aside=\"\" id=leftaside data-auto-select=true data-toggle-id=asideNavLeft class=\"nav-aside nav-left\">\n" +
-    "<aside class=flex-column>\n" +
+    "<aside class=\"flex-column flex-grow-1\">\n" +
     "<div class=nav-aside-section>\n" +
     "<p class=nav-aside-title>Resultaten</p>\n" +
     "</div>\n" +
