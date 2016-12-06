@@ -350,7 +350,10 @@ button.btn.active {
 }
 
 .nav-aside > aside {
-  overflow: initial; // so the children can set overflow
+
+  &.flex-column {
+    overflow: initial; // so the children can set overflow
+  }
 }
 
 
