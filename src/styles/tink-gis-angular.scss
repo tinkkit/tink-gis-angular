@@ -317,6 +317,7 @@ button.btn.active {
   width: 100%;
 
   &.list-selectable {
+    user-select: none;
 
     dl {
       margin-bottom: rem(10);
@@ -645,6 +646,10 @@ input.typeahead.tt-input {
 
 .greytext {
   color: lightgrey !important;
+}
+
+.not-allowed {
+  cursor: not-allowed;
 }
 
 // This breaks pagination
