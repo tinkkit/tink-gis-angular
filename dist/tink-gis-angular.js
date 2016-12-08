@@ -91,6 +91,7 @@ var LayerType = {
     GROUP: 1
 };
 var ActiveInteractieButton = {
+    GEEN: 'geen',
     IDENTIFY: 'identify',
     SELECT: 'select',
     METEN: 'meten',
@@ -106,6 +107,7 @@ var Solr = {
     BaseUrl: 'https://esb-app1-o.antwerpen.be/v1/'
 };
 var DrawingOption = {
+    GEEN: 'geen',
     NIETS: '',
     AFSTAND: 'afstand',
     OPPERVLAKTE: 'oppervlakte',
@@ -302,6 +304,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         $scope.AddOrUpdateTheme = function () {
             LayerManagementService.AddOrUpdateTheme($scope.selectedTheme, $scope.copySelectedTheme);
             $scope.clearPreview();
+            // UIService.OpenRightSide();
         };
     }]);
 })();
@@ -843,13 +846,24 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         }();
         vm.ZoekenOpLocatie = true;
         vm.activeInteractieKnop = MapData.ActiveInteractieKnop;
+        $scope.$watch(function () {
+            return MapData.ActiveInteractieKnop;
+        }, function (data) {
+            vm.activeInteractieKnop = data;
+        }, true);
+        vm.drawingType = MapData.DrawingType;
+        $scope.$watch(function () {
+            return MapData.DrawingType;
+        }, function (data) {
+            vm.drawingType = data;
+        }, true);
+
         vm.SelectableLayers = function () {
             return MapData.VisibleLayers;
         };
         vm.selectedLayer = function () {
             return MapData.SelectedLayer;
         };
-        vm.drawingType = MapData.DrawingType;
         vm.showMetenControls = false;
         vm.showDrawControls = false;
         vm.zoekLoc = '';
@@ -970,7 +984,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             }
         }).addTo(map);
         vm.interactieButtonChanged = function (ActiveButton) {
-            MapData.CleanMap();
+            // MapData.CleanMap();
             MapData.ActiveInteractieKnop = ActiveButton; // If we only could keep the vmactiveInteractieKnop in sync with the one from MapData
             vm.activeInteractieKnop = ActiveButton;
             vm.showMetenControls = false;
@@ -1011,7 +1025,15 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             }
         };
         vm.drawingButtonChanged = function (drawOption) {
-            MapData.CleanMap();
+            if (drawOption == DrawingOption.LIJN || drawOption == DrawingOption.POLYGON || drawOption == DrawingOption.NIETS || drawOption == DrawingOption.VIERKANT) {
+                MapData.CleanMap();
+                MapData.CleanSearch();
+            }
+            if (drawOption == DrawingOption.AFSTAND || drawOption == DrawingOption.OPPERVLAKTE) {
+                MapData.CleanDrawings();
+            }
+
+            // MapData.CleanMap();
             MapData.DrawingType = drawOption; // pff must be possible to be able to sync them...
             vm.drawingType = drawOption;
             DrawService.StartDraw(drawOption);
@@ -2402,7 +2424,7 @@ L.control.typeahead = function (args) {
                 _data.SelectedLayer = _data.defaultlayer;
             }
         };
-        _data.ActiveInteractieKnop = ActiveInteractieButton.IDENTIFY;
+        _data.ActiveInteractieKnop = ActiveInteractieButton.NIETS;
         _data.DrawingType = DrawingOption.NIETS;
         _data.DrawingObject = null;
         _data.LastIdentifyBounds = null;
@@ -2671,7 +2693,7 @@ L.control.typeahead = function (args) {
 
 (function () {
     var module = angular.module('tink.gis');
-    var mapEvents = function mapEvents(map, MapService, MapData, UIService) {
+    var mapEvents = function mapEvents(map, MapService, MapData, UIService, $rootScope) {
         var _mapEvents = {};
         map.on('draw:drawstart', function (event) {
             console.log('draw started');
@@ -2718,24 +2740,38 @@ L.control.typeahead = function (args) {
             if (event.originalEvent instanceof MouseEvent) {
                 console.log('click op map! Is drawing: ' + MapData.IsDrawing);
                 if (!MapData.IsDrawing) {
-                    MapData.CleanMap();
                     switch (MapData.ActiveInteractieKnop) {
                         case ActiveInteractieButton.IDENTIFY:
+                            MapData.CleanMap();
                             MapData.LastIdentifyBounds = map.getBounds();
                             MapService.Identify(event, 10);
                             UIService.OpenLeftSide();
+                            $rootScope.$apply(function () {
+                                MapData.ActiveInteractieKnop = ActiveInteractieButton.GEEN;
+                            });
                             break;
                         case ActiveInteractieButton.SELECT:
-
+                            if (MapData.DrawingType != DrawingOption.GEEN) {
+                                MapData.CleanMap();
+                                MapData.CleanSearch();
+                            }
                             if (MapData.DrawingType === DrawingOption.NIETS) {
                                 MapService.Select(event);
                                 UIService.OpenLeftSide();
                             } // else a drawing finished
                             break;
                         case ActiveInteractieButton.WATISHIER:
+                            MapData.CleanWatIsHier();
                             MapService.WatIsHier(event);
+                            $rootScope.$apply(function () {
+                                MapData.ActiveInteractieKnop = ActiveInteractieButton.GEEN;
+                            });
                             break;
                         case ActiveInteractieButton.METEN:
+                            // MapData.CleanMap();
+
+                            break;
+                        case ActiveInteractieButton.GEEN:
 
                             break;
                         default:
@@ -2782,7 +2818,8 @@ L.control.typeahead = function (args) {
                             var afstand = berekendAfstand(e.layer._latlngs);
                             var popup = e.layer.bindPopup('Afstand (m): ' + afstand + ' ');
                             popup.on('popupclose', function (event) {
-                                MapData.CleanMap();
+                                MapData.CleanDrawings();
+                                // MapData.CleanMap();
                             });
                             e.layer.openPopup();
                             break;
@@ -2791,7 +2828,8 @@ L.control.typeahead = function (args) {
                             var popuptekst = '<p>Opp  (m<sup>2</sup>): ' + LGeo.area(e.layer).toFixed(2) + '</p>' + '<p>Omtrek (m): ' + omtrek + ' </p>';
                             var popup = e.layer.bindPopup(popuptekst);
                             popup.on('popupclose', function (event) {
-                                MapData.CleanMap();
+                                MapData.CleanDrawings();
+                                // MapData.CleanMap();
                             });
                             e.layer.openPopup();
                             break;
@@ -2803,19 +2841,16 @@ L.control.typeahead = function (args) {
                     console.log('MAG NIET!!!!!!!!');
                     break;
             }
+            $rootScope.$apply(function () {
+                MapData.DrawingType = DrawingOption.GEEN;
+            });
             MapData.IsDrawing = false;
         });
         var gpsmarker = null;
         map.on('locationfound', function (e) {
-            // var radius = e.accuracy / 2;
             _mapEvents.ClearGPS();
             var gpsicon = L.divIcon({ className: 'fa fa-crosshairs fa-2x blue', style: 'color: blue' });
             gpsmarker = L.marker(e.latlng, { icon: gpsicon }).addTo(map);
-            // var popup = marker.bindPopup("GPS").openPopup();
-            // popup.on('popupclose', function (e) {
-            //     map.removeLayer(marker);
-            // })
-            // L.circle(e.latlng, radius).addTo(map);
         });
         _mapEvents.ClearGPS = function () {
             if (gpsmarker) {
@@ -2828,7 +2863,7 @@ L.control.typeahead = function (args) {
 
         return _mapEvents;
     };
-    module.$inject = ['map', 'MapService', 'MapData', 'UIService'];
+    module.$inject = ['map', 'MapService', 'MapData', 'UIService', '$rootScope'];
 
     module.factory('MapEvents', mapEvents);
 })();
@@ -3277,7 +3312,12 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 html.addClass('nav-left-open');
             }
         };
-
+        _service.OpenRightSide = function () {
+            var html = $('html');
+            if (!html.hasClass('nav-right-open')) {
+                html.addClass('nav-right-open');
+            }
+        };
         return _service;
     };
     // module.$inject = ['$http', 'map'];
@@ -4028,20 +4068,34 @@ L.drawLocal = {
     "<meta charset=utf-8>\n" +
     "<title>Street View side-by-side</title>\n" +
     "<style>\n" +
-    "html, body {\n" +
-    "        height: 100%;\n" +
-    "        margin: 0;\n" +
-    "        padding: 0;\n" +
-    "      }\n" +
-    "      #map,  {\n" +
-    "        float: left;\n" +
-    "        height: 0%;\n" +
-    "        width: 0%;\n" +
-    "      }\n" +
-    "       #pano {\n" +
-    "        float: left;\n" +
-    "        height: 100%;\n" +
-    "        width: 100%;\n" +
+    "html, body {\r" +
+    "\n" +
+    "        height: 100%;\r" +
+    "\n" +
+    "        margin: 0;\r" +
+    "\n" +
+    "        padding: 0;\r" +
+    "\n" +
+    "      }\r" +
+    "\n" +
+    "      #map,  {\r" +
+    "\n" +
+    "        float: left;\r" +
+    "\n" +
+    "        height: 0%;\r" +
+    "\n" +
+    "        width: 0%;\r" +
+    "\n" +
+    "      }\r" +
+    "\n" +
+    "       #pano {\r" +
+    "\n" +
+    "        float: left;\r" +
+    "\n" +
+    "        height: 100%;\r" +
+    "\n" +
+    "        width: 100%;\r" +
+    "\n" +
     "      }\n" +
     "</style>\n" +
     "</head>\n" +
@@ -4049,24 +4103,42 @@ L.drawLocal = {
     "<div id=map></div>\n" +
     "<div id=pano></div>\n" +
     "<script>\n" +
-    "function initialize() {\n" +
-    "        \n" +
-    "        var urlLat = parseFloat((location.search.split('lat=')[1]||'').split('&')[0]);\n" +
-    "        var urlLng = parseFloat((location.search.split('lng=')[1]||'').split('&')[0]);\n" +
-    "        var fenway = {lat:urlLat, lng: urlLng};\n" +
-    "        var map = new google.maps.Map(document.getElementById('map'), {\n" +
-    "          center: fenway,\n" +
-    "          zoom: 14\n" +
-    "        });\n" +
-    "        var panorama = new google.maps.StreetViewPanorama(\n" +
-    "            document.getElementById('pano'), {\n" +
-    "              position: fenway,\n" +
-    "              pov: {\n" +
-    "                heading: 34,\n" +
-    "                pitch: 10\n" +
-    "              }\n" +
-    "            });\n" +
-    "        map.setStreetView(panorama);\n" +
+    "function initialize() {\r" +
+    "\n" +
+    "        \r" +
+    "\n" +
+    "        var urlLat = parseFloat((location.search.split('lat=')[1]||'').split('&')[0]);\r" +
+    "\n" +
+    "        var urlLng = parseFloat((location.search.split('lng=')[1]||'').split('&')[0]);\r" +
+    "\n" +
+    "        var fenway = {lat:urlLat, lng: urlLng};\r" +
+    "\n" +
+    "        var map = new google.maps.Map(document.getElementById('map'), {\r" +
+    "\n" +
+    "          center: fenway,\r" +
+    "\n" +
+    "          zoom: 14\r" +
+    "\n" +
+    "        });\r" +
+    "\n" +
+    "        var panorama = new google.maps.StreetViewPanorama(\r" +
+    "\n" +
+    "            document.getElementById('pano'), {\r" +
+    "\n" +
+    "              position: fenway,\r" +
+    "\n" +
+    "              pov: {\r" +
+    "\n" +
+    "                heading: 34,\r" +
+    "\n" +
+    "                pitch: 10\r" +
+    "\n" +
+    "              }\r" +
+    "\n" +
+    "            });\r" +
+    "\n" +
+    "        map.setStreetView(panorama);\r" +
+    "\n" +
     "      }\n" +
     "</script>\n" +
     "<script async defer src=\"https://maps.googleapis.com/maps/api/js?callback=initialize\">\n" +
@@ -4280,23 +4352,27 @@ L.drawLocal = {
 
   $templateCache.put('templates/other/layersTemplate.html',
     "<div data-tink-nav-aside=\"\" id=rightaside data-auto-select=true data-toggle-id=asideNavRight class=\"nav-aside nav-right\">\n" +
-    "<aside>\n" +
+    "<aside class=\"flex-column flex-grow-1\">\n" +
     "<div class=nav-aside-section>\n" +
     "<p class=nav-aside-title>Lagenoverzicht</p>\n" +
     "</div>\n" +
     "<button class=nav-right-toggle data-tink-sidenav-collapse=asideNavRight>\n" +
     "<a href=# title=\"Open menu\"><span class=sr-only>Open right menu</span></a>\n" +
     "</button>\n" +
+    "<div class=\"flex-column flex-grow-1\">\n" +
+    "<div>\n" +
     "<div class=\"col-xs-12 margin-top margin-bottom\">\n" +
-    "<button class=\"btn btn-primary\" ng-click=lyrsctrl.Lagenbeheer()>Lagenbeheer</button>\n" +
+    "<button class=\"btn btn-primary center-block\" ng-click=lyrsctrl.Lagenbeheer()>Lagenbeheer</button>\n" +
     "</div>\n" +
-    "<div class=col-xs-12>\n" +
+    "</div>\n" +
+    "<div class=\"overflow-wrapper extra-padding\">\n" +
     "<ul class=ul-level id=sortableThemes ui-sortable=lyrsctrl.sortableOptions ng-model=lyrsctrl.themes>\n" +
     "<li class=li-item ng-repeat=\"theme in lyrsctrl.themes\">\n" +
     "<tink-theme theme=theme layercheckboxchange=lyrsctrl.updatethemevisibility(theme) hidedelete=false>\n" +
     "</tink-theme>\n" +
     "</li>\n" +
     "</ul>\n" +
+    "</div>\n" +
     "</div>\n" +
     "</aside>\n" +
     "</div>\n"
@@ -4455,7 +4531,7 @@ L.drawLocal = {
 
 
   $templateCache.put('templates/search/searchSelectedTemplate.html',
-    "<div class=\"flex-column flex-grow-1 margin-top\" ng-if=srchslctdctrl.selectedResult class=nav-aside-padding>\n" +
+    "<div class=\"flex-column flex-grow-1 margin-top\" ng-if=srchslctdctrl.selectedResult class=extra-padding>\n" +
     "<div class=margin-bottom>\n" +
     "<div class=col-xs-12>\n" +
     "<div class=btn-group>\n" +
@@ -4851,8 +4927,17 @@ var TinkGis;
         _createClass(wmstheme, [{
             key: 'UpdateMap',
             value: function UpdateMap(map) {
-                this.MapData.options.layers = this.MapData.wmsParams.layers = this.VisibleLayerIds.join(',');
-                this.MapData.redraw();
+                if (this.VisibleLayerIds.length !== 0) {
+                    if (!map.hasLayer(this.MapData)) {
+                        map.addLayer(this.MapData);
+                    }
+                    this.MapData.options.layers = this.MapData.wmsParams.layers = this.VisibleLayerIds.join(',');
+                    this.MapData.redraw();
+                } else {
+                    if (map.hasLayer(this.MapData)) {
+                        map.removeLayer(this.MapData);
+                    }
+                }
             }
         }]);
 

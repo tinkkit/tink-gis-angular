@@ -29,7 +29,7 @@
                 _data.SelectedLayer = _data.defaultlayer;
             }
         }
-        _data.ActiveInteractieKnop = ActiveInteractieButton.IDENTIFY;
+        _data.ActiveInteractieKnop = ActiveInteractieButton.NIETS;
         _data.DrawingType = DrawingOption.NIETS;
         _data.DrawingObject = null;
         _data.LastIdentifyBounds = null;

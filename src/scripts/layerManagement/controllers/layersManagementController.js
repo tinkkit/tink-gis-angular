@@ -45,7 +45,7 @@
                 $scope.previewTheme(theme);
                 // added to give the selected theme an Active class
                 $scope.selected = theme;
-                $scope.isActive = function(theme) {
+                $scope.isActive = function (theme) {
                     return $scope.selected === theme;
                 };
             };
@@ -53,6 +53,8 @@
             $scope.AddOrUpdateTheme = function () {
                 LayerManagementService.AddOrUpdateTheme($scope.selectedTheme, $scope.copySelectedTheme);
                 $scope.clearPreview();
+                // UIService.OpenRightSide();
+
             };
 
 

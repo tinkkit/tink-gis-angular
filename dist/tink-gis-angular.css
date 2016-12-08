@@ -480,7 +480,7 @@ input[type="checkbox"]:hover,
 input[type="checkbox"]:focus {
   cursor: pointer; }
 
-.nav-aside-padding {
+.extra-padding {
   padding-left: 1rem ;
   padding-right: 1rem ; }
 

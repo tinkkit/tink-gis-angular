@@ -130,9 +130,21 @@ namespace TinkGis {
                 this.Layers.push(lay);
             });
         }
+
         UpdateMap(map: L.Map) {
-            this.MapData.options.layers = this.MapData.wmsParams.layers = this.VisibleLayerIds.join(',');
-            this.MapData.redraw();
+            if (this.VisibleLayerIds.length !== 0) {
+                if (!map.hasLayer(this.MapData)) {
+                    map.addLayer(this.MapData);
+                }
+                this.MapData.options.layers = this.MapData.wmsParams.layers = this.VisibleLayerIds.join(',');
+                this.MapData.redraw();
+            }
+            else {
+                if (map.hasLayer(this.MapData)) {
+                    map.removeLayer(this.MapData);
+                }
+
+            }
             // map.addLayer(this.MapData);
         }
     }

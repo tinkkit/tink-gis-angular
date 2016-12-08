@@ -1,7 +1,7 @@
 'use strict';
 (function () {
     var module = angular.module('tink.gis');
-    var mapEvents = function (map, MapService, MapData, UIService) {
+    var mapEvents = function (map, MapService, MapData, UIService, $rootScope) {
         var _mapEvents = {};
         map.on('draw:drawstart', function (event) {
             console.log('draw started');
@@ -48,30 +48,46 @@
             if (event.originalEvent instanceof MouseEvent) {
                 console.log('click op map! Is drawing: ' + MapData.IsDrawing);
                 if (!MapData.IsDrawing) {
-                    MapData.CleanMap();
                     switch (MapData.ActiveInteractieKnop) {
                         case ActiveInteractieButton.IDENTIFY:
+                            MapData.CleanMap();
                             MapData.LastIdentifyBounds = map.getBounds();
                             MapService.Identify(event, 10);
                             UIService.OpenLeftSide();
+                            $rootScope.$apply(function () {
+                                MapData.ActiveInteractieKnop = ActiveInteractieButton.GEEN;
+                            });
                             break;
                         case ActiveInteractieButton.SELECT:
-
+                            if (MapData.DrawingType != DrawingOption.GEEN) {
+                                MapData.CleanMap();
+                                MapData.CleanSearch();
+                            }
                             if (MapData.DrawingType === DrawingOption.NIETS) {
                                 MapService.Select(event);
                                 UIService.OpenLeftSide();
                             } // else a drawing finished
                             break;
                         case ActiveInteractieButton.WATISHIER:
+                            MapData.CleanWatIsHier();
                             MapService.WatIsHier(event);
+                            $rootScope.$apply(function () {
+                                MapData.ActiveInteractieKnop = ActiveInteractieButton.GEEN;
+                            });
                             break;
                         case ActiveInteractieButton.METEN:
+                            // MapData.CleanMap();
+
+                            break;
+                        case ActiveInteractieButton.GEEN:
 
                             break;
                         default:
                             console.log('MAG NIET!!!!!!!!');
                             break;
                     }
+
+
                 }
                 else {
                     // MapData.DrawingObject = event;
@@ -114,7 +130,8 @@
                             var afstand = berekendAfstand(e.layer._latlngs);
                             var popup = e.layer.bindPopup('Afstand (m): ' + afstand + ' ');
                             popup.on('popupclose', function (event) {
-                                MapData.CleanMap();
+                                MapData.CleanDrawings();
+                                // MapData.CleanMap();
                             });
                             e.layer.openPopup();
                             break;
@@ -124,7 +141,8 @@
                                 + '<p>Omtrek (m): ' + omtrek + ' </p>';
                             var popup = e.layer.bindPopup(popuptekst);
                             popup.on('popupclose', function (event) {
-                                MapData.CleanMap();
+                                MapData.CleanDrawings();
+                                // MapData.CleanMap();
                             });
                             e.layer.openPopup();
                             break;
@@ -136,19 +154,16 @@
                     console.log('MAG NIET!!!!!!!!');
                     break;
             }
+            $rootScope.$apply(function () {
+                MapData.DrawingType = DrawingOption.GEEN;
+            });
             MapData.IsDrawing = false;
         });
         var gpsmarker = null;
         map.on('locationfound', function (e) {
-            // var radius = e.accuracy / 2;
             _mapEvents.ClearGPS();
             var gpsicon = L.divIcon({ className: 'fa fa-crosshairs fa-2x blue', style: 'color: blue' });
             gpsmarker = L.marker(e.latlng, { icon: gpsicon }).addTo(map);
-            // var popup = marker.bindPopup("GPS").openPopup();
-            // popup.on('popupclose', function (e) {
-            //     map.removeLayer(marker);
-            // })
-            // L.circle(e.latlng, radius).addTo(map);
         });
         _mapEvents.ClearGPS = function () {
             if (gpsmarker) {
@@ -161,7 +176,7 @@
 
         return _mapEvents;
     };
-    module.$inject = ['map', 'MapService', 'MapData', 'UIService'];
+    module.$inject = ['map', 'MapService', 'MapData', 'UIService', '$rootScope'];
 
     module.factory('MapEvents', mapEvents);
 })();

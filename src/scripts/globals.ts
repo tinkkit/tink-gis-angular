@@ -10,6 +10,7 @@ var LayerType = {
     GROUP: 1
 };
 var ActiveInteractieButton = {
+    GEEN: 'geen',
     IDENTIFY: 'identify',
     SELECT: 'select',
     METEN: 'meten',
@@ -25,6 +26,7 @@ var Solr = {
     BaseUrl: 'https://esb-app1-o.antwerpen.be/v1/'
 }
 const DrawingOption = {
+    GEEN: 'geen',
     NIETS: '',
     AFSTAND: 'afstand',
     OPPERVLAKTE: 'oppervlakte',

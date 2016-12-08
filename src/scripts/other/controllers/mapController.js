@@ -15,13 +15,22 @@
         } ();
         vm.ZoekenOpLocatie = true;
         vm.activeInteractieKnop = MapData.ActiveInteractieKnop;
+        $scope.$watch(function () { return MapData.ActiveInteractieKnop; }, function (data) {
+            vm.activeInteractieKnop = data;
+
+        }, true);
+        vm.drawingType = MapData.DrawingType;
+        $scope.$watch(function () { return MapData.DrawingType; }, function (data) {
+            vm.drawingType = data;
+
+        }, true);
+
         vm.SelectableLayers = function () {
             return MapData.VisibleLayers;
         };
         vm.selectedLayer = function () {
             return MapData.SelectedLayer;
         }
-        vm.drawingType = MapData.DrawingType;
         vm.showMetenControls = false;
         vm.showDrawControls = false;
         vm.zoekLoc = '';
@@ -144,7 +153,7 @@
             }
         ).addTo(map);
         vm.interactieButtonChanged = function (ActiveButton) {
-            MapData.CleanMap();
+            // MapData.CleanMap();
             MapData.ActiveInteractieKnop = ActiveButton; // If we only could keep the vmactiveInteractieKnop in sync with the one from MapData
             vm.activeInteractieKnop = ActiveButton;
             vm.showMetenControls = false;
@@ -185,11 +194,18 @@
             }
         };
         vm.drawingButtonChanged = function (drawOption) {
-            MapData.CleanMap();
+            if (drawOption == DrawingOption.LIJN || drawOption == DrawingOption.POLYGON || drawOption == DrawingOption.NIETS || drawOption == DrawingOption.VIERKANT) {
+                MapData.CleanMap();
+                MapData.CleanSearch();
+            }
+            if (drawOption == DrawingOption.AFSTAND || drawOption == DrawingOption.OPPERVLAKTE) {
+                MapData.CleanDrawings();
+            }
+
+            // MapData.CleanMap();
             MapData.DrawingType = drawOption; // pff must be possible to be able to sync them...
             vm.drawingType = drawOption;
             DrawService.StartDraw(drawOption);
-
         };
         vm.Loading = 0;
         vm.MaxLoading = 0;

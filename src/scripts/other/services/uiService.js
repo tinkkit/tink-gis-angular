@@ -14,7 +14,12 @@
                 html.addClass('nav-left-open');
             }
         };
-
+        _service.OpenRightSide = function () {
+            let html = $('html');
+            if (!html.hasClass('nav-right-open')) {
+                html.addClass('nav-right-open');
+            }
+        };
         return _service;
     };
     // module.$inject = ['$http', 'map'];
