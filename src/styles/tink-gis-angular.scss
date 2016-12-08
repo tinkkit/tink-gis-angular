@@ -124,7 +124,8 @@ svg.leaflet-zoom-animated {
 }
 
 button.btn.active {
-  background-color: dodgerblue;
+  // background-color: dodgerblue;
+  background-color: $brand-light;
   color: white;
 }
 
@@ -224,7 +225,8 @@ button.btn.active {
 }
 
 .blue {
-  color: blue;
+  // color: blue;
+  color: $brand-light;
 }
 .zoekbalken2  { //!! what's the use of this class?
   width: 200px;
