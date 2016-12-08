@@ -130,7 +130,8 @@
                             var afstand = berekendAfstand(e.layer._latlngs);
                             var popup = e.layer.bindPopup('Afstand (m): ' + afstand + ' ');
                             popup.on('popupclose', function (event) {
-                                MapData.CleanDrawings();
+                                map.removeLayer(e.layer);
+                                // MapData.CleanDrawings();
                                 // MapData.CleanMap();
                             });
                             e.layer.openPopup();
@@ -141,7 +142,8 @@
                                 + '<p>Omtrek (m): ' + omtrek + ' </p>';
                             var popup = e.layer.bindPopup(popuptekst);
                             popup.on('popupclose', function (event) {
-                                MapData.CleanDrawings();
+                                map.removeLayer(e.layer);
+                                // MapData.CleanDrawings();
                                 // MapData.CleanMap();
                             });
                             e.layer.openPopup();

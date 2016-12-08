@@ -199,7 +199,7 @@
                 MapData.CleanSearch();
             }
             if (drawOption == DrawingOption.AFSTAND || drawOption == DrawingOption.OPPERVLAKTE) {
-                MapData.CleanDrawings();
+                // MapData.CleanDrawings();
             }
 
             // MapData.CleanMap();
@@ -210,26 +210,26 @@
         vm.Loading = 0;
         vm.MaxLoading = 0;
 
-        $scope.$watch(function () { return MapData.Loading; }, function (newVal, oldVal) {
-            console.log('MapData.Loading at start', MapData.Loading);
-            vm.Loading = newVal;
-            if (oldVal == 0) {
-                vm.MaxLoading = newVal;
-            }
-            if (vm.MaxLoading < oldVal) {
-                vm.MaxLoading = oldVal;
-            }
-            if (newVal == 0) {
-                vm.MaxLoading = 0;
-            }
-            console.log('MapLoading val: ' + newVal + '/' + vm.MaxLoading);
-            console.log('MapData.Loading at the end', MapData.Loading);
+        // $scope.$watch(function () { return MapData.Loading; }, function (newVal, oldVal) {
+        //     console.log('MapData.Loading at start', MapData.Loading);
+        //     vm.Loading = newVal;
+        //     if (oldVal == 0) {
+        //         vm.MaxLoading = newVal;
+        //     }
+        //     if (vm.MaxLoading < oldVal) {
+        //         vm.MaxLoading = oldVal;
+        //     }
+        //     if (newVal == 0) {
+        //         vm.MaxLoading = 0;
+        //     }
+        //     console.log('MapLoading val: ' + newVal + '/' + vm.MaxLoading);
+        //     console.log('MapData.Loading at the end', MapData.Loading);
 
-        });
+        // });
         vm.selectpunt = function () {
-            MapData.CleanMap();
-            MapData.DrawingType = DrawingOption.NIETS; // pff must be possible to be able to sync them...
-            vm.drawingType = DrawingOption.NIETS;
+            // MapData.CleanMap();
+            MapData.DrawingType = DrawingOption.GEEN; // pff must be possible to be able to sync them...
+            // vm.drawingType = DrawingOption.NIETS;
         };
         vm.layerChange = function () {
             MapData.CleanMap();

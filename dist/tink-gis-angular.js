@@ -1029,9 +1029,9 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 MapData.CleanMap();
                 MapData.CleanSearch();
             }
-            if (drawOption == DrawingOption.AFSTAND || drawOption == DrawingOption.OPPERVLAKTE) {
-                MapData.CleanDrawings();
-            }
+            if (drawOption == DrawingOption.AFSTAND || drawOption == DrawingOption.OPPERVLAKTE) {}
+            // MapData.CleanDrawings();
+
 
             // MapData.CleanMap();
             MapData.DrawingType = drawOption; // pff must be possible to be able to sync them...
@@ -1041,27 +1041,26 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         vm.Loading = 0;
         vm.MaxLoading = 0;
 
-        $scope.$watch(function () {
-            return MapData.Loading;
-        }, function (newVal, oldVal) {
-            console.log('MapData.Loading at start', MapData.Loading);
-            vm.Loading = newVal;
-            if (oldVal == 0) {
-                vm.MaxLoading = newVal;
-            }
-            if (vm.MaxLoading < oldVal) {
-                vm.MaxLoading = oldVal;
-            }
-            if (newVal == 0) {
-                vm.MaxLoading = 0;
-            }
-            console.log('MapLoading val: ' + newVal + '/' + vm.MaxLoading);
-            console.log('MapData.Loading at the end', MapData.Loading);
-        });
+        // $scope.$watch(function () { return MapData.Loading; }, function (newVal, oldVal) {
+        //     console.log('MapData.Loading at start', MapData.Loading);
+        //     vm.Loading = newVal;
+        //     if (oldVal == 0) {
+        //         vm.MaxLoading = newVal;
+        //     }
+        //     if (vm.MaxLoading < oldVal) {
+        //         vm.MaxLoading = oldVal;
+        //     }
+        //     if (newVal == 0) {
+        //         vm.MaxLoading = 0;
+        //     }
+        //     console.log('MapLoading val: ' + newVal + '/' + vm.MaxLoading);
+        //     console.log('MapData.Loading at the end', MapData.Loading);
+
+        // });
         vm.selectpunt = function () {
-            MapData.CleanMap();
-            MapData.DrawingType = DrawingOption.NIETS; // pff must be possible to be able to sync them...
-            vm.drawingType = DrawingOption.NIETS;
+            // MapData.CleanMap();
+            MapData.DrawingType = DrawingOption.GEEN; // pff must be possible to be able to sync them...
+            // vm.drawingType = DrawingOption.NIETS;
         };
         vm.layerChange = function () {
             MapData.CleanMap();
@@ -1731,32 +1730,33 @@ L.Draw.Rectangle = L.Draw.Rectangle.extend({
         var _service = {};
 
         _service.StartDraw = function (DrawingOptie) {
+            var options = {
+                metric: false,
+                showArea: false,
+                shapeOptions: {
+                    stroke: true,
+                    color: '#22528b',
+                    weight: 4,
+                    opacity: 0.6,
+                    // fill: true,
+                    fillColor: null, //same as color by default
+                    fillOpacity: 0.4,
+                    clickable: false
+                }
+            };
             switch (MapData.DrawingType) {
                 case DrawingOption.LIJN:
                 case DrawingOption.AFSTAND:
-                    MapData.DrawingObject = new L.Draw.Polyline(map);
+                    MapData.DrawingObject = new L.Draw.Polyline(map, options);
                     MapData.DrawingObject.enable();
                     break;
                 case DrawingOption.POLYGON:
                 case DrawingOption.OPPERVLAKTE:
-                    var polygon_options = {
-                        showArea: false,
-                        shapeOptions: {
-                            stroke: true,
-                            color: '#22528b',
-                            weight: 4,
-                            opacity: 0.6,
-                            fill: true,
-                            fillColor: null, //same as color by default
-                            fillOpacity: 0.4,
-                            clickable: true
-                        }
-                    };
-                    MapData.DrawingObject = new L.Draw.Polygon(map, polygon_options);
+                    MapData.DrawingObject = new L.Draw.Polygon(map, options);
                     MapData.DrawingObject.enable();
                     break;
                 case DrawingOption.VIERKANT:
-                    MapData.DrawingObject = new L.Draw.Rectangle(map, { metric: false });
+                    MapData.DrawingObject = new L.Draw.Rectangle(map, options);
                     MapData.DrawingObject.enable();
                     break;
                 default:
@@ -2399,7 +2399,7 @@ L.control.typeahead = function (args) {
         _data.VisibleLayers = [];
         _data.SelectableLayers = [];
         _data.VisibleFeatures = [];
-        _data.Loading = 0;
+        // _data.Loading = 0;
         _data.IsDrawing = false;
         _data.Themes = [];
         _data.defaultlayer = { id: '', name: 'Alle Layers' };
@@ -2818,7 +2818,8 @@ L.control.typeahead = function (args) {
                             var afstand = berekendAfstand(e.layer._latlngs);
                             var popup = e.layer.bindPopup('Afstand (m): ' + afstand + ' ');
                             popup.on('popupclose', function (event) {
-                                MapData.CleanDrawings();
+                                map.removeLayer(e.layer);
+                                // MapData.CleanDrawings();
                                 // MapData.CleanMap();
                             });
                             e.layer.openPopup();
@@ -2828,7 +2829,8 @@ L.control.typeahead = function (args) {
                             var popuptekst = '<p>Opp  (m<sup>2</sup>): ' + LGeo.area(e.layer).toFixed(2) + '</p>' + '<p>Omtrek (m): ' + omtrek + ' </p>';
                             var popup = e.layer.bindPopup(popuptekst);
                             popup.on('popupclose', function (event) {
-                                MapData.CleanDrawings();
+                                map.removeLayer(e.layer);
+                                // MapData.CleanDrawings();
                                 // MapData.CleanMap();
                             });
                             e.layer.openPopup();
