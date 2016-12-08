@@ -25,7 +25,7 @@
                     <span class="hidden-print greytext" ng-show="lyrctrl.layer.theme.Type=='wms' && lyrctrl.layer.queryable"> <i class="fa fa-info"></i></span>
                 </label>
                 <span class="show-layer" ng-show="lyrctrl.layer.theme.Type=='wms' && lyrctrl.layer.queryable " ng-click="showLayer2 = !showLayer2"></span>
-                <img class="normal-size" ng-src="{{lyrctrl.layer.legendUrl}}" ng-show="showLayer2"><img>
+                <img class="normal-size" ng-src="{{lyrctrl.layer.legendUrl}}" ng-show="showLayer2">
             </div>
         </li>
         <ul class="li-item" ng-if="lyrctrl.layer.theme.Type=='wms'" ng-show="showLayer">
