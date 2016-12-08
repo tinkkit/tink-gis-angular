@@ -3,6 +3,7 @@
 @import "../../bower_components/tink-core/dist/tink/variables";
 
 $left-nav-aside-width: $nav-aside-width + $nav-aside-extra-body-padding + 100px; // making wider for extra detail content
+$right-nav-aside-width: $nav-aside-width + $nav-aside-extra-body-padding + 50px; // making wider for extra detail content
 $map-buttons-position-left-xs: 10px;
 $map-buttons-position-left-sm: $map-buttons-position-left-xs + 5px;
 $leaflet-control-position-left-xs: $map-buttons-position-left-xs + 90px;
@@ -38,6 +39,10 @@ $leaflet-control-position-left-sm: $map-buttons-position-left-sm + 90px;
 
   .nav-aside.nav-left {
     width: rem($left-nav-aside-width);
+  }
+
+    .nav-aside.nav-right {
+    width: rem($right-nav-aside-width);
   }
 
   // !! not necessary anymore
@@ -734,7 +739,8 @@ html.has-nav-left .nav-left {
 
 // not using .nav-right-can-always-close classes because they create unwanted menu item on top nav
 .nav-right {
-  transform: translate(15.7142857143rem , 0);
+  // transform: translate(15.7142857143rem , 0); !!
+  transform: translate(rem($right-nav-aside-width) , 0);
 }
 
 .map-buttons-left {
@@ -777,7 +783,8 @@ html.nav-left-open {
 // Set padding for map buttons and change toggle icons
 html.nav-right-open {
   .map-buttons-right {
-    right: rem($nav-aside-width + $nav-aside-extra-body-padding);
+    // right: rem($nav-aside-width + $nav-aside-extra-body-padding); !!
+    right: rem($right-nav-aside-width);
   }
   .nav-right {
     transform: translate(0, 0);
