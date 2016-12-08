@@ -1,5 +1,5 @@
 <div data-tink-nav-aside="" id="rightaside" data-auto-select="true" data-toggle-id="asideNavRight" class="nav-aside nav-right">
-    <aside>
+    <aside class="flex-column flex-grow-1">
         <div class="nav-aside-section">
             <p class="nav-aside-title">Lagenoverzicht</p>
         </div>
@@ -8,16 +8,23 @@
               <a href="#" title="Open menu"><span class="sr-only">Open right menu</span></a>
             </button>
 
-        <div class="col-xs-12 margin-top margin-bottom">
-            <button class="btn btn-primary" ng-click="lyrsctrl.Lagenbeheer()">Lagenbeheer</button>
-        </div>
-        <div class="col-xs-12">
-            <ul class="ul-level" id="sortableThemes" ui-sortable="lyrsctrl.sortableOptions" ng-model="lyrsctrl.themes">
-                <li class="li-item" ng-repeat="theme in lyrsctrl.themes">
-                    <tink-Theme theme="theme" layercheckboxchange="lyrsctrl.updatethemevisibility(theme)" hidedelete="false">
-                    </tink-Theme>
-                </li>
-            </ul>
+        <div class="flex-column flex-grow-1">
+
+            <div>
+                <div class="col-xs-12 margin-top margin-bottom">
+                    <button class="btn btn-primary center-block" ng-click="lyrsctrl.Lagenbeheer()">Lagenbeheer</button>
+                </div>
+            </div>
+
+            <div class="overflow-wrapper extra-padding">
+                <ul class="ul-level" id="sortableThemes" ui-sortable="lyrsctrl.sortableOptions" ng-model="lyrsctrl.themes">
+                    <li class="li-item" ng-repeat="theme in lyrsctrl.themes">
+                        <tink-Theme theme="theme" layercheckboxchange="lyrsctrl.updatethemevisibility(theme)" hidedelete="false">
+                        </tink-Theme>
+                    </li>
+                </ul>
+            </div>
+
         </div>
     </aside>
 </div>
