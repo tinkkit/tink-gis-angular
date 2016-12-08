@@ -4028,34 +4028,20 @@ L.drawLocal = {
     "<meta charset=utf-8>\n" +
     "<title>Street View side-by-side</title>\n" +
     "<style>\n" +
-    "html, body {\r" +
-    "\n" +
-    "        height: 100%;\r" +
-    "\n" +
-    "        margin: 0;\r" +
-    "\n" +
-    "        padding: 0;\r" +
-    "\n" +
-    "      }\r" +
-    "\n" +
-    "      #map,  {\r" +
-    "\n" +
-    "        float: left;\r" +
-    "\n" +
-    "        height: 0%;\r" +
-    "\n" +
-    "        width: 0%;\r" +
-    "\n" +
-    "      }\r" +
-    "\n" +
-    "       #pano {\r" +
-    "\n" +
-    "        float: left;\r" +
-    "\n" +
-    "        height: 100%;\r" +
-    "\n" +
-    "        width: 100%;\r" +
-    "\n" +
+    "html, body {\n" +
+    "        height: 100%;\n" +
+    "        margin: 0;\n" +
+    "        padding: 0;\n" +
+    "      }\n" +
+    "      #map,  {\n" +
+    "        float: left;\n" +
+    "        height: 0%;\n" +
+    "        width: 0%;\n" +
+    "      }\n" +
+    "       #pano {\n" +
+    "        float: left;\n" +
+    "        height: 100%;\n" +
+    "        width: 100%;\n" +
     "      }\n" +
     "</style>\n" +
     "</head>\n" +
@@ -4063,42 +4049,24 @@ L.drawLocal = {
     "<div id=map></div>\n" +
     "<div id=pano></div>\n" +
     "<script>\n" +
-    "function initialize() {\r" +
-    "\n" +
-    "        \r" +
-    "\n" +
-    "        var urlLat = parseFloat((location.search.split('lat=')[1]||'').split('&')[0]);\r" +
-    "\n" +
-    "        var urlLng = parseFloat((location.search.split('lng=')[1]||'').split('&')[0]);\r" +
-    "\n" +
-    "        var fenway = {lat:urlLat, lng: urlLng};\r" +
-    "\n" +
-    "        var map = new google.maps.Map(document.getElementById('map'), {\r" +
-    "\n" +
-    "          center: fenway,\r" +
-    "\n" +
-    "          zoom: 14\r" +
-    "\n" +
-    "        });\r" +
-    "\n" +
-    "        var panorama = new google.maps.StreetViewPanorama(\r" +
-    "\n" +
-    "            document.getElementById('pano'), {\r" +
-    "\n" +
-    "              position: fenway,\r" +
-    "\n" +
-    "              pov: {\r" +
-    "\n" +
-    "                heading: 34,\r" +
-    "\n" +
-    "                pitch: 10\r" +
-    "\n" +
-    "              }\r" +
-    "\n" +
-    "            });\r" +
-    "\n" +
-    "        map.setStreetView(panorama);\r" +
-    "\n" +
+    "function initialize() {\n" +
+    "        \n" +
+    "        var urlLat = parseFloat((location.search.split('lat=')[1]||'').split('&')[0]);\n" +
+    "        var urlLng = parseFloat((location.search.split('lng=')[1]||'').split('&')[0]);\n" +
+    "        var fenway = {lat:urlLat, lng: urlLng};\n" +
+    "        var map = new google.maps.Map(document.getElementById('map'), {\n" +
+    "          center: fenway,\n" +
+    "          zoom: 14\n" +
+    "        });\n" +
+    "        var panorama = new google.maps.StreetViewPanorama(\n" +
+    "            document.getElementById('pano'), {\n" +
+    "              position: fenway,\n" +
+    "              pov: {\n" +
+    "                heading: 34,\n" +
+    "                pitch: 10\n" +
+    "              }\n" +
+    "            });\n" +
+    "        map.setStreetView(panorama);\n" +
     "      }\n" +
     "</script>\n" +
     "<script async defer src=\"https://maps.googleapis.com/maps/api/js?callback=initialize\">\n" +
@@ -4110,27 +4078,29 @@ L.drawLocal = {
 
   $templateCache.put('templates/layermanagement/geoPuntTemplate.html',
     "<div class=\"row relative-container\">\n" +
-    "<div class=\"col-md-4 flex-column margin-top margin-bottom\">\n" +
+    "<div class=\"col-md-4 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
     "<div>\n" +
     "<input class=searchbox ng-model=searchTerm ng-change=searchChanged() ng-model-options=\"{debounce: 500}\" placeholder=\"Geef een trefwoord of een url in\">\n" +
     "</div>\n" +
     "<div class=margin-top>\n" +
     "<input disabled value=https://geodata.antwerpen.be/arcgissql/services/P_SiK/Groeninventaris/MapServer/WMSServer>\n" +
     "</div>\n" +
-    "<div class=\"scrollable-list margin-top margin-bottom\">\n" +
+    "<div class=\"overflow-wrapper list-selectable margin-top margin-bottom\">\n" +
     "<div ng-if=!searchIsUrl ng-repeat=\"theme in availableThemes\">\n" +
-    "<div ng-click=geopuntThemeChanged(theme) ng-class=\"{'greytext': theme.Type != 'wms' &&  theme.Type != 'esri'}\">\n" +
-    "{{theme.Naam}}\n" +
+    "<dl ng-class=\"{active: isActive(theme)}\" ng-class=\"{'not-allowed': theme.Type != 'wms' &&  theme.Type != 'esri'}\">\n" +
+    "<a href=# class=theme-layer ng-click=geopuntThemeChanged(theme)>\n" +
+    "<dt>{{theme.Naam}}</dt>\n" +
+    "</a>\n" +
     "<i ng-if=\"theme.Added == true\" class=\"fa fa-check-circle\"></i>\n" +
     "<i ng-if=\"theme.Added == null\" class=\"fa fa-check-circle-o\"></i>\n" +
-    "</div>\n" +
+    "</dl>\n" +
     "</div>\n" +
     "</div>\n" +
     "<div>\n" +
     "<tink-pagination ng-hide=\"numberofrecordsmatched <= 5\" tink-items-per-page-values=[5] tink-current-page=currentPage tink-change=pageChanged(page,perPage,next) tink-total-items=numberofrecordsmatched tink-items-per-page=recordsAPage></tink-pagination>\n" +
     "</div>\n" +
     "</div>\n" +
-    "<div class=\"col-md-8 flex-column margin-top margin-bottom\">\n" +
+    "<div class=\"col-md-8 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
     "<div ng-if=searchIsUrl>\n" +
     "<button ng-click=laadUrl()>Laad url</button>\n" +
     "</div>\n" +
@@ -4169,11 +4139,11 @@ L.drawLocal = {
 
   $templateCache.put('templates/layermanagement/layersManagementTemplate.html',
     "<div class=\"row relative-container\">\n" +
-    "<div class=\"col-md-4 flex-column margin-top margin-bottom\">\n" +
+    "<div class=\"col-md-4 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
     "<div>\n" +
     "<input class=searchbox ng-model=searchTerm ng-change=searchChanged() placeholder=\"Geef een trefwoord\">\n" +
     "</div>\n" +
-    "<div class=\"scrollable-list margin-top margin-bottom\">\n" +
+    "<div class=\"overflow-wrapper list-selectable margin-top margin-bottom\">\n" +
     "<div ng-repeat=\"theme in availableThemes | filter:{name: searchTerm}\">\n" +
     "<dl ng-class=\"{active: isActive(theme)}\">\n" +
     "<a href=# class=theme-layer ng-click=ThemeChanged(theme)>\n" +
@@ -4183,7 +4153,7 @@ L.drawLocal = {
     "</div>\n" +
     "</div>\n" +
     "</div>\n" +
-    "<div class=\"col-md-8 flex-column margin-top margin-bottom\">\n" +
+    "<div class=\"col-md-8 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
     "<preview-layer ng-if=copySelectedTheme theme=copySelectedTheme addorupdatefunc=AddOrUpdateTheme()>\n" +
     "</preview-layer>\n" +
     "</div>\n" +
@@ -4215,7 +4185,7 @@ L.drawLocal = {
 
 
   $templateCache.put('templates/layermanagement/previewLayerTemplate.html',
-    "<div class=flex-column>\n" +
+    "<div class=\"flex-column flex-grow-1\">\n" +
     "<div ng-show=\"theme !== null\">\n" +
     "<button class=btn-primary ng-if=\"theme.Added == false\" ng-click=addorupdatefunc()>Toevoegen</button>\n" +
     "<button ng-if=\"theme.Added != false\" ng-click=addorupdatefunc()>Update</button>\n" +
@@ -4225,7 +4195,7 @@ L.drawLocal = {
     "<p>{{theme.Description}}</p>\n" +
     "<p><small><a ng-href={{theme.CleanUrl}} target=_blank>Details</a></small></p>\n" +
     "</div>\n" +
-    "<div class=\"layercontroller-checkbox scrollable-list\">\n" +
+    "<div class=\"layercontroller-checkbox overflow-wrapper\">\n" +
     "<input indeterminate-checkbox child-list=theme.AllLayers property=enabled type=checkbox ng-model=theme.enabled id={{theme.name}}>\n" +
     "<label for={{theme.name}}>{{theme.name}}</label>\n" +
     "<div ng-repeat=\"mainlayer in theme.Layers\">\n" +
@@ -4238,11 +4208,11 @@ L.drawLocal = {
 
   $templateCache.put('templates/layermanagement/solrGISTemplate.html',
     "<div class=\"row relative-container\">\n" +
-    "<div class=\"col-md-4 flex-column margin-top margin-bottom\">\n" +
+    "<div class=\"col-md-4 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
     "<div>\n" +
     "<input class=searchbox ng-model=searchTerm ng-change=searchChanged() ng-model-options=\"{debounce: 250}\" placeholder=\"Geef een trefwoord\">\n" +
     "</div>\n" +
-    "<div class=\"scrollable-list margin-top margin-bottom\">\n" +
+    "<div class=\"overflow-wrapper list-selectable margin-top margin-bottom\">\n" +
     "<div ng-repeat=\"theme in availableThemes\">\n" +
     "<dl ng-class=\"{active: isActive(theme)}\">\n" +
     "<a href=# class=theme-layer ng-click=solrThemeChanged(theme)>\n" +
@@ -4263,7 +4233,7 @@ L.drawLocal = {
     "<tink-pagination ng-hide=\"numberofrecordsmatched <= 5\" tink-current-page=currentPage tink-change=pageChanged(page,perPage,next) tink-total-items=numberofrecordsmatched tink-items-per-page=recordsAPage></tink-pagination>\n" +
     "</div>\n" +
     "</div>\n" +
-    "<div class=\"col-md-8 flex-column margin-top margin-bottom\">\n" +
+    "<div class=\"col-md-8 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
     "<preview-layer ng-if=copySelectedTheme theme=copySelectedTheme addorupdatefunc=AddOrUpdateTheme()>\n" +
     "</preview-layer>\n" +
     "</div>\n" +
@@ -4296,7 +4266,7 @@ L.drawLocal = {
     "<span class=\"hidden-print greytext\" ng-show=\"lyrctrl.layer.theme.Type=='wms' && lyrctrl.layer.queryable\"> <i class=\"fa fa-info\"></i></span>\n" +
     "</label>\n" +
     "<span class=show-layer ng-show=\"lyrctrl.layer.theme.Type=='wms' && lyrctrl.layer.queryable \" ng-click=\"showLayer2 = !showLayer2\"></span>\n" +
-    "<img class=normal-size ng-src={{lyrctrl.layer.legendUrl}} ng-show=showLayer2><img>\n" +
+    "<img class=normal-size ng-src={{lyrctrl.layer.legendUrl}} ng-show=showLayer2>\n" +
     "</div>\n" +
     "</li>\n" +
     "<ul class=li-item ng-if=\"lyrctrl.layer.theme.Type=='wms'\" ng-show=showLayer>\n" +
@@ -4317,10 +4287,10 @@ L.drawLocal = {
     "<button class=nav-right-toggle data-tink-sidenav-collapse=asideNavRight>\n" +
     "<a href=# title=\"Open menu\"><span class=sr-only>Open right menu</span></a>\n" +
     "</button>\n" +
-    "<div>\n" +
-    "<button class=\"btn btn-primary addlayerbtn\" ng-click=lyrsctrl.Lagenbeheer()>Lagenbeheer</button>\n" +
+    "<div class=\"col-xs-12 margin-top margin-bottom\">\n" +
+    "<button class=\"btn btn-primary\" ng-click=lyrsctrl.Lagenbeheer()>Lagenbeheer</button>\n" +
     "</div>\n" +
-    "<div class=nav-aside-padding>\n" +
+    "<div class=col-xs-12>\n" +
     "<ul class=ul-level id=sortableThemes ui-sortable=lyrsctrl.sortableOptions ng-model=lyrsctrl.themes>\n" +
     "<li class=li-item ng-repeat=\"theme in lyrsctrl.themes\">\n" +
     "<tink-theme theme=theme layercheckboxchange=lyrsctrl.updatethemevisibility(theme) hidedelete=false>\n" +
@@ -4444,11 +4414,16 @@ L.drawLocal = {
 
 
   $templateCache.put('templates/search/searchResultsTemplate.html',
-    "<div ng-if=\"!srchrsltsctrl.selectedResult && srchrsltsctrl.featureLayers.length > 0\">\n" +
+    "<div class=\"flex-column flex-grow-1 margin-top\" ng-if=\"!srchrsltsctrl.selectedResult && srchrsltsctrl.featureLayers.length > 0\">\n" +
+    "<div>\n" +
+    "<div class=col-xs-12>\n" +
     "<select ng-model=srchrsltsctrl.layerGroupFilter>\n" +
     "<option value=geenfilter selected>Geen filter ({{srchrsltsctrl.features.length}})</option>\n" +
     "<option ng-repeat=\"feat in srchrsltsctrl.featureLayers\" value={{feat}}>{{feat}} ({{srchrsltsctrl.aantalFeaturesMetType(feat)}})</option>\n" +
     "</select>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "<div class=\"overflow-wrapper margin-top\">\n" +
     "<ul ng-repeat=\"layerGroupName in srchrsltsctrl.featureLayers\">\n" +
     "<tink-accordion ng-if=\"srchrsltsctrl.layerGroupFilter=='geenfilter' || srchrsltsctrl.layerGroupFilter==layerGroupName \" data-start-open=true data-one-at-a-time=false>\n" +
     "<tink-accordion-panel>\n" +
@@ -4469,22 +4444,28 @@ L.drawLocal = {
     "</tink-accordion-panel>\n" +
     "</tink-accordion>\n" +
     "</ul>\n" +
-    "<button class=\"btn-sm margin-left margin-top\" ng-click=srchrsltsctrl.exportToCSV()>Exporteer naar CSV</button>\n" +
-    "</div>"
+    "</div>\n" +
+    "<div class=\"margin-top margin-bottom\">\n" +
+    "<div class=col-xs-12>\n" +
+    "<button class=btn-sm ng-click=srchrsltsctrl.exportToCSV()>Exporteer naar CSV</button>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "</div>\n"
   );
 
 
   $templateCache.put('templates/search/searchSelectedTemplate.html',
-    "<div ng-if=srchslctdctrl.selectedResult class=nav-aside-padding>\n" +
-    "<div class=\"row margin-top margin-bottom\">\n" +
+    "<div class=\"flex-column flex-grow-1 margin-top\" ng-if=srchslctdctrl.selectedResult class=nav-aside-padding>\n" +
+    "<div class=margin-bottom>\n" +
     "<div class=col-xs-12>\n" +
     "<div class=btn-group>\n" +
     "<button type=button class=btn ng-disabled=!srchslctdctrl.prevResult ng-click=srchslctdctrl.vorige()>Vorige</button>\n" +
     "<button type=button class=btn ng-disabled=!srchslctdctrl.nextResult ng-click=srchslctdctrl.volgende()>Volgende</button>\n" +
     "</div>\n" +
-    "<button class=\"srchbtn btn pull-right\" ng-click=srchslctdctrl.delete()>Verwijderen</button>\n" +
+    "<button class=\"btn pull-right\" ng-click=srchslctdctrl.delete()>Verwijderen</button>\n" +
     "</div>\n" +
     "</div>\n" +
+    "<div class=\"col-xs-12 overflow-wrapper\">\n" +
     "<dl ng-repeat=\"prop in srchslctdctrl.props\">\n" +
     "<dt>{{ prop.key}}</dt>\n" +
     "<div ng-if=\"prop.value.toLowerCase() != 'null'\">\n" +
@@ -4492,38 +4473,17 @@ L.drawLocal = {
     "<dd ng-if=\"prop.value.indexOf( 'https://') !=0 && prop.value.indexOf( 'http://') !=0 \">{{ prop.value }}</dd>\n" +
     "</div>\n" +
     "</dl>\n" +
-    "<div class=row>\n" +
-    "<div class=col-xs-4>\n" +
-    "<div class=row>\n" +
+    "</div>\n" +
+    "<div class=\"margin-top margin-bottom\">\n" +
     "<div class=col-xs-12>\n" +
-    "<button class=\"btn-primary srchbtn\" ng-click=srchslctdctrl.toonFeatureOpKaart()>Tonen</button>\n" +
+    "<button class=btn-primary ng-click=srchslctdctrl.toonFeatureOpKaart()>Tonen</button>\n" +
+    "<div class=pull-right>\n" +
+    "<button class=margin-right ng-click=srchslctdctrl.doordruk()>Doordruk</button>\n" +
+    "<button ng-click=srchslctdctrl.buffer()>Buffer</button>\n" +
     "</div>\n" +
     "</div>\n" +
-    "</div>\n" +
-    "<div class=col-xs-8>\n" +
-    "<div class=row>\n" +
-    "<div class=col-xs-6>\n" +
-    "<button class=\"srchbtn pull-right\" ng-click=srchslctdctrl.doordruk()>Doordruk</button>\n" +
-    "</div>\n" +
-    "<div class=col-xs-6>\n" +
-    "<button class=\"srchbtn pull-right\" ng-click=srchslctdctrl.buffer()>Buffer</button>\n" +
-    "</div>\n" +
-    "</div>\n" +
-    "</div>\n" +
-    "</div>\n" +
-    "<div class=\"row margin-top margin-bottom\">\n" +
-    "<div class=col-xs-4>\n" +
-    "<div class=row>\n" +
-    "<div class=col-xs-12>\n" +
-    "</div>\n" +
-    "</div>\n" +
-    "</div>\n" +
-    "<div class=col-xs-8>\n" +
-    "<div class=row>\n" +
-    "<div class=col-xs-12>\n" +
-    "<a class=\"srchbtn pull-right\" ng-click=srchslctdctrl.close(srchslctdctrl.selectedResult)>Terug naar resultaten</a>\n" +
-    "</div>\n" +
-    "</div>\n" +
+    "<div class=\"col-xs-12 margin-top\">\n" +
+    "<a class=pull-right ng-click=srchslctdctrl.close(srchslctdctrl.selectedResult)>Terug naar resultaten</a>\n" +
     "</div>\n" +
     "</div>\n" +
     "</div>\n"
@@ -4532,14 +4492,14 @@ L.drawLocal = {
 
   $templateCache.put('templates/search/searchTemplate.html',
     "<div data-tink-nav-aside=\"\" id=leftaside data-auto-select=true data-toggle-id=asideNavLeft class=\"nav-aside nav-left\">\n" +
-    "<aside>\n" +
+    "<aside class=\"flex-column flex-grow-1\">\n" +
     "<div class=nav-aside-section>\n" +
     "<p class=nav-aside-title>Resultaten</p>\n" +
     "</div>\n" +
     "<button class=nav-left-toggle data-tink-sidenav-collapse=asideNavLeft>\n" +
     "<a href=# title=\"Open menu\"><span class=sr-only>Open left menu</span></a>\n" +
     "</button>\n" +
-    "<div ng-show=srchctrl.LoadingCompleted>\n" +
+    "<div class=\"flex-column flex-grow-1\" ng-show=srchctrl.LoadingCompleted>\n" +
     "<tink-search-results></tink-search-results>\n" +
     "<tink-search-selected></tink-search-selected>\n" +
     "</div>\n" +

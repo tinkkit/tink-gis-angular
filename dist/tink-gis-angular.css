@@ -183,11 +183,16 @@
 .tink-map .nav-aside {
   top: 0;
   z-index: 1000; }
+  .tink-map .nav-aside li {
+    white-space: nowrap; }
   .tink-map .nav-aside dl {
     margin-bottom: 0.5rem ; }
 
 .tink-map .nav-aside.nav-left {
   width: 22.8571428571rem ; }
+
+.tink-map .nav-aside.nav-right {
+  width: 19.2857142857rem ; }
 
 .leafletmap {
   position: relative; }
@@ -233,7 +238,7 @@ svg.leaflet-zoom-animated {
     width: 1rem ; }
 
 button.btn.active {
-  background-color: dodgerblue;
+  background-color: #5fb1d6;
   color: white; }
 
 /**
@@ -303,7 +308,7 @@ button.btn.active {
   display: none !important; }
 
 .blue {
-  color: blue; }
+  color: #5fb1d6; }
 
 .zoekbalken2 {
   width: 200px; }
@@ -361,9 +366,6 @@ button.btn.active {
   display: flex; }
 
 .flex-column {
-  -webkit-flex-grow: 1;
-      -ms-flex-positive: 1;
-          flex-grow: 1;
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
@@ -371,26 +373,37 @@ button.btn.active {
       -ms-flex-direction: column;
           flex-direction: column; }
 
-.scrollable-list {
-  overflow: auto;
+.flex-grow-1 {
   -webkit-flex-grow: 1;
       -ms-flex-positive: 1;
           flex-grow: 1; }
-  .scrollable-list dl {
-    margin-bottom: 0.7142857143rem ; }
-    .scrollable-list dl dd {
-      color: #888;
-      cursor: default;
-      margin-left: 0.7142857143rem ;
-      transition: all 0.1s linear; }
-    .scrollable-list dl dt {
-      color: #bbb;
-      cursor: pointer;
-      transition: all 0.1s linear; }
-    .scrollable-list dl.active a dt {
-      color: #347ea6; }
-    .scrollable-list dl.active dd {
-      color: #484848; }
+
+.overflow-wrapper {
+  overflow: auto;
+  width: 100%; }
+  .overflow-wrapper.list-selectable {
+    -webkit-user-select: none;
+       -moz-user-select: none;
+        -ms-user-select: none;
+            user-select: none; }
+    .overflow-wrapper.list-selectable dl {
+      margin-bottom: 0.7142857143rem ; }
+      .overflow-wrapper.list-selectable dl dd {
+        color: #888;
+        cursor: default;
+        margin-left: 0.7142857143rem ;
+        transition: all 0.1s linear; }
+      .overflow-wrapper.list-selectable dl dt {
+        color: #bbb;
+        cursor: pointer;
+        transition: all 0.1s linear; }
+      .overflow-wrapper.list-selectable dl.active a dt {
+        color: #347ea6; }
+      .overflow-wrapper.list-selectable dl.active dd {
+        color: #484848; }
+
+.nav-aside > aside.flex-column {
+  overflow: initial; }
 
 /* List toggle */
 .can-open .show-layer {
@@ -413,14 +426,6 @@ button.btn.active {
 /**
  * Rightside layer menu
  */
-/* Lagenbeheer */
-.addlayerbtn {
-  margin-left: auto;
-  margin-right: auto;
-  margin-top: 5px;
-  margin-bottom: 5px;
-  display: block; }
-
 /* Trash can button */
 button.trash {
   background-color: transparent;
@@ -467,6 +472,7 @@ button.trash {
   margin-left: 10px; }
 
 img.normal-size {
+  display: block;
   max-width: initial; }
 
 a:hover, a:focus,
@@ -599,11 +605,14 @@ input.typeahead.tt-input {
 .greytext {
   color: lightgrey !important; }
 
+.not-allowed {
+  cursor: not-allowed; }
+
 .nav-tabs {
   margin: 5px 0px 5px 0px; }
 
 /**
- * Refactor work in progress
+ * Refactor work in progress !!
  */
 .aside {
   position: relative; }
@@ -616,6 +625,7 @@ input.typeahead.tt-input {
   border-width: 2px;
   position: fixed;
   text-align: center;
+  top: 4rem;
   z-index: 700; }
   .nav-left-toggle:hover, .nav-left-toggle:focus, .nav-left-toggle:active,
   .nav-right-toggle:hover,
@@ -656,9 +666,9 @@ html.has-nav-left .nav-left {
           transform: translate(-22.8571428571rem , 0); }
 
 .nav-right {
-  -webkit-transform: translate(15.7142857143rem, 0);
-      -ms-transform: translate(15.7142857143rem, 0);
-          transform: translate(15.7142857143rem, 0); }
+  -webkit-transform: translate(19.2857142857rem , 0);
+      -ms-transform: translate(19.2857142857rem , 0);
+          transform: translate(19.2857142857rem , 0); }
 
 .map-buttons-left {
   height: 100%;
@@ -691,7 +701,7 @@ html.nav-left-open .leaflet-control {
       left: 30.3571428571rem ; } }
 
 html.nav-right-open .map-buttons-right {
-  right: 15.7142857143rem ; }
+  right: 19.2857142857rem ; }
 
 html.nav-right-open .nav-right {
   -webkit-transform: translate(0, 0);
