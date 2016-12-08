@@ -30,6 +30,10 @@ $leaflet-control-position-left-sm: $map-buttons-position-left-sm + 90px;
     top: 0; // is overwritten in specificity by Tink navigation script when using solution
     z-index: 1000; // set above leafletmap and leaflet-control
 
+    li {
+      white-space: nowrap;
+    }
+
     dl {
       margin-bottom: rem($font-size-base/2);
     }
@@ -467,6 +471,7 @@ button.trash {
 
 img {
   &.normal-size {
+    display: block;
     max-width: initial;
   }
 }
@@ -670,7 +675,7 @@ input.typeahead.tt-input {
 
 
 /**
- * Refactor work in progress
+ * Refactor work in progress !!
  */
 
 .aside {
