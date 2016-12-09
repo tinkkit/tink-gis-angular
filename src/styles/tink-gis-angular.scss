@@ -910,4 +910,21 @@ html.print.landscape {
   // width: auto;
 }
 
+.loader-wrapper {
+  position: absolute;
+  top: 0;
+  bottom: 0%;
+  left: 0;
+  right: 0%;
+  background-color: $modal-backdropcolor;
+  z-index: 9999;
 
+  .loader {
+    border-width: rem(5);
+    height: rem(100);
+    left: 50%;
+    position: fixed;
+    top: 50%;
+    width: rem(100);
+  }
+}
