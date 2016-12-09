@@ -19,14 +19,23 @@
         <tink-Search class="tink-search"></tink-Search>
         <div id="map" class="leafletmap leaflet-crosshair">
             <div class="map-buttons-left">
-                <div class="btn-group ll drawingbtns" ng-show="mapctrl.showDrawControls">
-                    <button ng-click="mapctrl.selectpunt()" ng-class="{active: mapctrl.drawingType==''}" type="button" class="btn" prevent-default><i class="fa fa-mouse-pointer"></i></button>
-                    <button ng-click="mapctrl.drawingButtonChanged('lijn')" ng-class="{active: mapctrl.drawingType=='lijn'}" type="button" class="btn"
-                        prevent-default><i class="fa fa-minus"></i></button>
-                    <button ng-click="mapctrl.drawingButtonChanged('vierkant')" ng-class="{active: mapctrl.drawingType=='vierkant'}" type="button"
-                        class="btn" prevent-default><i class="fa fa-square-o"></i></button>
-                    <button ng-click="mapctrl.drawingButtonChanged('polygon')" ng-class="{active: mapctrl.drawingType=='polygon'}" type="button"
-                        class="btn" prevent-default><i class="fa fa-star-o"></i></button>
+                <div class="ll drawingbtns" ng-show="mapctrl.showDrawControls">
+                    <div class="btn-group ">
+                        <button ng-click="mapctrl.selectpunt()" ng-class="{active: mapctrl.drawingType==''}" type="button" class="btn" prevent-default><i class="fa fa-mouse-pointer"></i></button>
+                        <button ng-click="mapctrl.drawingButtonChanged('lijn')" ng-class="{active: mapctrl.drawingType=='lijn'}" type="button" class="btn"
+                            prevent-default><i class="fa fa-minus"></i></button>
+                        <button ng-click="mapctrl.drawingButtonChanged('vierkant')" ng-class="{active: mapctrl.drawingType=='vierkant'}" type="button"
+                            class="btn" prevent-default><i class="fa fa-square-o"></i></button>
+                        <button ng-click="mapctrl.drawingButtonChanged('polygon')" ng-class="{active: mapctrl.drawingType=='polygon'}" type="button"
+                            class="btn" prevent-default><i class="fa fa-star-o"></i></button>
+                    </div>
+                    <div class="drawingbtns-select">
+                        <div class="select">
+                            <select>
+                                <option></option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="btn-group btn-group-vertical ll interactiebtns">
@@ -60,14 +69,13 @@
                         prevent-default><i class="fa fa-download"></i></button>
                 </div>
 
-                <div id="zoekbalken" class="ll zoekbalken">
+                <form id="zoekbalken" class="form-force-inline ll zoekbalken">
                     <!--<input id="locatiezoek" class="zoekbalk typeahead" type="text" ng-show="mapctrl.ZoekenOpLocatie == true" placeholder="Geef een X,Y / locatie of POI in."
                         prevent-default />-->
-                    <input type="search" class="zoekbalk" ng-show="mapctrl.ZoekenOpLocatie == false" placeholder="Geef een zoekterm" prevent-default
-                        ng-keyup="$event.keyCode == 13 && mapctrl.zoekLaag(mapctrl.laagquery)" ng-model="mapctrl.laagquery" />
                     <select ng-options="layer as layer.name for layer in mapctrl.SelectableLayers()" ng-model="mapctrl.selectedLayer" ng-show="mapctrl.activeInteractieKnop=='select' && mapctrl.SelectableLayers().length > 1"
-                        ng-change="mapctrl.layerChange()" prevent-default></select>
-                </div>
+                    ng-change="mapctrl.layerChange()" prevent-default></select><input type="search" ng-show="mapctrl.ZoekenOpLocatie == false" placeholder="Geef een zoekterm" prevent-default
+                    ng-keyup="$event.keyCode == 13 && mapctrl.zoekLaag(mapctrl.laagquery)" ng-model="mapctrl.laagquery"/>
+                </form>
             </div>
 
             <div class="map-buttons-right">

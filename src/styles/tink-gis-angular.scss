@@ -136,11 +136,16 @@ button.btn.active {
 
 .drawingbtns {
   left: rem(55);
-  top: rem(130);
+  top: rem(134);
+
+  &-select {
+    display: inline-block;
+    width: rem(200);
+  }
 
   @include mq($screen-sm) {
     left: rem(60);
-    top: rem(135);
+    top: rem(137);
   }
 }
 
@@ -201,7 +206,20 @@ button.btn.active {
   // left: rem(90);
   left: rem($leaflet-control-position-left-xs);
   top: rem(10); // same values as searchbtns
-  width: rem(225);
+  width: rem(500);
+
+  input {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    width: rem(200);
+  }
+
+
+  select {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    width: rem(240);
+  }
 
   @include mq($screen-sm) {
     // left: rem(95);
@@ -565,7 +583,7 @@ ul {
 .twitter-typeahead {
   left: 0;
   top: rem(10); // same values as searchbtns
-  width: rem(225);
+  width: rem(240);
 
   @include mq($screen-sm) {
     top: rem(15);
