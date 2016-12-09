@@ -29,7 +29,7 @@ L.Draw.Rectangle = L.Draw.Rectangle.extend({
 
         _service.StartDraw = function (DrawingOptie) {
             var options = {
-                metric: false,
+                metric: true,
                 showArea: false,
                 shapeOptions: {
                     stroke: true,

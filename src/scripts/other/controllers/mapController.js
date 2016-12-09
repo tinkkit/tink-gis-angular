@@ -165,7 +165,8 @@
                     break;
                 case ActiveInteractieButton.METEN:
                     vm.showMetenControls = true;
-                    vm.drawingButtonChanged(DrawingOption.AFSTAND);
+                    MapData.DrawingType = DrawingOption.GEEN;
+                    // vm.drawingButtonChanged(DrawingOption.GEEN);
                     break;
             }
         };
