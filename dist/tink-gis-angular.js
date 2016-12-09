@@ -996,7 +996,8 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                     break;
                 case ActiveInteractieButton.METEN:
                     vm.showMetenControls = true;
-                    vm.drawingButtonChanged(DrawingOption.AFSTAND);
+                    MapData.DrawingType = DrawingOption.GEEN;
+                    // vm.drawingButtonChanged(DrawingOption.GEEN);
                     break;
             }
         };
@@ -1731,7 +1732,7 @@ L.Draw.Rectangle = L.Draw.Rectangle.extend({
 
         _service.StartDraw = function (DrawingOptie) {
             var options = {
-                metric: false,
+                metric: true,
                 showArea: false,
                 shapeOptions: {
                     stroke: true,
