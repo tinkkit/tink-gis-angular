@@ -16,7 +16,7 @@
                 </div>
             </div>
 
-            <div class="overflow-wrapper extra-padding">
+            <div class="overflow-wrapper flex-grow-1 extra-padding">
                 <ul class="ul-level" id="sortableThemes" ui-sortable="lyrsctrl.sortableOptions" ng-model="lyrsctrl.themes">
                     <li class="li-item" ng-repeat="theme in lyrsctrl.themes">
                         <tink-Theme theme="theme" layercheckboxchange="lyrsctrl.updatethemevisibility(theme)" hidedelete="false">
