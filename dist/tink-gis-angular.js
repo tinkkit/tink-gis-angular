@@ -5,7 +5,7 @@
     try {
         module = angular.module('tink.gis');
     } catch (e) {
-        module = angular.module('tink.gis', ['tink.navigation', 'tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter', 'tink.pagination', 'tink.tooltip']); //'leaflet-directive'
+        module = angular.module('tink.gis', ['tink.navigation', 'tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter', 'tink.pagination', 'tink.tooltip', 'ngAnimate']); //'leaflet-directive'
     }
     module.constant('appConfig', {
         templateUrl: '/digipolis.stadinkaart.webui',
@@ -623,9 +623,9 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
     var service = function service($http, map, MapData, $rootScope, $q, helperService) {
         var _service = {};
         _service.getMetaData = function () {
-            var searchterm = arguments.length <= 0 || arguments[0] === undefined ? 'water' : arguments[0];
-            var startpos = arguments.length <= 1 || arguments[1] === undefined ? 1 : arguments[1];
-            var recordsAPage = arguments.length <= 2 || arguments[2] === undefined ? 10 : arguments[2];
+            var searchterm = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'water';
+            var startpos = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
+            var recordsAPage = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 10;
 
             var url = 'https://metadata.geopunt.be/zoekdienst/srv/dut/csw?service=CSW&version=2.0.2&SortBy=title&request=GetRecords&namespace=xmlns%28csw=http://www.opengis.net/cat/csw%29&resultType=results&outputSchema=http://www.opengis.net/cat/csw/2.0.2&outputFormat=application/xml&startPosition=' + startpos + '&maxRecords=' + recordsAPage + '&typeNames=csw:Record&elementSetName=full&constraintLanguage=CQL_TEXT&constraint_language_version=1.1.0&constraint=AnyText+LIKE+%27%25' + searchterm + '%25%27AND%20Type%20=%20%27service%27%20AND%20Servicetype%20=%27view%27';
             // var url = 'https://metadata.geopunt.be/zoekdienst/srv/dut/q?fast=index&from=' + startpos + '&to=' + recordsAPage + '&any=*' + searchterm + '*&sortBy=title&sortOrder=reverse&hitsperpage=' + recordsAPage;
@@ -857,12 +857,20 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         }, function (data) {
             vm.drawingType = data;
         }, true);
-
+        $scope.$watch(function () {
+            return MapData.SelectedFindLayer;
+        }, function (data) {
+            vm.selectedLayer = MapData.SelectedLayer;
+            vm.selectedFindLayer = MapData.SelectedFindLayer;
+        }, true);
         vm.SelectableLayers = function () {
             return MapData.VisibleLayers;
         };
         vm.selectedLayer = function () {
             return MapData.SelectedLayer;
+        };
+        vm.selectedFindLayer = function () {
+            return MapData.SelectedFindLayer;
         };
         vm.showMetenControls = false;
         vm.showDrawControls = false;
@@ -1064,9 +1072,12 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             // vm.drawingType = DrawingOption.NIETS;
         };
         vm.layerChange = function () {
-            MapData.CleanMap();
-            // console.log('vm.sel: ' + vm.selectedLayer.id + '/ MapData.SelectedLayer: ' + MapData.Layer.SelectedLayer.id);
+            // MapData.CleanMap();
             MapData.SelectedLayer = vm.selectedLayer;
+        };
+        vm.findLayerChange = function () {
+            // MapData.CleanMap();
+            MapData.SelectedFindLayer = vm.selectedFindLayer;
         };
         vm.zoomIn = function () {
             map.zoomIn();
@@ -1671,8 +1682,8 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         _baseLayersService.basemap1Naam = "Geen";
 
         _baseLayersService.setBaseMap = function (id, naam, url) {
-            var maxZoom = arguments.length <= 3 || arguments[3] === undefined ? 19 : arguments[3];
-            var minZoom = arguments.length <= 4 || arguments[4] === undefined ? 0 : arguments[4];
+            var maxZoom = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 19;
+            var minZoom = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 0;
 
             var layer = L.esri.tiledMapLayer({ url: url, maxZoom: maxZoom, minZoom: minZoom, continuousWorld: true });
             if (id == 1) {
@@ -2089,7 +2100,7 @@ var esri2geo = {};
 })();
 ;'use strict';
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 (function () {
     var module;
@@ -2363,6 +2374,7 @@ L.Control.Typeahead = L.Control.extend({
     // container.style.left = "50px";
     this.typeahead = L.DomUtil.create('input', 'typeahead tt-input', container);
     this.typeahead.type = 'text';
+    this.typeahead.id = "okzor";
     this.typeahead.placeholder = this.options.placeholder;
     $(this.typeahead).typeahead.apply($(this.typeahead), this.arguments);
     ["typeahead:active", "typeahead:idle", "typeahead:open", "typeahead:close", "typeahead:change", "typeahead:render", "typeahead:select", "typeahead:autocomplete", "typeahead:cursorchange", "typeahead:asyncrequest", "typeahead:asynccancel", "typeahead:asyncreceive"].forEach(function (method) {
@@ -2404,9 +2416,12 @@ L.control.typeahead = function (args) {
         _data.IsDrawing = false;
         _data.Themes = [];
         _data.defaultlayer = { id: '', name: 'Alle Layers' };
-        _data.SelectedLayer = _data.defaultlayer;
         _data.VisibleLayers.unshift(_data.defaultlayer);
+        _data.SelectedLayer = _data.defaultlayer;
+        _data.SelectedFindLayer = _data.defaultlayer;
+
         _data.ResetVisibleLayers = function () {
+            console.log("RestVisLayers");
             var curSelectedLayer = _data.SelectedLayer;
             _data.VisibleLayers.length = 0;
             _data.Themes.forEach(function (x) {
@@ -2872,7 +2887,7 @@ L.control.typeahead = function (args) {
 })();
 ;'use strict';
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 (function () {
     var module;
@@ -3033,7 +3048,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
         _mapService.Find = function (query) {
             MapData.CleanSearch();
-            if (MapData.SelectedLayer && MapData.SelectedLayer.id == '') {
+            if (MapData.SelectedFindLayer && MapData.SelectedFindLayer.id == '') {
                 // alle layers selected
                 MapData.Themes.forEach(function (theme) {
                     // dus doen we de qry op alle lagen.
@@ -3049,9 +3064,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 });
             } else {
                 ResultsData.RequestStarted++;
-                MapData.SelectedLayer.theme.MapData.find().fields(MapData.SelectedLayer.displayField).layers(MapData.SelectedLayer.id).text(query).run(function (error, featureCollection, response) {
+                MapData.SelectedFindLayer.theme.MapData.find().fields(MapData.SelectedFindLayer.displayField).layers(MapData.SelectedFindLayer.id).text(query).run(function (error, featureCollection, response) {
                     ResultsData.RequestCompleted++;
-                    MapData.AddFeatures(featureCollection, MapData.SelectedLayer.theme, MapData.SelectedLayer.id);
+                    MapData.AddFeatures(featureCollection, MapData.SelectedFindLayer.theme, MapData.SelectedFindLayer.id);
                 });
             }
         };
@@ -4368,7 +4383,7 @@ L.drawLocal = {
     "<button class=\"btn btn-primary center-block\" ng-click=lyrsctrl.Lagenbeheer()>Lagenbeheer</button>\n" +
     "</div>\n" +
     "</div>\n" +
-    "<div class=\"overflow-wrapper extra-padding\">\n" +
+    "<div class=\"overflow-wrapper flex-grow-1 extra-padding\">\n" +
     "<ul class=ul-level id=sortableThemes ui-sortable=lyrsctrl.sortableOptions ng-model=lyrsctrl.themes>\n" +
     "<li class=li-item ng-repeat=\"theme in lyrsctrl.themes\">\n" +
     "<tink-theme theme=theme layercheckboxchange=lyrsctrl.updatethemevisibility(theme) hidedelete=false>\n" +
@@ -4403,11 +4418,18 @@ L.drawLocal = {
     "<tink-search class=tink-search></tink-search>\n" +
     "<div id=map class=\"leafletmap leaflet-crosshair\">\n" +
     "<div class=map-buttons-left>\n" +
-    "<div class=\"btn-group ll drawingbtns\" ng-show=mapctrl.showDrawControls>\n" +
+    "<div class=\"ll drawingbtns\" ng-show=mapctrl.showDrawControls>\n" +
+    "<div class=btn-group>\n" +
     "<button ng-click=mapctrl.selectpunt() ng-class=\"{active: mapctrl.drawingType==''}\" type=button class=btn prevent-default><i class=\"fa fa-mouse-pointer\"></i></button>\n" +
     "<button ng-click=\"mapctrl.drawingButtonChanged('lijn')\" ng-class=\"{active: mapctrl.drawingType=='lijn'}\" type=button class=btn prevent-default><i class=\"fa fa-minus\"></i></button>\n" +
     "<button ng-click=\"mapctrl.drawingButtonChanged('vierkant')\" ng-class=\"{active: mapctrl.drawingType=='vierkant'}\" type=button class=btn prevent-default><i class=\"fa fa-square-o\"></i></button>\n" +
     "<button ng-click=\"mapctrl.drawingButtonChanged('polygon')\" ng-class=\"{active: mapctrl.drawingType=='polygon'}\" type=button class=btn prevent-default><i class=\"fa fa-star-o\"></i></button>\n" +
+    "</div>\n" +
+    "<div class=drawingbtns-select>\n" +
+    "<div class=select>\n" +
+    "<select ng-options=\"layer as layer.name for layer in mapctrl.SelectableLayers()\" ng-model=mapctrl.selectedLayer ng-show=\"mapctrl.SelectableLayers().length > 1\" ng-change=mapctrl.layerChange() prevent-default></select>\n" +
+    "</div>\n" +
+    "</div>\n" +
     "</div>\n" +
     "<div class=\"btn-group btn-group-vertical ll interactiebtns\">\n" +
     "<button type=button class=btn ng-click=\"mapctrl.interactieButtonChanged('identify')\" ng-class=\"{active: mapctrl.activeInteractieKnop=='identify'}\" prevent-default><i class=\"fa fa-info\"></i></button>\n" +
@@ -4427,10 +4449,9 @@ L.drawLocal = {
     "<button type=button class=btn ng-class=\"{active: mapctrl.ZoekenOpLocatie==true}\" ng-click=mapctrl.fnZoekenOpLocatie() prevent-default><i class=\"fa fa-map-marker\"></i></button>\n" +
     "<button type=button class=btn ng-class=\"{active: mapctrl.ZoekenOpLocatie==false}\" ng-click=mapctrl.ZoekenInLagen() prevent-default><i class=\"fa fa-download\"></i></button>\n" +
     "</div>\n" +
-    "<div id=zoekbalken class=\"ll zoekbalken\">\n" +
-    "<input type=search class=zoekbalk ng-show=\"mapctrl.ZoekenOpLocatie == false\" placeholder=\"Geef een zoekterm\" prevent-default ng-keyup=\"$event.keyCode == 13 && mapctrl.zoekLaag(mapctrl.laagquery)\" ng-model=mapctrl.laagquery>\n" +
-    "<select ng-options=\"layer as layer.name for layer in mapctrl.SelectableLayers()\" ng-model=mapctrl.selectedLayer ng-show=\"mapctrl.activeInteractieKnop=='select' && mapctrl.SelectableLayers().length > 1\" ng-change=mapctrl.layerChange() prevent-default></select>\n" +
-    "</div>\n" +
+    "<form id=zoekbalken class=\"form-force-inline ll zoekbalken\">\n" +
+    "<select ng-options=\"layer as layer.name for layer in mapctrl.SelectableLayers()\" ng-model=mapctrl.selectedFindLayer ng-show=\"mapctrl.SelectableLayers().length > 1\" ng-change=mapctrl.findLayerChange() prevent-default></select><input type=search ng-show=\"mapctrl.ZoekenOpLocatie == false\" placeholder=\"Geef een zoekterm\" prevent-default ng-keyup=\"$event.keyCode == 13 && mapctrl.zoekLaag(mapctrl.laagquery)\" ng-model=mapctrl.laagquery>\n" +
+    "</form>\n" +
     "</div>\n" +
     "<div class=map-buttons-right>\n" +
     "<div class=\"btn-group btn-group-vertical ll viewbtns\">\n" +
@@ -4465,7 +4486,7 @@ L.drawLocal = {
     "<div>\n" +
     "<input class=\"visible-box hidden-print\" type=checkbox id=chk{{thmctrl.theme.Naam}} ng-model=thmctrl.theme.Visible ng-change=layercheckboxchange(thmctrl.theme)>\n" +
     "<label for=chk{{thmctrl.theme.Naam}}> {{thmctrl.theme.Naam}} <span class=\"label-info hidden-print\" ng-show=\"thmctrl.theme.Type=='esri'\">stad</span><span class=\"label-info hidden-print\" ng-hide=\"thmctrl.theme.Type=='esri'\">{{thmctrl.theme.Type}}</span></label>\n" +
-    "<button ng-hide=\"hidedelete == true\" class=\"trash pull-right\" ng-click=thmctrl.deleteTheme()></button>\n" +
+    "<button ng-hide=\"hidedelete == true\" class=trash ng-click=thmctrl.deleteTheme()></button>\n" +
     "<ul class=\"ul-level no-theme-layercontroller-checkbox\" ng-repeat=\"layer in thmctrl.theme.Layers | filter: { enabled: true }\">\n" +
     "<tink-layer layer=layer layercheckboxchange=layercheckboxchange(layer.theme)>\n" +
     "</tink-layer>\n" +

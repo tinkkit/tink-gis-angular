@@ -246,11 +246,14 @@ button.btn.active {
  */
 .drawingbtns {
   left: 3.9285714286rem ;
-  top: 9.2857142857rem ; }
+  top: 9.5714285714rem ; }
+  .drawingbtns-select {
+    display: inline-block;
+    width: 14.2857142857rem ; }
   @media (min-width: 768px) {
     .drawingbtns {
       left: 4.2857142857rem ;
-      top: 9.6428571429rem ; } }
+      top: 9.7857142857rem ; } }
 
 .interactiebtns {
   left: 0.7142857143rem ;
@@ -290,7 +293,15 @@ button.btn.active {
 .zoekbalken {
   left: 7.1428571429rem ;
   top: 0.7142857143rem ;
-  width: 16.0714285714rem ; }
+  width: 35.7142857143rem ; }
+  .zoekbalken input {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    width: 14.2857142857rem ; }
+  .zoekbalken select {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    width: 17.1428571429rem ; }
   @media (min-width: 768px) {
     .zoekbalken {
       left: 7.5rem ;
@@ -355,28 +366,23 @@ button.btn.active {
 .full-width {
   padding-left: 0 !important;
   padding-right: 0 !important;
-  -webkit-transform: translate(0, 0) !important;
-      -ms-transform: translate(0, 0) !important;
-          transform: translate(0, 0) !important; }
+  -ms-transform: translate(0, 0) !important;
+      transform: translate(0, 0) !important; }
 
 .relative-container {
   height: 60vh;
-  display: -webkit-flex;
   display: -ms-flexbox;
   display: flex; }
 
 .flex-column {
-  display: -webkit-flex;
   display: -ms-flexbox;
   display: flex;
-  -webkit-flex-direction: column;
-      -ms-flex-direction: column;
-          flex-direction: column; }
+  -ms-flex-direction: column;
+      flex-direction: column; }
 
 .flex-grow-1 {
-  -webkit-flex-grow: 1;
-      -ms-flex-positive: 1;
-          flex-grow: 1; }
+  -ms-flex-positive: 1;
+      flex-grow: 1; }
 
 .overflow-wrapper {
   overflow: auto;
@@ -441,12 +447,10 @@ button.trash {
 
 /* Table of content */
 .toc-item-without-icon {
-  display: -webkit-inline-flex;
   display: -ms-inline-flexbox;
   display: inline-flex; }
 
 .toc-item-with-icon {
-  display: -webkit-inline-flex;
   display: -ms-inline-flexbox;
   display: inline-flex;
   position: relative; }
@@ -529,7 +533,7 @@ ul ul {
 .twitter-typeahead {
   left: 0;
   top: 0.7142857143rem ;
-  width: 16.0714285714rem ; }
+  width: 17.1428571429rem ; }
   @media (min-width: 768px) {
     .twitter-typeahead {
       top: 1.0714285714rem ; } }
@@ -661,14 +665,12 @@ input.typeahead.tt-input {
     content: "\f100"; }
 
 html.has-nav-left .nav-left {
-  -webkit-transform: translate(-22.8571428571rem , 0);
-      -ms-transform: translate(-22.8571428571rem , 0);
-          transform: translate(-22.8571428571rem , 0); }
+  -ms-transform: translate(-22.8571428571rem , 0);
+      transform: translate(-22.8571428571rem , 0); }
 
 .nav-right {
-  -webkit-transform: translate(19.2857142857rem , 0);
-      -ms-transform: translate(19.2857142857rem , 0);
-          transform: translate(19.2857142857rem , 0); }
+  -ms-transform: translate(19.2857142857rem , 0);
+      transform: translate(19.2857142857rem , 0); }
 
 .map-buttons-left {
   height: 100%;
@@ -687,9 +689,8 @@ html.nav-left-open .map-buttons-left {
   left: 22.8571428571rem ; }
 
 html.nav-left-open .nav-left {
-  -webkit-transform: translate(0, 0);
-      -ms-transform: translate(0, 0);
-          transform: translate(0, 0); }
+  -ms-transform: translate(0, 0);
+      transform: translate(0, 0); }
 
 html.nav-left-open .nav-left-toggle:before {
   content: "\f100"; }
@@ -704,9 +705,8 @@ html.nav-right-open .map-buttons-right {
   right: 19.2857142857rem ; }
 
 html.nav-right-open .nav-right {
-  -webkit-transform: translate(0, 0);
-      -ms-transform: translate(0, 0);
-          transform: translate(0, 0); }
+  -ms-transform: translate(0, 0);
+      transform: translate(0, 0); }
 
 html.nav-right-open .nav-right-toggle:before {
   content: "\f101"; }
@@ -722,7 +722,7 @@ html.nav-right-open .nav-right-toggle:before {
   display: none;
   padding-top: 10px; }
 
-html.print .map-buttons-left, html.print .map-buttons-right, html.print .tink-layers, html.print .tink-search {
+html.print .map-buttons-left, html.print .map-buttons-right, html.print .tink-layers, html.print .tink-search, html.print .typeahead {
   display: none; }
 
 html.print .printpart {
@@ -766,3 +766,27 @@ html.print.landscape .mappart {
 
 .sweet-alert .fieldset {
   display: none; }
+
+.loader-wrapper {
+  background-color: rgba(0, 0, 0, 0.7);
+  bottom: 0%;
+  left: 0;
+  opacity: 1;
+  position: fixed;
+  right: 0%;
+  top: 0;
+  transition: opacity 0.1s linear;
+  z-index: 9999; }
+  .loader-wrapper.ng-hide-add, .loader-wrapper .ng-hide-remove {
+    /* ensure visibility during the transition */
+    display: block !important; }
+  .loader-wrapper.ng-hide {
+    opacity: 0; }
+  .loader-wrapper .loader {
+    border-width: 0.3571428571rem ;
+    height: 7.1428571429rem ;
+    left: 50%;
+    margin: -3.5714285714rem  0 0 -3.5714285714rem ;
+    position: fixed;
+    top: 50%;
+    width: 7.1428571429rem ; }

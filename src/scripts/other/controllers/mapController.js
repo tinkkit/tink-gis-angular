@@ -17,19 +17,23 @@
         vm.activeInteractieKnop = MapData.ActiveInteractieKnop;
         $scope.$watch(function () { return MapData.ActiveInteractieKnop; }, function (data) {
             vm.activeInteractieKnop = data;
-
         }, true);
         vm.drawingType = MapData.DrawingType;
         $scope.$watch(function () { return MapData.DrawingType; }, function (data) {
             vm.drawingType = data;
-
         }, true);
-
+        $scope.$watch(function () { return MapData.SelectedFindLayer; }, function (data) {
+            vm.selectedLayer = MapData.SelectedLayer;
+            vm.selectedFindLayer = MapData.SelectedFindLayer;
+        }, true);
         vm.SelectableLayers = function () {
             return MapData.VisibleLayers;
         };
         vm.selectedLayer = function () {
             return MapData.SelectedLayer;
+        }
+        vm.selectedFindLayer = function () {
+            return MapData.SelectedFindLayer;
         }
         vm.showMetenControls = false;
         vm.showDrawControls = false;
@@ -233,9 +237,12 @@
             // vm.drawingType = DrawingOption.NIETS;
         };
         vm.layerChange = function () {
-            MapData.CleanMap();
-            // console.log('vm.sel: ' + vm.selectedLayer.id + '/ MapData.SelectedLayer: ' + MapData.Layer.SelectedLayer.id);
+            // MapData.CleanMap();
             MapData.SelectedLayer = vm.selectedLayer;
+        };
+        vm.findLayerChange = function () {
+            // MapData.CleanMap();
+            MapData.SelectedFindLayer = vm.selectedFindLayer;
         };
         vm.zoomIn = function () {
             map.zoomIn();

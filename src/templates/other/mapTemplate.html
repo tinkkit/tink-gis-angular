@@ -11,7 +11,7 @@
                     <button type="button" class=" btn hidden-print" ng-class="{active: mapctrl.printStyle=='portrait'}" ng-click="mapctrl.portrait()">Staand</button>
                     <button type="button" class=" btn hidden-print" ng-class="{active: mapctrl.printStyle=='landscape'}" ng-click="mapctrl.landscape()">Liggend</button>
                 </div>
-
+              
             </div>
         </div>
     </div>
@@ -31,9 +31,8 @@
                     </div>
                     <div class="drawingbtns-select">
                         <div class="select">
-                            <select>
-                                <option></option>
-                            </select>
+                         <select ng-options="layer as layer.name for layer in mapctrl.SelectableLayers()" ng-model="mapctrl.selectedLayer" ng-show="mapctrl.SelectableLayers().length > 1"
+                    ng-change="mapctrl.layerChange()" prevent-default></select>
                         </div>
                     </div>
                 </div>
@@ -72,8 +71,8 @@
                 <form id="zoekbalken" class="form-force-inline ll zoekbalken">
                     <!--<input id="locatiezoek" class="zoekbalk typeahead" type="text" ng-show="mapctrl.ZoekenOpLocatie == true" placeholder="Geef een X,Y / locatie of POI in."
                         prevent-default />-->
-                    <select ng-options="layer as layer.name for layer in mapctrl.SelectableLayers()" ng-model="mapctrl.selectedLayer" ng-show="mapctrl.activeInteractieKnop=='select' && mapctrl.SelectableLayers().length > 1"
-                    ng-change="mapctrl.layerChange()" prevent-default></select><input type="search" ng-show="mapctrl.ZoekenOpLocatie == false" placeholder="Geef een zoekterm" prevent-default
+                    <select ng-options="layer as layer.name for layer in mapctrl.SelectableLayers()" ng-model="mapctrl.selectedFindLayer" ng-show="mapctrl.SelectableLayers().length > 1"
+                    ng-change="mapctrl.findLayerChange()" prevent-default></select><input type="search" ng-show="mapctrl.ZoekenOpLocatie == false" placeholder="Geef een zoekterm" prevent-default
                     ng-keyup="$event.keyCode == 13 && mapctrl.zoekLaag(mapctrl.laagquery)" ng-model="mapctrl.laagquery"/>
                 </form>
             </div>

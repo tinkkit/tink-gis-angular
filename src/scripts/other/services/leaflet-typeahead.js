@@ -24,6 +24,7 @@ L.Control.Typeahead = L.Control.extend({
     // container.style.left = "50px";
     this.typeahead = L.DomUtil.create('input', 'typeahead tt-input', container);
     this.typeahead.type = 'text';
+    this.typeahead.id = "okzor"
     this.typeahead.placeholder = this.options.placeholder;
     $(this.typeahead).typeahead.apply($(this.typeahead),this.arguments);
     ["typeahead:active", "typeahead:idle", "typeahead:open", "typeahead:close",

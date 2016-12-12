@@ -166,7 +166,7 @@
 
         _mapService.Find = function (query) {
             MapData.CleanSearch();
-            if (MapData.SelectedLayer && MapData.SelectedLayer.id == '') { // alle layers selected
+            if (MapData.SelectedFindLayer && MapData.SelectedFindLayer.id == '') { // alle layers selected
                 MapData.Themes.forEach(theme => { // dus doen we de qry op alle lagen.
                     if (theme.Type === ThemeType.ESRI) {
                         theme.VisibleLayers.forEach(lay => {
@@ -185,13 +185,13 @@
             }
             else {
                 ResultsData.RequestStarted++;
-                MapData.SelectedLayer.theme.MapData.find()
-                    .fields(MapData.SelectedLayer.displayField)
-                    .layers(MapData.SelectedLayer.id)
+                MapData.SelectedFindLayer.theme.MapData.find()
+                    .fields(MapData.SelectedFindLayer.displayField)
+                    .layers(MapData.SelectedFindLayer.id)
                     .text(query)
                     .run(function (error, featureCollection, response) {
                         ResultsData.RequestCompleted++;
-                        MapData.AddFeatures(featureCollection, MapData.SelectedLayer.theme, MapData.SelectedLayer.id);
+                        MapData.AddFeatures(featureCollection, MapData.SelectedFindLayer.theme, MapData.SelectedFindLayer.id);
                     });
             }
         };

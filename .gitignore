@@ -1,6 +1,7 @@
 node_modules
 .tmp
 .DS_Store
+.vscode/
 bower_components
 npm-debug.log
 *.sublime-workspace

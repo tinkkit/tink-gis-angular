@@ -11,9 +11,12 @@
         _data.IsDrawing = false;
         _data.Themes = [];
         _data.defaultlayer = { id: '', name: 'Alle Layers' };
-        _data.SelectedLayer = _data.defaultlayer;
         _data.VisibleLayers.unshift(_data.defaultlayer);
+        _data.SelectedLayer = _data.defaultlayer;
+        _data.SelectedFindLayer = _data.defaultlayer;
+        
         _data.ResetVisibleLayers = function () {
+            console.log("RestVisLayers");
             var curSelectedLayer = _data.SelectedLayer;
             _data.VisibleLayers.length = 0;
             _data.Themes.forEach(x => {
