@@ -767,7 +767,10 @@ html.print.landscape .mappart {
 .sweet-alert .fieldset {
   display: none; }
 
-.loader-wrapper {
+.loader {
+  display: none; }
+
+html.show-loader .loader-wrapper {
   background-color: rgba(0, 0, 0, 0.7);
   bottom: 0%;
   left: 0;
@@ -777,16 +780,13 @@ html.print.landscape .mappart {
   top: 0;
   transition: opacity 0.1s linear;
   z-index: 9999; }
-  .loader-wrapper.ng-hide-add, .loader-wrapper .ng-hide-remove {
-    /* ensure visibility during the transition */
-    display: block !important; }
-  .loader-wrapper.ng-hide {
-    opacity: 0; }
-  .loader-wrapper .loader {
-    border-width: 0.3571428571rem ;
-    height: 7.1428571429rem ;
-    left: 50%;
-    margin: -3.5714285714rem  0 0 -3.5714285714rem ;
-    position: fixed;
-    top: 50%;
-    width: 7.1428571429rem ; }
+
+html.show-loader .loader {
+  display: inline-block;
+  border-width: 0.3571428571rem ;
+  height: 7.1428571429rem ;
+  left: 50%;
+  margin: -3.5714285714rem  0 0 -3.5714285714rem ;
+  position: fixed;
+  top: 50%;
+  width: 7.1428571429rem ; }

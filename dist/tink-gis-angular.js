@@ -857,21 +857,11 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         }, function (data) {
             vm.drawingType = data;
         }, true);
-        $scope.$watch(function () {
-            return MapData.SelectedFindLayer;
-        }, function (data) {
-            vm.selectedLayer = MapData.SelectedLayer;
-            vm.selectedFindLayer = MapData.SelectedFindLayer;
-        }, true);
         vm.SelectableLayers = function () {
             return MapData.VisibleLayers;
         };
-        vm.selectedLayer = function () {
-            return MapData.SelectedLayer;
-        };
-        vm.selectedFindLayer = function () {
-            return MapData.SelectedFindLayer;
-        };
+        vm.selectedLayer = MapData.SelectedLayer;
+        vm.selectedFindLayer = MapData.SelectedFindLayer;
         vm.showMetenControls = false;
         vm.showDrawControls = false;
         vm.zoekLoc = '';
@@ -1073,11 +1063,11 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         };
         vm.layerChange = function () {
             // MapData.CleanMap();
-            MapData.SelectedLayer = vm.selectedLayer;
+            // MapData.SelectedLayer = vm.selectedLayer;
         };
         vm.findLayerChange = function () {
             // MapData.CleanMap();
-            MapData.SelectedFindLayer = vm.selectedFindLayer;
+            // MapData.SelectedFindLayer = vm.selectedFindLayer;
         };
         vm.zoomIn = function () {
             map.zoomIn();
@@ -2402,6 +2392,39 @@ L.Control.Typeahead = L.Control.extend({
 L.control.typeahead = function (args) {
   return new L.Control.Typeahead(arguments);
 };
+;'use strict';
+
+(function () {
+    var module;
+    try {
+        module = angular.module('tink.gis');
+    } catch (e) {
+        module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'tink.modal']); //'leaflet-directive'
+    }
+    var loadingService = function loadingService() {
+        var _loadingService = {};
+        _loadingService.Init = function () {
+            toastr.options.timeOut = 5000; // How long the toast will display without user interaction
+            toastr.options.extendedTimeOut = 10000; // How long the toast will display after a user hovers over it
+            toastr.options.closeButton = true;
+        }();
+
+        _loadingService.ShowLoading = function () {
+            var html = $('html');
+            if (!html.hasClass('show-loader')) {
+                html.addClass('show-loader');
+            }
+        };
+        _loadingService.HideLoading = function () {
+            var html = $('html');
+            if (html.hasClass('show-loader')) {
+                html.removeClass('show-loader');
+            }
+        };
+        return _loadingService;
+    };
+    module.factory('LoadingService', loadingService);
+})();
 ;'use strict';
 
 (function () {

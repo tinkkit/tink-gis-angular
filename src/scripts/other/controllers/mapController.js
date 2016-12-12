@@ -22,25 +22,11 @@
         $scope.$watch(function () { return MapData.DrawingType; }, function (data) {
             vm.drawingType = data;
         }, true);
-        // $scope.$watch(function () { return MapData.SelectedFindLayer; }, function (data) {
-        //     // if (data != vm.selectedFindLayer) {
-        //     vm.selectedFindLayer = data;
-        //     // }
-        // }, true);
-        // $scope.$watch(function () { return MapData.SelectedLayer; }, function (data) {
-        //     // if (data != vm.selectedLayer) {
-        //     vm.selectedLayer = data;
-        //     // }
-        // }, true);
         vm.SelectableLayers = function () {
             return MapData.VisibleLayers;
         };
-        vm.selectedLayer = function () {
-            return MapData.SelectedLayer;
-        }
-        vm.selectedFindLayer = function () {
-            return MapData.SelectedFindLayer;
-        }
+        vm.selectedLayer = MapData.SelectedLayer
+        vm.selectedFindLayer = MapData.SelectedFindLayer
         vm.showMetenControls = false;
         vm.showDrawControls = false;
         vm.zoekLoc = '';
@@ -244,11 +230,11 @@
         };
         vm.layerChange = function () {
             // MapData.CleanMap();
-            MapData.SelectedLayer = vm.selectedLayer;
+            // MapData.SelectedLayer = vm.selectedLayer;
         };
         vm.findLayerChange = function () {
             // MapData.CleanMap();
-            MapData.SelectedFindLayer = vm.selectedFindLayer;
+            // MapData.SelectedFindLayer = vm.selectedFindLayer;
         };
         vm.zoomIn = function () {
             map.zoomIn();
