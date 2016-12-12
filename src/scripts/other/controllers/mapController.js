@@ -22,10 +22,16 @@
         $scope.$watch(function () { return MapData.DrawingType; }, function (data) {
             vm.drawingType = data;
         }, true);
-        $scope.$watch(function () { return MapData.SelectedFindLayer; }, function (data) {
-            vm.selectedLayer = MapData.SelectedLayer;
-            vm.selectedFindLayer = MapData.SelectedFindLayer;
-        }, true);
+        // $scope.$watch(function () { return MapData.SelectedFindLayer; }, function (data) {
+        //     // if (data != vm.selectedFindLayer) {
+        //     vm.selectedFindLayer = data;
+        //     // }
+        // }, true);
+        // $scope.$watch(function () { return MapData.SelectedLayer; }, function (data) {
+        //     // if (data != vm.selectedLayer) {
+        //     vm.selectedLayer = data;
+        //     // }
+        // }, true);
         vm.SelectableLayers = function () {
             return MapData.VisibleLayers;
         };
