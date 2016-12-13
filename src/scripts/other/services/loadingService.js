@@ -9,9 +9,7 @@
     var loadingService = function () {
         var _loadingService = {};
         _loadingService.Init = function () {
-            toastr.options.timeOut = 5000; // How long the toast will display without user interaction
-            toastr.options.extendedTimeOut = 10000; // How long the toast will display after a user hovers over it
-            toastr.options.closeButton = true;
+
         } ();
 
         _loadingService.ShowLoading = function () {
