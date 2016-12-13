@@ -6,7 +6,7 @@
         <div class="margin-top">
             <input type="text" disabled="disabled" value="https://geodata.antwerpen.be/arcgissql/services/P_SiK/Groeninventaris/MapServer/WMSServer" />
         </div>
-        <div class="overflow-wrapper list-selectable margin-top margin-bottom">
+        <div class="overflow-wrapper flex-grow-1 list-selectable margin-top margin-bottom">
             <div ng-if="!searchIsUrl" ng-repeat="theme in availableThemes">
                 <dl ng-class="{active: isActive(theme)}" ng-class="{'not-allowed': theme.Type != 'wms' &&  theme.Type != 'esri'}">
                     <a href="#" class="theme-layer" ng-click="geopuntThemeChanged(theme)">
