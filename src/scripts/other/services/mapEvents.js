@@ -12,6 +12,9 @@
         map.on('draw:drawstop', function (event) {
             console.log('draw stopped');
             MapData.IsDrawing = false;
+            $rootScope.$apply(function () {
+                MapData.DrawingType = DrawingOption.GEEN;
+            });
             // MapData.CleanDrawings();
         });
         var berekendAfstand = function (arrayOfPoints) {

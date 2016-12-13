@@ -230,11 +230,11 @@
         };
         vm.layerChange = function () {
             // MapData.CleanMap();
-            // MapData.SelectedLayer = vm.selectedLayer;
+            MapData.SelectedLayer = vm.selectedLayer;
         };
         vm.findLayerChange = function () {
             // MapData.CleanMap();
-            // MapData.SelectedFindLayer = vm.selectedFindLayer;
+            MapData.SelectedFindLayer = vm.selectedFindLayer;
         };
         vm.zoomIn = function () {
             map.zoomIn();
