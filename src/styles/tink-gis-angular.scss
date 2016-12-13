@@ -901,21 +901,17 @@ html.print.landscape {
 
 // fix for sweet-alert bug
 .sweet-alert {
-  .fieldset {
+  fieldset {
     display: none;
   }
 }
-.nav-aside.nav-right { // auto gives problems with collapse and right side map buttons
-  // min-width: rem($nav-aside-width);
-  // width: auto;
-}
 
-.loader {
+.loader-wrapper {
   display:none;
 }
 html.show-loader {
-
 .loader-wrapper {
+    display:block;
     background-color: $modal-backdropcolor;
     bottom: 0%;
     left: 0;
@@ -925,35 +921,18 @@ html.show-loader {
     top: 0;
     transition: opacity $animation-speed linear;
     z-index: 9999;
+    .loader {
+      display: inline-block;
+      border-width: rem(5);
+      height: rem(100);
+      left: 50%;
+      margin: rem(-50) 0 0 rem(-50);
+      position: fixed;
+      top: 50%;
+      width: rem(100);
+    }
   }
-
-  // &.ng-hide-add, .ng-hide-remove {
-  //   /* ensure visibility during the transition */
-  //   display: block !important;
-  // }
-
-  // &.show {
-  //   background-color: $modal-backdropcolor;
-  //   bottom: 0%;
-  //   left: 0;
-  //   opacity: 1;
-  //   position: fixed;
-  //   right: 0%;
-  //   top: 0;
-  //   transition: opacity $animation-speed linear;
-  //   z-index: 9999;
-
- 
-  // }
-
-  .loader {
-    display: inline-block;
-    border-width: rem(5);
-    height: rem(100);
-    left: 50%;
-    margin: rem(-50) 0 0 rem(-50);
-    position: fixed;
-    top: 50%;
-    width: rem(100);
-  }
+}
+body.stop-scrolling {
+  height: 100vh;
 }

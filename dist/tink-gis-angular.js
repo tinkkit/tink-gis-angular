@@ -2403,11 +2403,7 @@ L.control.typeahead = function (args) {
     }
     var loadingService = function loadingService() {
         var _loadingService = {};
-        _loadingService.Init = function () {
-            toastr.options.timeOut = 5000; // How long the toast will display without user interaction
-            toastr.options.extendedTimeOut = 10000; // How long the toast will display after a user hovers over it
-            toastr.options.closeButton = true;
-        }();
+        _loadingService.Init = function () {}();
 
         _loadingService.ShowLoading = function () {
             var html = $('html');
@@ -4201,7 +4197,7 @@ L.drawLocal = {
     "<div class=margin-top>\n" +
     "<input disabled value=https://geodata.antwerpen.be/arcgissql/services/P_SiK/Groeninventaris/MapServer/WMSServer>\n" +
     "</div>\n" +
-    "<div class=\"overflow-wrapper list-selectable margin-top margin-bottom\">\n" +
+    "<div class=\"overflow-wrapper flex-grow-1 list-selectable margin-top margin-bottom\">\n" +
     "<div ng-if=!searchIsUrl ng-repeat=\"theme in availableThemes\">\n" +
     "<dl ng-class=\"{active: isActive(theme)}\" ng-class=\"{'not-allowed': theme.Type != 'wms' &&  theme.Type != 'esri'}\">\n" +
     "<a href=# class=theme-layer ng-click=geopuntThemeChanged(theme)>\n" +
@@ -4259,7 +4255,7 @@ L.drawLocal = {
     "<div>\n" +
     "<input class=searchbox ng-model=searchTerm ng-change=searchChanged() placeholder=\"Geef een trefwoord\">\n" +
     "</div>\n" +
-    "<div class=\"overflow-wrapper list-selectable margin-top margin-bottom\">\n" +
+    "<div class=\"overflow-wrapper flex-grow-1 list-selectable margin-top margin-bottom\">\n" +
     "<div ng-repeat=\"theme in availableThemes | filter:{name: searchTerm}\">\n" +
     "<dl ng-class=\"{active: isActive(theme)}\">\n" +
     "<a href=# class=theme-layer ng-click=ThemeChanged(theme)>\n" +
@@ -4328,7 +4324,7 @@ L.drawLocal = {
     "<div>\n" +
     "<input class=searchbox ng-model=searchTerm ng-change=searchChanged() ng-model-options=\"{debounce: 250}\" placeholder=\"Geef een trefwoord\">\n" +
     "</div>\n" +
-    "<div class=\"overflow-wrapper list-selectable margin-top margin-bottom\">\n" +
+    "<div class=\"overflow-wrapper flex-grow-1 list-selectable margin-top margin-bottom\">\n" +
     "<div ng-repeat=\"theme in availableThemes\">\n" +
     "<dl ng-class=\"{active: isActive(theme)}\">\n" +
     "<a href=# class=theme-layer ng-click=solrThemeChanged(theme)>\n" +

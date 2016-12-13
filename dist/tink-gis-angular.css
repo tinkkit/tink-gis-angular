@@ -775,13 +775,14 @@ html.print.landscape .mappart {
 .leaflet-popup-close-button {
   z-index: 9999; }
 
-.sweet-alert .fieldset {
+.sweet-alert fieldset {
   display: none; }
 
-.loader {
+.loader-wrapper {
   display: none; }
 
 html.show-loader .loader-wrapper {
+  display: block;
   background-color: rgba(0, 0, 0, 0.7);
   bottom: 0%;
   left: 0;
@@ -791,13 +792,15 @@ html.show-loader .loader-wrapper {
   top: 0;
   transition: opacity 0.1s linear;
   z-index: 9999; }
+  html.show-loader .loader-wrapper .loader {
+    display: inline-block;
+    border-width: 0.3571428571rem ;
+    height: 7.1428571429rem ;
+    left: 50%;
+    margin: -3.5714285714rem  0 0 -3.5714285714rem ;
+    position: fixed;
+    top: 50%;
+    width: 7.1428571429rem ; }
 
-html.show-loader .loader {
-  display: inline-block;
-  border-width: 0.3571428571rem ;
-  height: 7.1428571429rem ;
-  left: 50%;
-  margin: -3.5714285714rem  0 0 -3.5714285714rem ;
-  position: fixed;
-  top: 50%;
-  width: 7.1428571429rem ; }
+body.stop-scrolling {
+  height: 100vh; }
