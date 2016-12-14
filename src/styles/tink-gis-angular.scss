@@ -581,9 +581,10 @@ ul {
  */
 
 .twitter-typeahead {
+  /* position */
   left: 0;
   top: rem(10); // same values as searchbtns
-  width: rem(240);
+  width: rem(280);
 
   @include mq($screen-sm) {
     top: rem(15);
@@ -595,7 +596,7 @@ input.typeahead.tt-input {
 }
 
 .tt-suggestion + .tt-suggestion {
-  border-top: 1px solid #ccd6dd;
+  border-top: 1px solid $gray-lighter;
 }
     .tt-focus {
         border: 2px solid #0097cf;
@@ -610,54 +611,65 @@ input.typeahead.tt-input {
     }
 
     .tt-menu {
-      max-height: 80vh;
+      background-color: $white;
+      border: 1px solid $gray-light;
+      border-radius: $border-radius-base;
+      box-shadow: 0 0 2px rgba(0,0,0,.6);
+      margin-top: 2px;
+      max-height: 85vh;
       overflow-y: auto;
-        width: 422px;
-        margin: 12px 0;
-        padding: 8px 0;
-        background-color: #fff;
-        border: 1px solid #ccc;
-        border: 1px solid rgba(0, 0, 0, 0.2);
-        border-radius: 8px;
-        box-shadow: 0 5px 10px rgba(0, 0, 0, .2);
-        z-index: 99999;
+      padding: $padding-base-vertical 0;
+      width: rem(280);
+      z-index: 99999;
     }
 
     .tt-suggestion {
       font-size: rem($font-size-base);
       line-height: $line-height-base;
-        padding: 3px 20px;
-        // font-size: 18px;
-        // line-height: 24px;
-        z-index: 99999;
+      padding: $padding-small-vertical $padding-small-horizontal;
+      z-index: 99999;
+
+      p {
+        color: $gray;
+        font-size: rem($font-size-small);
+
+        strong {
+          font-weight: normal;
+        }
+      }
     }
 
     .tt-suggestion:hover {
-        cursor: pointer;
-        color: #fff;
-        background-color: #0097cf;
+      background-color: $brand-light;
+      color: $white;
+      cursor: pointer;
+
+      p {
+        color: $gray-lightest;
+      }
     }
 
     .tt-suggestion.tt-cursor {
-        color: #fff;
-        background-color: #0097cf;
+      background-color: $brand-light;
+      color: $white;
     }
 
     .tt-suggestion p {
-        margin: 0;
-    }
-
-    .gist {
-        font-size: 14px;
-    }
-    .empty-message {padding:5px;text-align:center;color:red}
-
-    .achtergrondfixvoorpng {
-      background-image: url('fa-dot-circle-o_24_0_000000_none.png');
+      margin: 0;
     }
 
 
 // Legacy code - needs further checking
+
+.gist {
+    font-size: 14px;
+}
+
+.empty-message {padding:5px;text-align:center;color:red}
+
+.achtergrondfixvoorpng {
+  background-image: url('fa-dot-circle-o_24_0_000000_none.png');
+}
 
 .row-no-padding {
   [class*="col-"] {
