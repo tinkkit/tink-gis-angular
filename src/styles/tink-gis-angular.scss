@@ -906,17 +906,9 @@ html.print.landscape {
   }
 }
 
-
-.leaflet-popup-close-button {
-  z-index: 9999; //Make sure the close button is clickable when there is a popup!
-}
-
-// fix for sweet-alert bug
-.sweet-alert {
-  fieldset {
-    display: none;
-  }
-}
+/**
+ * Full page loader
+ */
 
 .loader-wrapper {
   display:none;
@@ -945,6 +937,20 @@ html.show-loader {
     }
   }
 }
+
+
+/* fix for sweet-alert bug */
+.sweet-alert {
+  fieldset {
+    display: none;
+  }
+}
+
 body.stop-scrolling {
   height: 100vh;
+}
+/* end of fix */
+
+.leaflet-popup-close-button {
+  z-index: 9999; //Make sure the close button is clickable when there is a popup!
 }
