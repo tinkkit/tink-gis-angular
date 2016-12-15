@@ -538,9 +538,10 @@ ul ul {
  * Typeahead styling
  */
 .twitter-typeahead {
+  /* position */
   left: 0;
   top: 0.7142857143rem ;
-  width: 17.1428571429rem ; }
+  width: 20rem ; }
   @media (min-width: 768px) {
     .twitter-typeahead {
       top: 1.0714285714rem ; } }
@@ -549,7 +550,7 @@ input.typeahead.tt-input {
   background-color: #fff; }
 
 .tt-suggestion + .tt-suggestion {
-  border-top: 1px solid #ccd6dd; }
+  border-top: 1px solid #eaeaea; }
 
 .tt-focus {
   border: 2px solid #0097cf; }
@@ -561,32 +562,38 @@ input.typeahead.tt-input {
   color: #999; }
 
 .tt-menu {
-  max-height: 80vh;
-  overflow-y: auto;
-  width: 422px;
-  margin: 12px 0;
-  padding: 8px 0;
   background-color: #fff;
-  border: 1px solid #ccc;
-  border: 1px solid rgba(0, 0, 0, 0.2);
-  border-radius: 8px;
-  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+  border: 1px solid #bbb;
+  border-radius: 3px;
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.6);
+  margin-top: 2px;
+  max-height: 85vh;
+  overflow-y: auto;
+  padding: 6px 0;
+  width: 20rem ;
   z-index: 99999; }
 
 .tt-suggestion {
   font-size: 1rem ;
   line-height: 1.428571429;
-  padding: 3px 20px;
+  padding: 5px 10px;
   z-index: 99999; }
+  .tt-suggestion p {
+    color: #888;
+    font-size: 0.8571428571rem ; }
+    .tt-suggestion p strong {
+      font-weight: normal; }
 
 .tt-suggestion:hover {
-  cursor: pointer;
+  background-color: #5fb1d6;
   color: #fff;
-  background-color: #0097cf; }
+  cursor: pointer; }
+  .tt-suggestion:hover p {
+    color: #f7f7f7; }
 
 .tt-suggestion.tt-cursor {
-  color: #fff;
-  background-color: #0097cf; }
+  background-color: #5fb1d6;
+  color: #fff; }
 
 .tt-suggestion p {
   margin: 0; }
