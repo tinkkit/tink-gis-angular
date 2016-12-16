@@ -3112,8 +3112,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     var popupService = function popupService() {
         var _popupService = {};
         _popupService.Init = function () {
-            toastr.options.timeOut = 5000; // How long the toast will display without user interaction
-            toastr.options.extendedTimeOut = 10000; // How long the toast will display after a user hovers over it
+            toastr.options.timeOut = 0; // How long the toast will display without user interaction, when timeOut and extendedTimeOut are set to 0 it will only close after user has clocked the close button
+            toastr.options.extendedTimeOut = 0; // How long the toast will display after a user hovers over it
             toastr.options.closeButton = true;
         }();
         _popupService.popupGenerator = function (type, title, message, callback, options) {
@@ -4438,7 +4438,7 @@ L.drawLocal = {
     "</div>\n" +
     "<div class=mappart>\n" +
     "<tink-search class=tink-search></tink-search>\n" +
-    "<div id=map class=\"leafletmap leaflet-crosshair\">\n" +
+    "<div id=map class=leafletmap>\n" +
     "<div class=map-buttons-left>\n" +
     "<div class=\"ll drawingbtns\" ng-show=mapctrl.showDrawControls>\n" +
     "<div class=btn-group>\n" +
