@@ -990,7 +990,8 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             switch (ActiveButton) {
                 case ActiveInteractieButton.SELECT:
                     vm.showDrawControls = true;
-                    vm.selectpunt();
+                    MapData.DrawingType = DrawingOption.GEEN; // pff must be possible to be able to sync them...
+
                     break;
                 case ActiveInteractieButton.METEN:
                     vm.showMetenControls = true;
@@ -1058,7 +1059,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         // });
         vm.selectpunt = function () {
             // MapData.CleanMap();
-            MapData.DrawingType = DrawingOption.GEEN; // pff must be possible to be able to sync them...
+            MapData.DrawingType = DrawingOption.NIETS; // pff must be possible to be able to sync them...
             // vm.drawingType = DrawingOption.NIETS;
         };
         vm.layerChange = function () {
@@ -2988,6 +2989,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                                             // we must still apply for the loading to get updated
                                             $rootScope.$apply();
                                         }
+                                    }).error(function (exception) {
+                                        ResultsData.RequestCompleted++;
                                     });
                                 }
                             });
@@ -3143,7 +3146,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         };
         _popupService.ErrorFromHTTP = function (data, status, url) {
             var title = 'HTTP error (' + status + ')';
-            var message = 'Er is een fout gebeurt met de call naar: ' + url;
+            var message = 'Fout met het navigeren naar url: ' + url;
             var exception = { url: url, status: status, data: data };
             var callback = function callback() {
                 _popupService.ExceptionFunc(exception);
