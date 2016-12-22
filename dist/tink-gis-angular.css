@@ -782,9 +782,6 @@ html.print.landscape .mappart {
 .leaflet-popup-close-button {
   z-index: 9999; }
 
-.sweet-alert fieldset {
-  display: none; }
-
 .loader-wrapper {
   display: none; }
 
@@ -808,6 +805,52 @@ html.show-loader .loader-wrapper {
     position: fixed;
     top: 50%;
     width: 7.1428571429rem ; }
+
+.project-list {
+  line-height: 1.4285714286rem ;
+  overflow-y: auto; }
+  .project-list ul {
+    height: 27vh; }
+
+.news-list {
+  overflow-y: auto; }
+  .news-list dl {
+    height: 27vh;
+    overflow: auto;
+    margin-bottom: 0; }
+  .news-list dt {
+    margin-top: 0.2857142857rem ; }
+  .news-list .read-on {
+    margin-top: 0.1428571429rem ; }
+
+.dashboard-view-left {
+  border-right: 1px solid #bbb; }
+
+.create-ticket {
+  background-color: #f7f7f7;
+  border-radius: 3px;
+  bottom: 0;
+  position: relative;
+  width: 100%; }
+
+.create-ticket,
+.whats-new {
+  padding: 1.0714285714rem ; }
+  .create-ticket h4,
+  .whats-new h4 {
+    margin-top: 0; }
+
+.title-block {
+  background-color: #f7f7f7;
+  border-radius: 3px;
+  height: 8.5714285714rem ;
+  padding: 1.7857142857rem  1.0714285714rem ;
+  text-align: center; }
+  .title-block .fa {
+    font-size: 2.1428571429rem ; }
+
+.sweet-alert fieldset {
+  display: none; }
 
 body.stop-scrolling {
   height: 100vh; }
