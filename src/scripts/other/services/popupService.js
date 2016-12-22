@@ -11,8 +11,8 @@
     var popupService = function () {
         var _popupService = {};
         _popupService.Init = function () {
-            toastr.options.timeOut = 5000; // How long the toast will display without user interaction
-            toastr.options.extendedTimeOut = 10000; // How long the toast will display after a user hovers over it
+            toastr.options.timeOut = 0; // How long the toast will display without user interaction, when timeOut and extendedTimeOut are set to 0 it will only close after user has clocked the close button
+            toastr.options.extendedTimeOut = 0; // How long the toast will display after a user hovers over it
             toastr.options.closeButton = true;
         } ();
         _popupService.popupGenerator = function (type, title, message, callback, options) {
@@ -40,7 +40,7 @@
         };
         _popupService.ErrorFromHTTP = function (data, status, url) {
             var title = 'HTTP error (' + status + ')';
-            var message = 'Er is een fout gebeurt met de call naar: ' + url;
+            var message = 'Fout met het navigeren naar url: ' + url;
             var exception = { url: url,  status: status, data: data };
             var callback = function () { _popupService.ExceptionFunc(exception) };
             _popupService.popupGenerator('Error', title, message, callback)

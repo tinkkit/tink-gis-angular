@@ -623,9 +623,9 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
     var service = function service($http, map, MapData, $rootScope, $q, helperService) {
         var _service = {};
         _service.getMetaData = function () {
-            var searchterm = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'water';
-            var startpos = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
-            var recordsAPage = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 10;
+            var searchterm = arguments.length <= 0 || arguments[0] === undefined ? 'water' : arguments[0];
+            var startpos = arguments.length <= 1 || arguments[1] === undefined ? 1 : arguments[1];
+            var recordsAPage = arguments.length <= 2 || arguments[2] === undefined ? 10 : arguments[2];
 
             var url = 'https://metadata.geopunt.be/zoekdienst/srv/dut/csw?service=CSW&version=2.0.2&SortBy=title&request=GetRecords&namespace=xmlns%28csw=http://www.opengis.net/cat/csw%29&resultType=results&outputSchema=http://www.opengis.net/cat/csw/2.0.2&outputFormat=application/xml&startPosition=' + startpos + '&maxRecords=' + recordsAPage + '&typeNames=csw:Record&elementSetName=full&constraintLanguage=CQL_TEXT&constraint_language_version=1.1.0&constraint=AnyText+LIKE+%27%25' + searchterm + '%25%27AND%20Type%20=%20%27service%27%20AND%20Servicetype%20=%27view%27';
             // var url = 'https://metadata.geopunt.be/zoekdienst/srv/dut/q?fast=index&from=' + startpos + '&to=' + recordsAPage + '&any=*' + searchterm + '*&sortBy=title&sortOrder=reverse&hitsperpage=' + recordsAPage;
@@ -990,7 +990,8 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             switch (ActiveButton) {
                 case ActiveInteractieButton.SELECT:
                     vm.showDrawControls = true;
-                    vm.selectpunt();
+                    MapData.DrawingType = DrawingOption.GEEN; // pff must be possible to be able to sync them...
+
                     break;
                 case ActiveInteractieButton.METEN:
                     vm.showMetenControls = true;
@@ -1058,16 +1059,16 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         // });
         vm.selectpunt = function () {
             // MapData.CleanMap();
-            MapData.DrawingType = DrawingOption.GEEN; // pff must be possible to be able to sync them...
+            MapData.DrawingType = DrawingOption.NIETS; // pff must be possible to be able to sync them...
             // vm.drawingType = DrawingOption.NIETS;
         };
         vm.layerChange = function () {
             // MapData.CleanMap();
-            // MapData.SelectedLayer = vm.selectedLayer;
+            MapData.SelectedLayer = vm.selectedLayer;
         };
         vm.findLayerChange = function () {
             // MapData.CleanMap();
-            // MapData.SelectedFindLayer = vm.selectedFindLayer;
+            MapData.SelectedFindLayer = vm.selectedFindLayer;
         };
         vm.zoomIn = function () {
             map.zoomIn();
@@ -1672,8 +1673,8 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         _baseLayersService.basemap1Naam = "Geen";
 
         _baseLayersService.setBaseMap = function (id, naam, url) {
-            var maxZoom = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 19;
-            var minZoom = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 0;
+            var maxZoom = arguments.length <= 3 || arguments[3] === undefined ? 19 : arguments[3];
+            var minZoom = arguments.length <= 4 || arguments[4] === undefined ? 0 : arguments[4];
 
             var layer = L.esri.tiledMapLayer({ url: url, maxZoom: maxZoom, minZoom: minZoom, continuousWorld: true });
             if (id == 1) {
@@ -2090,7 +2091,7 @@ var esri2geo = {};
 })();
 ;'use strict';
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
 (function () {
     var module;
@@ -2403,11 +2404,7 @@ L.control.typeahead = function (args) {
     }
     var loadingService = function loadingService() {
         var _loadingService = {};
-        _loadingService.Init = function () {
-            toastr.options.timeOut = 5000; // How long the toast will display without user interaction
-            toastr.options.extendedTimeOut = 10000; // How long the toast will display after a user hovers over it
-            toastr.options.closeButton = true;
-        }();
+        _loadingService.Init = function () {}();
 
         _loadingService.ShowLoading = function () {
             var html = $('html');
@@ -2743,6 +2740,9 @@ L.control.typeahead = function (args) {
         map.on('draw:drawstop', function (event) {
             console.log('draw stopped');
             MapData.IsDrawing = false;
+            $rootScope.$apply(function () {
+                MapData.DrawingType = DrawingOption.GEEN;
+            });
             // MapData.CleanDrawings();
         });
         var berekendAfstand = function berekendAfstand(arrayOfPoints) {
@@ -2910,7 +2910,7 @@ L.control.typeahead = function (args) {
 })();
 ;'use strict';
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
 (function () {
     var module;
@@ -2989,6 +2989,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                                             // we must still apply for the loading to get updated
                                             $rootScope.$apply();
                                         }
+                                    }).error(function (exception) {
+                                        ResultsData.RequestCompleted++;
                                     });
                                 }
                             });
@@ -3113,8 +3115,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     var popupService = function popupService() {
         var _popupService = {};
         _popupService.Init = function () {
-            toastr.options.timeOut = 5000; // How long the toast will display without user interaction
-            toastr.options.extendedTimeOut = 10000; // How long the toast will display after a user hovers over it
+            toastr.options.timeOut = 0; // How long the toast will display without user interaction, when timeOut and extendedTimeOut are set to 0 it will only close after user has clocked the close button
+            toastr.options.extendedTimeOut = 0; // How long the toast will display after a user hovers over it
             toastr.options.closeButton = true;
         }();
         _popupService.popupGenerator = function (type, title, message, callback, options) {
@@ -3144,7 +3146,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         };
         _popupService.ErrorFromHTTP = function (data, status, url) {
             var title = 'HTTP error (' + status + ')';
-            var message = 'Er is een fout gebeurt met de call naar: ' + url;
+            var message = 'Fout met het navigeren naar url: ' + url;
             var exception = { url: url, status: status, data: data };
             var callback = function callback() {
                 _popupService.ExceptionFunc(exception);
@@ -4109,34 +4111,20 @@ L.drawLocal = {
     "<meta charset=utf-8>\n" +
     "<title>Street View side-by-side</title>\n" +
     "<style>\n" +
-    "html, body {\r" +
-    "\n" +
-    "        height: 100%;\r" +
-    "\n" +
-    "        margin: 0;\r" +
-    "\n" +
-    "        padding: 0;\r" +
-    "\n" +
-    "      }\r" +
-    "\n" +
-    "      #map,  {\r" +
-    "\n" +
-    "        float: left;\r" +
-    "\n" +
-    "        height: 0%;\r" +
-    "\n" +
-    "        width: 0%;\r" +
-    "\n" +
-    "      }\r" +
-    "\n" +
-    "       #pano {\r" +
-    "\n" +
-    "        float: left;\r" +
-    "\n" +
-    "        height: 100%;\r" +
-    "\n" +
-    "        width: 100%;\r" +
-    "\n" +
+    "html, body {\n" +
+    "        height: 100%;\n" +
+    "        margin: 0;\n" +
+    "        padding: 0;\n" +
+    "      }\n" +
+    "      #map,  {\n" +
+    "        float: left;\n" +
+    "        height: 0%;\n" +
+    "        width: 0%;\n" +
+    "      }\n" +
+    "       #pano {\n" +
+    "        float: left;\n" +
+    "        height: 100%;\n" +
+    "        width: 100%;\n" +
     "      }\n" +
     "</style>\n" +
     "</head>\n" +
@@ -4144,42 +4132,24 @@ L.drawLocal = {
     "<div id=map></div>\n" +
     "<div id=pano></div>\n" +
     "<script>\n" +
-    "function initialize() {\r" +
-    "\n" +
-    "        \r" +
-    "\n" +
-    "        var urlLat = parseFloat((location.search.split('lat=')[1]||'').split('&')[0]);\r" +
-    "\n" +
-    "        var urlLng = parseFloat((location.search.split('lng=')[1]||'').split('&')[0]);\r" +
-    "\n" +
-    "        var fenway = {lat:urlLat, lng: urlLng};\r" +
-    "\n" +
-    "        var map = new google.maps.Map(document.getElementById('map'), {\r" +
-    "\n" +
-    "          center: fenway,\r" +
-    "\n" +
-    "          zoom: 14\r" +
-    "\n" +
-    "        });\r" +
-    "\n" +
-    "        var panorama = new google.maps.StreetViewPanorama(\r" +
-    "\n" +
-    "            document.getElementById('pano'), {\r" +
-    "\n" +
-    "              position: fenway,\r" +
-    "\n" +
-    "              pov: {\r" +
-    "\n" +
-    "                heading: 34,\r" +
-    "\n" +
-    "                pitch: 10\r" +
-    "\n" +
-    "              }\r" +
-    "\n" +
-    "            });\r" +
-    "\n" +
-    "        map.setStreetView(panorama);\r" +
-    "\n" +
+    "function initialize() {\n" +
+    "        \n" +
+    "        var urlLat = parseFloat((location.search.split('lat=')[1]||'').split('&')[0]);\n" +
+    "        var urlLng = parseFloat((location.search.split('lng=')[1]||'').split('&')[0]);\n" +
+    "        var fenway = {lat:urlLat, lng: urlLng};\n" +
+    "        var map = new google.maps.Map(document.getElementById('map'), {\n" +
+    "          center: fenway,\n" +
+    "          zoom: 14\n" +
+    "        });\n" +
+    "        var panorama = new google.maps.StreetViewPanorama(\n" +
+    "            document.getElementById('pano'), {\n" +
+    "              position: fenway,\n" +
+    "              pov: {\n" +
+    "                heading: 34,\n" +
+    "                pitch: 10\n" +
+    "              }\n" +
+    "            });\n" +
+    "        map.setStreetView(panorama);\n" +
     "      }\n" +
     "</script>\n" +
     "<script async defer src=\"https://maps.googleapis.com/maps/api/js?callback=initialize\">\n" +
@@ -4198,7 +4168,7 @@ L.drawLocal = {
     "<div class=margin-top>\n" +
     "<input disabled value=https://geodata.antwerpen.be/arcgissql/services/P_SiK/Groeninventaris/MapServer/WMSServer>\n" +
     "</div>\n" +
-    "<div class=\"overflow-wrapper list-selectable margin-top margin-bottom\">\n" +
+    "<div class=\"overflow-wrapper flex-grow-1 list-selectable margin-top margin-bottom\">\n" +
     "<div ng-if=!searchIsUrl ng-repeat=\"theme in availableThemes\">\n" +
     "<dl ng-class=\"{active: isActive(theme)}\" ng-class=\"{'not-allowed': theme.Type != 'wms' &&  theme.Type != 'esri'}\">\n" +
     "<a href=# class=theme-layer ng-click=geopuntThemeChanged(theme)>\n" +
@@ -4256,7 +4226,7 @@ L.drawLocal = {
     "<div>\n" +
     "<input class=searchbox ng-model=searchTerm ng-change=searchChanged() placeholder=\"Geef een trefwoord\">\n" +
     "</div>\n" +
-    "<div class=\"overflow-wrapper list-selectable margin-top margin-bottom\">\n" +
+    "<div class=\"overflow-wrapper flex-grow-1 list-selectable margin-top margin-bottom\">\n" +
     "<div ng-repeat=\"theme in availableThemes | filter:{name: searchTerm}\">\n" +
     "<dl ng-class=\"{active: isActive(theme)}\">\n" +
     "<a href=# class=theme-layer ng-click=ThemeChanged(theme)>\n" +
@@ -4325,7 +4295,7 @@ L.drawLocal = {
     "<div>\n" +
     "<input class=searchbox ng-model=searchTerm ng-change=searchChanged() ng-model-options=\"{debounce: 250}\" placeholder=\"Geef een trefwoord\">\n" +
     "</div>\n" +
-    "<div class=\"overflow-wrapper list-selectable margin-top margin-bottom\">\n" +
+    "<div class=\"overflow-wrapper flex-grow-1 list-selectable margin-top margin-bottom\">\n" +
     "<div ng-repeat=\"theme in availableThemes\">\n" +
     "<dl ng-class=\"{active: isActive(theme)}\">\n" +
     "<a href=# class=theme-layer ng-click=solrThemeChanged(theme)>\n" +
@@ -4439,7 +4409,7 @@ L.drawLocal = {
     "</div>\n" +
     "<div class=mappart>\n" +
     "<tink-search class=tink-search></tink-search>\n" +
-    "<div id=map class=\"leafletmap leaflet-crosshair\">\n" +
+    "<div id=map class=leafletmap>\n" +
     "<div class=map-buttons-left>\n" +
     "<div class=\"ll drawingbtns\" ng-show=mapctrl.showDrawControls>\n" +
     "<div class=btn-group>\n" +

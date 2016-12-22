@@ -75,6 +75,8 @@
                                             // we must still apply for the loading to get updated
                                             $rootScope.$apply();
                                         }
+                                    }).error(function (exception) {
+                                        ResultsData.RequestCompleted++;
 
                                     });
                                 }
