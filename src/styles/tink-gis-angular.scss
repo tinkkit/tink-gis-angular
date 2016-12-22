@@ -911,13 +911,6 @@ html.print.landscape {
   z-index: 9999; //Make sure the close button is clickable when there is a popup!
 }
 
-// fix for sweet-alert bug
-.sweet-alert {
-  fieldset {
-    display: none;
-  }
-}
-
 .loader-wrapper {
   display:none;
 }
@@ -945,6 +938,76 @@ html.show-loader {
     }
   }
 }
-body.stop-scrolling {
-  height: 100vh;
+
+.project-list {
+  // height: 30vh;
+  line-height: rem(20);
+  overflow-y: auto;
+
+  ul {
+    height: 27vh;
+  }
 }
+
+.news-list {
+  // height: 30vh;
+  overflow-y: auto;
+
+  dl {
+    height: 27vh;
+    overflow: auto;
+    margin-bottom: 0;
+  }
+
+
+  dt {
+    margin-top: rem(4);
+  }
+  .read-on {
+    margin-top: rem(2);
+  }
+}
+
+.dashboard-view-left {
+  border-right: 1px solid $gray-light;
+}
+
+.create-ticket {
+  background-color: $gray-lightest;
+  border-radius: $border-radius-base;
+  bottom: 0;
+  position: relative;
+  width: 100%;
+}
+
+.create-ticket,
+.whats-new {
+  padding: rem(15);
+
+  h4 {
+    margin-top: 0;
+  }
+}
+
+.title-block {
+  background-color: $gray-lightest;
+  border-radius: $border-radius-base;
+  height: rem(120);
+  padding: rem(25) rem(15);
+  text-align: center;
+  .fa {
+    font-size: rem(30);
+  }
+}
+
+// fix for sweet-alert bug
+  .sweet-alert {
+    fieldset {
+      display: none;
+    }
+  }
+
+  body.stop-scrolling {
+    height: 100vh;
+  }
+//
