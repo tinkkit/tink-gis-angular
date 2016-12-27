@@ -1994,6 +1994,14 @@ var esri2geo = {};
 
             return exportObject;
         };
+        _externService.ConfigResultButton = function (isEnabled, text, callback) {
+            _externService.resultButtonText = text;
+            _externService.extraResultButtonCallBack = callback;
+            _externService.extraResultButtonIsEnabled = isEnabled;
+        };
+        _externService.extraResultButtonIsEnabled = false;
+        _externService.resultButtonText = 'notext';
+        _externService.extraResultButtonCallBack = null;
         _externService.Import = function (project) {
             console.log(project);
             _externService.setExtent(project.extent);
@@ -3410,7 +3418,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 (function (module) {
     module = angular.module('tink.gis');
-    var theController = module.controller('searchResultsController', function ($scope, ResultsData, map, SearchService, MapData) {
+    var theController = module.controller('searchResultsController', function ($scope, ResultsData, map, SearchService, MapData, ExternService) {
         var vm = this;
         vm.features = ResultsData.JsonFeatures;
         vm.featureLayers = null;
@@ -3436,14 +3444,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 return x.layerName == type;
             }).length;
         };
-        // vm.HoveredFeature = null;
-        // vm.HoverOver = function (feature) {
-        //     if (vm.HoveredFeature) {
-        //         vm.HoveredFeature.hoverEdit = false;
-        //     }
-        //     feature.hoverEdit = true;
-        //     vm.HoveredFeature = feature;
-        // };
         vm.deleteFeatureGroup = function (featureGroupName) {
             SearchService.DeleteFeatureGroup(featureGroupName);
         };
@@ -3460,8 +3460,18 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         vm.exportToCSV = function () {
             SearchService.ExportToCSV();
         };
+        $scope.$watch(function () {
+            return ExternService.extraResultButtonIsEnabled;
+        }, function (newValue, oldValue) {
+            vm.extraResultButtonIsEnabled = ExternService.extraResultButtonIsEnabled;
+            vm.extraResultButton = ExternService.extraResultButtonCallBack;
+            vm.resultButtonText = ExternService.resultButtonText;
+        });
+        vm.extraResultButtonIsEnabled = ExternService.extraResultButtonIsEnabled;
+        vm.extraResultButton = ExternService.extraResultButtonCallBack;
+        vm.resultButtonText = ExternService.resultButtonText;
     });
-    theController.$inject = ['$scope', 'ResultsData', 'map', 'MapData'];
+    theController.$inject = ['$scope', 'ResultsData', 'map', 'MapData', 'ExternService'];
 })();
 ;'use strict';
 
@@ -4573,6 +4583,7 @@ L.drawLocal = {
     "<div class=\"margin-top margin-bottom\">\n" +
     "<div class=col-xs-12>\n" +
     "<button class=btn-sm ng-click=srchrsltsctrl.exportToCSV()>Exporteer naar CSV</button>\n" +
+    "<button class=btn-sm ng-if=srchrsltsctrl.extraResultButtonIsEnabled ng-click=srchrsltsctrl.extraResultButton()>{{srchrsltsctrl.resultButtonText}}</button>\n" +
     "</div>\n" +
     "</div>\n" +
     "</div>\n"
