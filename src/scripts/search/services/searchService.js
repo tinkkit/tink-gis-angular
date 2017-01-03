@@ -32,10 +32,10 @@
 
             _.sortBy(ResultsData.JsonFeatures, x => x.layerName).forEach(function (feature, index) {
                 if (layName !== feature.layerName) {
-                    layName = feature.layerName.replace(',','.');
+                    layName = feature.layerName.replace(',', '.');
                     var tmparr = [];
                     for (var name in feature.properties) {
-                        tmparr.push(name.replace(',','.'));
+                        tmparr.push(name.replace(',', '.'));
                     }
                     var layfirstline = tmparr.join(",");
 
@@ -64,7 +64,13 @@
             var layName = "";
             csvContent += 'Laag,' + result.layerName + '\n';
             props.forEach(function (prop) {
-                csvContent += prop.key.replace(',','.') + ',' + prop.value.replace(',','.') + '\n';
+                if (prop.key) {
+                    prop.key = prop.key.toString().replace(',', '.')
+                }
+                if (prop.value) {
+                    prop.value = prop.value.toString().replace(',', '.')
+                }
+                csvContent += prop.key + ',' + prop.value + '\n';
             })
             var a = document.createElement('a');
             a.href = 'data:attachment/csv,' + encodeURIComponent(csvContent);
