@@ -3575,6 +3575,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 console.log('Modal dismissed at: ' + new Date()); // The contoller is closed by the use of the $dismiss call
             });
         };
+        vm.exportToCSV = function () {
+            SearchService.ExportOneToCSV(vm.selectedResult);
+        };
         vm.delete = function () {
             var prev = SearchService.GetPrevResult();
             var next = SearchService.GetNextResult();
@@ -3696,24 +3699,24 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             var csvContent = ""; // "data:text/csv;charset=utf-8,";
             var dataString = "";
             var layName = "";
-            csvContent += 'Laag;' + "\n";
+            csvContent += 'Laag,' + "\n";
 
             _.sortBy(ResultsData.JsonFeatures, function (x) {
                 return x.layerName;
             }).forEach(function (feature, index) {
                 if (layName !== feature.layerName) {
-                    layName = feature.layerName;
+                    layName = feature.layerName.replace(',', '.');
                     var tmparr = [];
                     for (var name in feature.properties) {
-                        tmparr.push(name);
+                        tmparr.push(name.replace(',', '.'));
                     }
-                    var layfirstline = tmparr.join(";");
+                    var layfirstline = tmparr.join(",");
 
-                    csvContent += layName + ";" + layfirstline + "\n";
+                    csvContent += layName + "," + layfirstline + "\n";
                 }
                 var infoArray = _.values(feature.properties);
                 infoArray.unshift(layName);
-                dataString = infoArray.join(";");
+                dataString = infoArray.join(",");
                 console.log(dataString);
                 // csvContent += dataString + "\n";
                 csvContent += index < ResultsData.JsonFeatures.length ? dataString + "\n" : dataString;
@@ -3725,8 +3728,25 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
             document.body.appendChild(a);
             a.click();
-            // var encodedUri = encodeURI(csvContent);
-            // window.open(encodedUri, 'exportsik.csv');
+        };
+        _service.ExportOneToCSV = function (result) {
+            var props = Object.getOwnPropertyNames(result.properties).map(function (k) {
+                return { key: k, value: result.properties[k] };
+            });
+            var csvContent = ""; // "data:text/csv;charset=utf-8,";
+            var dataString = "";
+            var layName = "";
+            csvContent += 'Laag,' + result.layerName + '\n';
+            props.forEach(function (prop) {
+                csvContent += prop.key.replace(',', '.') + ',' + prop.value.replace(',', '.') + '\n';
+            });
+            var a = document.createElement('a');
+            a.href = 'data:attachment/csv,' + encodeURIComponent(csvContent);
+            a.target = '_blank';
+            a.download = 'exportsik.csv';
+
+            document.body.appendChild(a);
+            a.click();
         };
         _service.GetNextResult = function () {
             var index = ResultsData.JsonFeatures.indexOf(ResultsData.SelectedFeature);
@@ -4616,13 +4636,14 @@ L.drawLocal = {
     "<div class=pull-right>\n" +
     "<button class=margin-right ng-click=srchslctdctrl.doordruk()>Doordruk</button>\n" +
     "<button ng-click=srchslctdctrl.buffer()>Buffer</button>\n" +
+    "<button class=btn-sm ng-click=srchslctdctrl.exportToCSV()>Exporteer naar CSV</button>\n" +
     "</div>\n" +
     "</div>\n" +
     "<div class=\"col-xs-12 margin-top\">\n" +
     "<a class=pull-right ng-click=srchslctdctrl.close(srchslctdctrl.selectedResult)>Terug naar resultaten</a>\n" +
     "</div>\n" +
     "</div>\n" +
-    "</div>\n"
+    "</div>"
   );
 
 

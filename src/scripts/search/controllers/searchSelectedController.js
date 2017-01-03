@@ -99,6 +99,9 @@
                 });
 
             };
+            vm.exportToCSV = function () {
+                SearchService.ExportOneToCSV(vm.selectedResult);
+            }
             vm.delete = function () {
                 var prev = SearchService.GetPrevResult();
                 var next = SearchService.GetNextResult();
