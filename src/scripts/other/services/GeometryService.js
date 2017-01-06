@@ -4,14 +4,15 @@
     var service = function ($http, MapService, MapData) {
         var _service = {};
 
-        _service.Buffer = function (location, distance, selectedlayer) {
+        _service.Buffer = function (loc, distance, selectedlayer) {
             MapData.CleanMap();
-            var geo = getGeo(location.geometry);
+            var geo = getGeo(loc.geometry);
             delete geo.geometry.spatialReference;
             geo.geometries = geo.geometry;
             delete geo.geometry;
             var sergeo = serialize(geo);
             var url = Gis.GeometryUrl;
+            loc.mapItem.isBufferedItem = true;
             var body = 'inSR=4326&outSR=4326&bufferSR=31370&distances=' + distance * 100 + '&unit=109006&unionResults=true&geodesic=false&geometries=%7B' + sergeo + '%7D&f=json';
             var prom = $http({
                 method: 'POST',
@@ -24,9 +25,10 @@
             prom.success(function (response) {
                 var buffer = MapData.CreateBuffer(response);
                 MapService.Query(buffer, selectedlayer);
+                MapData.SetStyle(loc.mapItem, Style.COREBUFFER, L.AwesomeMarkers.icon({ icon: 'fa-circle-o', markerColor: 'lightgreen' }));
+                return prom;
             });
-            return prom;
-        };
+        }
         _service.Doordruk = function (location) {
             MapData.CleanMap();
             console.log(location);

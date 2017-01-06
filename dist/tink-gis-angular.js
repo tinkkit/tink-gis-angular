@@ -130,6 +130,11 @@ var Style = {
         color: 'red',
         fillOpacity: 0.5
     },
+    COREBUFFER: {
+        weight: 7,
+        color: 'lightgreen',
+        fillOpacity: 0.5
+    },
     BUFFER: {
         fillColor: '#00cc00',
         color: '#00cc00',
@@ -263,9 +268,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         $scope.numberofrecordsmatched = 0;
         $scope.availableThemes = MapData.Themes;
         $scope.allThemes = [];
-        var init = function () {
-            $scope.searchTerm = '';
-        }();
+
         $scope.searchChanged = function () {};
 
         $scope.pageChanged = function (page, recordsAPage) {
@@ -306,6 +309,12 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             $scope.clearPreview();
             // UIService.OpenRightSide();
         };
+        var init = function () {
+            $scope.searchTerm = '';
+            if (!$scope.selected && $scope.availableThemes[0]) {
+                $scope.ThemeChanged($scope.availableThemes[0]);
+            }
+        }();
     }]);
 })();
 ;'use strict';
@@ -1503,14 +1512,15 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
     var service = function service($http, MapService, MapData) {
         var _service = {};
 
-        _service.Buffer = function (location, distance, selectedlayer) {
+        _service.Buffer = function (loc, distance, selectedlayer) {
             MapData.CleanMap();
-            var geo = getGeo(location.geometry);
+            var geo = getGeo(loc.geometry);
             delete geo.geometry.spatialReference;
             geo.geometries = geo.geometry;
             delete geo.geometry;
             var sergeo = serialize(geo);
             var url = Gis.GeometryUrl;
+            loc.mapItem.isBufferedItem = true;
             var body = 'inSR=4326&outSR=4326&bufferSR=31370&distances=' + distance * 100 + '&unit=109006&unionResults=true&geodesic=false&geometries=%7B' + sergeo + '%7D&f=json';
             var prom = $http({
                 method: 'POST',
@@ -1523,8 +1533,9 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             prom.success(function (response) {
                 var buffer = MapData.CreateBuffer(response);
                 MapService.Query(buffer, selectedlayer);
+                MapData.SetStyle(loc.mapItem, Style.COREBUFFER, L.AwesomeMarkers.icon({ icon: 'fa-circle-o', markerColor: 'lightgreen' }));
+                return prom;
             });
-            return prom;
         };
         _service.Doordruk = function (location) {
             MapData.CleanMap();
@@ -2483,6 +2494,17 @@ L.control.typeahead = function (args) {
                 map.clearDrawings();
             }
         };
+        _data.SetStyle = function (mapItem, polyStyle, pointStyle) {
+            if (mapItem) {
+                var tmplayer = mapItem._layers[Object.keys(mapItem._layers)[0]];
+                if (tmplayer._latlngs) {
+                    // with s so it is an array, so not a point so we can set the style
+                    tmplayer.setStyle(polyStyle);
+                } else {
+                    tmplayer.setIcon(pointStyle);
+                }
+            }
+        };
         var WatIsHierMarker = null;
         var WatIsHierOriginalMarker = null;
         _data.CleanMap = function () {
@@ -2501,6 +2523,17 @@ L.control.typeahead = function (args) {
             return _data.bufferLaag;
         };
         _data.CleanBuffer = function () {
+            var bufferitem = {};
+            for (var x = 0; x < _data.VisibleFeatures.length; x++) {
+                if (_data.VisibleFeatures[x].isBufferedItem) {
+                    bufferitem = _data.VisibleFeatures[x];
+                    map.removeLayer(bufferitem);
+                }
+            }
+            var index = _data.VisibleFeatures.indexOf(bufferitem);
+            if (index > -1) {
+                _data.VisibleFeatures.splice(index, 1);
+            }
             if (_data.bufferLaag) {
                 map.removeLayer(_data.bufferLaag);
                 _data.bufferLaag = null;
@@ -2608,14 +2641,23 @@ L.control.typeahead = function (args) {
         };
         _data.CleanSearch = function () {
             ResultsData.CleanSearch();
+            var bufferitem = null;
             for (var x = 0; x < _data.VisibleFeatures.length; x++) {
-                map.removeLayer(_data.VisibleFeatures[x]); //eerst de
+                if (!_data.VisibleFeatures[x].isBufferedItem) {
+                    map.removeLayer(_data.VisibleFeatures[x]);
+                } else {
+                    bufferitem = _data.VisibleFeatures[x];
+                }
             }
             _data.VisibleFeatures.length = 0;
+            if (bufferitem) {
+                _data.VisibleFeatures.push(bufferitem);
+            }
         };
         _data.PanToPoint = function (loc) {
             map.setView(L.latLng(loc.x, loc.y), 12);
         };
+
         _data.PanToFeature = function (feature) {
             console.log("PANNING TO FEATURE");
             var featureBounds = feature.getBounds();
@@ -2670,6 +2712,15 @@ L.control.typeahead = function (args) {
             });
         };
         _data.AddFeatures = function (features, theme, layerId) {
+            var bufferid = null;
+            var bufferlayer = null;
+            var buffereditem = _data.VisibleFeatures.find(function (x) {
+                return x.isBufferedItem;
+            });
+            if (buffereditem) {
+                bufferid = buffereditem.toGeoJSON().features[0].id;
+                bufferlayer = buffereditem.toGeoJSON().features[0].layer;
+            }
             if (!features || features.features.length == 0) {
                 ResultsData.EmptyResult = true;
             } else {
@@ -2717,9 +2768,13 @@ L.control.typeahead = function (args) {
                         if (featureItem.displayValue.toString().trim() == '') {
                             featureItem.displayValue = 'LEEG';
                         }
-                        var mapItem = L.geoJson(featureItem, { style: Style.DEFAULT }).addTo(map);
-                        _data.VisibleFeatures.push(mapItem);
-                        featureItem.mapItem = mapItem;
+                        if (bufferid && bufferid == featureItem.id && bufferlayer == featureItem.layer) {
+                            featureItem.mapItem = buffereditem;
+                        } else {
+                            var mapItem = L.geoJson(featureItem, { style: Style.DEFAULT }).addTo(map);
+                            _data.VisibleFeatures.push(mapItem);
+                            featureItem.mapItem = mapItem;
+                        }
                     } else {
                         featureItem.displayValue = featureItem.properties[Object.keys(featureItem.properties)[0]];
                     }
@@ -3488,10 +3543,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         }, function (newVal, oldVal) {
             if (oldVal && oldVal != newVal && oldVal.mapItem) {
                 // there must be an oldval and it must not be the newval and it must have an mapitem (to dehighlight)
-                var tmplayer = oldVal.mapItem._layers[Object.keys(oldVal.mapItem._layers)[0]];
-                if (tmplayer._latlngs) {
-                    // with s so it is an array, so not a point so we can set the style
-                    tmplayer.setStyle(Style.DEFAULT);
+                if (oldVal.mapItem.isBufferedItem) {
+                    MapData.SetStyle(oldVal.mapItem, Style.COREBUFFER, L.AwesomeMarkers.icon({ icon: 'fa-circle-o', markerColor: 'lightgreen' }));
                 } else {
                     var myicon = L.icon({
                         iconUrl: 'bower_components/leaflet/dist/images/marker-icon.png',
@@ -3503,23 +3556,16 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                         tooltipAnchor: [16, -28],
                         shadowSize: [41, 41]
                     });
-                    tmplayer.setIcon(myicon);
+                    MapData.SetStyle(oldVal.mapItem, Style.DEFAULT, myicon);
                 }
             }
             if (newVal) {
                 if (newVal.mapItem) {
-                    var tmplayer = newVal.mapItem._layers[Object.keys(newVal.mapItem._layers)[0]];
-                    if (tmplayer._latlngs) {
-                        // with s so it is an array, so not a point so we can set the style
-                        tmplayer.setStyle(Style.HIGHLIGHT);
-                    } else {
-                        var myIcon = L.AwesomeMarkers.icon({
-                            icon: 'fa-dot-circle-o',
-                            markerColor: 'red'
-                        });
-
-                        tmplayer.setIcon(myIcon);
-                    }
+                    var myicon = L.AwesomeMarkers.icon({
+                        icon: 'fa-dot-circle-o',
+                        markerColor: 'red'
+                    });
+                    MapData.SetStyle(newVal.mapItem, Style.HIGHLIGHT, myicon);
                 }
                 vm.selectedResult = newVal;
                 var item = Object.getOwnPropertyNames(newVal.properties).map(function (k) {

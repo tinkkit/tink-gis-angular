@@ -10,9 +10,8 @@
             vm.props = [];
             $scope.$watch(function () { return ResultsData.SelectedFeature; }, function (newVal, oldVal) {
                 if (oldVal && oldVal != newVal && oldVal.mapItem) { // there must be an oldval and it must not be the newval and it must have an mapitem (to dehighlight)
-                    var tmplayer = oldVal.mapItem._layers[Object.keys(oldVal.mapItem._layers)[0]];
-                    if (tmplayer._latlngs) { // with s so it is an array, so not a point so we can set the style
-                        tmplayer.setStyle(Style.DEFAULT);
+                    if (oldVal.mapItem.isBufferedItem) {
+                        MapData.SetStyle(oldVal.mapItem, Style.COREBUFFER, L.AwesomeMarkers.icon({ icon: 'fa-circle-o', markerColor: 'lightgreen' }));
                     }
                     else {
                         var myicon = L.icon({
@@ -25,24 +24,17 @@
                             tooltipAnchor: [16, -28],
                             shadowSize: [41, 41]
                         });
-                        tmplayer.setIcon(myicon)
-
+                        MapData.SetStyle(oldVal.mapItem, Style.DEFAULT, myicon);
                     }
+
                 }
                 if (newVal) {
                     if (newVal.mapItem) {
-                        var tmplayer = newVal.mapItem._layers[Object.keys(newVal.mapItem._layers)[0]];
-                        if (tmplayer._latlngs) { // with s so it is an array, so not a point so we can set the style
-                            tmplayer.setStyle(Style.HIGHLIGHT);
-                        }
-                        else {
-                            var myIcon = L.AwesomeMarkers.icon({
-                                icon: 'fa-dot-circle-o',
-                                markerColor: 'red'
-                            });
-
-                            tmplayer.setIcon(myIcon)
-                        }
+                        var myicon = L.AwesomeMarkers.icon({
+                            icon: 'fa-dot-circle-o',
+                            markerColor: 'red'
+                        });
+                        MapData.SetStyle(newVal.mapItem, Style.HIGHLIGHT, myicon);
                     }
                     vm.selectedResult = newVal;
                     var item = Object.getOwnPropertyNames(newVal.properties).map(k => ({ key: k, value: newVal.properties[k] }));

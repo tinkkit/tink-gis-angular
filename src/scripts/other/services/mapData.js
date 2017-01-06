@@ -46,6 +46,17 @@
                 map.clearDrawings();
             }
         };
+        _data.SetStyle = function (mapItem, polyStyle, pointStyle) {
+            if (mapItem) {
+                var tmplayer = mapItem._layers[Object.keys(mapItem._layers)[0]];
+                if (tmplayer._latlngs) { // with s so it is an array, so not a point so we can set the style
+                    tmplayer.setStyle(polyStyle);
+                }
+                else {
+                    tmplayer.setIcon(pointStyle);
+                }
+            }
+        }
         var WatIsHierMarker = null;
         var WatIsHierOriginalMarker = null;
         _data.CleanMap = function () {
@@ -64,6 +75,17 @@
             return _data.bufferLaag;
         };
         _data.CleanBuffer = function () {
+            var bufferitem = {};
+            for (var x = 0; x < _data.VisibleFeatures.length; x++) {
+                if (_data.VisibleFeatures[x].isBufferedItem) {
+                    bufferitem = _data.VisibleFeatures[x];
+                    map.removeLayer(bufferitem);
+                }
+            }
+            var index = _data.VisibleFeatures.indexOf(bufferitem);
+            if (index > -1) {
+                _data.VisibleFeatures.splice(index, 1);
+            }
             if (_data.bufferLaag) {
                 map.removeLayer(_data.bufferLaag);
                 _data.bufferLaag = null;
@@ -197,14 +219,25 @@
         }
         _data.CleanSearch = function () {
             ResultsData.CleanSearch();
+            var bufferitem = null;
             for (var x = 0; x < _data.VisibleFeatures.length; x++) {
-                map.removeLayer(_data.VisibleFeatures[x]); //eerst de
+                if (!_data.VisibleFeatures[x].isBufferedItem) {
+                    map.removeLayer(_data.VisibleFeatures[x]);
+                }
+                else {
+                    bufferitem = _data.VisibleFeatures[x];
+                }
             }
             _data.VisibleFeatures.length = 0;
+            if (bufferitem) {
+                _data.VisibleFeatures.push(bufferitem);
+            }
+
         };
         _data.PanToPoint = function (loc) {
             map.setView(L.latLng(loc.x, loc.y), 12);
         };
+
         _data.PanToFeature = function (feature) {
             console.log("PANNING TO FEATURE");
             var featureBounds = feature.getBounds();
@@ -265,6 +298,13 @@
             })
         }
         _data.AddFeatures = function (features, theme, layerId) {
+            var bufferid = null;
+            var bufferlayer = null;
+            var buffereditem = _data.VisibleFeatures.find(x => x.isBufferedItem);
+            if (buffereditem) {
+                bufferid = buffereditem.toGeoJSON().features[0].id;
+                bufferlayer = buffereditem.toGeoJSON().features[0].layer;
+            }
             if (!features || features.features.length == 0) {
                 ResultsData.EmptyResult = true;
             } else {
@@ -308,9 +348,14 @@
                         if (featureItem.displayValue.toString().trim() == '') {
                             featureItem.displayValue = 'LEEG'
                         }
-                        var mapItem = L.geoJson(featureItem, { style: Style.DEFAULT }).addTo(map);
-                        _data.VisibleFeatures.push(mapItem);
-                        featureItem.mapItem = mapItem;
+                        if (bufferid && bufferid == featureItem.id && bufferlayer == featureItem.layer) {
+                            featureItem.mapItem = buffereditem;
+                        }
+                        else {
+                            var mapItem = L.geoJson(featureItem, { style: Style.DEFAULT }).addTo(map);
+                            _data.VisibleFeatures.push(mapItem);
+                            featureItem.mapItem = mapItem;
+                        }
                     }
                     else {
                         featureItem.displayValue = featureItem.properties[Object.keys(featureItem.properties)[0]];
