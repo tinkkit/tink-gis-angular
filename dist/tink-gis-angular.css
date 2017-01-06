@@ -815,7 +815,7 @@ html.show-loader .loader-wrapper {
 .news-list {
   overflow-y: auto; }
   .news-list dl {
-    height: 27vh;
+    height: 14vh;
     overflow: auto;
     margin-bottom: 0; }
   .news-list dt {
