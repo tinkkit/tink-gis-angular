@@ -7,8 +7,8 @@
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'tink.modal']); //'leaflet-directive'
     }
     // module.$inject = ['MapData', 'map', 'GISService', 'ThemeCreater', 'WMSService', 'ThemeService', '$q','BaseLayersService'];
-    
-    var externService = function (MapData, map, GISService, ThemeCreater, WMSService, ThemeService, $q,BaseLayersService) {
+
+    var externService = function (MapData, map, GISService, ThemeCreater, WMSService, ThemeService, $q, BaseLayersService) {
         var _externService = {};
         _externService.GetAllThemes = function () {
             let legendItem = {};
@@ -62,6 +62,14 @@
 
             return exportObject;
         };
+        _externService.ConfigResultButton = function (isEnabled, text, callback) {
+            _externService.resultButtonText = text;
+            _externService.extraResultButtonCallBack = callback;
+            _externService.extraResultButtonIsEnabled = isEnabled;
+        }
+        _externService.extraResultButtonIsEnabled = false;
+        _externService.resultButtonText = 'notext';
+        _externService.extraResultButtonCallBack = null;
         _externService.Import = function (project) {
             console.log(project);
             _externService.setExtent(project.extent);
@@ -148,9 +156,9 @@
             Style.Default = config.Style.Default;
             Style.HIGHLIGHT = config.Style.HIGHLIGHT;
             Style.BUFFER = config.Style.BUFFER;
-            BaseLayersService.setBaseMap(1, config.BaseKaart1.Naam, config.BaseKaart1.Url,config.BaseKaart1.MaxZoom, config.BaseKaart1.MinZoom)
-            BaseLayersService.setBaseMap(2, config.BaseKaart2.Naam, config.BaseKaart2.Url,config.BaseKaart2.MaxZoom, config.BaseKaart2.MinZoom)
-    }
+            BaseLayersService.setBaseMap(1, config.BaseKaart1.Naam, config.BaseKaart1.Url, config.BaseKaart1.MaxZoom, config.BaseKaart1.MinZoom)
+            BaseLayersService.setBaseMap(2, config.BaseKaart2.Naam, config.BaseKaart2.Url, config.BaseKaart2.MaxZoom, config.BaseKaart2.MinZoom)
+        }
 
 
         return _externService;

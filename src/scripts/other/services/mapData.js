@@ -14,7 +14,7 @@
         _data.VisibleLayers.unshift(_data.defaultlayer);
         _data.SelectedLayer = _data.defaultlayer;
         _data.SelectedFindLayer = _data.defaultlayer;
-        
+
         _data.ResetVisibleLayers = function () {
             console.log("RestVisLayers");
             var curSelectedLayer = _data.SelectedLayer;
@@ -46,6 +46,17 @@
                 map.clearDrawings();
             }
         };
+        _data.SetStyle = function (mapItem, polyStyle, pointStyle) {
+            if (mapItem) {
+                var tmplayer = mapItem._layers[Object.keys(mapItem._layers)[0]];
+                if (tmplayer._latlngs) { // with s so it is an array, so not a point so we can set the style
+                    tmplayer.setStyle(polyStyle);
+                }
+                else {
+                    tmplayer.setIcon(pointStyle);
+                }
+            }
+        }
         var WatIsHierMarker = null;
         var WatIsHierOriginalMarker = null;
         _data.CleanMap = function () {
@@ -64,6 +75,17 @@
             return _data.bufferLaag;
         };
         _data.CleanBuffer = function () {
+            var bufferitem = {};
+            for (var x = 0; x < _data.VisibleFeatures.length; x++) {
+                if (_data.VisibleFeatures[x].isBufferedItem) {
+                    bufferitem = _data.VisibleFeatures[x];
+                    map.removeLayer(bufferitem);
+                }
+            }
+            var index = _data.VisibleFeatures.indexOf(bufferitem);
+            if (index > -1) {
+                _data.VisibleFeatures.splice(index, 1);
+            }
             if (_data.bufferLaag) {
                 map.removeLayer(_data.bufferLaag);
                 _data.bufferLaag = null;
@@ -138,15 +160,15 @@
                 html =
                     '<div class="container container-low-padding">' +
                     '<div class="row row-no-padding">' +
-                    '<div class="col-sm-4">' +
+                    '<div class="col-sm-4" >' +
                     '<a href="http://maps.google.com/maps?q=&layer=c&cbll=' + latlng.lat + ',' + latlng.lng + '" + target="_blank" >' +
-                    '<img src="https://maps.googleapis.com/maps/api/streetview?size=100x50&location=' + latlng.lat + ',' + latlng.lng + '&pitch=-0.76" />' +
+                    '<img tink-tooltip="Ga naar streetview" tink-tooltip-align="bottom" src="https://maps.googleapis.com/maps/api/streetview?size=100x50&location=' + latlng.lat + ',' + latlng.lng + '&pitch=-0.76" />' +
                     '</a>' +
                     '</div>' +
                     '<div class="col-sm-8 mouse-over">' +
                     '<div class="col-sm-12"><b>' + straatNaam + '</b></div>' +
-                    '<div class="col-sm-3">WGS84:</div><div id="wgs" class="col-sm-8" style="text-align: left;">{{WGS84LatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o mouse-over-toshow" ng-click="CopyWGS()"></i></div>' +
-                    '<div class="col-sm-3">Lambert:</div><div id="lambert" class="col-sm-8" style="text-align: left;">{{LambertLatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o mouse-over-toshow"  ng-click="CopyLambert()"></i></div>' +
+                    '<div class="col-sm-3">WGS84:</div><div id="wgs" class="col-sm-8" style="text-align: left;">{{WGS84LatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o mouse-over-toshow" ng-click="CopyWGS()"  tink-tooltip="Coördinaten kopieren naar het klembord" tink-tooltip-align="bottom"  ></i></div>' +
+                    '<div class="col-sm-3">Lambert:</div><div id="lambert" class="col-sm-8" style="text-align: left;">{{LambertLatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o mouse-over-toshow"  ng-click="CopyLambert()" tink-tooltip="Coördinaten kopieren naar het klembord" tink-tooltip-align="bottom"></i></div>' +
                     '</div>' +
                     '</div>' +
                     '</div>';
@@ -156,8 +178,8 @@
                 html =
                     '<div class="container container-low-padding">' +
                     '<div class="row row-no-padding mouse-over">' +
-                    '<div class="col-sm-3">WGS84:</div><div id="wgs" class="col-sm-8 " style="text-align: left;">{{WGS84LatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o mouse-over-toshow" ng-click="CopyWGS()"></i></div>' +
-                    '<div class="col-sm-3">Lambert:</div><div id="lambert" class="col-sm-8" style="text-align: left;">{{LambertLatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o mouse-over-toshow" ng-click="CopyLambert()"></i></div>' +
+                    '<div class="col-sm-3">WGS84:</div><div id="wgs" class="col-sm-8 " style="text-align: left;">{{WGS84LatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o mouse-over-toshow" ng-click="CopyWGS()" tink-tooltip="Coördinaten kopieren naar het klembord" tink-tooltip-align="bottom"></i></div>' +
+                    '<div class="col-sm-3">Lambert:</div><div id="lambert" class="col-sm-8" style="text-align: left;">{{LambertLatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o mouse-over-toshow" ng-click="CopyLambert()" tink-tooltip="Coördinaten kopieren naar het klembord" tink-tooltip-align="bottom"></i></div>' +
                     '</div>' +
                     '</div>';
                 minwidth = 200;
@@ -180,7 +202,7 @@
             });
 
         };
-        function copyToClipboard(element) {
+        var copyToClipboard = function (element) {
             var $temp = $("<input>");
             $("body").append($temp);
             $temp.val($(element).text()).select();
@@ -197,14 +219,25 @@
         }
         _data.CleanSearch = function () {
             ResultsData.CleanSearch();
+            var bufferitem = null;
             for (var x = 0; x < _data.VisibleFeatures.length; x++) {
-                map.removeLayer(_data.VisibleFeatures[x]); //eerst de
+                if (!_data.VisibleFeatures[x].isBufferedItem) {
+                    map.removeLayer(_data.VisibleFeatures[x]);
+                }
+                else {
+                    bufferitem = _data.VisibleFeatures[x];
+                }
             }
             _data.VisibleFeatures.length = 0;
+            if (bufferitem) {
+                _data.VisibleFeatures.push(bufferitem);
+            }
+
         };
         _data.PanToPoint = function (loc) {
             map.setView(L.latLng(loc.x, loc.y), 12);
         };
+
         _data.PanToFeature = function (feature) {
             console.log("PANNING TO FEATURE");
             var featureBounds = feature.getBounds();
@@ -265,6 +298,13 @@
             })
         }
         _data.AddFeatures = function (features, theme, layerId) {
+            var bufferid = null;
+            var bufferlayer = null;
+            var buffereditem = _data.VisibleFeatures.find(x => x.isBufferedItem);
+            if (buffereditem) {
+                bufferid = buffereditem.toGeoJSON().features[0].id;
+                bufferlayer = buffereditem.toGeoJSON().features[0].layer;
+            }
             if (!features || features.features.length == 0) {
                 ResultsData.EmptyResult = true;
             } else {
@@ -308,9 +348,14 @@
                         if (featureItem.displayValue.toString().trim() == '') {
                             featureItem.displayValue = 'LEEG'
                         }
-                        var mapItem = L.geoJson(featureItem, { style: Style.DEFAULT }).addTo(map);
-                        _data.VisibleFeatures.push(mapItem);
-                        featureItem.mapItem = mapItem;
+                        if (bufferid && bufferid == featureItem.id && bufferlayer == featureItem.layer) {
+                            featureItem.mapItem = buffereditem;
+                        }
+                        else {
+                            var mapItem = L.geoJson(featureItem, { style: Style.DEFAULT }).addTo(map);
+                            _data.VisibleFeatures.push(mapItem);
+                            featureItem.mapItem = mapItem;
+                        }
                     }
                     else {
                         featureItem.displayValue = featureItem.properties[Object.keys(featureItem.properties)[0]];

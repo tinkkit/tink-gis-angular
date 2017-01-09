@@ -49,6 +49,11 @@ var Style = {
         color: 'red',
         fillOpacity: 0.5
     },
+    COREBUFFER: {
+        weight: 7,
+        color: 'lightgreen',
+        fillOpacity: 0.5
+    },
     BUFFER: {
         fillColor: '#00cc00',
         color: '#00cc00',

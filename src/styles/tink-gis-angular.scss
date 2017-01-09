@@ -606,8 +606,8 @@ input.typeahead.tt-input {
         box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
     }
 
-    .tt-hint {
-        color: #999
+    input[type="text"].tt-hint {
+        color: $gray-light;
     }
 
     .tt-menu {
@@ -631,7 +631,7 @@ input.typeahead.tt-input {
 
       p {
         color: $gray;
-        font-size: rem($font-size-small);
+        font-size: rem(8px);
 
         strong {
           font-weight: normal;
@@ -910,6 +910,10 @@ html.print.landscape {
  * Full page loader
  */
 
+.leaflet-popup-close-button {
+  z-index: 9999; //Make sure the close button is clickable when there is a popup!
+}
+
 .loader-wrapper {
   display:none;
 }
@@ -938,19 +942,75 @@ html.show-loader {
   }
 }
 
+.project-list {
+  // height: 30vh;
+  line-height: rem(20);
+  overflow-y: auto;
 
-/* fix for sweet-alert bug */
-.sweet-alert {
-  fieldset {
-    display: none;
+  ul {
+    height: 27vh;
   }
 }
 
-body.stop-scrolling {
-  height: 100vh;
-}
-/* end of fix */
+.news-list {
+  // height: 30vh;
+  overflow-y: auto;
 
-.leaflet-popup-close-button {
-  z-index: 9999; //Make sure the close button is clickable when there is a popup!
+  dl {
+    height: 14vh;
+    overflow: auto;
+    margin-bottom: 0;
+  }
+
+
+  dt {
+    margin-top: rem(4);
+  }
+  .read-on {
+    margin-top: rem(2);
+  }
 }
+
+.dashboard-view-left {
+  border-right: 1px solid $gray-light;
+}
+
+.create-ticket {
+  background-color: $gray-lightest;
+  border-radius: $border-radius-base;
+  bottom: 0;
+  position: relative;
+  width: 100%;
+}
+
+.create-ticket,
+.whats-new {
+  padding: rem(15);
+
+  h4 {
+    margin-top: 0;
+  }
+}
+
+.title-block {
+  background-color: $gray-lightest;
+  border-radius: $border-radius-base;
+  height: rem(120);
+  padding: rem(25) rem(15);
+  text-align: center;
+  .fa {
+    font-size: rem(30);
+  }
+}
+
+// fix for sweet-alert bug
+  .sweet-alert {
+    fieldset {
+      display: none;
+    }
+  }
+
+  body.stop-scrolling {
+    height: 100vh;
+  }
+//

@@ -130,6 +130,11 @@ var Style = {
         color: 'red',
         fillOpacity: 0.5
     },
+    COREBUFFER: {
+        weight: 7,
+        color: 'lightgreen',
+        fillOpacity: 0.5
+    },
     BUFFER: {
         fillColor: '#00cc00',
         color: '#00cc00',
@@ -263,9 +268,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         $scope.numberofrecordsmatched = 0;
         $scope.availableThemes = MapData.Themes;
         $scope.allThemes = [];
-        var init = function () {
-            $scope.searchTerm = '';
-        }();
+
         $scope.searchChanged = function () {};
 
         $scope.pageChanged = function (page, recordsAPage) {
@@ -306,6 +309,12 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             $scope.clearPreview();
             // UIService.OpenRightSide();
         };
+        var init = function () {
+            $scope.searchTerm = '';
+            if (!$scope.selected && $scope.availableThemes[0]) {
+                $scope.ThemeChanged($scope.availableThemes[0]);
+            }
+        }();
     }]);
 })();
 ;'use strict';
@@ -990,7 +999,8 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             switch (ActiveButton) {
                 case ActiveInteractieButton.SELECT:
                     vm.showDrawControls = true;
-                    vm.selectpunt();
+                    MapData.DrawingType = DrawingOption.GEEN; // pff must be possible to be able to sync them...
+
                     break;
                 case ActiveInteractieButton.METEN:
                     vm.showMetenControls = true;
@@ -1058,7 +1068,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         // });
         vm.selectpunt = function () {
             // MapData.CleanMap();
-            MapData.DrawingType = DrawingOption.GEEN; // pff must be possible to be able to sync them...
+            MapData.DrawingType = DrawingOption.NIETS; // pff must be possible to be able to sync them...
             // vm.drawingType = DrawingOption.NIETS;
         };
         vm.layerChange = function () {
@@ -1502,14 +1512,15 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
     var service = function service($http, MapService, MapData) {
         var _service = {};
 
-        _service.Buffer = function (location, distance, selectedlayer) {
+        _service.Buffer = function (loc, distance, selectedlayer) {
             MapData.CleanMap();
-            var geo = getGeo(location.geometry);
+            var geo = getGeo(loc.geometry);
             delete geo.geometry.spatialReference;
             geo.geometries = geo.geometry;
             delete geo.geometry;
             var sergeo = serialize(geo);
             var url = Gis.GeometryUrl;
+            loc.mapItem.isBufferedItem = true;
             var body = 'inSR=4326&outSR=4326&bufferSR=31370&distances=' + distance * 100 + '&unit=109006&unionResults=true&geodesic=false&geometries=%7B' + sergeo + '%7D&f=json';
             var prom = $http({
                 method: 'POST',
@@ -1522,8 +1533,9 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             prom.success(function (response) {
                 var buffer = MapData.CreateBuffer(response);
                 MapService.Query(buffer, selectedlayer);
+                MapData.SetStyle(loc.mapItem, Style.COREBUFFER, L.AwesomeMarkers.icon({ icon: 'fa-circle-o', markerColor: 'lightgreen' }));
+                return prom;
             });
-            return prom;
         };
         _service.Doordruk = function (location) {
             MapData.CleanMap();
@@ -1993,6 +2005,14 @@ var esri2geo = {};
 
             return exportObject;
         };
+        _externService.ConfigResultButton = function (isEnabled, text, callback) {
+            _externService.resultButtonText = text;
+            _externService.extraResultButtonCallBack = callback;
+            _externService.extraResultButtonIsEnabled = isEnabled;
+        };
+        _externService.extraResultButtonIsEnabled = false;
+        _externService.resultButtonText = 'notext';
+        _externService.extraResultButtonCallBack = null;
         _externService.Import = function (project) {
             console.log(project);
             _externService.setExtent(project.extent);
@@ -2474,6 +2494,17 @@ L.control.typeahead = function (args) {
                 map.clearDrawings();
             }
         };
+        _data.SetStyle = function (mapItem, polyStyle, pointStyle) {
+            if (mapItem) {
+                var tmplayer = mapItem._layers[Object.keys(mapItem._layers)[0]];
+                if (tmplayer._latlngs) {
+                    // with s so it is an array, so not a point so we can set the style
+                    tmplayer.setStyle(polyStyle);
+                } else {
+                    tmplayer.setIcon(pointStyle);
+                }
+            }
+        };
         var WatIsHierMarker = null;
         var WatIsHierOriginalMarker = null;
         _data.CleanMap = function () {
@@ -2492,6 +2523,17 @@ L.control.typeahead = function (args) {
             return _data.bufferLaag;
         };
         _data.CleanBuffer = function () {
+            var bufferitem = {};
+            for (var x = 0; x < _data.VisibleFeatures.length; x++) {
+                if (_data.VisibleFeatures[x].isBufferedItem) {
+                    bufferitem = _data.VisibleFeatures[x];
+                    map.removeLayer(bufferitem);
+                }
+            }
+            var index = _data.VisibleFeatures.indexOf(bufferitem);
+            if (index > -1) {
+                _data.VisibleFeatures.splice(index, 1);
+            }
             if (_data.bufferLaag) {
                 map.removeLayer(_data.bufferLaag);
                 _data.bufferLaag = null;
@@ -2560,10 +2602,10 @@ L.control.typeahead = function (args) {
             var html = "";
             var minwidth = 0;
             if (straatNaam) {
-                html = '<div class="container container-low-padding">' + '<div class="row row-no-padding">' + '<div class="col-sm-4">' + '<a href="http://maps.google.com/maps?q=&layer=c&cbll=' + latlng.lat + ',' + latlng.lng + '" + target="_blank" >' + '<img src="https://maps.googleapis.com/maps/api/streetview?size=100x50&location=' + latlng.lat + ',' + latlng.lng + '&pitch=-0.76" />' + '</a>' + '</div>' + '<div class="col-sm-8 mouse-over">' + '<div class="col-sm-12"><b>' + straatNaam + '</b></div>' + '<div class="col-sm-3">WGS84:</div><div id="wgs" class="col-sm-8" style="text-align: left;">{{WGS84LatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o mouse-over-toshow" ng-click="CopyWGS()"></i></div>' + '<div class="col-sm-3">Lambert:</div><div id="lambert" class="col-sm-8" style="text-align: left;">{{LambertLatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o mouse-over-toshow"  ng-click="CopyLambert()"></i></div>' + '</div>' + '</div>' + '</div>';
+                html = '<div class="container container-low-padding">' + '<div class="row row-no-padding">' + '<div class="col-sm-4" >' + '<a href="http://maps.google.com/maps?q=&layer=c&cbll=' + latlng.lat + ',' + latlng.lng + '" + target="_blank" >' + '<img tink-tooltip="Ga naar streetview" tink-tooltip-align="bottom" src="https://maps.googleapis.com/maps/api/streetview?size=100x50&location=' + latlng.lat + ',' + latlng.lng + '&pitch=-0.76" />' + '</a>' + '</div>' + '<div class="col-sm-8 mouse-over">' + '<div class="col-sm-12"><b>' + straatNaam + '</b></div>' + '<div class="col-sm-3">WGS84:</div><div id="wgs" class="col-sm-8" style="text-align: left;">{{WGS84LatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o mouse-over-toshow" ng-click="CopyWGS()"  tink-tooltip="Coördinaten kopieren naar het klembord" tink-tooltip-align="bottom"  ></i></div>' + '<div class="col-sm-3">Lambert:</div><div id="lambert" class="col-sm-8" style="text-align: left;">{{LambertLatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o mouse-over-toshow"  ng-click="CopyLambert()" tink-tooltip="Coördinaten kopieren naar het klembord" tink-tooltip-align="bottom"></i></div>' + '</div>' + '</div>' + '</div>';
                 minwidth = 300;
             } else {
-                html = '<div class="container container-low-padding">' + '<div class="row row-no-padding mouse-over">' + '<div class="col-sm-3">WGS84:</div><div id="wgs" class="col-sm-8 " style="text-align: left;">{{WGS84LatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o mouse-over-toshow" ng-click="CopyWGS()"></i></div>' + '<div class="col-sm-3">Lambert:</div><div id="lambert" class="col-sm-8" style="text-align: left;">{{LambertLatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o mouse-over-toshow" ng-click="CopyLambert()"></i></div>' + '</div>' + '</div>';
+                html = '<div class="container container-low-padding">' + '<div class="row row-no-padding mouse-over">' + '<div class="col-sm-3">WGS84:</div><div id="wgs" class="col-sm-8 " style="text-align: left;">{{WGS84LatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o mouse-over-toshow" ng-click="CopyWGS()" tink-tooltip="Coördinaten kopieren naar het klembord" tink-tooltip-align="bottom"></i></div>' + '<div class="col-sm-3">Lambert:</div><div id="lambert" class="col-sm-8" style="text-align: left;">{{LambertLatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o mouse-over-toshow" ng-click="CopyLambert()" tink-tooltip="Coördinaten kopieren naar het klembord" tink-tooltip-align="bottom"></i></div>' + '</div>' + '</div>';
                 minwidth = 200;
             }
             var linkFunction = $compile(html);
@@ -2582,13 +2624,13 @@ L.control.typeahead = function (args) {
                 _data.CleanWatIsHier();
             });
         };
-        function copyToClipboard(element) {
+        var copyToClipboard = function copyToClipboard(element) {
             var $temp = $("<input>");
             $("body").append($temp);
             $temp.val($(element).text()).select();
             document.execCommand("copy");
             $temp.remove();
-        }
+        };
         _data.CreateDot = function (loc) {
             _data.CleanWatIsHier();
             var dotIcon = L.icon({
@@ -2599,14 +2641,23 @@ L.control.typeahead = function (args) {
         };
         _data.CleanSearch = function () {
             ResultsData.CleanSearch();
+            var bufferitem = null;
             for (var x = 0; x < _data.VisibleFeatures.length; x++) {
-                map.removeLayer(_data.VisibleFeatures[x]); //eerst de
+                if (!_data.VisibleFeatures[x].isBufferedItem) {
+                    map.removeLayer(_data.VisibleFeatures[x]);
+                } else {
+                    bufferitem = _data.VisibleFeatures[x];
+                }
             }
             _data.VisibleFeatures.length = 0;
+            if (bufferitem) {
+                _data.VisibleFeatures.push(bufferitem);
+            }
         };
         _data.PanToPoint = function (loc) {
             map.setView(L.latLng(loc.x, loc.y), 12);
         };
+
         _data.PanToFeature = function (feature) {
             console.log("PANNING TO FEATURE");
             var featureBounds = feature.getBounds();
@@ -2661,6 +2712,15 @@ L.control.typeahead = function (args) {
             });
         };
         _data.AddFeatures = function (features, theme, layerId) {
+            var bufferid = null;
+            var bufferlayer = null;
+            var buffereditem = _data.VisibleFeatures.find(function (x) {
+                return x.isBufferedItem;
+            });
+            if (buffereditem) {
+                bufferid = buffereditem.toGeoJSON().features[0].id;
+                bufferlayer = buffereditem.toGeoJSON().features[0].layer;
+            }
             if (!features || features.features.length == 0) {
                 ResultsData.EmptyResult = true;
             } else {
@@ -2708,9 +2768,13 @@ L.control.typeahead = function (args) {
                         if (featureItem.displayValue.toString().trim() == '') {
                             featureItem.displayValue = 'LEEG';
                         }
-                        var mapItem = L.geoJson(featureItem, { style: Style.DEFAULT }).addTo(map);
-                        _data.VisibleFeatures.push(mapItem);
-                        featureItem.mapItem = mapItem;
+                        if (bufferid && bufferid == featureItem.id && bufferlayer == featureItem.layer) {
+                            featureItem.mapItem = buffereditem;
+                        } else {
+                            var mapItem = L.geoJson(featureItem, { style: Style.DEFAULT }).addTo(map);
+                            _data.VisibleFeatures.push(mapItem);
+                            featureItem.mapItem = mapItem;
+                        }
                     } else {
                         featureItem.displayValue = featureItem.properties[Object.keys(featureItem.properties)[0]];
                     }
@@ -2988,6 +3052,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                                             // we must still apply for the loading to get updated
                                             $rootScope.$apply();
                                         }
+                                    }).error(function (exception) {
+                                        ResultsData.RequestCompleted++;
                                     });
                                 }
                             });
@@ -3112,8 +3178,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     var popupService = function popupService() {
         var _popupService = {};
         _popupService.Init = function () {
-            toastr.options.timeOut = 5000; // How long the toast will display without user interaction
-            toastr.options.extendedTimeOut = 10000; // How long the toast will display after a user hovers over it
+            toastr.options.timeOut = 0; // How long the toast will display without user interaction, when timeOut and extendedTimeOut are set to 0 it will only close after user has clocked the close button
+            toastr.options.extendedTimeOut = 0; // How long the toast will display after a user hovers over it
             toastr.options.closeButton = true;
         }();
         _popupService.popupGenerator = function (type, title, message, callback, options) {
@@ -3143,7 +3209,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         };
         _popupService.ErrorFromHTTP = function (data, status, url) {
             var title = 'HTTP error (' + status + ')';
-            var message = 'Er is een fout gebeurt met de call naar: ' + url;
+            var message = 'Fout met het navigeren naar url: ' + url;
             var exception = { url: url, status: status, data: data };
             var callback = function callback() {
                 _popupService.ExceptionFunc(exception);
@@ -3407,7 +3473,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 (function (module) {
     module = angular.module('tink.gis');
-    var theController = module.controller('searchResultsController', function ($scope, ResultsData, map, SearchService, MapData) {
+    var theController = module.controller('searchResultsController', function ($scope, ResultsData, map, SearchService, MapData, ExternService) {
         var vm = this;
         vm.features = ResultsData.JsonFeatures;
         vm.featureLayers = null;
@@ -3433,14 +3499,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 return x.layerName == type;
             }).length;
         };
-        // vm.HoveredFeature = null;
-        // vm.HoverOver = function (feature) {
-        //     if (vm.HoveredFeature) {
-        //         vm.HoveredFeature.hoverEdit = false;
-        //     }
-        //     feature.hoverEdit = true;
-        //     vm.HoveredFeature = feature;
-        // };
         vm.deleteFeatureGroup = function (featureGroupName) {
             SearchService.DeleteFeatureGroup(featureGroupName);
         };
@@ -3457,8 +3515,18 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         vm.exportToCSV = function () {
             SearchService.ExportToCSV();
         };
+        $scope.$watch(function () {
+            return ExternService.extraResultButtonIsEnabled;
+        }, function (newValue, oldValue) {
+            vm.extraResultButtonIsEnabled = ExternService.extraResultButtonIsEnabled;
+            vm.extraResultButton = ExternService.extraResultButtonCallBack;
+            vm.resultButtonText = ExternService.resultButtonText;
+        });
+        vm.extraResultButtonIsEnabled = ExternService.extraResultButtonIsEnabled;
+        vm.extraResultButton = ExternService.extraResultButtonCallBack;
+        vm.resultButtonText = ExternService.resultButtonText;
     });
-    theController.$inject = ['$scope', 'ResultsData', 'map', 'MapData'];
+    theController.$inject = ['$scope', 'ResultsData', 'map', 'MapData', 'ExternService'];
 })();
 ;'use strict';
 
@@ -3475,10 +3543,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         }, function (newVal, oldVal) {
             if (oldVal && oldVal != newVal && oldVal.mapItem) {
                 // there must be an oldval and it must not be the newval and it must have an mapitem (to dehighlight)
-                var tmplayer = oldVal.mapItem._layers[Object.keys(oldVal.mapItem._layers)[0]];
-                if (tmplayer._latlngs) {
-                    // with s so it is an array, so not a point so we can set the style
-                    tmplayer.setStyle(Style.DEFAULT);
+                if (oldVal.mapItem.isBufferedItem) {
+                    MapData.SetStyle(oldVal.mapItem, Style.COREBUFFER, L.AwesomeMarkers.icon({ icon: 'fa-circle-o', markerColor: 'lightgreen' }));
                 } else {
                     var myicon = L.icon({
                         iconUrl: 'bower_components/leaflet/dist/images/marker-icon.png',
@@ -3490,23 +3556,16 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                         tooltipAnchor: [16, -28],
                         shadowSize: [41, 41]
                     });
-                    tmplayer.setIcon(myicon);
+                    MapData.SetStyle(oldVal.mapItem, Style.DEFAULT, myicon);
                 }
             }
             if (newVal) {
                 if (newVal.mapItem) {
-                    var tmplayer = newVal.mapItem._layers[Object.keys(newVal.mapItem._layers)[0]];
-                    if (tmplayer._latlngs) {
-                        // with s so it is an array, so not a point so we can set the style
-                        tmplayer.setStyle(Style.HIGHLIGHT);
-                    } else {
-                        var myIcon = L.AwesomeMarkers.icon({
-                            icon: 'fa-dot-circle-o',
-                            markerColor: 'red'
-                        });
-
-                        tmplayer.setIcon(myIcon);
-                    }
+                    var myicon = L.AwesomeMarkers.icon({
+                        icon: 'fa-dot-circle-o',
+                        markerColor: 'red'
+                    });
+                    MapData.SetStyle(newVal.mapItem, Style.HIGHLIGHT, myicon);
                 }
                 vm.selectedResult = newVal;
                 var item = Object.getOwnPropertyNames(newVal.properties).map(function (k) {
@@ -3561,6 +3620,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             }, function (obj) {
                 console.log('Modal dismissed at: ' + new Date()); // The contoller is closed by the use of the $dismiss call
             });
+        };
+        vm.exportToCSV = function () {
+            SearchService.ExportOneToCSV(vm.selectedResult);
         };
         vm.delete = function () {
             var prev = SearchService.GetPrevResult();
@@ -3683,24 +3745,24 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             var csvContent = ""; // "data:text/csv;charset=utf-8,";
             var dataString = "";
             var layName = "";
-            csvContent += 'Laag;' + "\n";
+            csvContent += 'Laag,' + "\n";
 
             _.sortBy(ResultsData.JsonFeatures, function (x) {
                 return x.layerName;
             }).forEach(function (feature, index) {
                 if (layName !== feature.layerName) {
-                    layName = feature.layerName;
+                    layName = feature.layerName.replace(',', '.');
                     var tmparr = [];
                     for (var name in feature.properties) {
-                        tmparr.push(name);
+                        tmparr.push(name.replace(',', '.'));
                     }
-                    var layfirstline = tmparr.join(";");
+                    var layfirstline = tmparr.join(",");
 
-                    csvContent += layName + ";" + layfirstline + "\n";
+                    csvContent += layName + "," + layfirstline + "\n";
                 }
                 var infoArray = _.values(feature.properties);
                 infoArray.unshift(layName);
-                dataString = infoArray.join(";");
+                dataString = infoArray.join(",");
                 console.log(dataString);
                 // csvContent += dataString + "\n";
                 csvContent += index < ResultsData.JsonFeatures.length ? dataString + "\n" : dataString;
@@ -3712,8 +3774,31 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
             document.body.appendChild(a);
             a.click();
-            // var encodedUri = encodeURI(csvContent);
-            // window.open(encodedUri, 'exportsik.csv');
+        };
+        _service.ExportOneToCSV = function (result) {
+            var props = Object.getOwnPropertyNames(result.properties).map(function (k) {
+                return { key: k, value: result.properties[k] };
+            });
+            var csvContent = ""; // "data:text/csv;charset=utf-8,";
+            var dataString = "";
+            var layName = "";
+            csvContent += 'Laag,' + result.layerName + '\n';
+            props.forEach(function (prop) {
+                if (prop.key) {
+                    prop.key = prop.key.toString().replace(',', '.');
+                }
+                if (prop.value) {
+                    prop.value = prop.value.toString().replace(',', '.');
+                }
+                csvContent += prop.key + ',' + prop.value + '\n';
+            });
+            var a = document.createElement('a');
+            a.href = 'data:attachment/csv,' + encodeURIComponent(csvContent);
+            a.target = '_blank';
+            a.download = 'exportsik.csv';
+
+            document.body.appendChild(a);
+            a.click();
         };
         _service.GetNextResult = function () {
             var index = ResultsData.JsonFeatures.indexOf(ResultsData.SelectedFeature);
@@ -4300,8 +4385,8 @@ L.drawLocal = {
     "<div class=\"flex-column flex-grow-1\">\n" +
     "<div ng-show=\"theme !== null\">\n" +
     "<button class=btn-primary ng-if=\"theme.Added == false\" ng-click=addorupdatefunc()>Toevoegen</button>\n" +
-    "<button ng-if=\"theme.Added != false\" ng-click=addorupdatefunc()>Update</button>\n" +
-    "<button ng-if=\"theme.Added != false\" ng-click=delTheme()>Delete</button>\n" +
+    "<button ng-if=\"theme.Added != false\" ng-click=addorupdatefunc()>Bijwerken</button>\n" +
+    "<button ng-if=\"theme.Added != false\" ng-click=delTheme()>Verwijderen</button>\n" +
     "</div>\n" +
     "<div class=margin-top>\n" +
     "<p>{{theme.Description}}</p>\n" +
@@ -4438,14 +4523,14 @@ L.drawLocal = {
     "</div>\n" +
     "<div class=mappart>\n" +
     "<tink-search class=tink-search></tink-search>\n" +
-    "<div id=map class=\"leafletmap leaflet-crosshair\">\n" +
+    "<div id=map class=leafletmap>\n" +
     "<div class=map-buttons-left>\n" +
     "<div class=\"ll drawingbtns\" ng-show=mapctrl.showDrawControls>\n" +
     "<div class=btn-group>\n" +
-    "<button ng-click=mapctrl.selectpunt() ng-class=\"{active: mapctrl.drawingType==''}\" type=button class=btn prevent-default><i class=\"fa fa-mouse-pointer\"></i></button>\n" +
-    "<button ng-click=\"mapctrl.drawingButtonChanged('lijn')\" ng-class=\"{active: mapctrl.drawingType=='lijn'}\" type=button class=btn prevent-default><i class=\"fa fa-minus\"></i></button>\n" +
-    "<button ng-click=\"mapctrl.drawingButtonChanged('vierkant')\" ng-class=\"{active: mapctrl.drawingType=='vierkant'}\" type=button class=btn prevent-default><i class=\"fa fa-square-o\"></i></button>\n" +
-    "<button ng-click=\"mapctrl.drawingButtonChanged('polygon')\" ng-class=\"{active: mapctrl.drawingType=='polygon'}\" type=button class=btn prevent-default><i class=\"fa fa-star-o\"></i></button>\n" +
+    "<button ng-click=mapctrl.selectpunt() ng-class=\"{active: mapctrl.drawingType==''}\" type=button class=btn prevent-default tink-tooltip=Pannen tink-tooltip-align=bottom><i class=\"fa fa-mouse-pointer\"></i></button>\n" +
+    "<button ng-click=\"mapctrl.drawingButtonChanged('lijn')\" ng-class=\"{active: mapctrl.drawingType=='lijn'}\" type=button class=btn prevent-default><i class=\"fa fa-minus\" tink-tooltip=\"Selecteer met een lijn\" tink-tooltip-align=bottom></i></button>\n" +
+    "<button ng-click=\"mapctrl.drawingButtonChanged('vierkant')\" ng-class=\"{active: mapctrl.drawingType=='vierkant'}\" type=button class=btn prevent-default tink-tooltip=\"Selecteer met een vierkant\" tink-tooltip-align=bottom><i class=\"fa fa-square-o\"></i></button>\n" +
+    "<button ng-click=\"mapctrl.drawingButtonChanged('polygon')\" ng-class=\"{active: mapctrl.drawingType=='polygon'}\" type=button class=btn prevent-default tink-tooltip=\"Selecteer met een veelhoek\" tink-tooltip-align=bottom><i class=\"fa fa-star-o\"></i></button>\n" +
     "</div>\n" +
     "<div class=drawingbtns-select>\n" +
     "<div class=select>\n" +
@@ -4454,22 +4539,22 @@ L.drawLocal = {
     "</div>\n" +
     "</div>\n" +
     "<div class=\"btn-group btn-group-vertical ll interactiebtns\">\n" +
-    "<button type=button class=btn ng-click=\"mapctrl.interactieButtonChanged('identify')\" ng-class=\"{active: mapctrl.activeInteractieKnop=='identify'}\" prevent-default><i class=\"fa fa-info\"></i></button>\n" +
-    "<button type=button class=btn ng-click=\"mapctrl.interactieButtonChanged('select')\" ng-class=\"{active: mapctrl.activeInteractieKnop=='select'}\" prevent-default><i class=\"fa fa-mouse-pointer\"></i></button>\n" +
-    "<button type=button class=btn ng-click=\"mapctrl.interactieButtonChanged('meten')\" ng-class=\"{active: mapctrl.activeInteractieKnop=='meten'}\" prevent-default><i class=\"fa fa-expand\"></i></button>\n" +
-    "<button type=button class=btn ng-click=\"mapctrl.interactieButtonChanged('watishier')\" ng-class=\"{active: mapctrl.activeInteractieKnop=='watishier'}\" prevent-default><i class=\"fa fa-thumb-tack\"></i></button>\n" +
+    "<button type=button class=btn ng-click=\"mapctrl.interactieButtonChanged('identify')\" ng-class=\"{active: mapctrl.activeInteractieKnop=='identify'}\" tink-tooltip=Identificeren tink-tooltip-align=right prevent-default><i class=\"fa fa-info\"></i></button>\n" +
+    "<button type=button class=btn ng-click=\"mapctrl.interactieButtonChanged('select')\" ng-class=\"{active: mapctrl.activeInteractieKnop=='select'}\" tink-tooltip=\"Pannen / Selecteren\" tink-tooltip-align=right prevent-default><i class=\"fa fa-mouse-pointer\"></i></button>\n" +
+    "<button type=button class=btn ng-click=\"mapctrl.interactieButtonChanged('meten')\" ng-class=\"{active: mapctrl.activeInteractieKnop=='meten'}\" tink-tooltip=Meten tink-tooltip-align=right prevent-default><i class=\"fa fa-expand\"></i></button>\n" +
+    "<button type=button class=btn ng-click=\"mapctrl.interactieButtonChanged('watishier')\" ng-class=\"{active: mapctrl.activeInteractieKnop=='watishier'}\" tink-tooltip=\"Wat is hier?\" tink-tooltip-align=right prevent-default><i class=\"fa fa-thumb-tack\"></i></button>\n" +
     "</div>\n" +
     "<div class=\"btn-group ll kaarttypes\">\n" +
     "<button class=btn ng-class=\"{active: mapctrl.IsBaseMap1==true}\" ng-click=mapctrl.toonBaseMap1() prevent-default>{{mapctrl.baseMap1Naam()}}</button>\n" +
     "<button class=btn ng-class=\"{active: mapctrl.IsBaseMap1==false}\" ng-click=mapctrl.toonBaseMap2() prevent-default>{{mapctrl.baseMap2Naam()}}</button>\n" +
     "</div>\n" +
     "<div class=\"btn-group ll metenbtns\" ng-show=mapctrl.showMetenControls>\n" +
-    "<button ng-click=\"mapctrl.drawingButtonChanged('afstand')\" ng-class=\"{active: mapctrl.drawingType=='afstand'}\" type=button class=btn prevent-default><i class=\"fa fa-arrows-h\"></i></button>\n" +
-    "<button ng-click=\"mapctrl.drawingButtonChanged('oppervlakte')\" ng-class=\"{active: mapctrl.drawingType=='oppervlakte'}\" type=button class=btn prevent-default><i class=\"fa fa-star-o\"></i></button>\n" +
+    "<button ng-click=\"mapctrl.drawingButtonChanged('afstand')\" ng-class=\"{active: mapctrl.drawingType=='afstand'}\" type=button tink-tooltip=\"Meten afstand\" tink-tooltip-align=bottom class=btn prevent-default><i class=\"fa fa-arrows-h\"></i></button>\n" +
+    "<button ng-click=\"mapctrl.drawingButtonChanged('oppervlakte')\" ng-class=\"{active: mapctrl.drawingType=='oppervlakte'}\" type=button tink-tooltip=\"Meten oppervlakte en omtrek\" tink-tooltip-align=bottom class=btn prevent-default><i class=\"fa fa-star-o\"></i></button>\n" +
     "</div>\n" +
     "<div class=\"btn-group ll searchbtns\">\n" +
-    "<button type=button class=btn ng-class=\"{active: mapctrl.ZoekenOpLocatie==true}\" ng-click=mapctrl.fnZoekenOpLocatie() prevent-default><i class=\"fa fa-map-marker\"></i></button>\n" +
-    "<button type=button class=btn ng-class=\"{active: mapctrl.ZoekenOpLocatie==false}\" ng-click=mapctrl.ZoekenInLagen() prevent-default><i class=\"fa fa-download\"></i></button>\n" +
+    "<button type=button class=btn ng-class=\"{active: mapctrl.ZoekenOpLocatie==true}\" ng-click=mapctrl.fnZoekenOpLocatie() tink-tooltip=\"Zoeken op locatie\" tink-tooltip-align=bottom prevent-default><i class=\"fa fa-map-marker\"></i></button>\n" +
+    "<button type=button class=btn ng-class=\"{active: mapctrl.ZoekenOpLocatie==false}\" ng-click=mapctrl.ZoekenInLagen() tink-tooltip=\"Zoeken binnen lagen\" tink-tooltip-align=bottom prevent-default><i class=\"fa fa-download\"></i></button>\n" +
     "</div>\n" +
     "<form id=zoekbalken class=\"form-force-inline ll zoekbalken\">\n" +
     "<select ng-options=\"layer as layer.name for layer in mapctrl.SelectableLayers()\" ng-model=mapctrl.selectedFindLayer ng-show=\"mapctrl.SelectableLayers().length > 1\" ng-change=mapctrl.findLayerChange() prevent-default></select><input type=search ng-show=\"mapctrl.ZoekenOpLocatie == false\" placeholder=\"Geef een zoekterm\" prevent-default ng-keyup=\"$event.keyCode == 13 && mapctrl.zoekLaag(mapctrl.laagquery)\" ng-model=mapctrl.laagquery>\n" +
@@ -4477,9 +4562,9 @@ L.drawLocal = {
     "</div>\n" +
     "<div class=map-buttons-right>\n" +
     "<div class=\"btn-group btn-group-vertical ll viewbtns\">\n" +
-    "<button type=button class=btn ng-click=mapctrl.zoomIn() prevent-default><i class=\"fa fa-plus\"></i></button>\n" +
-    "<button type=button class=btn ng-click=mapctrl.zoomOut() prevent-default><i class=\"fa fa-minus\"></i></button>\n" +
-    "<button type=button class=btn ng-click=mapctrl.zoomToGps() ng-class=\"{active: mapctrl.gpstracking==true}\" prevent-default><i class=\"fa fa-crosshairs\"></i></button>\n" +
+    "<button type=button class=btn ng-click=mapctrl.zoomIn() prevent-default tink-tooltip=Inzoomen tink-tooltip-align=bottom><i class=\"fa fa-plus\"></i></button>\n" +
+    "<button type=button class=btn ng-click=mapctrl.zoomOut() prevent-default tink-tooltip=Uitzoomen tink-tooltip-align=bottom><i class=\"fa fa-minus\"></i></button>\n" +
+    "<button type=button class=btn ng-click=mapctrl.zoomToGps() ng-class=\"{active: mapctrl.gpstracking==true}\" prevent-default tink-tooltip=\"Je locatie weergeven\" tink-tooltip-align=bottom><i class=\"fa fa-crosshairs\"></i></button>\n" +
     "</div>\n" +
     "<div class=\"ll loading\" ng-show=\"mapctrl.Loading > 0\">\n" +
     "<div class=loader></div> {{mapctrl.MaxLoading - mapctrl.Loading}}/ {{mapctrl.MaxLoading}}\n" +
@@ -4570,6 +4655,7 @@ L.drawLocal = {
     "<div class=\"margin-top margin-bottom\">\n" +
     "<div class=col-xs-12>\n" +
     "<button class=btn-sm ng-click=srchrsltsctrl.exportToCSV()>Exporteer naar CSV</button>\n" +
+    "<button class=btn-sm ng-if=srchrsltsctrl.extraResultButtonIsEnabled ng-click=srchrsltsctrl.extraResultButton()>{{srchrsltsctrl.resultButtonText}}</button>\n" +
     "</div>\n" +
     "</div>\n" +
     "</div>\n"
@@ -4602,13 +4688,14 @@ L.drawLocal = {
     "<div class=pull-right>\n" +
     "<button class=margin-right ng-click=srchslctdctrl.doordruk()>Doordruk</button>\n" +
     "<button ng-click=srchslctdctrl.buffer()>Buffer</button>\n" +
+    "<button class=btn-sm ng-click=srchslctdctrl.exportToCSV()>Exporteer naar CSV</button>\n" +
     "</div>\n" +
     "</div>\n" +
     "<div class=\"col-xs-12 margin-top\">\n" +
     "<a class=pull-right ng-click=srchslctdctrl.close(srchslctdctrl.selectedResult)>Terug naar resultaten</a>\n" +
     "</div>\n" +
     "</div>\n" +
-    "</div>\n"
+    "</div>"
   );
 
 

@@ -2,7 +2,7 @@
 (function (module) {
     module = angular.module('tink.gis');
     var theController = module.controller('searchResultsController',
-        function ($scope, ResultsData, map, SearchService, MapData) {
+        function ($scope, ResultsData, map, SearchService, MapData, ExternService) {
             var vm = this;
             vm.features = ResultsData.JsonFeatures;
             vm.featureLayers = null;
@@ -22,14 +22,6 @@
             vm.aantalFeaturesMetType = function (type) {
                 return vm.features.filter(x => x.layerName == type).length;
             };
-            // vm.HoveredFeature = null;
-            // vm.HoverOver = function (feature) {
-            //     if (vm.HoveredFeature) {
-            //         vm.HoveredFeature.hoverEdit = false;
-            //     }
-            //     feature.hoverEdit = true;
-            //     vm.HoveredFeature = feature;
-            // };
             vm.deleteFeatureGroup = function (featureGroupName) {
                 SearchService.DeleteFeatureGroup(featureGroupName);
             };
@@ -48,8 +40,15 @@
             vm.exportToCSV = function () {
                 SearchService.ExportToCSV();
             };
-
+            $scope.$watch(function () { return ExternService.extraResultButtonIsEnabled; }, function (newValue, oldValue) {
+                vm.extraResultButtonIsEnabled = ExternService.extraResultButtonIsEnabled;
+                vm.extraResultButton = ExternService.extraResultButtonCallBack;
+                vm.resultButtonText = ExternService.resultButtonText;
+            });
+            vm.extraResultButtonIsEnabled = ExternService.extraResultButtonIsEnabled;
+            vm.extraResultButton = ExternService.extraResultButtonCallBack;
+            vm.resultButtonText = ExternService.resultButtonText;
 
         });
-    theController.$inject = ['$scope', 'ResultsData', 'map', 'MapData'];
+    theController.$inject = ['$scope', 'ResultsData', 'map', 'MapData', 'ExternService'];
 })();

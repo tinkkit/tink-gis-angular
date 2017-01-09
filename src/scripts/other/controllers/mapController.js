@@ -157,7 +157,8 @@
             switch (ActiveButton) {
                 case ActiveInteractieButton.SELECT:
                     vm.showDrawControls = true;
-                    vm.selectpunt();
+                    MapData.DrawingType = DrawingOption.GEEN; // pff must be possible to be able to sync them...
+
                     break;
                 case ActiveInteractieButton.METEN:
                     vm.showMetenControls = true;
@@ -229,7 +230,7 @@
         // });
         vm.selectpunt = function () {
             // MapData.CleanMap();
-            MapData.DrawingType = DrawingOption.GEEN; // pff must be possible to be able to sync them...
+            MapData.DrawingType = DrawingOption.NIETS; // pff must be possible to be able to sync them...
             // vm.drawingType = DrawingOption.NIETS;
         };
         vm.layerChange = function () {

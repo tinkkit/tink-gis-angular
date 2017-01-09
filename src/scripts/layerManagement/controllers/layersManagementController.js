@@ -12,9 +12,7 @@
             $scope.numberofrecordsmatched = 0;
             $scope.availableThemes = MapData.Themes;
             $scope.allThemes = [];
-            var init = function () {
-                $scope.searchTerm = '';
-            } ();
+
             $scope.searchChanged = function () {
 
             };
@@ -56,7 +54,12 @@
                 // UIService.OpenRightSide();
 
             };
-
+            var init = function () {
+                $scope.searchTerm = '';
+                if (!$scope.selected && $scope.availableThemes[0]) {
+                    $scope.ThemeChanged($scope.availableThemes[0]);
+                }
+            } ();
 
         }]);
 })();
