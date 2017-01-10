@@ -29,11 +29,9 @@
                         <button ng-click="mapctrl.drawingButtonChanged('polygon')" ng-class="{active: mapctrl.drawingType=='polygon'}" type="button"
                             class="btn" prevent-default tink-tooltip="Selecteer met een veelhoek" tink-tooltip-align="bottom"><i class="fa fa-star-o"></i></button>
                     </div>
-                    <div class="drawingbtns-select">
-                        <div class="select">
-                         <select ng-options="layer as layer.name for layer in mapctrl.SelectableLayers()" ng-model="mapctrl.selectedLayer" ng-show="mapctrl.SelectableLayers().length > 1"
-                            ng-change="mapctrl.layerChange()" prevent-default></select>
-                        </div>
+                    <div class="select">
+                     <select ng-options="layer as layer.name for layer in mapctrl.SelectableLayers()" ng-model="mapctrl.selectedLayer" ng-show="mapctrl.SelectableLayers().length > 1"
+                        ng-change="mapctrl.layerChange()" prevent-default></select>
                     </div>
                 </div>
 

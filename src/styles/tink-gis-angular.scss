@@ -109,6 +109,9 @@ svg.leaflet-zoom-animated {
   }
 }
 
+.leaflet-popup-close-button {
+  z-index: 9999; //Make sure the close button is clickable when there is a popup!
+}
 
 /**
  * Map buttons styling
@@ -138,9 +141,11 @@ button.btn.active {
   left: rem(55);
   top: rem(134);
 
-  &-select {
+  .select {
     display: inline-block;
-    width: rem(200);
+    position: relative;
+    vertical-align: middle;
+    // width: rem(200);
   }
 
   @include mq($screen-sm) {
@@ -906,10 +911,9 @@ html.print.landscape {
   }
 }
 
-
-.leaflet-popup-close-button {
-  z-index: 9999; //Make sure the close button is clickable when there is a popup!
-}
+/**
+ * Full page loader
+ */
 
 .loader-wrapper {
   display:none;
