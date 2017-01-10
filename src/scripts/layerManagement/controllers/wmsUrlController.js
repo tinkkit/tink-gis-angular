@@ -17,6 +17,7 @@
             // var init = function () {
             //     $scope.searchTerm = '';
             // } ();
+            $scope.themeloading = false;
             $scope.urlChanged = function () {
                 $scope.clearPreview();
                 if ($scope.url != null && $scope.url.startsWith('http')) {
@@ -35,9 +36,13 @@
                 var wms = MapData.Themes.find(x => x.CleanUrl == url);
                 if (wms == undefined) {
                     var getwms = WMSService.GetThemeData(url);
+                    $scope.themeloading = true;
                     getwms.success(function (data, status, headers, config) {
+                        $scope.themeloading = false;
                         var wmstheme = ThemeCreater.createWMSThemeFromJSON(data, url)
                         $scope.previewTheme(wmstheme);
+                    }).error(function (data, status, headers, config) {
+                        $scope.themeloading = false;
                     });
                 }
                 else {

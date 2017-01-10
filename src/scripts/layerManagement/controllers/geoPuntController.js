@@ -4,11 +4,14 @@
     try {
         module = angular.module('tink.gis');
     } catch (e) {
-        module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
+        module = angular.module('tink.gis', ['tinµk.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
     }
     module.controller('geoPuntController', ['$scope', 'ThemeCreater', '$q', 'MapService', 'MapData', 'GISService', 'LayerManagementService', 'WMSService', '$window', '$http', 'GeopuntService', 'PopupService',
         function ($scope, ThemeCreater, $q, MapService, MapData, GISService, LayerManagementService, WMSService, $window, $http, GeopuntService, PopupService) {
             $scope.searchIsUrl = false;
+            $scope.loading = false;
+            $scope.themeloading = false;
+
             $scope.pagingCount = null;
             $scope.numberofrecordsmatched = 0;
             LayerManagementService.EnabledThemes.length = 0;
@@ -70,9 +73,13 @@
                 var wms = MapData.Themes.find(x => x.CleanUrl == url);
                 if (wms == undefined) {
                     var getwms = WMSService.GetThemeData(url);
+                    $scope.themeloading = true;
                     getwms.success(function (data, status, headers, config) {
+                        $scope.themeloading = false;
                         var wmstheme = ThemeCreater.createWMSThemeFromJSON(data, url)
                         $scope.previewTheme(wmstheme);
+                    }).error(function (data, status, headers, config) {
+                        $scope.themeloading = false;
                     });
                 }
                 else {

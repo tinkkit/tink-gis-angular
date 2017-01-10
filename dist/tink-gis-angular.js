@@ -151,10 +151,13 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
     try {
         module = angular.module('tink.gis');
     } catch (e) {
-        module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
+        module = angular.module('tink.gis', ['tinµk.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
     }
     module.controller('geoPuntController', ['$scope', 'ThemeCreater', '$q', 'MapService', 'MapData', 'GISService', 'LayerManagementService', 'WMSService', '$window', '$http', 'GeopuntService', 'PopupService', function ($scope, ThemeCreater, $q, MapService, MapData, GISService, LayerManagementService, WMSService, $window, $http, GeopuntService, PopupService) {
         $scope.searchIsUrl = false;
+        $scope.loading = false;
+        $scope.themeloading = false;
+
         $scope.pagingCount = null;
         $scope.numberofrecordsmatched = 0;
         LayerManagementService.EnabledThemes.length = 0;
@@ -216,9 +219,13 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             });
             if (wms == undefined) {
                 var getwms = WMSService.GetThemeData(url);
+                $scope.themeloading = true;
                 getwms.success(function (data, status, headers, config) {
+                    $scope.themeloading = false;
                     var wmstheme = ThemeCreater.createWMSThemeFromJSON(data, url);
                     $scope.previewTheme(wmstheme);
+                }).error(function (data, status, headers, config) {
+                    $scope.themeloading = false;
                 });
             } else {
                 $scope.previewTheme(wms);
@@ -578,6 +585,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         // var init = function () {
         //     $scope.searchTerm = '';
         // } ();
+        $scope.themeloading = false;
         $scope.urlChanged = function () {
             $scope.clearPreview();
             if ($scope.url != null && $scope.url.startsWith('http')) {
@@ -597,9 +605,13 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             });
             if (wms == undefined) {
                 var getwms = WMSService.GetThemeData(url);
+                $scope.themeloading = true;
                 getwms.success(function (data, status, headers, config) {
+                    $scope.themeloading = false;
                     var wmstheme = ThemeCreater.createWMSThemeFromJSON(data, url);
                     $scope.previewTheme(wmstheme);
+                }).error(function (data, status, headers, config) {
+                    $scope.themeloading = false;
                 });
             } else {
                 $scope.previewTheme(wms);
@@ -4398,8 +4410,9 @@ L.drawLocal = {
     "<div ng-if=searchIsUrl>\n" +
     "<button ng-click=laadUrl()>Laad url</button>\n" +
     "</div>\n" +
-    "<preview-layer class=margin-top ng-if=copySelectedTheme addorupdatefunc=AddOrUpdateTheme() theme=copySelectedTheme>\n" +
+    "<preview-layer ng-show=\"themeloading == false\" class=margin-top ng-if=copySelectedTheme addorupdatefunc=AddOrUpdateTheme() theme=copySelectedTheme>\n" +
     "</preview-layer>\n" +
+    "<div class=loader ng-show=\"themeloading == true\"></div>\n" +
     "</div>\n" +
     "</div>"
   );
@@ -4544,8 +4557,9 @@ L.drawLocal = {
     "<div ng-if=urlIsValid>\n" +
     "<button ng-click=laadUrl()>Laad url</button>\n" +
     "</div>\n" +
-    "<preview-layer class=margin-top ng-if=copySelectedTheme addorupdatefunc=AddOrUpdateTheme() theme=copySelectedTheme>\n" +
+    "<preview-layer ng-show=\"themeloading == false\" class=margin-top ng-if=copySelectedTheme addorupdatefunc=AddOrUpdateTheme() theme=copySelectedTheme>\n" +
     "</preview-layer>\n" +
+    "<div class=loader ng-show=\"themeloading == true\"></div>\n" +
     "</div>\n" +
     "</div>"
   );
