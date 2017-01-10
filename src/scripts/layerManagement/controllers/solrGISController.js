@@ -13,27 +13,37 @@
             LayerManagementService.AvailableThemes.length = 0;
             $scope.availableThemes = [];
             $scope.allThemes = [];
+            $scope.loading = false;
             var init = function () {
                 $scope.searchTerm = '';
             } ();
-            $scope.searchChanged = function () {
+            $scope.$on("searchChanged", function (event, searchTerm) {
+                $scope.searchTerm = searchTerm;
                 if ($scope.searchTerm != null && $scope.searchTerm != '' && $scope.searchTerm.length > 2) {
-                    $scope.clearPreview();
-
+                    $scope.$parent.solrLoading = true;
                     $scope.QueryGISSOLR($scope.searchTerm, 1);
                 }
                 else {
                     $scope.availableThemes.length = 0;
                     $scope.numberofrecordsmatched = 0;
                 }
-            };
+            });
+            // $scope.searchChanged = function () {
+
+            // };
             $scope.QueryGISSOLR = function (searchterm, page) {
+                $scope.loading = true;
+                $scope.clearPreview();
+
                 var prom = GISService.QuerySOLRGIS(searchterm, ((page - 1) * 5) + 1, 5);
                 prom.then(function (data) {
+                    $scope.loading = false;
+                    $scope.$parent.solrLoading = false;
                     $scope.currentPage = 1;
                     var allitems = data.facet_counts.facet_fields.parent;
                     var itemsMetData = data.grouped.parent.groups;
-                    var aantalitems = allitems.length;
+                    $scope.$parent.solrCount = itemsMetData.length;
+                    // var aantalitems = allitems.length;
                     var x = 0;
                     var themes = [];
                     itemsMetData.forEach(itemMetData => {
@@ -121,8 +131,6 @@
             $scope.pageChanged = function (page, recordsAPage) {
                 let startItem = ((page - 1) * recordsAPage);
                 $scope.availableThemes = $scope.allThemes.slice(startItem, startItem + recordsAPage)
-                // console.log(page, recordsAPage);
-                // $scope.QueryGISSOLR($scope.searchTerm, page);
             };
             $scope.selectedTheme = null;
             $scope.copySelectedTheme = null;
@@ -149,10 +157,9 @@
                         console.log('ERROR:', data.error);
                     }
                 });
-
                 // added to give the selected theme an Active class
                 $scope.selected = theme;
-                $scope.isActive = function(theme) {
+                $scope.isActive = function (theme) {
                     return $scope.selected === theme;
                 };
             };
@@ -162,11 +169,10 @@
             };
 
             $scope.ok = function () {
-                // console.log(LayerManagementService.EnabledThemes);
-                $modalInstance.$close(); // return the themes.
+                $modalInstance.$close();
             };
             $scope.cancel = function () {
-                $modalInstance.$dismiss('cancel is pressed'); // To close the controller with a dismiss message
+                $modalInstance.$dismiss('cancel is pressed');
             };
 
         }]);

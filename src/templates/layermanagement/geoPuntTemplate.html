@@ -1,12 +1,12 @@
 <div class="row relative-container">
     <div class="col-md-4 flex-column flex-grow-1 margin-top margin-bottom">
-        <div>
+        <!--<div>
             <input class="searchbox" type="text" ng-model="searchTerm" ng-change="searchChanged()" ng-model-options="{debounce: 500}" placeholder="Geef een trefwoord of een url in" />
-        </div>
-        <div class="margin-top">
+        </div>-->
+        <!--<div class="margin-top">
             <input type="text" disabled="disabled" value="https://geodata.antwerpen.be/arcgissql/services/P_SiK/Groeninventaris/MapServer/WMSServer" />
-        </div>
-        <div class="overflow-wrapper flex-grow-1 list-selectable margin-top margin-bottom">
+        </div>-->
+        <div ng-show="loading == false" class="overflow-wrapper flex-grow-1 list-selectable margin-top margin-bottom">
             <div ng-if="!searchIsUrl" ng-repeat="theme in availableThemes">
                 <dl ng-class="{active: isActive(theme)}" ng-class="{'not-allowed': theme.Type != 'wms' &&  theme.Type != 'esri'}">
                     <a href="#" class="theme-layer" ng-click="geopuntThemeChanged(theme)">
@@ -17,8 +17,12 @@
                 </dl>
             </div>
         </div>
-        <div>
-            <tink-pagination ng-hide="numberofrecordsmatched <= 5" tink-items-per-page-values="[5]" tink-current-page="currentPage" tink-change="pageChanged(page,perPage,next)" tink-total-items="numberofrecordsmatched" tink-items-per-page="recordsAPage"></tink-pagination>
+        <div ng-show="loading == false">
+            <tink-pagination ng-hide="numberofrecordsmatched <= 5" tink-items-per-page-values="[5]" tink-current-page="currentPage" tink-change="pageChanged(page,perPage,next)"
+                tink-total-items="numberofrecordsmatched" tink-items-per-page="recordsAPage"></tink-pagination>
+        </div>
+        <div ng-if="loading == true" class="loader">
+
         </div>
     </div>
     <div class="col-md-8 flex-column flex-grow-1 margin-top margin-bottom">

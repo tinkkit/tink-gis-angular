@@ -19,7 +19,8 @@
                 $scope.searchTerm = '';
                 $scope.searchIsUrl = false;
             } ();
-            $scope.searchChanged = function () {
+            $scope.$on("searchChanged", function (event, searchTerm) {
+                $scope.searchTerm = searchTerm;
                 if ($scope.searchTerm != null && $scope.searchTerm != '' && $scope.searchTerm.length > 2) {
                     $scope.clearPreview();
                     if ($scope.searchTerm.startsWith('http')) {
@@ -27,6 +28,7 @@
                     }
                     else {
                         $scope.searchIsUrl = false;
+                        $scope.$parent.geopuntLoading = true;
                         $scope.QueryGeoPunt($scope.searchTerm, 1);
                     }
                 }
@@ -34,14 +36,19 @@
                     $scope.availableThemes.length = 0;
                     $scope.numberofrecordsmatched = 0;
                 }
-            };
+            });
             $scope.QueryGeoPunt = function (searchTerm, page) {
+                $scope.loading = true;
+                $scope.clearPreview();
                 var prom = GeopuntService.getMetaData(searchTerm, ((page - 1) * 5) + 1, 5);
                 prom.then(function (metadata) {
+                    $scope.loading = false;
+                    $scope.$parent.geopuntLoading = false;
                     $scope.availableThemes = metadata.results;
                     $scope.currentrecord = metadata.currentrecord;
                     $scope.nextrecord = metadata.nextrecord;
                     $scope.numberofrecordsmatched = metadata.numberofrecordsmatched;
+                    $scope.$parent.geopuntCount = metadata.numberofrecordsmatched;
                 }, function (reason) {
                     console.log(reason);
                 });
