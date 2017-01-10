@@ -1,0 +1,16 @@
+<div class="row relative-container">
+    <div class="col-md-4 flex-column flex-grow-1 margin-top margin-bottom">
+        <div>
+            <input class="searchbox" type="text" ng-model="url" ng-change="urlChanged()" placeholder="Geef een url in" />
+        </div>
+    </div>
+    <div class="col-md-8 flex-column flex-grow-1 margin-top margin-bottom">
+        <div ng-if="urlIsValid">
+            <button ng-click="laadUrl()">Laad url</button>
+        </div>
+        <preview-layer ng-show="themeloading == false" class="margin-top" ng-if="copySelectedTheme" addorupdatefunc="AddOrUpdateTheme()" theme="copySelectedTheme">
+
+        </preview-layer>
+        <div class="loader" ng-show="themeloading == true" ></div>
+    </div>
+</div>

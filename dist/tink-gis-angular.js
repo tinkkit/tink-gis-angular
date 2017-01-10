@@ -151,10 +151,13 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
     try {
         module = angular.module('tink.gis');
     } catch (e) {
-        module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
+        module = angular.module('tink.gis', ['tinµk.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
     }
     module.controller('geoPuntController', ['$scope', 'ThemeCreater', '$q', 'MapService', 'MapData', 'GISService', 'LayerManagementService', 'WMSService', '$window', '$http', 'GeopuntService', 'PopupService', function ($scope, ThemeCreater, $q, MapService, MapData, GISService, LayerManagementService, WMSService, $window, $http, GeopuntService, PopupService) {
         $scope.searchIsUrl = false;
+        $scope.loading = false;
+        $scope.themeloading = false;
+
         $scope.pagingCount = null;
         $scope.numberofrecordsmatched = 0;
         LayerManagementService.EnabledThemes.length = 0;
@@ -165,27 +168,34 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             $scope.searchTerm = '';
             $scope.searchIsUrl = false;
         }();
-        $scope.searchChanged = function () {
+        $scope.$on("searchChanged", function (event, searchTerm) {
+            $scope.searchTerm = searchTerm;
             if ($scope.searchTerm != null && $scope.searchTerm != '' && $scope.searchTerm.length > 2) {
                 $scope.clearPreview();
                 if ($scope.searchTerm.startsWith('http')) {
                     $scope.searchIsUrl = true;
                 } else {
                     $scope.searchIsUrl = false;
+                    $scope.$parent.geopuntLoading = true;
                     $scope.QueryGeoPunt($scope.searchTerm, 1);
                 }
             } else {
                 $scope.availableThemes.length = 0;
                 $scope.numberofrecordsmatched = 0;
             }
-        };
+        });
         $scope.QueryGeoPunt = function (searchTerm, page) {
+            $scope.loading = true;
+            $scope.clearPreview();
             var prom = GeopuntService.getMetaData(searchTerm, (page - 1) * 5 + 1, 5);
             prom.then(function (metadata) {
+                $scope.loading = false;
+                $scope.$parent.geopuntLoading = false;
                 $scope.availableThemes = metadata.results;
                 $scope.currentrecord = metadata.currentrecord;
                 $scope.nextrecord = metadata.nextrecord;
                 $scope.numberofrecordsmatched = metadata.numberofrecordsmatched;
+                $scope.$parent.geopuntCount = metadata.numberofrecordsmatched;
             }, function (reason) {
                 console.log(reason);
             });
@@ -209,9 +219,13 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             });
             if (wms == undefined) {
                 var getwms = WMSService.GetThemeData(url);
+                $scope.themeloading = true;
                 getwms.success(function (data, status, headers, config) {
+                    $scope.themeloading = false;
                     var wmstheme = ThemeCreater.createWMSThemeFromJSON(data, url);
                     $scope.previewTheme(wmstheme);
+                }).error(function (data, status, headers, config) {
+                    $scope.themeloading = false;
                 });
             } else {
                 $scope.previewTheme(wms);
@@ -245,12 +259,21 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
     }
     module.controller('LayerManagerController', ['$scope', '$modalInstance', 'LayerManagementService', function ($scope, $modalInstance, LayerManagementService) {
         $scope.active = 'solr';
-
+        $scope.searchTerm = '';
+        $scope.solrLoading = false;
+        $scope.solrCount = null;
+        $scope.geopuntLoading = false;
+        $scope.geopuntCount = null;
         $scope.ok = function () {
             $modalInstance.$close(); // return the themes.
         };
         $scope.cancel = function () {
             $modalInstance.$dismiss('cancel is pressed'); // To close the controller with a dismiss message
+        };
+        $scope.searchChanged = function () {
+            if ($scope.searchTerm != null && $scope.searchTerm != '' && $scope.searchTerm.length > 2) {
+                $scope.$broadcast("searchChanged", $scope.searchTerm);
+            }
         };
     }]);
 })();
@@ -373,26 +396,36 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         LayerManagementService.AvailableThemes.length = 0;
         $scope.availableThemes = [];
         $scope.allThemes = [];
+        $scope.loading = false;
         var init = function () {
             $scope.searchTerm = '';
         }();
-        $scope.searchChanged = function () {
+        $scope.$on("searchChanged", function (event, searchTerm) {
+            $scope.searchTerm = searchTerm;
             if ($scope.searchTerm != null && $scope.searchTerm != '' && $scope.searchTerm.length > 2) {
-                $scope.clearPreview();
-
+                $scope.$parent.solrLoading = true;
                 $scope.QueryGISSOLR($scope.searchTerm, 1);
             } else {
                 $scope.availableThemes.length = 0;
                 $scope.numberofrecordsmatched = 0;
             }
-        };
+        });
+        // $scope.searchChanged = function () {
+
+        // };
         $scope.QueryGISSOLR = function (searchterm, page) {
+            $scope.loading = true;
+            $scope.clearPreview();
+
             var prom = GISService.QuerySOLRGIS(searchterm, (page - 1) * 5 + 1, 5);
             prom.then(function (data) {
+                $scope.loading = false;
+                $scope.$parent.solrLoading = false;
                 $scope.currentPage = 1;
                 var allitems = data.facet_counts.facet_fields.parent;
                 var itemsMetData = data.grouped.parent.groups;
-                var aantalitems = allitems.length;
+                $scope.$parent.solrCount = itemsMetData.length;
+                // var aantalitems = allitems.length;
                 var x = 0;
                 var themes = [];
                 itemsMetData.forEach(function (itemMetData) {
@@ -486,8 +519,6 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         $scope.pageChanged = function (page, recordsAPage) {
             var startItem = (page - 1) * recordsAPage;
             $scope.availableThemes = $scope.allThemes.slice(startItem, startItem + recordsAPage);
-            // console.log(page, recordsAPage);
-            // $scope.QueryGISSOLR($scope.searchTerm, page);
         };
         $scope.selectedTheme = null;
         $scope.copySelectedTheme = null;
@@ -516,7 +547,6 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                     console.log('ERROR:', data.error);
                 }
             });
-
             // added to give the selected theme an Active class
             $scope.selected = theme;
             $scope.isActive = function (theme) {
@@ -529,11 +559,78 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         };
 
         $scope.ok = function () {
-            // console.log(LayerManagementService.EnabledThemes);
-            $modalInstance.$close(); // return the themes.
+            $modalInstance.$close();
         };
         $scope.cancel = function () {
-            $modalInstance.$dismiss('cancel is pressed'); // To close the controller with a dismiss message
+            $modalInstance.$dismiss('cancel is pressed');
+        };
+    }]);
+})();
+;'use strict';
+
+(function (module) {
+    var module;
+    try {
+        module = angular.module('tink.gis');
+    } catch (e) {
+        module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
+    }
+    module.controller('wmsUrlController', ['$scope', 'ThemeCreater', '$q', 'MapService', 'MapData', 'GISService', 'LayerManagementService', 'WMSService', '$window', '$http', 'GeopuntService', 'PopupService', function ($scope, ThemeCreater, $q, MapService, MapData, GISService, LayerManagementService, WMSService, $window, $http, GeopuntService, PopupService) {
+        $scope.urlIsValid = false;
+
+        // LayerManagementService.EnabledThemes.length = 0;
+        // LayerManagementService.AvailableThemes.length = 0;
+        // LayerManagementService.EnabledThemes = angular.copy(MapData.Themes);
+        // $scope.availableThemes = [];
+        // var init = function () {
+        //     $scope.searchTerm = '';
+        // } ();
+        $scope.themeloading = false;
+        $scope.urlChanged = function () {
+            $scope.clearPreview();
+            if ($scope.url != null && $scope.url.startsWith('http')) {
+                $scope.urlIsValid = true;
+            } else {
+                $scope.urlIsValid = false;
+            }
+        };
+        $scope.laadUrl = function () {
+            $scope.url = $scope.url.trim().replace('?', '');
+            createWMS($scope.url);
+        };
+
+        var createWMS = function createWMS(url) {
+            var wms = MapData.Themes.find(function (x) {
+                return x.CleanUrl == url;
+            });
+            if (wms == undefined) {
+                var getwms = WMSService.GetThemeData(url);
+                $scope.themeloading = true;
+                getwms.success(function (data, status, headers, config) {
+                    $scope.themeloading = false;
+                    var wmstheme = ThemeCreater.createWMSThemeFromJSON(data, url);
+                    $scope.previewTheme(wmstheme);
+                }).error(function (data, status, headers, config) {
+                    $scope.themeloading = false;
+                });
+            } else {
+                $scope.previewTheme(wms);
+            }
+        };
+        $scope.selectedTheme = null;
+        $scope.copySelectedTheme = null;
+        $scope.previewTheme = function (theme) {
+            $scope.selectedTheme = theme;
+            $scope.copySelectedTheme = angular.copy(theme);
+        };
+        $scope.clearPreview = function () {
+            $scope.selectedTheme = null;
+            $scope.copySelectedTheme = null;
+        };
+
+        $scope.AddOrUpdateTheme = function () {
+            LayerManagementService.AddOrUpdateTheme($scope.selectedTheme, $scope.copySelectedTheme);
+            $scope.clearPreview();
         };
     }]);
 })();
@@ -622,6 +719,22 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             templateUrl: 'templates/layermanagement/solrGISTemplate.html',
             controller: 'solrGISController',
             controllerAs: 'solrGISctrl'
+        };
+    });
+})();
+;'use strict';
+
+(function (module) {
+    module = angular.module('tink.gis');
+    module.directive('wmsUrl', function () {
+        return {
+            replace: true,
+            scope: {
+                layer: '='
+            },
+            templateUrl: 'templates/layermanagement/wmsUrlTemplate.html',
+            controller: 'wmsUrlController',
+            controllerAs: 'wmsUrlctrl'
         };
     });
 })();
@@ -4276,13 +4389,7 @@ L.drawLocal = {
   $templateCache.put('templates/layermanagement/geoPuntTemplate.html',
     "<div class=\"row relative-container\">\n" +
     "<div class=\"col-md-4 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
-    "<div>\n" +
-    "<input class=searchbox ng-model=searchTerm ng-change=searchChanged() ng-model-options=\"{debounce: 500}\" placeholder=\"Geef een trefwoord of een url in\">\n" +
-    "</div>\n" +
-    "<div class=margin-top>\n" +
-    "<input disabled value=https://geodata.antwerpen.be/arcgissql/services/P_SiK/Groeninventaris/MapServer/WMSServer>\n" +
-    "</div>\n" +
-    "<div class=\"overflow-wrapper flex-grow-1 list-selectable margin-top margin-bottom\">\n" +
+    "<div ng-show=\"loading == false\" class=\"overflow-wrapper flex-grow-1 list-selectable margin-top margin-bottom\">\n" +
     "<div ng-if=!searchIsUrl ng-repeat=\"theme in availableThemes\">\n" +
     "<dl ng-class=\"{active: isActive(theme)}\" ng-class=\"{'not-allowed': theme.Type != 'wms' &&  theme.Type != 'esri'}\">\n" +
     "<a href=# class=theme-layer ng-click=geopuntThemeChanged(theme)>\n" +
@@ -4293,18 +4400,21 @@ L.drawLocal = {
     "</dl>\n" +
     "</div>\n" +
     "</div>\n" +
-    "<div>\n" +
+    "<div ng-show=\"loading == false\">\n" +
     "<tink-pagination ng-hide=\"numberofrecordsmatched <= 5\" tink-items-per-page-values=[5] tink-current-page=currentPage tink-change=pageChanged(page,perPage,next) tink-total-items=numberofrecordsmatched tink-items-per-page=recordsAPage></tink-pagination>\n" +
+    "</div>\n" +
+    "<div ng-if=\"loading == true\" class=loader>\n" +
     "</div>\n" +
     "</div>\n" +
     "<div class=\"col-md-8 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
     "<div ng-if=searchIsUrl>\n" +
     "<button ng-click=laadUrl()>Laad url</button>\n" +
     "</div>\n" +
-    "<preview-layer class=margin-top ng-if=copySelectedTheme addorupdatefunc=AddOrUpdateTheme() theme=copySelectedTheme>\n" +
+    "<preview-layer ng-show=\"themeloading == false\" class=margin-top ng-if=copySelectedTheme addorupdatefunc=AddOrUpdateTheme() theme=copySelectedTheme>\n" +
     "</preview-layer>\n" +
+    "<div class=loader ng-show=\"themeloading == true\"></div>\n" +
     "</div>\n" +
-    "</div>\n"
+    "</div>"
   );
 
 
@@ -4313,33 +4423,32 @@ L.drawLocal = {
     "<div class=modal-header>\n" +
     "<button type=button style=float:right data-ng-click=cancel()><i class=\"fa fa-times\"></i></button>\n" +
     "<h4 class=model-title>Lagenbeheer\n" +
+    "<p><input class=searchbox ng-model=searchTerm ng-change=searchChanged() ng-model-options=\"{debounce: 250}\" placeholder=\"Geef een trefwoord\"></p>\n" +
     "</h4></div>\n" +
     "<div class=modal-body>\n" +
     "<div class=row>\n" +
     "<div class=col-xs-12>\n" +
     "<ul class=nav-tabs>\n" +
-    "<li role=presentation ng-class=\"{'active': active=='solr'}\"><a href=\"\" ng-click=\"active='solr'\">Stad</a></li>\n" +
-    "<li role=presentation ng-class=\"{'active': active=='geopunt'}\"><a href=# ng-click=\"active='geopunt'\">GeoPunt</a></li>\n" +
+    "<li role=presentation ng-class=\"{'active': active=='solr'}\"><a href=\"\" ng-click=\"active='solr'\">Stad<span ng-if=\"solrLoading==true\" class=loader></span><span ng-if=\"solrLoading==false && solrCount != null\">({{solrCount}})</span></a></li>\n" +
+    "<li role=presentation ng-class=\"{'active': active=='geopunt'}\"><a href=\"\" ng-click=\"active='geopunt'\">GeoPunt <span ng-if=\"geopuntLoading==true\" class=loader></span><span ng-if=\"geopuntLoading==false && geopuntCount != null\">({{geopuntCount}})</span></a></li>\n" +
+    "<li role=presentation ng-class=\"{'active': active=='wmsurl'}\"><a href=\"\" ng-click=\"active='wmsurl'\">Url</a></li>\n" +
     "<li role=presentation ng-class=\"{'active': active=='beheer'}\"><a href=\"\" ng-click=\"active='beheer'\">Beheer</a></li>\n" +
     "</ul>\n" +
     "</div>\n" +
     "</div>\n" +
     "<solr-gis ng-show=\"active=='solr'\"></solr-gis>\n" +
     "<geo-punt ng-show=\"active=='geopunt'\"></geo-punt>\n" +
+    "<wms-url ng-show=\"active=='wmsurl'\"></wms-url>\n" +
     "<layers-management ng-if=\"active=='beheer'\"></layers-management>\n" +
     "</div>\n" +
     "<div class=modal-footer>\n" +
-    "</div>\n" +
-    "</div>\n"
+    "</div></div>"
   );
 
 
   $templateCache.put('templates/layermanagement/layersManagementTemplate.html',
     "<div class=\"row relative-container\">\n" +
     "<div class=\"col-md-4 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
-    "<div>\n" +
-    "<input class=searchbox ng-model=searchTerm ng-change=searchChanged() placeholder=\"Geef een trefwoord\">\n" +
-    "</div>\n" +
     "<div class=\"overflow-wrapper flex-grow-1 list-selectable margin-top margin-bottom\">\n" +
     "<div ng-repeat=\"theme in availableThemes | filter:{name: searchTerm}\">\n" +
     "<dl ng-class=\"{active: isActive(theme)}\">\n" +
@@ -4406,11 +4515,8 @@ L.drawLocal = {
   $templateCache.put('templates/layermanagement/solrGISTemplate.html',
     "<div class=\"row relative-container\">\n" +
     "<div class=\"col-md-4 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
-    "<div>\n" +
-    "<input class=searchbox ng-model=searchTerm ng-change=searchChanged() ng-model-options=\"{debounce: 250}\" placeholder=\"Geef een trefwoord\">\n" +
-    "</div>\n" +
     "<div class=\"overflow-wrapper flex-grow-1 list-selectable margin-top margin-bottom\">\n" +
-    "<div ng-repeat=\"theme in availableThemes\">\n" +
+    "<div ng-show=\"loading == false\" ng-repeat=\"theme in availableThemes\">\n" +
     "<dl ng-class=\"{active: isActive(theme)}\">\n" +
     "<a href=# class=theme-layer ng-click=solrThemeChanged(theme)>\n" +
     "<dt>{{theme.name}}</dt>\n" +
@@ -4426,15 +4532,36 @@ L.drawLocal = {
     "</dl>\n" +
     "</div>\n" +
     "</div>\n" +
-    "<div>\n" +
+    "<div ng-show=\"loading == false\">\n" +
     "<tink-pagination ng-hide=\"numberofrecordsmatched <= 5\" tink-current-page=currentPage tink-change=pageChanged(page,perPage,next) tink-total-items=numberofrecordsmatched tink-items-per-page=recordsAPage></tink-pagination>\n" +
+    "</div>\n" +
+    "<div ng-if=\"loading == true\" class=loader>\n" +
     "</div>\n" +
     "</div>\n" +
     "<div class=\"col-md-8 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
     "<preview-layer ng-if=copySelectedTheme theme=copySelectedTheme addorupdatefunc=AddOrUpdateTheme()>\n" +
     "</preview-layer>\n" +
     "</div>\n" +
-    "</div>\n"
+    "</div>"
+  );
+
+
+  $templateCache.put('templates/layermanagement/wmsUrlTemplate.html',
+    "<div class=\"row relative-container\">\n" +
+    "<div class=\"col-md-4 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
+    "<div>\n" +
+    "<input class=searchbox ng-model=url ng-change=urlChanged() placeholder=\"Geef een url in\">\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "<div class=\"col-md-8 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
+    "<div ng-if=urlIsValid>\n" +
+    "<button ng-click=laadUrl()>Laad url</button>\n" +
+    "</div>\n" +
+    "<preview-layer ng-show=\"themeloading == false\" class=margin-top ng-if=copySelectedTheme addorupdatefunc=AddOrUpdateTheme() theme=copySelectedTheme>\n" +
+    "</preview-layer>\n" +
+    "<div class=loader ng-show=\"themeloading == true\"></div>\n" +
+    "</div>\n" +
+    "</div>"
   );
 
 
@@ -4532,10 +4659,8 @@ L.drawLocal = {
     "<button ng-click=\"mapctrl.drawingButtonChanged('vierkant')\" ng-class=\"{active: mapctrl.drawingType=='vierkant'}\" type=button class=btn prevent-default tink-tooltip=\"Selecteer met een vierkant\" tink-tooltip-align=bottom><i class=\"fa fa-square-o\"></i></button>\n" +
     "<button ng-click=\"mapctrl.drawingButtonChanged('polygon')\" ng-class=\"{active: mapctrl.drawingType=='polygon'}\" type=button class=btn prevent-default tink-tooltip=\"Selecteer met een veelhoek\" tink-tooltip-align=bottom><i class=\"fa fa-star-o\"></i></button>\n" +
     "</div>\n" +
-    "<div class=drawingbtns-select>\n" +
     "<div class=select>\n" +
     "<select ng-options=\"layer as layer.name for layer in mapctrl.SelectableLayers()\" ng-model=mapctrl.selectedLayer ng-show=\"mapctrl.SelectableLayers().length > 1\" ng-change=mapctrl.layerChange() prevent-default></select>\n" +
-    "</div>\n" +
     "</div>\n" +
     "</div>\n" +
     "<div class=\"btn-group btn-group-vertical ll interactiebtns\">\n" +

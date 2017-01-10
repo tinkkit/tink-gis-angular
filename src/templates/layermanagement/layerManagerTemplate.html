@@ -1,22 +1,24 @@
-<div style="">
-    <div class="modal-header">
-        <button type="button" style="float:right" data-ng-click="cancel()"><i class="fa fa-times"></i></button>
-        <h4 style="" class="model-title">Lagenbeheer</h5>
-    </div>
-    <div class="modal-body">
-        <div class="row">
-            <div class="col-xs-12">
-                <ul class="nav-tabs">
-                    <li role="presentation" ng-class="{'active': active=='solr'}"><a href="" ng-click="active='solr'">Stad</a></li>
-                    <li role="presentation" ng-class="{'active': active=='geopunt'}"><a href="#" ng-click="active='geopunt'">GeoPunt</a></li>
-                    <li role="presentation" ng-class="{'active': active=='beheer'}"><a href="" ng-click="active='beheer'">Beheer</a></li>
-                </ul>
-            </div>
-        </div>
-        <solr-gis ng-show="active=='solr'"></solr-gis>
-        <geo-punt ng-show="active=='geopunt'"></geo-punt>
-        <layers-management ng-if="active=='beheer'"></layers-management>
-    </div>
-    <div class="modal-footer">
-    </div>
+<div>
+<div class="modal-header">
+    <button type="button" style="float:right" data-ng-click="cancel()"><i class="fa fa-times"></i></button>
+<h4 class="model-title">Lagenbeheer</h5>
+<p><input class="searchbox" type="text" ng-model="searchTerm" ng-change="searchChanged()" ng-model-options="{debounce: 250}"
+    placeholder="Geef een trefwoord" /></p>
 </div>
+<div class="modal-body">
+    <div class="row">
+        <div class="col-xs-12">
+            <ul class="nav-tabs">
+                <li role="presentation" ng-class="{'active': active=='solr'}"><a href="" ng-click="active='solr'">Stad<span ng-if="solrLoading==true" class="loader"></span><span ng-if="solrLoading==false && solrCount != null">({{solrCount}})</span></a></li>
+                <li role="presentation" ng-class="{'active': active=='geopunt'}"><a href="" ng-click="active='geopunt'">GeoPunt <span ng-if="geopuntLoading==true" class="loader"></span><span ng-if="geopuntLoading==false && geopuntCount != null">({{geopuntCount}})</span></a></li>
+                <li role="presentation" ng-class="{'active': active=='wmsurl'}"><a href="" ng-click="active='wmsurl'">Url</a></li>
+                <li role="presentation" ng-class="{'active': active=='beheer'}"><a href="" ng-click="active='beheer'">Beheer</a></li>
+            </ul>
+        </div>
+    </div>
+    <solr-gis ng-show="active=='solr'"></solr-gis>
+    <geo-punt ng-show="active=='geopunt'"></geo-punt>
+    <wms-url ng-show="active=='wmsurl'"></wms-url>
+    <layers-management ng-if="active=='beheer'"></layers-management>
+</div>
+<div class="modal-footer">

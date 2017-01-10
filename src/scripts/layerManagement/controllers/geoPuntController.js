@@ -4,11 +4,14 @@
     try {
         module = angular.module('tink.gis');
     } catch (e) {
-        module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
+        module = angular.module('tink.gis', ['tinµk.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
     }
     module.controller('geoPuntController', ['$scope', 'ThemeCreater', '$q', 'MapService', 'MapData', 'GISService', 'LayerManagementService', 'WMSService', '$window', '$http', 'GeopuntService', 'PopupService',
         function ($scope, ThemeCreater, $q, MapService, MapData, GISService, LayerManagementService, WMSService, $window, $http, GeopuntService, PopupService) {
             $scope.searchIsUrl = false;
+            $scope.loading = false;
+            $scope.themeloading = false;
+
             $scope.pagingCount = null;
             $scope.numberofrecordsmatched = 0;
             LayerManagementService.EnabledThemes.length = 0;
@@ -19,7 +22,8 @@
                 $scope.searchTerm = '';
                 $scope.searchIsUrl = false;
             } ();
-            $scope.searchChanged = function () {
+            $scope.$on("searchChanged", function (event, searchTerm) {
+                $scope.searchTerm = searchTerm;
                 if ($scope.searchTerm != null && $scope.searchTerm != '' && $scope.searchTerm.length > 2) {
                     $scope.clearPreview();
                     if ($scope.searchTerm.startsWith('http')) {
@@ -27,6 +31,7 @@
                     }
                     else {
                         $scope.searchIsUrl = false;
+                        $scope.$parent.geopuntLoading = true;
                         $scope.QueryGeoPunt($scope.searchTerm, 1);
                     }
                 }
@@ -34,14 +39,19 @@
                     $scope.availableThemes.length = 0;
                     $scope.numberofrecordsmatched = 0;
                 }
-            };
+            });
             $scope.QueryGeoPunt = function (searchTerm, page) {
+                $scope.loading = true;
+                $scope.clearPreview();
                 var prom = GeopuntService.getMetaData(searchTerm, ((page - 1) * 5) + 1, 5);
                 prom.then(function (metadata) {
+                    $scope.loading = false;
+                    $scope.$parent.geopuntLoading = false;
                     $scope.availableThemes = metadata.results;
                     $scope.currentrecord = metadata.currentrecord;
                     $scope.nextrecord = metadata.nextrecord;
                     $scope.numberofrecordsmatched = metadata.numberofrecordsmatched;
+                    $scope.$parent.geopuntCount = metadata.numberofrecordsmatched;
                 }, function (reason) {
                     console.log(reason);
                 });
@@ -63,9 +73,13 @@
                 var wms = MapData.Themes.find(x => x.CleanUrl == url);
                 if (wms == undefined) {
                     var getwms = WMSService.GetThemeData(url);
+                    $scope.themeloading = true;
                     getwms.success(function (data, status, headers, config) {
+                        $scope.themeloading = false;
                         var wmstheme = ThemeCreater.createWMSThemeFromJSON(data, url)
                         $scope.previewTheme(wmstheme);
+                    }).error(function (data, status, headers, config) {
+                        $scope.themeloading = false;
                     });
                 }
                 else {
