@@ -14,22 +14,6 @@
         enableLog: true
     });
 
-    module.directive('preventDefault', function () {
-        return {
-            link: function link(scope, element, attrs) {
-                element.on('click', function (event) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                });
-                element.on('dblclick', function (event) {
-                    event.stopPropagation();
-                });
-                element.on('mousemove', function (event) {
-                    event.stopPropagation();
-                });
-            }
-        };
-    });
     JXON.config({
         attrPrefix: '', // default: '@'
         autoDate: false // default: true
@@ -60,11 +44,13 @@
         map.doubleClickZoom.disable();
         // L.control.scale({ imperial: false }).addTo(map);
         var drawnItems = L.featureGroup().addTo(map);
+
         map.on('draw:created', function (event) {
             var layer = event.layer;
             drawnItems.addLayer(layer);
         });
         map.on('draw:drawstart', function (event) {
+            console.log("draw started");
             //console.log(drawnItems);
             //map.clearDrawings();
         });
@@ -77,6 +63,23 @@
         return map;
     };
     module.factory('map', mapObject);
+    module.directive('preventDefault', function (map) {
+        return {
+            link: function link(scope, element, attrs) {
+                L.DomEvent.disableClickPropagation(element.get(0));
+                element.on('click', function (event) {
+                    // event.preventDefault();
+                    // event.stopPropagation();
+                });
+                element.on('dblclick', function (event) {
+                    event.stopPropagation();
+                });
+                element.on('mousemove', function (event) {
+                    event.stopPropagation();
+                });
+            }
+        };
+    });
 })();
 ;'use strict';
 
@@ -1103,8 +1106,17 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 }
             }
         }).addTo(map);
+        vm.removeLeafletGrab = function () {
+            if ($('.leaflet-container').hasClass('leaflet-grab')) {
+                $('.leaflet-container').removeClass('leaflet-grab');
+            }
+        };
+
         vm.interactieButtonChanged = function (ActiveButton) {
-            // MapData.CleanMap();
+            // MapData.CleanMap()
+            if (ActiveButton == "identify") {
+                vm.removeLeafletGrab();
+            }
             MapData.ActiveInteractieKnop = ActiveButton; // If we only could keep the vmactiveInteractieKnop in sync with the one from MapData
             vm.activeInteractieKnop = ActiveButton;
             vm.showMetenControls = false;
@@ -1163,26 +1175,9 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         vm.Loading = 0;
         vm.MaxLoading = 0;
 
-        // $scope.$watch(function () { return MapData.Loading; }, function (newVal, oldVal) {
-        //     console.log('MapData.Loading at start', MapData.Loading);
-        //     vm.Loading = newVal;
-        //     if (oldVal == 0) {
-        //         vm.MaxLoading = newVal;
-        //     }
-        //     if (vm.MaxLoading < oldVal) {
-        //         vm.MaxLoading = oldVal;
-        //     }
-        //     if (newVal == 0) {
-        //         vm.MaxLoading = 0;
-        //     }
-        //     console.log('MapLoading val: ' + newVal + '/' + vm.MaxLoading);
-        //     console.log('MapData.Loading at the end', MapData.Loading);
-
-        // });
         vm.selectpunt = function () {
-            // MapData.CleanMap();
+            vm.removeLeafletGrab();
             MapData.DrawingType = DrawingOption.NIETS; // pff must be possible to be able to sync them...
-            // vm.drawingType = DrawingOption.NIETS;
         };
         vm.layerChange = function () {
             // MapData.CleanMap();
@@ -2950,7 +2945,11 @@ L.control.typeahead = function (args) {
             MapData.UpdateDisplayed();
             MapData.Apply();
         });
-
+        _mapEvents.addLeafletGrab = function () {
+            if (!$('.leaflet-container').hasClass('leaflet-grab')) {
+                $('.leaflet-container').addClass('leaflet-grab');
+            }
+        };
         map.on('click', function (event) {
             if (event.originalEvent instanceof MouseEvent) {
                 console.log('click op map! Is drawing: ' + MapData.IsDrawing);
@@ -2964,6 +2963,8 @@ L.control.typeahead = function (args) {
                             $rootScope.$apply(function () {
                                 MapData.ActiveInteractieKnop = ActiveInteractieButton.GEEN;
                             });
+
+                            _mapEvents.addLeafletGrab();
                             break;
                         case ActiveInteractieButton.SELECT:
                             if (MapData.DrawingType != DrawingOption.GEEN) {
@@ -2973,6 +2974,10 @@ L.control.typeahead = function (args) {
                             if (MapData.DrawingType === DrawingOption.NIETS) {
                                 MapService.Select(event);
                                 UIService.OpenLeftSide();
+                                _mapEvents.addLeafletGrab();
+                                $rootScope.$apply(function () {
+                                    MapData.DrawingType = DrawingOption.GEEN;
+                                });
                             } // else a drawing finished
                             break;
                         case ActiveInteractieButton.WATISHIER:

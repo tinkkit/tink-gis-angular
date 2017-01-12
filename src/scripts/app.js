@@ -73,17 +73,12 @@
         map.doubleClickZoom.disable();
         // L.control.scale({ imperial: false }).addTo(map);
         var drawnItems = L.featureGroup().addTo(map);
-        map.isDrawing = false;
 
         map.on('draw:created', function (event) {
             var layer = event.layer;
             drawnItems.addLayer(layer);
-            map.isDrawing = false;
-            map.dragging.enable();
-
         });
         map.on('draw:drawstart', function (event) {
-            map.isDrawing = true;
             console.log("draw started");
             //console.log(drawnItems);
             //map.clearDrawings();
