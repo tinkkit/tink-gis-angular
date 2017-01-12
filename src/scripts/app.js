@@ -16,22 +16,7 @@
 
 
 
-    module.directive('preventDefault', function () {
-        return {
-            link: function (scope, element, attrs) {
-                element.on('click', function (event) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                });
-                element.on('dblclick', function (event) {
-                    event.stopPropagation();
-                });
-                element.on('mousemove', function (event) {
-                    event.stopPropagation();
-                });
-            }
-        }
-    });
+
     JXON.config({
         attrPrefix: '',              // default: '@'
         autoDate: false              // default: true
@@ -105,4 +90,26 @@
         return map;
     }
     module.factory('map', mapObject);
+    module.directive('preventDefault', function (map) {
+        return {
+            link: function (scope, element, attrs) {
+                element.on('click', function (event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                });
+                element.on('dblclick', function (event) {
+                    event.stopPropagation();
+                });
+                element.on('mousemove', function (event) {
+                    event.stopPropagation();
+                });
+                element.on('mouseover', function (event) {
+                    map.dragging.disable();
+                });
+                element.on('mouseout', function (event) {
+                    map.dragging.enable();
+                });
+            }
+        }
+    });
 })();
