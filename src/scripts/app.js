@@ -73,11 +73,18 @@
         map.doubleClickZoom.disable();
         // L.control.scale({ imperial: false }).addTo(map);
         var drawnItems = L.featureGroup().addTo(map);
+        map.isDrawing = false;
+
         map.on('draw:created', function (event) {
             var layer = event.layer;
             drawnItems.addLayer(layer);
+            map.isDrawing = false;
+            map.dragging.enable();
+
         });
         map.on('draw:drawstart', function (event) {
+            map.isDrawing = true;
+            console.log("draw started");
             //console.log(drawnItems);
             //map.clearDrawings();
         });
@@ -93,21 +100,16 @@
     module.directive('preventDefault', function (map) {
         return {
             link: function (scope, element, attrs) {
+                L.DomEvent.disableClickPropagation(element.get(0));
                 element.on('click', function (event) {
-                    event.preventDefault();
-                    event.stopPropagation();
+                    // event.preventDefault();
+                    // event.stopPropagation();
                 });
                 element.on('dblclick', function (event) {
                     event.stopPropagation();
                 });
                 element.on('mousemove', function (event) {
                     event.stopPropagation();
-                });
-                element.on('mouseover', function (event) {
-                    map.dragging.disable();
-                });
-                element.on('mouseout', function (event) {
-                    map.dragging.enable();
                 });
             }
         }

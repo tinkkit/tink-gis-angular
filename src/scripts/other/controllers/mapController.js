@@ -192,6 +192,7 @@
             }
         };
         vm.drawingButtonChanged = function (drawOption) {
+            map.isDrawing = true;
             if (drawOption == DrawingOption.LIJN || drawOption == DrawingOption.POLYGON || drawOption == DrawingOption.NIETS || drawOption == DrawingOption.VIERKANT) {
                 MapData.CleanMap();
                 MapData.CleanSearch();
