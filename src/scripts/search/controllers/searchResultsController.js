@@ -8,10 +8,17 @@
             vm.featureLayers = null;
             vm.selectedResult = null;
             vm.layerGroupFilter = 'geenfilter';
+            vm.collapsestatepergroup = null;
             $scope.$watchCollection(function () { return ResultsData.JsonFeatures; }, function (newValue, oldValue) {
                 vm.featureLayers = _.uniq(_.map(vm.features, 'layerName'));
+                vm.collapsestatepergroup = {};
+                vm.featureLayers.forEach(lay => {
+                    vm.collapsestatepergroup[lay] = false; // at start, we want the accordions open, so we set collapse on false
+                });
                 vm.layerGroupFilter = 'geenfilter';
             });
+            console.log("STARTED DDDDDDDDDDDDDDDDDDDDDd");
+
             // vm.loadingPercentage = ResultsData.GetRequestPercentage();
             $scope.$watch(function () { return ResultsData.SelectedFeature; }, function (newVal, oldVal) {
                 vm.selectedResult = newVal;
@@ -19,8 +26,12 @@
             vm.deleteFeature = function (feature) {
                 SearchService.DeleteFeature(feature);
             };
+
             vm.aantalFeaturesMetType = function (type) {
                 return vm.features.filter(x => x.layerName == type).length;
+            };
+            vm.isOpenGroup = function (type) {
+                return vm.features.filter(x => x.layerName == type);
             };
             vm.deleteFeatureGroup = function (featureGroupName) {
                 SearchService.DeleteFeatureGroup(featureGroupName);
