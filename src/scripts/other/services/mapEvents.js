@@ -86,6 +86,8 @@
                             MapService.WatIsHier(event);
                             $rootScope.$apply(function () {
                                 MapData.ActiveInteractieKnop = ActiveInteractieButton.GEEN;
+
+                            _mapEvents.addLeafletGrab();
                             });
                             break;
                         case ActiveInteractieButton.METEN:

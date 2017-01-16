@@ -156,7 +156,7 @@
 
         vm.interactieButtonChanged = function (ActiveButton) {
             // MapData.CleanMap()
-            if (ActiveButton == "identify") {
+            if (ActiveButton == "identify" || "watishier") {
                 vm.removeLeafletGrab();
             }
             MapData.ActiveInteractieKnop = ActiveButton; // If we only could keep the vmactiveInteractieKnop in sync with the one from MapData
