@@ -16,22 +16,7 @@
 
 
 
-    module.directive('preventDefault', function () {
-        return {
-            link: function (scope, element, attrs) {
-                element.on('click', function (event) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                });
-                element.on('dblclick', function (event) {
-                    event.stopPropagation();
-                });
-                element.on('mousemove', function (event) {
-                    event.stopPropagation();
-                });
-            }
-        }
-    });
+
     JXON.config({
         attrPrefix: '',              // default: '@'
         autoDate: false              // default: true
@@ -88,11 +73,13 @@
         map.doubleClickZoom.disable();
         // L.control.scale({ imperial: false }).addTo(map);
         var drawnItems = L.featureGroup().addTo(map);
+
         map.on('draw:created', function (event) {
             var layer = event.layer;
             drawnItems.addLayer(layer);
         });
         map.on('draw:drawstart', function (event) {
+            console.log("draw started");
             //console.log(drawnItems);
             //map.clearDrawings();
         });
@@ -105,4 +92,21 @@
         return map;
     }
     module.factory('map', mapObject);
+    module.directive('preventDefault', function (map) {
+        return {
+            link: function (scope, element, attrs) {
+                L.DomEvent.disableClickPropagation(element.get(0));
+                element.on('click', function (event) {
+                    // event.preventDefault();
+                    // event.stopPropagation();
+                });
+                element.on('dblclick', function (event) {
+                    event.stopPropagation();
+                });
+                element.on('mousemove', function (event) {
+                    event.stopPropagation();
+                });
+            }
+        }
+    });
 })();

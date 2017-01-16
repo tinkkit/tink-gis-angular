@@ -46,7 +46,11 @@
             MapData.UpdateDisplayed();
             MapData.Apply();
         });
-
+        _mapEvents.addLeafletGrab = function () {
+            if (!$('.leaflet-container').hasClass('leaflet-grab')) {
+                $('.leaflet-container').addClass('leaflet-grab');
+            }
+        }
         map.on('click', function (event) {
             if (event.originalEvent instanceof MouseEvent) {
                 console.log('click op map! Is drawing: ' + MapData.IsDrawing);
@@ -60,6 +64,8 @@
                             $rootScope.$apply(function () {
                                 MapData.ActiveInteractieKnop = ActiveInteractieButton.GEEN;
                             });
+
+                            _mapEvents.addLeafletGrab();
                             break;
                         case ActiveInteractieButton.SELECT:
                             if (MapData.DrawingType != DrawingOption.GEEN) {
@@ -69,6 +75,10 @@
                             if (MapData.DrawingType === DrawingOption.NIETS) {
                                 MapService.Select(event);
                                 UIService.OpenLeftSide();
+                                _mapEvents.addLeafletGrab();
+                                $rootScope.$apply(function () {
+                                    MapData.DrawingType = DrawingOption.GEEN;
+                                });
                             } // else a drawing finished
                             break;
                         case ActiveInteractieButton.WATISHIER:
