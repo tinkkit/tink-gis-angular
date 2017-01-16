@@ -46,9 +46,9 @@
             MapData.UpdateDisplayed();
             MapData.Apply();
         });
-        _mapEvents.addLeafletGrab = function () {
-            if (!$('.leaflet-container').hasClass('leaflet-grab')) {
-                $('.leaflet-container').addClass('leaflet-grab');
+        _mapEvents.removeCursorAuto = function () {
+            if ($('.leaflet-container').hasClass('cursor-auto')) {
+                $('.leaflet-container').removeClass('cursor-auto');
             }
         }
         map.on('click', function (event) {
@@ -65,7 +65,7 @@
                                 MapData.ActiveInteractieKnop = ActiveInteractieButton.GEEN;
                             });
 
-                            _mapEvents.addLeafletGrab();
+                            _mapEvents.removeCursorAuto();
                             break;
                         case ActiveInteractieButton.SELECT:
                             if (MapData.DrawingType != DrawingOption.GEEN) {
@@ -75,7 +75,7 @@
                             if (MapData.DrawingType === DrawingOption.NIETS) {
                                 MapService.Select(event);
                                 UIService.OpenLeftSide();
-                                _mapEvents.addLeafletGrab();
+                                _mapEvents.removeCursorAuto();
                                 $rootScope.$apply(function () {
                                     MapData.DrawingType = DrawingOption.GEEN;
                                 });
@@ -87,7 +87,7 @@
                             $rootScope.$apply(function () {
                                 MapData.ActiveInteractieKnop = ActiveInteractieButton.GEEN;
 
-                            _mapEvents.addLeafletGrab();
+                            _mapEvents.removeCursorAuto();
                             });
                             break;
                         case ActiveInteractieButton.METEN:

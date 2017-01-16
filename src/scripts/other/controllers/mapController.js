@@ -148,16 +148,15 @@
                 }
             }
         ).addTo(map);
-        vm.removeLeafletGrab = function () {
-            if ($('.leaflet-container').hasClass('leaflet-grab')) {
-                $('.leaflet-container').removeClass('leaflet-grab');
+        vm.addCursorAuto = function () {
+            if (!$('.leaflet-container').hasClass('cursor-auto')) {
+                $('.leaflet-container').addClass('cursor-auto');
             }
         };
-
         vm.interactieButtonChanged = function (ActiveButton) {
             // MapData.CleanMap()
             if (ActiveButton == "identify" || "watishier") {
-                vm.removeLeafletGrab();
+                vm.addCursorAuto();
             }
             MapData.ActiveInteractieKnop = ActiveButton; // If we only could keep the vmactiveInteractieKnop in sync with the one from MapData
             vm.activeInteractieKnop = ActiveButton;
@@ -219,7 +218,7 @@
 
 
         vm.selectpunt = function () {
-            vm.removeLeafletGrab();
+            vm.addCursorAuto();
             MapData.DrawingType = DrawingOption.NIETS; // pff must be possible to be able to sync them...
         };
         vm.layerChange = function () {
