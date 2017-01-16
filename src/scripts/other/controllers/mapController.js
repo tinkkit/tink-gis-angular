@@ -174,10 +174,6 @@
                     MapData.DrawingType = DrawingOption.GEEN;
                     // vm.drawingButtonChanged(DrawingOption.GEEN);
                     break;
-                case ActiveInteractieButton.IDENTIFY:
-                    let map = $( '#map' );
-                    map.addClass('leaflet-crosshair');
-                    break;
             }
         };
         vm.zoekLaag = function (search) {
