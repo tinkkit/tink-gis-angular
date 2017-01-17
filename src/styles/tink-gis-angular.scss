@@ -943,6 +943,10 @@ html.show-loader {
   }
 }
 
+/**
+ * Dashboard
+ */
+
 .project-list {
   // height: 30vh;
   line-height: rem(20);
@@ -1004,6 +1008,15 @@ html.show-loader {
   }
 }
 
+
+/**
+ * Global styling
+ */
+
+.cursor-auto {
+  cursor: auto;
+}
+
 // fix for sweet-alert bug
   .sweet-alert {
     fieldset {
@@ -1015,3 +1028,5 @@ html.show-loader {
     height: 100vh;
   }
 //
+
+
