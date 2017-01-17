@@ -1106,16 +1106,15 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 }
             }
         }).addTo(map);
-        vm.removeLeafletGrab = function () {
-            if ($('.leaflet-container').hasClass('leaflet-grab')) {
-                $('.leaflet-container').removeClass('leaflet-grab');
+        vm.addCursorAuto = function () {
+            if (!$('.leaflet-container').hasClass('cursor-auto')) {
+                $('.leaflet-container').addClass('cursor-auto');
             }
         };
-
         vm.interactieButtonChanged = function (ActiveButton) {
             // MapData.CleanMap()
-            if (ActiveButton == "identify") {
-                vm.removeLeafletGrab();
+            if (ActiveButton == "identify" || "watishier") {
+                vm.addCursorAuto();
             }
             MapData.ActiveInteractieKnop = ActiveButton; // If we only could keep the vmactiveInteractieKnop in sync with the one from MapData
             vm.activeInteractieKnop = ActiveButton;
@@ -1176,7 +1175,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         vm.MaxLoading = 0;
 
         vm.selectpunt = function () {
-            vm.removeLeafletGrab();
+            vm.addCursorAuto();
             MapData.DrawingType = DrawingOption.NIETS; // pff must be possible to be able to sync them...
         };
         vm.layerChange = function () {
@@ -2945,9 +2944,9 @@ L.control.typeahead = function (args) {
             MapData.UpdateDisplayed();
             MapData.Apply();
         });
-        _mapEvents.addLeafletGrab = function () {
-            if (!$('.leaflet-container').hasClass('leaflet-grab')) {
-                $('.leaflet-container').addClass('leaflet-grab');
+        _mapEvents.removeCursorAuto = function () {
+            if ($('.leaflet-container').hasClass('cursor-auto')) {
+                $('.leaflet-container').removeClass('cursor-auto');
             }
         };
         map.on('click', function (event) {
@@ -2964,7 +2963,7 @@ L.control.typeahead = function (args) {
                                 MapData.ActiveInteractieKnop = ActiveInteractieButton.GEEN;
                             });
 
-                            _mapEvents.addLeafletGrab();
+                            _mapEvents.removeCursorAuto();
                             break;
                         case ActiveInteractieButton.SELECT:
                             if (MapData.DrawingType != DrawingOption.GEEN) {
@@ -2974,7 +2973,7 @@ L.control.typeahead = function (args) {
                             if (MapData.DrawingType === DrawingOption.NIETS) {
                                 MapService.Select(event);
                                 UIService.OpenLeftSide();
-                                _mapEvents.addLeafletGrab();
+                                _mapEvents.removeCursorAuto();
                                 $rootScope.$apply(function () {
                                     MapData.DrawingType = DrawingOption.GEEN;
                                 });
@@ -2985,6 +2984,8 @@ L.control.typeahead = function (args) {
                             MapService.WatIsHier(event);
                             $rootScope.$apply(function () {
                                 MapData.ActiveInteractieKnop = ActiveInteractieButton.GEEN;
+
+                                _mapEvents.removeCursorAuto();
                             });
                             break;
                         case ActiveInteractieButton.METEN:
@@ -3597,12 +3598,19 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         vm.featureLayers = null;
         vm.selectedResult = null;
         vm.layerGroupFilter = 'geenfilter';
+        vm.collapsestatepergroup = null;
         $scope.$watchCollection(function () {
             return ResultsData.JsonFeatures;
         }, function (newValue, oldValue) {
             vm.featureLayers = _.uniq(_.map(vm.features, 'layerName'));
+            vm.collapsestatepergroup = {};
+            vm.featureLayers.forEach(function (lay) {
+                vm.collapsestatepergroup[lay] = false; // at start, we want the accordions open, so we set collapse on false
+            });
             vm.layerGroupFilter = 'geenfilter';
         });
+        console.log("STARTED DDDDDDDDDDDDDDDDDDDDDd");
+
         // vm.loadingPercentage = ResultsData.GetRequestPercentage();
         $scope.$watch(function () {
             return ResultsData.SelectedFeature;
@@ -3612,10 +3620,16 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         vm.deleteFeature = function (feature) {
             SearchService.DeleteFeature(feature);
         };
+
         vm.aantalFeaturesMetType = function (type) {
             return vm.features.filter(function (x) {
                 return x.layerName == type;
             }).length;
+        };
+        vm.isOpenGroup = function (type) {
+            return vm.features.filter(function (x) {
+                return x.layerName == type;
+            });
         };
         vm.deleteFeatureGroup = function (featureGroupName) {
             SearchService.DeleteFeatureGroup(featureGroupName);
@@ -4762,8 +4776,8 @@ L.drawLocal = {
     "</div>\n" +
     "<div class=\"overflow-wrapper margin-top\">\n" +
     "<ul ng-repeat=\"layerGroupName in srchrsltsctrl.featureLayers\">\n" +
-    "<tink-accordion ng-if=\"srchrsltsctrl.layerGroupFilter=='geenfilter' || srchrsltsctrl.layerGroupFilter==layerGroupName \" data-start-open=true data-one-at-a-time=false>\n" +
-    "<tink-accordion-panel>\n" +
+    "<tink-accordion ng-if=\"srchrsltsctrl.layerGroupFilter=='geenfilter' || srchrsltsctrl.layerGroupFilter==layerGroupName \" data-one-at-a-time=false>\n" +
+    "<tink-accordion-panel data-is-collapsed=srchrsltsctrl.collapsestatepergroup[layerGroupName]>\n" +
     "<data-header>\n" +
     "<p class=nav-aside-title>{{layerGroupName}} ({{srchrsltsctrl.aantalFeaturesMetType(layerGroupName)}})\n" +
     "<button prevent-default ng-click=srchrsltsctrl.deleteFeatureGroup(layerGroupName) class=\"trash pull-right\"></button>\n" +

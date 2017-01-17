@@ -810,6 +810,9 @@ html.show-loader .loader-wrapper {
     top: 50%;
     width: 7.1428571429rem ; }
 
+/**
+ * Dashboard
+ */
 .project-list {
   line-height: 1.4285714286rem ;
   overflow-y: auto; }
@@ -852,6 +855,12 @@ html.show-loader .loader-wrapper {
   text-align: center; }
   .title-block .fa {
     font-size: 2.1428571429rem ; }
+
+/**
+ * Global styling
+ */
+.cursor-auto {
+  cursor: auto; }
 
 .sweet-alert fieldset {
   display: none; }
