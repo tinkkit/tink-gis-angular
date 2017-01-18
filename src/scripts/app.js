@@ -92,13 +92,25 @@
         return map;
     }
     module.factory('map', mapObject);
-    module.directive('preventDefault', function (map) {
+    module.directive('preventDefaultMap', function (map) {
         return {
             link: function (scope, element, attrs) {
                 L.DomEvent.disableClickPropagation(element.get(0));
+                element.on('dblclick', function (event) {
+                    event.stopPropagation();
+                });
+                element.on('mousemove', function (event) {
+                    event.stopPropagation();
+                });
+            }
+        }
+    });
+    module.directive('preventDefault', function (map) {
+        return {
+            link: function (scope, element, attrs) {
                 element.on('click', function (event) {
-                    // event.preventDefault();
-                    // event.stopPropagation();
+                    event.preventDefault();
+                    event.stopPropagation();
                 });
                 element.on('dblclick', function (event) {
                     event.stopPropagation();
