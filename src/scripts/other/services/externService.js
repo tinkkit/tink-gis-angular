@@ -78,7 +78,9 @@
 
             project.themes.forEach(theme => {
                 if (theme.type == ThemeType.ESRI) {
-                    theme.cleanUrl = Gis.Arcgissql + theme.cleanUrl;
+                    if (!theme.cleanUrl.startsWith(Gis.Arcgissql)) {
+                        theme.cleanUrl = Gis.Arcgissql + theme.cleanUrl;
+                    }
                     let prom = GISService.GetThemeData(theme.cleanUrl);
                     promises.push(prom);
                     prom.then(function (data) {
