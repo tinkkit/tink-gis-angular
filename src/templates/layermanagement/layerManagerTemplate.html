@@ -1,11 +1,22 @@
-<div>
-<div class="modal-header">
-    <button type="button" style="float:right" data-ng-click="cancel()"><i class="fa fa-times"></i></button>
-<h4 class="model-title">Lagenbeheer</h5>
-<p><input class="searchbox" type="text" ng-model="searchTerm" ng-change="searchChanged()" ng-model-options="{debounce: 250}"
-    placeholder="Geef een trefwoord" /></p>
+
+<div class="layermanagerTemplate modal-header">
+    <div class="row margin-bottom">
+        <div class="col-xs-10">
+            <h4 class="model-title">Lagenbeheer</h5>
+        </div>
+        <div class="col-xs-2">
+            <button class="pull-right" type="button" data-ng-click="cancel()"><i class="fa fa-times"></i></button>
+        </div>
+    </div>
 </div>
-<div class="modal-body">
+<div class="modal-body flex-column flex-grow-1">
+    <div class="row margin-top margin-bottom">
+        <div class="col-xs-12 col-md-4">
+            <form>
+              <input type="search" ng-model="searchTerm" ng-change="searchChanged()" ng-model-options="{debounce: 250}" placeholder="Geef een trefwoord of een url in">
+            </form>
+        </div>
+    </div>
     <div class="row">
         <div class="col-xs-12">
             <ul class="nav-tabs">
@@ -20,5 +31,3 @@
     <geo-punt ng-show="active=='geopunt'"></geo-punt>
     <wms-url ng-show="active=='wmsurl'"></wms-url>
     <layers-management ng-if="active=='beheer'"></layers-management>
-</div>
-<div class="modal-footer">

@@ -328,8 +328,6 @@ button.btn.active {
 
 //Creating parent container for flex column and overflow-wrapper
 .relative-container {
-  height: 60vh;
-
   // flex container settings
   display: flex;
 }
@@ -538,6 +536,9 @@ ul {
 .modal-content {
     // padding: 15px;
     // text-align: left;
+    height: 100%; // container for flex-columns
+    display: flex;
+    flex-direction: column;
 }
 .modal-footer {
   border-top: 1px solid gray;
@@ -546,14 +547,23 @@ ul {
 }
 
 .modal-dialog{
-    min-width: 1000px;
+    // min-width: 1000px; //!! not responsive
     background-color: white;
     text-align: left;
     z-index: 9999;
+
+// height: 90vh; //!! want to be more responsive
+// max-width: 100%; //!! no need to overwrite Tinkvalue
+// width: 1000px; // default width
+// margin: 0;
+width: 95%; // keep it evenly wide
+height: 90vh;
+margin: 0; // the default Tink top- and bottommargin break it at small screen heights
+// siblings need height for correct view
 }
 .modal {
   // seems to generate unnecessary scrollbar when using second overflow-wrapper - fixed with initial setting !!
-  overflow: initial;
+  overflow: initial; //!! no good with smaller viewports??
   z-index: 9998;
 }
 
