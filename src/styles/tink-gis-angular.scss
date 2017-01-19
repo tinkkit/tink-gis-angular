@@ -389,6 +389,9 @@ button.btn.active {
   }
 }
 
+.border-right {
+  border-right: solid 1px $gray-light;
+}
 
 /* List toggle */
 // FYI .can-open class is also nested in Tink navigation, but doesn't conflict with following styling
@@ -470,7 +473,8 @@ button.trash {
 //   }
 // }
 
-/* Lagenresultaat */
+/* Layer result */
+
 .theme-layer { // is a actually an a href
   &:hover {
     text-decoration: none;
@@ -513,65 +517,48 @@ input[type="checkbox"] {
   padding-right: rem(14);
 }
 
-// make identation with ul list
+// make indentation with ul list
 ul {
   ul {
     margin-left: rem(24);
   }
 }
+
 /**
  * Modal styling
  */
 
-.modal-header {
-  border-bottom: 1px solid gray;
-  padding: rem(15);
-  // text-align: left;
-}
-
-.modal-title {
-    margin: 0;
-    line-height: 1.42857143;
-}
-.modal-content {
-    // padding: 15px;
-    // text-align: left;
-    height: 100%; // container for flex-columns
-    display: flex;
-    flex-direction: column;
-}
-.modal-footer {
-  border-top: 1px solid gray;
-  padding: rem(15);
-  // text-align: left;
-}
-
-.modal-dialog{
-    // min-width: 1000px; //!! not responsive
-    background-color: white;
-    text-align: left;
-    z-index: 9999;
-
-// height: 90vh; //!! want to be more responsive
-// max-width: 100%; //!! no need to overwrite Tinkvalue
-// width: 1000px; // default width
-// margin: 0;
-width: 95%; // keep it evenly wide
-height: 90vh;
-margin: 0; // the default Tink top- and bottommargin break it at small screen heights
-// siblings need height for correct view
-}
 .modal {
   // seems to generate unnecessary scrollbar when using second overflow-wrapper - fixed with initial setting !!
   overflow: initial; //!! no good with smaller viewports??
   z-index: 9998;
 }
 
-.modal-body {
-  // height: 60vh;
-  // padding: rem(15);
-  // position: relative;
+.modal-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%; // container for flex-columns
 }
+
+.modal-dialog{
+  // min-width: 1000px; //!! not responsive
+  background-color: $white;
+  height: 90vh;
+  margin: 0; // the default Tink top- and bottommargin break it at small screen heights
+  max-width: 95%; // keep it evenly wide
+  text-align: left;
+  width: 95%;
+  z-index: 9999;
+}
+
+.modal-footer {
+  border-top: 1px solid $gray-light;
+}
+
+.modal-header {
+  border-bottom: 1px solid $gray-light;
+}
+
 
 // customize pagination
 .table-sort-options {
@@ -674,7 +661,9 @@ input.typeahead.tt-input {
     }
 
 
-// Legacy code - needs further checking
+/**
+ * Legacy code - needs further checking
+ */
 
 .gist {
     font-size: 14px;
@@ -1025,6 +1014,10 @@ html.show-loader {
 
 .cursor-auto {
   cursor: auto;
+}
+
+.text-align-right {
+  text-align: right;
 }
 
 // fix for sweet-alert bug

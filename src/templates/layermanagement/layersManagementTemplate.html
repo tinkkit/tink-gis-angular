@@ -1,9 +1,6 @@
-<div class="row relative-container">
+<div class="layersManagementTemplate row relative-container flex-grow-1">
     <div class="col-md-4 flex-column flex-grow-1 margin-top margin-bottom">
-        <!--<div>
-            <input class="searchbox" type="text" ng-model="searchTerm" ng-change="searchChanged()" placeholder="Geef een trefwoord" />
-        </div>-->
-        <div class="overflow-wrapper flex-grow-1 list-selectable margin-top margin-bottom">
+        <div class="overflow-wrapper flex-grow-1 list-selectable margin-top margin-bottom border-right">
             <div ng-repeat="theme in availableThemes | filter:{name: searchTerm}">
                 <dl ng-class="{active: isActive(theme)}">
                     <a href="#" class="theme-layer" ng-click="ThemeChanged(theme)">

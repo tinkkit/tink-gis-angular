@@ -56,7 +56,7 @@ angular.module('tink.gis').run(['$templateCache', function($templateCache) {
 
 
   $templateCache.put('templates/layermanagement/geoPuntTemplate.html',
-    "<div class=\"geopuntcontainer row relative-container\">\n" +
+    "<div class=\"gepoPuntTemplate row relative-container\">\n" +
     "<div class=\"col-md-4 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
     "<div ng-show=\"loading == false\" class=\"overflow-wrapper flex-grow-1 list-selectable margin-top margin-bottom\">\n" +
     "<div ng-if=!searchIsUrl ng-repeat=\"theme in availableThemes\">\n" +
@@ -101,7 +101,7 @@ angular.module('tink.gis').run(['$templateCache', function($templateCache) {
     "</div>\n" +
     "<div class=\"modal-body flex-column flex-grow-1\">\n" +
     "<div class=\"row margin-top margin-bottom\">\n" +
-    "<div class=\"col-xs-12 col-md-4\">\n" +
+    "<div class=\"col-xs-12 col-sm-6\">\n" +
     "<form>\n" +
     "<input type=search ng-model=searchTerm ng-change=searchChanged() ng-model-options=\"{debounce: 250}\" placeholder=\"Geef een trefwoord of een url in\">\n" +
     "</form>\n" +
@@ -110,7 +110,7 @@ angular.module('tink.gis').run(['$templateCache', function($templateCache) {
     "<div class=row>\n" +
     "<div class=col-xs-12>\n" +
     "<ul class=nav-tabs>\n" +
-    "<li role=presentation ng-class=\"{'active': active=='solr'}\"><a href=\"\" ng-click=\"active='solr'\">Stad<span ng-if=\"solrLoading==true\" class=loader></span><span ng-if=\"solrLoading==false && solrCount != null\">({{solrCount}})</span></a></li>\n" +
+    "<li role=presentation ng-class=\"{'active': active=='solr'}\"><a href=\"\" ng-click=\"active='solr'\">Stad <span ng-if=\"solrLoading==true\" class=loader></span><span ng-if=\"solrLoading==false && solrCount != null\">({{solrCount}})</span></a></li>\n" +
     "<li role=presentation ng-class=\"{'active': active=='geopunt'}\"><a href=\"\" ng-click=\"active='geopunt'\">GeoPunt <span ng-if=\"geopuntLoading==true\" class=loader></span><span ng-if=\"geopuntLoading==false && geopuntCount != null\">({{geopuntCount}})</span></a></li>\n" +
     "<li role=presentation ng-class=\"{'active': active=='wmsurl'}\"><a href=\"\" ng-click=\"active='wmsurl'\">Url</a></li>\n" +
     "<li role=presentation ng-class=\"{'active': active=='beheer'}\"><a href=\"\" ng-click=\"active='beheer'\">Beheer</a></li>\n" +
@@ -126,9 +126,9 @@ angular.module('tink.gis').run(['$templateCache', function($templateCache) {
 
 
   $templateCache.put('templates/layermanagement/layersManagementTemplate.html',
-    "<div class=\"row relative-container\">\n" +
+    "<div class=\"layersManagementTemplate row relative-container flex-grow-1\">\n" +
     "<div class=\"col-md-4 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
-    "<div class=\"overflow-wrapper flex-grow-1 list-selectable margin-top margin-bottom\">\n" +
+    "<div class=\"overflow-wrapper flex-grow-1 list-selectable margin-top margin-bottom border-right\">\n" +
     "<div ng-repeat=\"theme in availableThemes | filter:{name: searchTerm}\">\n" +
     "<dl ng-class=\"{active: isActive(theme)}\">\n" +
     "<a href=# class=theme-layer ng-click=ThemeChanged(theme)>\n" +
@@ -170,31 +170,31 @@ angular.module('tink.gis').run(['$templateCache', function($templateCache) {
 
 
   $templateCache.put('templates/layermanagement/previewLayerTemplate.html',
-    "<div class=\"flex-column flex-grow-1\">\n" +
-    "<div ng-show=\"theme !== null\">\n" +
-    "<button class=btn-primary ng-if=\"theme.Added == false\" ng-click=addorupdatefunc()>Toevoegen</button>\n" +
-    "<button ng-if=\"theme.Added != false\" ng-click=addorupdatefunc()>Bijwerken</button>\n" +
-    "<button ng-if=\"theme.Added != false\" ng-click=delTheme()>Verwijderen</button>\n" +
-    "</div>\n" +
+    "<div class=\"previewLayerTemplate flex-column flex-grow-1\">\n" +
     "<div class=margin-top>\n" +
     "<p>{{theme.Description}}</p>\n" +
     "<p><small><a ng-href={{theme.CleanUrl}} target=_blank>Details</a></small></p>\n" +
     "</div>\n" +
-    "<div class=\"layercontroller-checkbox overflow-wrapper\">\n" +
+    "<div class=\"layercontroller-checkbox overflow-wrapper margin-bottom flex-grow-1\">\n" +
     "<input indeterminate-checkbox child-list=theme.AllLayers property=enabled type=checkbox ng-model=theme.enabled id={{theme.name}}>\n" +
     "<label for={{theme.name}}>{{theme.name}}</label>\n" +
     "<div ng-repeat=\"mainlayer in theme.Layers\">\n" +
     "<tink-managementlayer layer=mainlayer></tink-managementlayer>\n" +
     "</div>\n" +
     "</div>\n" +
+    "<div class=text-align-right ng-show=\"theme !== null\">\n" +
+    "<button class=\"btn-sm btn-primary\" ng-if=\"theme.Added == false\" ng-click=addorupdatefunc()>Toevoegen</button>\n" +
+    "<button class=btn-sm ng-if=\"theme.Added != false\" ng-click=addorupdatefunc()>Bijwerken</button>\n" +
+    "<button class=btn-sm ng-if=\"theme.Added != false\" ng-click=delTheme()>Verwijderen</button>\n" +
+    "</div>\n" +
     "</div>\n"
   );
 
 
   $templateCache.put('templates/layermanagement/solrGISTemplate.html',
-    "<div class=\"row relative-container flex-grow-1\">\n" +
-    "<div class=\"col-md-4 flex-column flex-grow-1\">\n" +
-    "<div class=\"overflow-wrapper flex-grow-1 list-selectable margin-top margin-bottom\">\n" +
+    "<div class=\"solrGISTemplate row relative-container flex-grow-1\">\n" +
+    "<div class=\"col-xs-5 flex-column flex-grow-1\">\n" +
+    "<div class=\"overflow-wrapper flex-grow-1 list-selectable margin-top margin-bottom border-right\">\n" +
     "<div ng-show=\"loading == false\" ng-repeat=\"theme in availableThemes\">\n" +
     "<dl ng-class=\"{active: isActive(theme)}\">\n" +
     "<a href=# class=theme-layer ng-click=solrThemeChanged(theme)>\n" +
@@ -217,7 +217,7 @@ angular.module('tink.gis').run(['$templateCache', function($templateCache) {
     "<div ng-if=\"loading == true\" class=loader>\n" +
     "</div>\n" +
     "</div>\n" +
-    "<div class=\"col-md-8 flex-column\">\n" +
+    "<div class=\"col-xs-7 flex-column flex-grow-1\">\n" +
     "<preview-layer ng-if=copySelectedTheme theme=copySelectedTheme addorupdatefunc=AddOrUpdateTheme()>\n" +
     "</preview-layer>\n" +
     "</div>\n" +
@@ -226,7 +226,7 @@ angular.module('tink.gis').run(['$templateCache', function($templateCache) {
 
 
   $templateCache.put('templates/layermanagement/wmsUrlTemplate.html',
-    "<div class=\"row relative-container\">\n" +
+    "<div class=\"wmsUrlTemplate row relative-container\">\n" +
     "<div class=\"col-md-4 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
     "<div>\n" +
     "<input class=searchbox ng-model=url ng-change=urlChanged() placeholder=\"Geef een url in\">\n" +
@@ -240,7 +240,7 @@ angular.module('tink.gis').run(['$templateCache', function($templateCache) {
     "</preview-layer>\n" +
     "<div class=loader ng-show=\"themeloading == true\"></div>\n" +
     "</div>\n" +
-    "</div>"
+    "</div>\n"
   );
 
 
