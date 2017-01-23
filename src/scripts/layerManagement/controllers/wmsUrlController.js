@@ -10,13 +10,6 @@
         function ($scope, ThemeCreater, $q, MapService, MapData, GISService, LayerManagementService, WMSService, $window, $http, GeopuntService, PopupService) {
             $scope.urlIsValid = false;
 
-            // LayerManagementService.EnabledThemes.length = 0;
-            // LayerManagementService.AvailableThemes.length = 0;
-            // LayerManagementService.EnabledThemes = angular.copy(MapData.Themes);
-            // $scope.availableThemes = [];
-            // var init = function () {
-            //     $scope.searchTerm = '';
-            // } ();
             $scope.themeloading = false;
             $scope.urlChanged = function () {
                 $scope.clearPreview();
@@ -39,8 +32,13 @@
                     $scope.themeloading = true;
                     getwms.success(function (data, status, headers, config) {
                         $scope.themeloading = false;
-                        var wmstheme = ThemeCreater.createWMSThemeFromJSON(data, url)
-                        $scope.previewTheme(wmstheme);
+                        if (data) {
+                            var wmstheme = ThemeCreater.createWMSThemeFromJSON(data, url);
+                            $scope.previewTheme(wmstheme);
+                        }
+                        else {
+                            PopupService.Error("Ongeldige WMS", "De opgegeven url is geen geldige WMS url. (" + url + ")");
+                        }
                     }).error(function (data, status, headers, config) {
                         $scope.themeloading = false;
                     });

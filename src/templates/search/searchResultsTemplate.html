@@ -1,39 +1,44 @@
-<div class="flex-column flex-grow-1 margin-top" ng-if="!srchrsltsctrl.selectedResult && srchrsltsctrl.featureLayers.length > 0">
-    <div>
-        <div class="col-xs-12">
-            <select ng-model="srchrsltsctrl.layerGroupFilter">
+<div>
+    <div ng-if="!srchrsltsctrl.selectedResult && srchrsltsctrl.featureLayers.length == 0">
+        Geen resultaten geselecteerd.
+        <!-- LIEVENHELP -->
+    </div>
+    <div class="flex-column flex-grow-1 margin-top" ng-if="!srchrsltsctrl.selectedResult && srchrsltsctrl.featureLayers.length > 0">
+        <div>
+            <div class="col-xs-12">
+                <select ng-model="srchrsltsctrl.layerGroupFilter">
                 <option value="geenfilter" selected="selected">Geen filter ({{srchrsltsctrl.features.length}})</option>
                 <option ng-repeat="feat in srchrsltsctrl.featureLayers" value="{{feat}}">{{feat}} ({{srchrsltsctrl.aantalFeaturesMetType(feat)}})</option>
             </select>
+            </div>
         </div>
-    </div>
-    <div class="overflow-wrapper margin-top">
-        <ul ng-repeat="layerGroupName in srchrsltsctrl.featureLayers">
-            <tink-accordion ng-if="srchrsltsctrl.layerGroupFilter=='geenfilter' || srchrsltsctrl.layerGroupFilter==layerGroupName " 
-                data-one-at-a-time="false">
-                <tink-accordion-panel data-is-collapsed="srchrsltsctrl.collapsestatepergroup[layerGroupName]">
-                    <data-header>
-                        <p class="nav-aside-title">{{layerGroupName}} ({{srchrsltsctrl.aantalFeaturesMetType(layerGroupName)}})
-                            <button prevent-default ng-click="srchrsltsctrl.deleteFeatureGroup(layerGroupName)" class="trash pull-right"></button>
-                        </p>
-                    </data-header>
-                    <data-content>
-                        <li ng-repeat="feature in srchrsltsctrl.features | filter: { layerName:layerGroupName } :true" ng-mouseover="srchrsltsctrl.HoverOver(feature)">
-                            <div class="mouse-over">
-                                <a tink-tooltip="{{feature.displayValue}}" tink-tooltip-align="bottom" ng-click="srchrsltsctrl.showDetails(feature)">{{ feature.displayValue| limitTo : 23 }}
+        <div class="overflow-wrapper margin-top">
+            <ul ng-repeat="layerGroupName in srchrsltsctrl.featureLayers">
+                <tink-accordion ng-if="srchrsltsctrl.layerGroupFilter=='geenfilter' || srchrsltsctrl.layerGroupFilter==layerGroupName " data-one-at-a-time="false">
+                    <tink-accordion-panel data-is-collapsed="srchrsltsctrl.collapsestatepergroup[layerGroupName]">
+                        <data-header>
+                            <p class="nav-aside-title">{{layerGroupName}} ({{srchrsltsctrl.aantalFeaturesMetType(layerGroupName)}})
+                                <button prevent-default ng-click="srchrsltsctrl.deleteFeatureGroup(layerGroupName)" class="trash pull-right"></button>
+                            </p>
+                        </data-header>
+                        <data-content>
+                            <li ng-repeat="feature in srchrsltsctrl.features | filter: { layerName:layerGroupName } :true" ng-mouseover="srchrsltsctrl.HoverOver(feature)">
+                                <div class="mouse-over">
+                                    <a tink-tooltip="{{feature.displayValue}}" tink-tooltip-align="bottom" ng-click="srchrsltsctrl.showDetails(feature)">{{ feature.displayValue| limitTo : 23 }}
                                      </a>
-                                <button class="trash pull-right mouse-over-toshow" prevent-default ng-click="srchrsltsctrl.deleteFeature(feature)"></button>
-                            </div>
-                        </li>
-                    </data-content>
-                </tink-accordion-panel>
-            </tink-accordion>
-        </ul>
-    </div>
-    <div class="margin-top margin-bottom">
-        <div class="col-xs-12">
-            <button class="btn-sm" ng-click="srchrsltsctrl.exportToCSV()">Exporteer naar CSV</button>
-            <button class="btn-sm" ng-if="srchrsltsctrl.extraResultButtonIsEnabled" ng-click="srchrsltsctrl.extraResultButton()">{{srchrsltsctrl.resultButtonText}}</button>
+                                    <button class="trash pull-right mouse-over-toshow" prevent-default ng-click="srchrsltsctrl.deleteFeature(feature)"></button>
+                                </div>
+                            </li>
+                        </data-content>
+                    </tink-accordion-panel>
+                </tink-accordion>
+            </ul>
+        </div>
+        <div class="margin-top margin-bottom">
+            <div class="col-xs-12">
+                <button class="btn-sm" ng-click="srchrsltsctrl.exportToCSV()">Exporteer naar CSV</button>
+                <button class="btn-sm" ng-if="srchrsltsctrl.extraResultButtonIsEnabled" ng-click="srchrsltsctrl.extraResultButton()">{{srchrsltsctrl.resultButtonText}}</button>
+            </div>
         </div>
     </div>
 </div>

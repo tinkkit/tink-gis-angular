@@ -19,9 +19,7 @@
 
             $scope.pageChanged = function (page, recordsAPage) {
                 let startItem = ((page - 1) * recordsAPage);
-                $scope.availableThemes = $scope.allThemes.slice(startItem, startItem + recordsAPage)
-                // console.log(page, recordsAPage);
-                // $scope.QueryGISSOLR($scope.searchTerm, page);
+                $scope.availableThemes = $scope.allThemes.slice(startItem, startItem + recordsAPage);
             };
             $scope.selectedTheme = null;
             $scope.copySelectedTheme = null;
@@ -51,9 +49,17 @@
             $scope.AddOrUpdateTheme = function () {
                 LayerManagementService.AddOrUpdateTheme($scope.selectedTheme, $scope.copySelectedTheme);
                 $scope.clearPreview();
-                // UIService.OpenRightSide();
 
             };
+            $scope.delTheme = function (theme) {
+                if ($scope.selectedTheme == theme) {
+                    $scope.clearPreview();
+                }
+                // theme.AllLayers.forEach(lay => {
+                //     lay.enabled = false;
+                // });
+                ThemeService.DeleteTheme(theme);
+            }
             var init = function () {
                 $scope.searchTerm = '';
                 if (!$scope.selected && $scope.availableThemes[0]) {

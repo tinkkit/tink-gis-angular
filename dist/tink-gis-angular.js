@@ -218,10 +218,10 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         $scope.pageChanged = function (page, recordsAPage) {
             $scope.QueryGeoPunt($scope.searchTerm, page);
         };
-        $scope.laadUrl = function () {
-            $scope.searchTerm = $scope.searchTerm.trim().replace('?', '');
-            createWMS($scope.searchTerm);
-        };
+        // $scope.laadUrl = function () {
+        //     $scope.searchTerm = $scope.searchTerm.trim().replace('?', '');
+        //     createWMS($scope.searchTerm);
+        // };
         $scope.geopuntThemeChanged = function (theme) {
             var questionmarkPos = theme.Url.trim().indexOf('?');
             var url = theme.Url.trim().substring(0, questionmarkPos);
@@ -312,8 +312,6 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         $scope.pageChanged = function (page, recordsAPage) {
             var startItem = (page - 1) * recordsAPage;
             $scope.availableThemes = $scope.allThemes.slice(startItem, startItem + recordsAPage);
-            // console.log(page, recordsAPage);
-            // $scope.QueryGISSOLR($scope.searchTerm, page);
         };
         $scope.selectedTheme = null;
         $scope.copySelectedTheme = null;
@@ -345,7 +343,15 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         $scope.AddOrUpdateTheme = function () {
             LayerManagementService.AddOrUpdateTheme($scope.selectedTheme, $scope.copySelectedTheme);
             $scope.clearPreview();
-            // UIService.OpenRightSide();
+        };
+        $scope.delTheme = function (theme) {
+            if ($scope.selectedTheme == theme) {
+                $scope.clearPreview();
+            }
+            // theme.AllLayers.forEach(lay => {
+            //     lay.enabled = false;
+            // });
+            ThemeService.DeleteTheme(theme);
         };
         var init = function () {
             $scope.searchTerm = '';
@@ -387,13 +393,6 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             });
             $scope.addorupdatefunc();
         };
-        // var vm = this;
-        // vm.theme = $scope.theme;
-        // console.log("previewLayerController INIT", $scope.theme);
-        // $scope.$watch('theme', function (theme) {
-        //     console.log('WATCH HAPPENED', $scope.theme);
-        //     // vm.theme = $scope.theme;
-        // })
     }]);
 })();
 ;'use strict';
@@ -593,13 +592,6 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
     module.controller('wmsUrlController', ['$scope', 'ThemeCreater', '$q', 'MapService', 'MapData', 'GISService', 'LayerManagementService', 'WMSService', '$window', '$http', 'GeopuntService', 'PopupService', function ($scope, ThemeCreater, $q, MapService, MapData, GISService, LayerManagementService, WMSService, $window, $http, GeopuntService, PopupService) {
         $scope.urlIsValid = false;
 
-        // LayerManagementService.EnabledThemes.length = 0;
-        // LayerManagementService.AvailableThemes.length = 0;
-        // LayerManagementService.EnabledThemes = angular.copy(MapData.Themes);
-        // $scope.availableThemes = [];
-        // var init = function () {
-        //     $scope.searchTerm = '';
-        // } ();
         $scope.themeloading = false;
         $scope.urlChanged = function () {
             $scope.clearPreview();
@@ -623,8 +615,12 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 $scope.themeloading = true;
                 getwms.success(function (data, status, headers, config) {
                     $scope.themeloading = false;
-                    var wmstheme = ThemeCreater.createWMSThemeFromJSON(data, url);
-                    $scope.previewTheme(wmstheme);
+                    if (data) {
+                        var wmstheme = ThemeCreater.createWMSThemeFromJSON(data, url);
+                        $scope.previewTheme(wmstheme);
+                    } else {
+                        PopupService.Error("Ongeldige WMS", "De opgegeven url is geen geldige WMS url. (" + url + ")");
+                    }
                 }).error(function (data, status, headers, config) {
                     $scope.themeloading = false;
                 });
@@ -1769,9 +1765,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 transformResponse: function transformResponse(data) {
                     if (data) {
                         data = HelperService.UnwrapProxiedData(data);
-                        if (data.listOfHttpError) {
-                            // console.log(data.listOfHttpError, fullurl);
-                        } else {
+                        if (data.listOfHttpError) {} else {
                             data = JXON.stringToJs(data).wms_capabilities;
                         }
                     }
@@ -1780,7 +1774,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             }).success(function (data, status, headers, config) {
                 // console.dir(data);  // XML document object
             }).error(function (data, status, headers, config) {
-                PopupService.ErrorFromHttp(data, status, proxiedurl);
+                PopupService.ErrorFromHttp(data, status, fullurl);
             });
             return prom;
         };
@@ -4498,7 +4492,8 @@ L.drawLocal = {
     "<div ng-repeat=\"theme in availableThemes | filter:{name: searchTerm}\">\n" +
     "<dl ng-class=\"{active: isActive(theme)}\">\n" +
     "<a href=# class=theme-layer ng-click=ThemeChanged(theme)>\n" +
-    "<dt>{{theme.name}}</dt>\n" +
+    "<dt>{{theme.name}}<button class=\"trash pull-right\" prevent-default ng-click=delTheme(theme)></button>\n" +
+    "</dt>\n" +
     "</a>\n" +
     "</dl>\n" +
     "</div>\n" +
@@ -4508,7 +4503,7 @@ L.drawLocal = {
     "<preview-layer ng-if=copySelectedTheme theme=copySelectedTheme addorupdatefunc=AddOrUpdateTheme()>\n" +
     "</preview-layer>\n" +
     "</div>\n" +
-    "</div>\n"
+    "</div>"
   );
 
 
@@ -4606,7 +4601,7 @@ L.drawLocal = {
     "</preview-layer>\n" +
     "<div class=loader ng-show=\"themeloading == true\"></div>\n" +
     "</div>\n" +
-    "</div>\n"
+    "</div>"
   );
 
 
@@ -4790,6 +4785,10 @@ L.drawLocal = {
 
 
   $templateCache.put('templates/search/searchResultsTemplate.html',
+    "<div>\n" +
+    "<div ng-if=\"!srchrsltsctrl.selectedResult && srchrsltsctrl.featureLayers.length == 0\">\n" +
+    "Geen resultaten geselecteerd.\n" +
+    "</div>\n" +
     "<div class=\"flex-column flex-grow-1 margin-top\" ng-if=\"!srchrsltsctrl.selectedResult && srchrsltsctrl.featureLayers.length > 0\">\n" +
     "<div>\n" +
     "<div class=col-xs-12>\n" +
@@ -4827,7 +4826,8 @@ L.drawLocal = {
     "<button class=btn-sm ng-if=srchrsltsctrl.extraResultButtonIsEnabled ng-click=srchrsltsctrl.extraResultButton()>{{srchrsltsctrl.resultButtonText}}</button>\n" +
     "</div>\n" +
     "</div>\n" +
-    "</div>\n"
+    "</div>\n" +
+    "</div>"
   );
 
 
@@ -4886,7 +4886,7 @@ L.drawLocal = {
     "<span class=loader-percentage>{{srchctrl.loadingPercentage}}%</span>\n" +
     "</div>\n" +
     "</aside>\n" +
-    "</div>\n"
+    "</div>"
   );
 
 }]);

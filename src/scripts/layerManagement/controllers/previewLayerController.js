@@ -14,12 +14,5 @@
                 })
                 $scope.addorupdatefunc();
             }
-            // var vm = this;
-            // vm.theme = $scope.theme;
-            // console.log("previewLayerController INIT", $scope.theme);
-            // $scope.$watch('theme', function (theme) {
-            //     console.log('WATCH HAPPENED', $scope.theme);
-            //     // vm.theme = $scope.theme;
-            // })
         }]);
 })();

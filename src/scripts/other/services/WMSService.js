@@ -15,7 +15,6 @@
                     if (data) {
                         data = HelperService.UnwrapProxiedData(data);
                         if (data.listOfHttpError) {
-                            // console.log(data.listOfHttpError, fullurl);
                         }
                         else {
                             data = JXON.stringToJs(data).wms_capabilities;
@@ -26,7 +25,7 @@
             }).success(function (data, status, headers, config) {
                 // console.dir(data);  // XML document object
             }).error(function (data, status, headers, config) {
-                PopupService.ErrorFromHttp(data, status, proxiedurl);
+                PopupService.ErrorFromHttp(data, status, fullurl);
             });
             return prom;
         };

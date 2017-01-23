@@ -59,10 +59,10 @@
             $scope.pageChanged = function (page, recordsAPage) {
                 $scope.QueryGeoPunt($scope.searchTerm, page);
             };
-            $scope.laadUrl = function () {
-                $scope.searchTerm = $scope.searchTerm.trim().replace('?', '');
-                createWMS($scope.searchTerm);
-            };
+            // $scope.laadUrl = function () {
+            //     $scope.searchTerm = $scope.searchTerm.trim().replace('?', '');
+            //     createWMS($scope.searchTerm);
+            // };
             $scope.geopuntThemeChanged = function (theme) {
                 var questionmarkPos = theme.Url.trim().indexOf('?');
                 var url = theme.Url.trim().substring(0, questionmarkPos);
