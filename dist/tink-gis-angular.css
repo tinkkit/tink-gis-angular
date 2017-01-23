@@ -375,7 +375,6 @@ button.btn.active {
           transform: translate(0, 0) !important; }
 
 .relative-container {
-  height: 60vh;
   display: -webkit-flex;
   display: -ms-flexbox;
   display: flex; }
@@ -419,6 +418,9 @@ button.btn.active {
 
 .nav-aside > aside.flex-column {
   overflow: initial; }
+
+.border-right {
+  border-right: solid 1px #bbb; }
 
 /* List toggle */
 .can-open .show-layer {
@@ -472,7 +474,7 @@ button.trash {
     position: absolute;
     width: 1.2857142857rem ; }
 
-/* Lagenresultaat */
+/* Layer result */
 .theme-layer:hover {
   text-decoration: none; }
 
@@ -505,27 +507,33 @@ ul ul {
 /**
  * Modal styling
  */
-.modal-header {
-  border-bottom: 1px solid gray;
-  padding: 1.0714285714rem ; }
-
-.modal-title {
-  margin: 0;
-  line-height: 1.42857143; }
-
-.modal-footer {
-  border-top: 1px solid gray;
-  padding: 1.0714285714rem ; }
-
-.modal-dialog {
-  min-width: 1000px;
-  background-color: white;
-  text-align: left;
-  z-index: 9999; }
-
 .modal {
   overflow: initial;
   z-index: 9998; }
+
+.modal-content {
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: column;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  height: 100%; }
+
+.modal-dialog {
+  background-color: #fff;
+  height: 90vh;
+  margin: 0;
+  max-width: 95%;
+  text-align: left;
+  width: 95%;
+  z-index: 9999; }
+
+.modal-footer {
+  border-top: 1px solid #bbb; }
+
+.modal-header {
+  border-bottom: 1px solid #bbb; }
 
 .table-sort-options .table-sort-info {
   display: none; }
@@ -602,6 +610,9 @@ input[type="text"].tt-hint {
 .tt-suggestion p {
   margin: 0; }
 
+/**
+ * Legacy code - needs further checking
+ */
 .gist {
   font-size: 14px; }
 
@@ -861,6 +872,9 @@ html.show-loader .loader-wrapper {
  */
 .cursor-auto {
   cursor: auto; }
+
+.text-align-right {
+  text-align: right; }
 
 .sweet-alert fieldset {
   display: none; }

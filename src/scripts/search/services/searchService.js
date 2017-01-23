@@ -28,22 +28,23 @@
             var csvContent = ""; // "data:text/csv;charset=utf-8,";
             var dataString = "";
             var layName = "";
-            csvContent += 'Laag,' + "\n"
+            csvContent += 'sep=;\n'
+            csvContent += 'Laag;' + "\n"
 
             _.sortBy(ResultsData.JsonFeatures, x => x.layerName).forEach(function (feature, index) {
                 if (layName !== feature.layerName) {
-                    layName = feature.layerName.replace(',', '.');
+                    layName = feature.layerName.replace(';', ',');
                     var tmparr = [];
                     for (var name in feature.properties) {
-                        tmparr.push(name.replace(',', '.'));
+                        tmparr.push(name.replace(';', ','));
                     }
-                    var layfirstline = tmparr.join(",");
+                    var layfirstline = tmparr.join(";");
 
-                    csvContent += layName + "," + layfirstline + "\n";
+                    csvContent += layName + ";" + layfirstline + "\n";
                 }
                 var infoArray = _.values(feature.properties);
                 infoArray.unshift(layName);
-                dataString = infoArray.join(",");
+                dataString = infoArray.join(";");
                 console.log(dataString);
                 // csvContent += dataString + "\n";
                 csvContent += index < ResultsData.JsonFeatures.length ? dataString + "\n" : dataString;
@@ -62,15 +63,16 @@
             var csvContent = ""; // "data:text/csv;charset=utf-8,";
             var dataString = "";
             var layName = "";
-            csvContent += 'Laag,' + result.layerName + '\n';
+            csvContent += 'sep=;\n'
+            csvContent += 'Laag;' + result.layerName + '\n';
             props.forEach(function (prop) {
                 if (prop.key) {
-                    prop.key = prop.key.toString().replace(',', '.')
+                    prop.key = prop.key.toString().replace(';', ',')
                 }
                 if (prop.value) {
-                    prop.value = prop.value.toString().replace(',', '.')
+                    prop.value = prop.value.toString().replace(';', ',')
                 }
-                csvContent += prop.key + ',' + prop.value + '\n';
+                csvContent += prop.key + ';' + prop.value + '\n';
             })
             var a = document.createElement('a');
             a.href = 'data:attachment/csv,' + encodeURIComponent(csvContent);

@@ -21,7 +21,7 @@
             <div class="map-buttons-left">
                 <div class="ll drawingbtns" ng-show="mapctrl.showDrawControls">
                     <div class="btn-group ">
-                        <button ng-click="mapctrl.selectpunt()" ng-class="{active: mapctrl.drawingType==''}" type="button" class="btn" prevent-default-map tink-tooltip="Selecteer met een punt" tink-tooltip-align="bottom"><i class="fa fa-mouse-pointer"></i></button>
+                        <button ng-click="mapctrl.selectpunt()" ng-class="{active: mapctrl.drawingType==''}" type="button" class="btn" prevent-default-map tink-tooltip="Selecteer met een punt" tink-tooltip-align="bottom"><i class="fa fa-circle" style="font-size: 0.75em;"></i></button>
                         <button ng-click="mapctrl.drawingButtonChanged('lijn')" ng-class="{active: mapctrl.drawingType=='lijn'}" type="button" class="btn" prevent-default-map><i class="fa fa-minus" tink-tooltip="Selecteer met een lijn" tink-tooltip-align="bottom"></i></button>
                         <button ng-click="mapctrl.drawingButtonChanged('vierkant')" ng-class="{active: mapctrl.drawingType=='vierkant'}" type="button" class="btn" prevent-default-map tink-tooltip="Selecteer met een vierkant" tink-tooltip-align="bottom"><i class="fa fa-square-o"></i></button>
                         <button ng-click="mapctrl.drawingButtonChanged('polygon')" ng-class="{active: mapctrl.drawingType=='polygon'}" type="button" class="btn" prevent-default-map tink-tooltip="Selecteer met een veelhoek" tink-tooltip-align="bottom"><i class="fa fa-star-o"></i></button>

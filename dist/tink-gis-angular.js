@@ -3891,24 +3891,25 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             var csvContent = ""; // "data:text/csv;charset=utf-8,";
             var dataString = "";
             var layName = "";
-            csvContent += 'Laag,' + "\n";
+            csvContent += 'sep=;\n';
+            csvContent += 'Laag;' + "\n";
 
             _.sortBy(ResultsData.JsonFeatures, function (x) {
                 return x.layerName;
             }).forEach(function (feature, index) {
                 if (layName !== feature.layerName) {
-                    layName = feature.layerName.replace(',', '.');
+                    layName = feature.layerName.replace(';', ',');
                     var tmparr = [];
                     for (var name in feature.properties) {
-                        tmparr.push(name.replace(',', '.'));
+                        tmparr.push(name.replace(';', ','));
                     }
-                    var layfirstline = tmparr.join(",");
+                    var layfirstline = tmparr.join(";");
 
-                    csvContent += layName + "," + layfirstline + "\n";
+                    csvContent += layName + ";" + layfirstline + "\n";
                 }
                 var infoArray = _.values(feature.properties);
                 infoArray.unshift(layName);
-                dataString = infoArray.join(",");
+                dataString = infoArray.join(";");
                 console.log(dataString);
                 // csvContent += dataString + "\n";
                 csvContent += index < ResultsData.JsonFeatures.length ? dataString + "\n" : dataString;
@@ -3928,15 +3929,16 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             var csvContent = ""; // "data:text/csv;charset=utf-8,";
             var dataString = "";
             var layName = "";
-            csvContent += 'Laag,' + result.layerName + '\n';
+            csvContent += 'sep=;\n';
+            csvContent += 'Laag;' + result.layerName + '\n';
             props.forEach(function (prop) {
                 if (prop.key) {
-                    prop.key = prop.key.toString().replace(',', '.');
+                    prop.key = prop.key.toString().replace(';', ',');
                 }
                 if (prop.value) {
-                    prop.value = prop.value.toString().replace(',', '.');
+                    prop.value = prop.value.toString().replace(';', ',');
                 }
-                csvContent += prop.key + ',' + prop.value + '\n';
+                csvContent += prop.key + ';' + prop.value + '\n';
             });
             var a = document.createElement('a');
             a.href = 'data:attachment/csv,' + encodeURIComponent(csvContent);
@@ -4420,7 +4422,7 @@ L.drawLocal = {
 
 
   $templateCache.put('templates/layermanagement/geoPuntTemplate.html',
-    "<div class=\"row relative-container\">\n" +
+    "<div class=\"gepoPuntTemplate row relative-container\">\n" +
     "<div class=\"col-md-4 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
     "<div ng-show=\"loading == false\" class=\"overflow-wrapper flex-grow-1 list-selectable margin-top margin-bottom\">\n" +
     "<div ng-if=!searchIsUrl ng-repeat=\"theme in availableThemes\">\n" +
@@ -4447,22 +4449,34 @@ L.drawLocal = {
     "</preview-layer>\n" +
     "<div class=loader ng-show=\"themeloading == true\"></div>\n" +
     "</div>\n" +
-    "</div>"
+    "</div>\n"
   );
 
 
   $templateCache.put('templates/layermanagement/layerManagerTemplate.html',
-    "<div>\n" +
-    "<div class=modal-header>\n" +
-    "<button type=button style=float:right data-ng-click=cancel()><i class=\"fa fa-times\"></i></button>\n" +
+    "\n" +
+    "<div class=\"layermanagerTemplate modal-header\">\n" +
+    "<div class=\"row margin-bottom\">\n" +
+    "<div class=col-xs-10>\n" +
     "<h4 class=model-title>Lagenbeheer\n" +
-    "<p><input class=searchbox ng-model=searchTerm ng-change=searchChanged() ng-model-options=\"{debounce: 250}\" placeholder=\"Geef een trefwoord\"></p>\n" +
     "</h4></div>\n" +
-    "<div class=modal-body>\n" +
+    "<div class=col-xs-2>\n" +
+    "<button class=pull-right type=button data-ng-click=cancel()><i class=\"fa fa-times\"></i></button>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "<div class=\"modal-body flex-column flex-grow-1\">\n" +
+    "<div class=\"row margin-top margin-bottom\">\n" +
+    "<div class=\"col-xs-12 col-sm-6\">\n" +
+    "<form>\n" +
+    "<input type=search ng-model=searchTerm ng-change=searchChanged() ng-model-options=\"{debounce: 250}\" placeholder=\"Geef een trefwoord of een url in\">\n" +
+    "</form>\n" +
+    "</div>\n" +
+    "</div>\n" +
     "<div class=row>\n" +
     "<div class=col-xs-12>\n" +
     "<ul class=nav-tabs>\n" +
-    "<li role=presentation ng-class=\"{'active': active=='solr'}\"><a href=\"\" ng-click=\"active='solr'\">Stad<span ng-if=\"solrLoading==true\" class=loader></span><span ng-if=\"solrLoading==false && solrCount != null\">({{solrCount}})</span></a></li>\n" +
+    "<li role=presentation ng-class=\"{'active': active=='solr'}\"><a href=\"\" ng-click=\"active='solr'\">Stad <span ng-if=\"solrLoading==true\" class=loader></span><span ng-if=\"solrLoading==false && solrCount != null\">({{solrCount}})</span></a></li>\n" +
     "<li role=presentation ng-class=\"{'active': active=='geopunt'}\"><a href=\"\" ng-click=\"active='geopunt'\">GeoPunt <span ng-if=\"geopuntLoading==true\" class=loader></span><span ng-if=\"geopuntLoading==false && geopuntCount != null\">({{geopuntCount}})</span></a></li>\n" +
     "<li role=presentation ng-class=\"{'active': active=='wmsurl'}\"><a href=\"\" ng-click=\"active='wmsurl'\">Url</a></li>\n" +
     "<li role=presentation ng-class=\"{'active': active=='beheer'}\"><a href=\"\" ng-click=\"active='beheer'\">Beheer</a></li>\n" +
@@ -4473,16 +4487,14 @@ L.drawLocal = {
     "<geo-punt ng-show=\"active=='geopunt'\"></geo-punt>\n" +
     "<wms-url ng-show=\"active=='wmsurl'\"></wms-url>\n" +
     "<layers-management ng-if=\"active=='beheer'\"></layers-management>\n" +
-    "</div>\n" +
-    "<div class=modal-footer>\n" +
-    "</div></div>"
+    "</div>"
   );
 
 
   $templateCache.put('templates/layermanagement/layersManagementTemplate.html',
-    "<div class=\"row relative-container\">\n" +
+    "<div class=\"layersManagementTemplate row relative-container flex-grow-1\">\n" +
     "<div class=\"col-md-4 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
-    "<div class=\"overflow-wrapper flex-grow-1 list-selectable margin-top margin-bottom\">\n" +
+    "<div class=\"overflow-wrapper flex-grow-1 list-selectable margin-top margin-bottom border-right\">\n" +
     "<div ng-repeat=\"theme in availableThemes | filter:{name: searchTerm}\">\n" +
     "<dl ng-class=\"{active: isActive(theme)}\">\n" +
     "<a href=# class=theme-layer ng-click=ThemeChanged(theme)>\n" +
@@ -4524,31 +4536,31 @@ L.drawLocal = {
 
 
   $templateCache.put('templates/layermanagement/previewLayerTemplate.html',
-    "<div class=\"flex-column flex-grow-1\">\n" +
-    "<div ng-show=\"theme !== null\">\n" +
-    "<button class=btn-primary ng-if=\"theme.Added == false\" ng-click=addorupdatefunc()>Toevoegen</button>\n" +
-    "<button ng-if=\"theme.Added != false\" ng-click=addorupdatefunc()>Bijwerken</button>\n" +
-    "<button ng-if=\"theme.Added != false\" ng-click=delTheme()>Verwijderen</button>\n" +
-    "</div>\n" +
+    "<div class=\"previewLayerTemplate flex-column flex-grow-1\">\n" +
     "<div class=margin-top>\n" +
     "<p>{{theme.Description}}</p>\n" +
     "<p><small><a ng-href={{theme.CleanUrl}} target=_blank>Details</a></small></p>\n" +
     "</div>\n" +
-    "<div class=\"layercontroller-checkbox overflow-wrapper\">\n" +
+    "<div class=\"layercontroller-checkbox overflow-wrapper margin-bottom flex-grow-1\">\n" +
     "<input indeterminate-checkbox child-list=theme.AllLayers property=enabled type=checkbox ng-model=theme.enabled id={{theme.name}}>\n" +
     "<label for={{theme.name}}>{{theme.name}}</label>\n" +
     "<div ng-repeat=\"mainlayer in theme.Layers\">\n" +
     "<tink-managementlayer layer=mainlayer></tink-managementlayer>\n" +
     "</div>\n" +
     "</div>\n" +
+    "<div class=text-align-right ng-show=\"theme !== null\">\n" +
+    "<button class=\"btn-sm btn-primary\" ng-if=\"theme.Added == false\" ng-click=addorupdatefunc()>Toevoegen</button>\n" +
+    "<button class=btn-sm ng-if=\"theme.Added != false\" ng-click=addorupdatefunc()>Bijwerken</button>\n" +
+    "<button class=btn-sm ng-if=\"theme.Added != false\" ng-click=delTheme()>Verwijderen</button>\n" +
+    "</div>\n" +
     "</div>\n"
   );
 
 
   $templateCache.put('templates/layermanagement/solrGISTemplate.html',
-    "<div class=\"row relative-container\">\n" +
-    "<div class=\"col-md-4 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
-    "<div class=\"overflow-wrapper flex-grow-1 list-selectable margin-top margin-bottom\">\n" +
+    "<div class=\"solrGISTemplate row relative-container flex-grow-1\">\n" +
+    "<div class=\"col-xs-5 flex-column flex-grow-1\">\n" +
+    "<div class=\"overflow-wrapper flex-grow-1 list-selectable margin-top margin-bottom border-right\">\n" +
     "<div ng-show=\"loading == false\" ng-repeat=\"theme in availableThemes\">\n" +
     "<dl ng-class=\"{active: isActive(theme)}\">\n" +
     "<a href=# class=theme-layer ng-click=solrThemeChanged(theme)>\n" +
@@ -4571,16 +4583,16 @@ L.drawLocal = {
     "<div ng-if=\"loading == true\" class=loader>\n" +
     "</div>\n" +
     "</div>\n" +
-    "<div class=\"col-md-8 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
+    "<div class=\"col-xs-7 flex-column flex-grow-1\">\n" +
     "<preview-layer ng-if=copySelectedTheme theme=copySelectedTheme addorupdatefunc=AddOrUpdateTheme()>\n" +
     "</preview-layer>\n" +
     "</div>\n" +
-    "</div>"
+    "</div>\n"
   );
 
 
   $templateCache.put('templates/layermanagement/wmsUrlTemplate.html',
-    "<div class=\"row relative-container\">\n" +
+    "<div class=\"wmsUrlTemplate row relative-container\">\n" +
     "<div class=\"col-md-4 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
     "<div>\n" +
     "<input class=searchbox ng-model=url ng-change=urlChanged() placeholder=\"Geef een url in\">\n" +
@@ -4594,7 +4606,7 @@ L.drawLocal = {
     "</preview-layer>\n" +
     "<div class=loader ng-show=\"themeloading == true\"></div>\n" +
     "</div>\n" +
-    "</div>"
+    "</div>\n"
   );
 
 
@@ -4687,7 +4699,7 @@ L.drawLocal = {
     "<div class=map-buttons-left>\n" +
     "<div class=\"ll drawingbtns\" ng-show=mapctrl.showDrawControls>\n" +
     "<div class=btn-group>\n" +
-    "<button ng-click=mapctrl.selectpunt() ng-class=\"{active: mapctrl.drawingType==''}\" type=button class=btn prevent-default-map tink-tooltip=\"Selecteer met een punt\" tink-tooltip-align=bottom><i class=\"fa fa-mouse-pointer\"></i></button>\n" +
+    "<button ng-click=mapctrl.selectpunt() ng-class=\"{active: mapctrl.drawingType==''}\" type=button class=btn prevent-default-map tink-tooltip=\"Selecteer met een punt\" tink-tooltip-align=bottom><i class=\"fa fa-circle\" style=\"font-size: 0.75em\"></i></button>\n" +
     "<button ng-click=\"mapctrl.drawingButtonChanged('lijn')\" ng-class=\"{active: mapctrl.drawingType=='lijn'}\" type=button class=btn prevent-default-map><i class=\"fa fa-minus\" tink-tooltip=\"Selecteer met een lijn\" tink-tooltip-align=bottom></i></button>\n" +
     "<button ng-click=\"mapctrl.drawingButtonChanged('vierkant')\" ng-class=\"{active: mapctrl.drawingType=='vierkant'}\" type=button class=btn prevent-default-map tink-tooltip=\"Selecteer met een vierkant\" tink-tooltip-align=bottom><i class=\"fa fa-square-o\"></i></button>\n" +
     "<button ng-click=\"mapctrl.drawingButtonChanged('polygon')\" ng-class=\"{active: mapctrl.drawingType=='polygon'}\" type=button class=btn prevent-default-map tink-tooltip=\"Selecteer met een veelhoek\" tink-tooltip-align=bottom><i class=\"fa fa-star-o\"></i></button>\n" +
