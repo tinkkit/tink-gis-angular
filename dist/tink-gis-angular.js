@@ -963,7 +963,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
 
 (function (module) {
     module = angular.module('tink.gis');
-    var theController = module.controller('mapController', function ($scope, ExternService, BaseLayersService, MapService, MapData, map, MapEvents, DrawService, HelperService, GISService, PopupService, $interval) {
+    var theController = module.controller('mapController', function ($scope, ExternService, BaseLayersService, MapService, MapData, map, MapEvents, DrawService, HelperService, GISService, PopupService, $interval, TypeAheadService) {
         //We need to include MapEvents, even tho we don t call it just to make sure it gets loaded!
         var vm = this;
         var init = function () {
@@ -976,6 +976,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 // PopupService.ExceptionFunc = function(exception) { alert(exception.message); }
                 // PopupService.ErrorWithException("exceptiontest", "exceptiontextmessage", { message: 'OH NO EXCEP'})
             }
+            TypeAheadService.init();
         }();
         vm.ZoekenOpLocatie = true;
         vm.activeInteractieKnop = MapData.ActiveInteractieKnop;
@@ -999,121 +1000,8 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         vm.showDrawControls = false;
         vm.zoekLoc = '';
 
-        var suggestionfunc = function suggestionfunc(item) {
-            var output = '<div>' + item.name;
-            if (item.attribute1value) {
-                output += '<p>' + item.attribute1name + ': ' + item.attribute1value + '</p>';
-            }
-
-            if (item.attribute2value) {
-                output += '<p>' + item.attribute2name + ': ' + item.attribute2value + '</p>';
-            }
-            if (item.layer) {
-                output += '<p>Laag: ' + item.layer + '</p>';
-            }
-            output += '</div>';
-            return output;
-        };
-        function CheckForStringWithInteger() {
-            return;
-        }
-        var isCharDigit = function isCharDigit(n) {
-            return n != ' ' && n > -1;
-        };
         var features = [];
-        L.control.typeahead({
-            minLength: 3,
-            highlight: true,
-            classNames: {
-                open: 'is-open',
-                empty: 'is-empty'
-            }
-        }, {
-            async: true,
-            limit: 99,
-            display: 'name',
-            displayKey: 'name',
-            source: function source(query, syncResults, asyncResults) {
-                if (query.replace(/[^0-9]/g, '').length < 6) {
-                    // if less then 6 numbers then we just search
-                    var splitquery = query.split(' ');
-                    var numbers = splitquery.filter(function (x) {
-                        return isCharDigit(x[0]);
-                    });
-                    var notnumbers = splitquery.filter(function (x) {
-                        return !isCharDigit(x[0]);
-                    });
 
-                    if (numbers.length == 1 && notnumbers.length == 1) {
-                        var huisnummer = numbers[0];
-                        var straatnaam = notnumbers.join(' ');
-                        console.log(straatnaam, huisnummer);
-                        GISService.QueryCrab(straatnaam, huisnummer).then(function (data) {
-                            console.log(data);
-                            features = data.features.map(function (feature) {
-                                var obj = {};
-                                obj.straatnaam = feature.attributes.STRAATNM;
-                                obj.huisnummer = feature.attributes.HUISNR;
-                                // obj.busnummer = feature.attributes.BUSNR;
-                                obj.id = feature.attributes.OBJECTID;
-                                obj.x = feature.geometry.x;
-                                obj.y = feature.geometry.y;
-                                obj.name = (obj.straatnaam + " " + obj.huisnummer).trim();
-                                return obj;
-                            }).slice(0, 10);
-                            console.log(features);
-                            asyncResults(features);
-                        });
-                    } else {
-                        GISService.QuerySOLRLocatie(query.trim()).then(function (data) {
-                            var arr = data.response.docs;
-                            asyncResults(arr);
-                        });
-                    }
-                } else {
-                    syncResults([]);
-                    vm.zoekXY(query);
-                }
-            },
-            templates: {
-                suggestion: suggestionfunc,
-                notFound: ['<div class="empty-message"><b>Geen match gevonden</b></div>'],
-                empty: ['<div class="empty-message"><b>Zoek naar straten, POI en districten</b></div>']
-            }
-
-        }, {
-            placeholder: 'Geef een X,Y / locatie of POI in.',
-            'typeahead:select': function typeaheadSelect(ev, suggestion) {
-                MapData.CleanWatIsHier();
-                MapData.CleanTempFeatures();
-                if (suggestion.layer) {
-                    switch (suggestion.layer.toLowerCase()) {
-                        case 'postzone':
-                            MapData.QueryForTempFeatures(20, 'ObjectID=' + suggestion.key);
-                            break;
-                        case 'district':
-                            MapData.QueryForTempFeatures(21, 'ObjectID=' + suggestion.key);
-                            break;
-                        default:
-                            var cors = {
-                                x: suggestion.x,
-                                y: suggestion.y
-                            };
-                            var xyWGS84 = HelperService.ConvertLambert72ToWSG84(cors);
-                            setViewAndPutDot(xyWGS84);
-                            break;
-
-                    }
-                } else {
-                    var cors = {
-                        x: suggestion.x,
-                        y: suggestion.y
-                    };
-                    var xyWGS84 = HelperService.ConvertLambert72ToWSG84(cors);
-                    setViewAndPutDot(xyWGS84);
-                }
-            }
-        }).addTo(map);
         vm.addCursorAuto = function () {
             if (!$('.leaflet-container').hasClass('cursor-auto')) {
                 $('.leaflet-container').addClass('cursor-auto');
@@ -3527,6 +3415,135 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     };
     module.$inject = ['map', 'ThemeCreater', 'MapData', 'GISService'];
     module.factory('ThemeService', service);
+})();
+;'use strict';
+
+(function () {
+    var module = angular.module('tink.gis');
+    var typeAheadService = function typeAheadService(map, GISService, MapData, HelperService) {
+        var _typeAheadService = {};
+        _typeAheadService.init = function () {
+
+            L.control.typeahead({
+                minLength: 3,
+                highlight: true,
+                classNames: {
+                    open: 'is-open',
+                    empty: 'is-empty'
+                }
+            }, {
+                async: true,
+                limit: 99,
+                display: 'name',
+                displayKey: 'name',
+                source: function source(query, syncResults, asyncResults) {
+                    if (query.replace(/[^0-9]/g, '').length < 6) {
+                        // if less then 6 numbers then we just search
+                        var splitquery = query.split(' ');
+                        var numbers = splitquery.filter(function (x) {
+                            return isCharDigit(x[0]);
+                        });
+                        var notnumbers = splitquery.filter(function (x) {
+                            return !isCharDigit(x[0]);
+                        });
+
+                        if (numbers.length == 1 && notnumbers.length == 1) {
+                            var huisnummer = numbers[0];
+                            var straatnaam = notnumbers.join(' ');
+                            console.log(straatnaam, huisnummer);
+                            GISService.QueryCrab(straatnaam, huisnummer).then(function (data) {
+                                console.log(data);
+                                features = data.features.map(function (feature) {
+                                    var obj = {};
+                                    obj.straatnaam = feature.attributes.STRAATNM;
+                                    obj.huisnummer = feature.attributes.HUISNR;
+                                    // obj.busnummer = feature.attributes.BUSNR;
+                                    obj.id = feature.attributes.OBJECTID;
+                                    obj.x = feature.geometry.x;
+                                    obj.y = feature.geometry.y;
+                                    obj.name = (obj.straatnaam + " " + obj.huisnummer).trim();
+                                    return obj;
+                                }).slice(0, 10);
+                                console.log(features);
+                                asyncResults(features);
+                            });
+                        } else {
+                            GISService.QuerySOLRLocatie(query.trim()).then(function (data) {
+                                var arr = data.response.docs;
+                                asyncResults(arr);
+                            });
+                        }
+                    } else {
+                        syncResults([]);
+                        vm.zoekXY(query);
+                    }
+                },
+                templates: {
+                    suggestion: suggestionfunc,
+                    notFound: ['<div class="empty-message"><b>Geen match gevonden</b></div>'],
+                    empty: ['<div class="empty-message"><b>Zoek naar straten, POI en districten</b></div>']
+                }
+
+            }, {
+                placeholder: 'Geef een X,Y / locatie of POI in.',
+                'typeahead:select': function typeaheadSelect(ev, suggestion) {
+                    MapData.CleanWatIsHier();
+                    MapData.CleanTempFeatures();
+                    if (suggestion.layer) {
+                        switch (suggestion.layer.toLowerCase()) {
+                            case 'postzone':
+                                MapData.QueryForTempFeatures(20, 'ObjectID=' + suggestion.key);
+                                break;
+                            case 'district':
+                                MapData.QueryForTempFeatures(21, 'ObjectID=' + suggestion.key);
+                                break;
+                            default:
+                                var cors = {
+                                    x: suggestion.x,
+                                    y: suggestion.y
+                                };
+                                var xyWGS84 = HelperService.ConvertLambert72ToWSG84(cors);
+                                setViewAndPutDot(xyWGS84);
+                                break;
+
+                        }
+                    } else {
+                        var cors = {
+                            x: suggestion.x,
+                            y: suggestion.y
+                        };
+                        var xyWGS84 = HelperService.ConvertLambert72ToWSG84(cors);
+                        setViewAndPutDot(xyWGS84);
+                    }
+                }
+            }).addTo(map);
+        };
+        var isCharDigit = function isCharDigit(n) {
+            return n != ' ' && n > -1;
+        };
+        var suggestionfunc = function suggestionfunc(item) {
+            var output = '<div>' + item.name;
+            if (item.attribute1value) {
+                output += '<p>' + item.attribute1name + ': ' + item.attribute1value + '</p>';
+            }
+
+            if (item.attribute2value) {
+                output += '<p>' + item.attribute2name + ': ' + item.attribute2value + '</p>';
+            }
+            if (item.layer) {
+                output += '<p>Laag: ' + item.layer + '</p>';
+            }
+            output += '</div>';
+            return output;
+        };
+        var setViewAndPutDot = function setViewAndPutDot(loc) {
+            MapData.PanToPoint(loc);
+            MapData.CreateDot(loc);
+        };
+        return _typeAheadService;
+    };
+
+    module.factory('TypeAheadService', typeAheadService);
 })();
 ;'use strict';
 
