@@ -34,7 +34,6 @@
 
 
 
-        var features = [];
 
         vm.addCursorAuto = function () {
             if (!$('.leaflet-container').hasClass('cursor-auto')) {

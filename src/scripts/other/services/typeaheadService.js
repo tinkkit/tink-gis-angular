@@ -23,13 +23,13 @@
                             var numbers = splitquery.filter(x => isCharDigit(x[0]));
                             var notnumbers = splitquery.filter(x => !isCharDigit(x[0]));
 
-                            if (numbers.length == 1 && notnumbers.length == 1) {
+                            if (numbers.length == 1 && notnumbers.length >= 1) {
                                 var huisnummer = numbers[0];
                                 var straatnaam = notnumbers.join(' ');
                                 console.log(straatnaam, huisnummer);
                                 GISService.QueryCrab(straatnaam, huisnummer).then(function (data) {
                                     console.log(data);
-                                    features = data.features.map(function (feature) {
+                                    var features = data.features.map(function (feature) {
                                         var obj = {};
                                         obj.straatnaam = feature.attributes.STRAATNM;
                                         obj.huisnummer = feature.attributes.HUISNR;

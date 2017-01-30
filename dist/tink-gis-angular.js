@@ -1008,8 +1008,6 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         vm.showDrawControls = false;
         vm.zoekLoc = '';
 
-        var features = [];
-
         vm.addCursorAuto = function () {
             if (!$('.leaflet-container').hasClass('cursor-auto')) {
                 $('.leaflet-container').addClass('cursor-auto');
@@ -3461,13 +3459,13 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                             return !isCharDigit(x[0]);
                         });
 
-                        if (numbers.length == 1 && notnumbers.length == 1) {
+                        if (numbers.length == 1 && notnumbers.length >= 1) {
                             var huisnummer = numbers[0];
                             var straatnaam = notnumbers.join(' ');
                             console.log(straatnaam, huisnummer);
                             GISService.QueryCrab(straatnaam, huisnummer).then(function (data) {
                                 console.log(data);
-                                features = data.features.map(function (feature) {
+                                var features = data.features.map(function (feature) {
                                     var obj = {};
                                     obj.straatnaam = feature.attributes.STRAATNM;
                                     obj.huisnummer = feature.attributes.HUISNR;
