@@ -1651,7 +1651,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
     var service = function service($http, HelperService, $q, PopupService) {
         var _service = {};
         _service.GetThemeData = function (url) {
-            var fullurl = url + '?request=GetCapabilities&service=WMS&callback=foo';
+            var fullurl = url + '?request=GetCapabilities&service=WMS';
             var proxiedurl = HelperService.CreateProxyUrl(fullurl);
             var prom = $http({
                 method: 'GET',
@@ -3635,15 +3635,17 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         vm.featureLayers = null;
         vm.selectedResult = null;
         vm.layerGroupFilter = 'geenfilter';
-        vm.collapsestatepergroup = null;
+        vm.collapsestatepergroup = {};
         $scope.$watchCollection(function () {
             return ResultsData.JsonFeatures;
         }, function (newValue, oldValue) {
             vm.featureLayers = _.uniq(_.map(vm.features, 'layerName'));
-            vm.collapsestatepergroup = {};
             vm.featureLayers.forEach(function (lay) {
-                vm.collapsestatepergroup[lay] = false; // at start, we want the accordions open, so we set collapse on false
+                if (vm.collapsestatepergroup[lay] === undefined || vm.collapsestatepergroup[lay] === null) {
+                    vm.collapsestatepergroup[lay] = false; // at start, we want the accordions open, so we set collapse on false
+                }
             });
+
             vm.layerGroupFilter = 'geenfilter';
         });
         console.log("STARTED DDDDDDDDDDDDDDDDDDDDDd");
@@ -3669,6 +3671,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             });
         };
         vm.deleteFeatureGroup = function (featureGroupName) {
+            vm.collapsestatepergroup[featureGroupName] = undefined; // at start, we want the accordions open, so we set collapse on false
+
             SearchService.DeleteFeatureGroup(featureGroupName);
         };
         vm.showDetails = function (feature) {
@@ -4928,7 +4932,7 @@ L.drawLocal = {
   $templateCache.put('templates/search/searchResultsTemplate.html',
     "<div>\n" +
     "<div ng-if=\"!srchrsltsctrl.selectedResult && srchrsltsctrl.featureLayers.length == 0\">\n" +
-    "Geen resultaten geselecteerd.\n" +
+    "Geen resultaten.\n" +
     "</div>\n" +
     "<div class=\"flex-column flex-grow-1 margin-top\" ng-if=\"!srchrsltsctrl.selectedResult && srchrsltsctrl.featureLayers.length > 0\">\n" +
     "<div>\n" +
