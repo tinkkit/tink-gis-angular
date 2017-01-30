@@ -218,17 +218,13 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         $scope.pageChanged = function (page, recordsAPage) {
             $scope.QueryGeoPunt($scope.searchTerm, page);
         };
-        // $scope.laadUrl = function () {
-        //     $scope.searchTerm = $scope.searchTerm.trim().replace('?', '');
-        //     createWMS($scope.searchTerm);
-        // };
         $scope.geopuntThemeChanged = function (theme) {
             var questionmarkPos = theme.Url.trim().indexOf('?');
             var url = theme.Url.trim().substring(0, questionmarkPos);
             createWMS(url);
         };
-
         var createWMS = function createWMS(url) {
+            $scope.clearPreview();
             var wms = MapData.Themes.find(function (x) {
                 return x.CleanUrl == url;
             });
@@ -237,9 +233,15 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 $scope.themeloading = true;
                 getwms.success(function (data, status, headers, config) {
                     $scope.themeloading = false;
-                    var wmstheme = ThemeCreater.createWMSThemeFromJSON(data, url);
-                    $scope.previewTheme(wmstheme);
+                    if (data) {
+                        var wmstheme = ThemeCreater.createWMSThemeFromJSON(data, url);
+                        $scope.previewTheme(wmstheme);
+                    } else {
+                        PopupService.Error("Ongeldige WMS", "De opgegeven url is geen geldige WMS url. (" + url + ")");
+                        $scope.error = "Fout bij het laden van WMS.";
+                    }
                 }).error(function (data, status, headers, config) {
+                    $scope.error = "Fout bij het laden van WMS.";
                     $scope.themeloading = false;
                 });
             } else {
@@ -255,6 +257,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         $scope.clearPreview = function () {
             $scope.selectedTheme = null;
             $scope.copySelectedTheme = null;
+            $scope.error = null;
         };
 
         $scope.AddOrUpdateTheme = function () {
@@ -369,7 +372,6 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         var vm = this;
         vm.layer = $scope.layer;
         $scope.showLayer = false; // to show and hide the layers
-        console.log(vm.layer.AllLayers);
         // console.log(vm.layer.hasLayers());
         // vm.chkChanged = function () {
         //     $scope.$emit('layerCheckboxChangedEvent', $scope.layer); // stuur naar parent ofwel group ofwel theme
@@ -404,13 +406,14 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
     } catch (e) {
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
     }
-    module.controller('solrGISController', ['$scope', 'ThemeCreater', '$q', 'MapService', 'MapData', 'GISService', 'LayerManagementService', 'WMSService', '$window', '$http', 'GeopuntService', 'ThemeService', function ($scope, ThemeCreater, $q, MapService, MapData, GISService, LayerManagementService, WMSService, $window, $http, GeopuntService, ThemeService) {
+    module.controller('solrGISController', ['$scope', 'ThemeCreater', '$q', 'MapService', 'MapData', 'GISService', 'LayerManagementService', 'WMSService', '$window', '$http', 'GeopuntService', 'ThemeService', 'PopupService', function ($scope, ThemeCreater, $q, MapService, MapData, GISService, LayerManagementService, WMSService, $window, $http, GeopuntService, ThemeService, PopupService) {
         $scope.pagingCount = null;
         $scope.numberofrecordsmatched = 0;
         LayerManagementService.AvailableThemes.length = 0;
         $scope.availableThemes = [];
         $scope.allThemes = [];
         $scope.loading = false;
+        $scope.error = null;
         var init = function () {
             $scope.searchTerm = '';
         }();
@@ -424,12 +427,8 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 $scope.numberofrecordsmatched = 0;
             }
         });
-        // $scope.searchChanged = function () {
-
-        // };
         $scope.QueryGISSOLR = function (searchterm, page) {
             $scope.loading = true;
-            $scope.clearPreview();
 
             var prom = GISService.QuerySOLRGIS(searchterm, (page - 1) * 5 + 1, 5);
             prom.then(function (data) {
@@ -537,8 +536,6 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         $scope.selectedTheme = null;
         $scope.copySelectedTheme = null;
         $scope.previewTheme = function (theme) {
-            console.log('themeChanged');
-            console.log(theme);
             var alreadyExistingTheme = MapData.Themes.find(function (x) {
                 return x.CleanUrl === theme.CleanUrl;
             });
@@ -551,15 +548,24 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         $scope.clearPreview = function () {
             $scope.selectedTheme = null;
             $scope.copySelectedTheme = null;
+            $scope.error = null;
         };
         $scope.solrThemeChanged = function (theme) {
-            GISService.GetThemeData(theme.url).then(function (data, statuscode, functie, getdata) {
+            $scope.clearPreview();
+            $scope.themeloading = true;
+
+            GISService.GetThemeData(theme.url).then(function (data, status, functie, getdata) {
                 if (!data.error) {
                     var convertedTheme = ThemeCreater.createARCGISThemeFromJson(data, theme);
                     $scope.previewTheme(convertedTheme);
                 } else {
-                    console.log('ERROR:', data.error);
+                    PopupService.ErrorFromHTTP(data.error, status, theme.url);
+                    $scope.error = "Fout bij het laden van de mapservice.";
                 }
+                $scope.themeloading = false;
+            }, function (data, status, functie, getdata) {
+                $scope.error = "Fout bij het laden van de mapservice.";
+                $scope.themeloading = false;
             });
             // added to give the selected theme an Active class
             $scope.selected = theme;
@@ -571,7 +577,6 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             LayerManagementService.AddOrUpdateTheme($scope.selectedTheme, $scope.copySelectedTheme);
             $scope.clearPreview();
         };
-
         $scope.ok = function () {
             $modalInstance.$close();
         };
@@ -605,8 +610,8 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             $scope.url = $scope.url.trim().replace('?', '');
             createWMS($scope.url);
         };
-
         var createWMS = function createWMS(url) {
+            $scope.clearPreview();
             var wms = MapData.Themes.find(function (x) {
                 return x.CleanUrl == url;
             });
@@ -619,9 +624,11 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                         var wmstheme = ThemeCreater.createWMSThemeFromJSON(data, url);
                         $scope.previewTheme(wmstheme);
                     } else {
+                        $scope.error = "Fout bij het laden van WMS.";
                         PopupService.Error("Ongeldige WMS", "De opgegeven url is geen geldige WMS url. (" + url + ")");
                     }
                 }).error(function (data, status, headers, config) {
+                    $scope.error = "Fout bij het laden van WMS.";
                     $scope.themeloading = false;
                 });
             } else {
@@ -637,6 +644,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         $scope.clearPreview = function () {
             $scope.selectedTheme = null;
             $scope.copySelectedTheme = null;
+            $scope.error = null;
         };
 
         $scope.AddOrUpdateTheme = function () {
@@ -963,7 +971,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
 
 (function (module) {
     module = angular.module('tink.gis');
-    var theController = module.controller('mapController', function ($scope, ExternService, BaseLayersService, MapService, MapData, map, MapEvents, DrawService, HelperService, GISService, PopupService, $interval, TypeAheadService) {
+    var theController = module.controller('mapController', function ($scope, ExternService, BaseLayersService, MapService, MapData, map, MapEvents, DrawService, HelperService, GISService, PopupService, $interval, TypeAheadService, UIService) {
         //We need to include MapEvents, even tho we don t call it just to make sure it gets loaded!
         var vm = this;
         var init = function () {
@@ -1032,6 +1040,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         vm.zoekLaag = function (search) {
             MapData.CleanMap();
             MapService.Find(search);
+            UIService.OpenLeftSide();
         };
         var setViewAndPutDot = function setViewAndPutDot(loc) {
             MapData.PanToPoint(loc);
@@ -1184,7 +1193,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             }
         };
     });
-    theController.$inject = ['BaseLayersService', 'ExternService', 'MapService', 'MapData', 'map', 'MapEvents', 'DrawService', 'HelperService', 'GISService', 'PopupService', '$interval'];
+    theController.$inject = ['BaseLayersService', 'ExternService', 'MapService', 'MapData', 'map', 'MapEvents', 'DrawService', 'HelperService', 'GISService', 'PopupService', '$interval', 'UIService'];
 })();
 ;'use strict';
 
@@ -1209,7 +1218,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 closeOnConfirm: true
             }, function () {
                 ThemeService.DeleteTheme(vm.theme);
-                $scope.$apply();
+                $scope.$applyAsync();
             });
             console.log(vm.theme);
         };
@@ -1244,7 +1253,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 var property = attrs.property;
                 // Bind the onChange event to update children
                 element.bind('change', function () {
-                    scope.$apply(function () {
+                    scope.$applyAsync(function () {
                         var isChecked = element.prop('checked');
                         // Set each child's selected property to the checkbox's checked property
                         angular.forEach(scope.$eval(childList), function (child) {
@@ -1681,7 +1690,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
     }
     var baseLayersService = function baseLayersService(map) {
         var _baseLayersService = {};
-        _baseLayersService.basemap2Naam = "geen";
+        _baseLayersService.basemap2Naam = "Geen";
         _baseLayersService.basemap1Naam = "Geen";
 
         _baseLayersService.setBaseMap = function (id, naam, url) {
@@ -2576,12 +2585,13 @@ L.control.typeahead = function (args) {
         };
         _data.Apply = function () {
             console.log('apply');
-            if (!$rootScope.$$phase) {
-                //$digest or $apply
-                $rootScope.$apply();
-            } else {
-                console.log('apply NOT needed');
-            }
+            // if (!$rootScope.$$phase) {
+            //$digest or $apply
+            $rootScope.$applyAsync();
+            // }
+            // else {
+            //     console.log('apply NOT needed');
+            // }
         };
 
         _data.CreateOrigineleMarker = function (latlng, addressFound, straatNaam) {
@@ -2783,7 +2793,7 @@ L.control.typeahead = function (args) {
                     }
                     ResultsData.JsonFeatures.push(featureItem);
                 }
-                $rootScope.$apply();
+                $rootScope.$applyAsync();
             }
         };
         return _data;
@@ -2806,7 +2816,7 @@ L.control.typeahead = function (args) {
         map.on('draw:drawstop', function (event) {
             console.log('draw stopped');
             MapData.IsDrawing = false;
-            $rootScope.$apply(function () {
+            $rootScope.$applyAsync(function () {
                 MapData.DrawingType = DrawingOption.GEEN;
             });
             // MapData.CleanDrawings();
@@ -2855,7 +2865,7 @@ L.control.typeahead = function (args) {
                             MapData.LastIdentifyBounds = map.getBounds();
                             MapService.Identify(event, 10);
                             UIService.OpenLeftSide();
-                            $rootScope.$apply(function () {
+                            $rootScope.$applyAsync(function () {
                                 MapData.ActiveInteractieKnop = ActiveInteractieButton.GEEN;
                             });
 
@@ -2870,7 +2880,7 @@ L.control.typeahead = function (args) {
                                 MapService.Select(event);
                                 UIService.OpenLeftSide();
                                 _mapEvents.removeCursorAuto();
-                                $rootScope.$apply(function () {
+                                $rootScope.$applyAsync(function () {
                                     MapData.DrawingType = DrawingOption.GEEN;
                                 });
                             } // else a drawing finished
@@ -2878,7 +2888,7 @@ L.control.typeahead = function (args) {
                         case ActiveInteractieButton.WATISHIER:
                             MapData.CleanWatIsHier();
                             MapService.WatIsHier(event);
-                            $rootScope.$apply(function () {
+                            $rootScope.$applyAsync(function () {
                                 MapData.ActiveInteractieKnop = ActiveInteractieButton.GEEN;
 
                                 _mapEvents.removeCursorAuto();
@@ -2960,7 +2970,7 @@ L.control.typeahead = function (args) {
                     console.log('MAG NIET!!!!!!!!');
                     break;
             }
-            $rootScope.$apply(function () {
+            $rootScope.$applyAsync(function () {
                 MapData.DrawingType = DrawingOption.GEEN;
             });
             MapData.IsDrawing = false;
@@ -3065,7 +3075,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                                             MapData.AddFeatures(returnitem, theme);
                                         } else {
                                             // we must still apply for the loading to get updated
-                                            $rootScope.$apply();
+                                            $rootScope.$applyAsync();
                                         }
                                     }).error(function (exception) {
                                         ResultsData.RequestCompleted++;
@@ -3223,6 +3233,10 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             _popupService.ErrorFromHTTP(data, status, url);
         };
         _popupService.ErrorFromHTTP = function (data, status, url) {
+            if (!status) {
+                // if no status code is given, it is most likely in the body of data
+                status = data.code;
+            }
             var title = 'HTTP error (' + status + ')';
             var message = 'Fout met het navigeren naar url: ' + url;
             var exception = { url: url, status: status, data: data };
@@ -3899,12 +3913,11 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             });
         };
         _service.ExportToCSV = function () {
-            var csvContent = ""; // "data:text/csv;charset=utf-8,";
-            var dataString = "";
-            var layName = "";
+            var csvContent = "",
+                dataString = "",
+                layName = "";
             csvContent += 'sep=;\n';
-            csvContent += 'Laag;' + "\n";
-
+            csvContent += 'Laag;\n';
             _.sortBy(ResultsData.JsonFeatures, function (x) {
                 return x.layerName;
             }).forEach(function (feature, index) {
@@ -3916,17 +3929,17 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                     }
                     var layfirstline = tmparr.join(";");
 
-                    csvContent += layName + ";" + layfirstline + "\n";
+                    csvContent += layName + ";" + layfirstline + '\n';
                 }
                 var infoArray = _.values(feature.properties);
                 infoArray.unshift(layName);
                 dataString = infoArray.join(";");
                 console.log(dataString);
                 // csvContent += dataString + "\n";
-                csvContent += index < ResultsData.JsonFeatures.length ? dataString + "\n" : dataString;
+                csvContent += index < ResultsData.JsonFeatures.length ? dataString + '\n' : dataString;
             });
             var a = document.createElement('a');
-            a.href = 'data:attachment/csv,' + encodeURIComponent(csvContent);
+            a.href = 'data:attachment/csv,' + escape(csvContent);
             a.target = '_blank';
             a.download = 'exportsik.csv';
 
@@ -3937,9 +3950,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             var props = Object.getOwnPropertyNames(result.properties).map(function (k) {
                 return { key: k, value: result.properties[k] };
             });
-            var csvContent = ""; // "data:text/csv;charset=utf-8,";
-            var dataString = "";
-            var layName = "";
+            var csvContent = "",
+                dataString = "",
+                layName = "";
             csvContent += 'sep=;\n';
             csvContent += 'Laag;' + result.layerName + '\n';
             props.forEach(function (prop) {
@@ -3952,7 +3965,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 csvContent += prop.key + ';' + prop.value + '\n';
             });
             var a = document.createElement('a');
-            a.href = 'data:attachment/csv,' + encodeURIComponent(csvContent);
+            a.href = 'data:attachment/csv,' + escape(csvContent);
             a.target = '_blank';
             a.download = 'exportsik.csv';
 
@@ -4433,34 +4446,79 @@ L.drawLocal = {
 
 
   $templateCache.put('templates/layermanagement/geoPuntTemplate.html',
-    "<div class=\"gepoPuntTemplate row relative-container\">\n" +
-    "<div class=\"col-md-4 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
-    "<div ng-show=\"loading == false\" class=\"overflow-wrapper flex-grow-1 list-selectable margin-top margin-bottom\">\n" +
-    "<div ng-if=!searchIsUrl ng-repeat=\"theme in availableThemes\">\n" +
-    "<dl ng-class=\"{active: isActive(theme)}\" ng-class=\"{'not-allowed': theme.Type != 'wms' &&  theme.Type != 'esri'}\">\n" +
-    "<a href=# class=theme-layer ng-click=geopuntThemeChanged(theme)>\n" +
-    "<dt>{{theme.Naam}}</dt>\n" +
-    "</a>\n" +
-    "<i ng-if=\"theme.Added == true\" class=\"fa fa-check-circle\"></i>\n" +
-    "<i ng-if=\"theme.Added == null\" class=\"fa fa-check-circle-o\"></i>\n" +
-    "</dl>\n" +
-    "</div>\n" +
-    "</div>\n" +
-    "<div ng-show=\"loading == false\">\n" +
-    "<tink-pagination ng-hide=\"numberofrecordsmatched <= 5\" tink-items-per-page-values=[5] tink-current-page=currentPage tink-change=pageChanged(page,perPage,next) tink-total-items=numberofrecordsmatched tink-items-per-page=recordsAPage></tink-pagination>\n" +
-    "</div>\n" +
-    "<div ng-if=\"loading == true\" class=loader>\n" +
-    "</div>\n" +
-    "</div>\n" +
-    "<div class=\"col-md-8 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
-    "<div ng-if=searchIsUrl>\n" +
-    "<button ng-click=laadUrl()>Laad url</button>\n" +
-    "</div>\n" +
-    "<preview-layer ng-show=\"themeloading == false\" class=margin-top ng-if=copySelectedTheme addorupdatefunc=AddOrUpdateTheme() theme=copySelectedTheme>\n" +
-    "</preview-layer>\n" +
-    "<div class=loader ng-show=\"themeloading == true\"></div>\n" +
-    "</div>\n" +
-    "</div>\n"
+    "<div class=\"gepoPuntTemplate row relative-container\">\r" +
+    "\n" +
+    "    <div class=\"col-md-4 flex-column flex-grow-1 margin-top margin-bottom\">\r" +
+    "\n" +
+    "        <!--<div>\r" +
+    "\n" +
+    "            <input class=\"searchbox\" type=\"text\" ng-model=\"searchTerm\" ng-change=\"searchChanged()\" ng-model-options=\"{debounce: 500}\" placeholder=\"Geef een trefwoord of een url in\" />\r" +
+    "\n" +
+    "        </div>-->\r" +
+    "\n" +
+    "        <!--<div class=\"margin-top\">\r" +
+    "\n" +
+    "            <input type=\"text\" disabled=\"disabled\" value=\"https://geodata.antwerpen.be/arcgissql/services/P_SiK/Groeninventaris/MapServer/WMSServer\" />\r" +
+    "\n" +
+    "        </div>-->\r" +
+    "\n" +
+    "        <div ng-show=\"loading == false\" class=\"overflow-wrapper flex-grow-1 list-selectable margin-top margin-bottom\">\r" +
+    "\n" +
+    "            <div ng-if=\"!searchIsUrl\" ng-repeat=\"theme in availableThemes\">\r" +
+    "\n" +
+    "                <dl ng-class=\"{active: isActive(theme)}\" ng-class=\"{'not-allowed': theme.Type != 'wms' &&  theme.Type != 'esri'}\">\r" +
+    "\n" +
+    "                    <a href=\"#\" class=\"theme-layer\" ng-click=\"geopuntThemeChanged(theme)\">\r" +
+    "\n" +
+    "                        <dt>{{theme.Naam}}</dt>\r" +
+    "\n" +
+    "                    </a>\r" +
+    "\n" +
+    "                    <i ng-if=\"theme.Added == true\" class=\"fa fa-check-circle\"></i>\r" +
+    "\n" +
+    "                    <i ng-if=\"theme.Added == null\" class=\"fa fa-check-circle-o\"></i>\r" +
+    "\n" +
+    "                </dl>\r" +
+    "\n" +
+    "            </div>\r" +
+    "\n" +
+    "        </div>\r" +
+    "\n" +
+    "        <div ng-show=\"loading == false\">\r" +
+    "\n" +
+    "            <tink-pagination ng-hide=\"numberofrecordsmatched <= 5\" tink-items-per-page-values=\"[5]\" tink-current-page=\"currentPage\" tink-change=\"pageChanged(page,perPage,next)\"\r" +
+    "\n" +
+    "                tink-total-items=\"numberofrecordsmatched\" tink-items-per-page=\"recordsAPage\"></tink-pagination>\r" +
+    "\n" +
+    "        </div>\r" +
+    "\n" +
+    "        <div ng-if=\"loading == true\" class=\"loader\">\r" +
+    "\n" +
+    "\r" +
+    "\n" +
+    "        </div>\r" +
+    "\n" +
+    "    </div>\r" +
+    "\n" +
+    "    <div class=\"col-md-8 flex-column flex-grow-1 margin-top margin-bottom\">\r" +
+    "\n" +
+    "        <preview-layer ng-show=\"themeloading == false\" class=\"margin-top\" ng-if=\"copySelectedTheme\" addorupdatefunc=\"AddOrUpdateTheme()\"\r" +
+    "\n" +
+    "            theme=\"copySelectedTheme\">\r" +
+    "\n" +
+    "        </preview-layer>\r" +
+    "\n" +
+    "        <div ng-if \"error\">\r" +
+    "\n" +
+    "            {{error}}\r" +
+    "\n" +
+    "        </div>\r" +
+    "\n" +
+    "        <div class=\"loader\" ng-show=\"themeloading == true\"></div>\r" +
+    "\n" +
+    "    </div>\r" +
+    "\n" +
+    "</div>"
   );
 
 
@@ -4570,54 +4628,121 @@ L.drawLocal = {
 
 
   $templateCache.put('templates/layermanagement/solrGISTemplate.html',
-    "<div class=\"solrGISTemplate row relative-container flex-grow-1\">\n" +
-    "<div class=\"col-xs-5 flex-column flex-grow-1\">\n" +
-    "<div class=\"overflow-wrapper flex-grow-1 list-selectable margin-top margin-bottom border-right\">\n" +
-    "<div ng-show=\"loading == false\" ng-repeat=\"theme in availableThemes\">\n" +
-    "<dl ng-class=\"{active: isActive(theme)}\">\n" +
-    "<a href=# class=theme-layer ng-click=solrThemeChanged(theme)>\n" +
-    "<dt>{{theme.name}}</dt>\n" +
-    "</a>\n" +
-    "<dd ng-repeat=\"layer in theme.layers\">\n" +
-    "<span>{{layer.naam}}\n" +
-    "<span ng-show=\"layer.featuresCount > 0\"> ({{layer.featuresCount}})</span>\n" +
-    "</span>\n" +
-    "<div class=featureinsolr>\n" +
-    "{{layer.features.join(', ')}}\n" +
-    "</div>\n" +
-    "</dd>\n" +
-    "</dl>\n" +
-    "</div>\n" +
-    "</div>\n" +
-    "<div ng-show=\"loading == false\">\n" +
-    "<tink-pagination ng-hide=\"numberofrecordsmatched <= 5\" tink-current-page=currentPage tink-change=pageChanged(page,perPage,next) tink-total-items=numberofrecordsmatched tink-items-per-page=recordsAPage></tink-pagination>\n" +
-    "</div>\n" +
-    "<div ng-if=\"loading == true\" class=loader>\n" +
-    "</div>\n" +
-    "</div>\n" +
-    "<div class=\"col-xs-7 flex-column flex-grow-1\">\n" +
-    "<preview-layer ng-if=copySelectedTheme theme=copySelectedTheme addorupdatefunc=AddOrUpdateTheme()>\n" +
-    "</preview-layer>\n" +
-    "</div>\n" +
-    "</div>\n"
+    "<div class=\"solrGISTemplate row relative-container flex-grow-1\">\r" +
+    "\n" +
+    "    <div class=\"col-xs-5 flex-column flex-grow-1\">\r" +
+    "\n" +
+    "        <div class=\"overflow-wrapper flex-grow-1 list-selectable margin-top margin-bottom border-right\">\r" +
+    "\n" +
+    "            <div ng-show=\"loading == false\" ng-repeat=\"theme in availableThemes\">\r" +
+    "\n" +
+    "                <dl ng-class=\"{active: isActive(theme)}\">\r" +
+    "\n" +
+    "                    <a href=\"#\" class=\"theme-layer\" ng-click=\"solrThemeChanged(theme)\">\r" +
+    "\n" +
+    "                        <dt>{{theme.name}}</dt>\r" +
+    "\n" +
+    "                    </a>\r" +
+    "\n" +
+    "                    <dd ng-repeat=\"layer in theme.layers\">\r" +
+    "\n" +
+    "                        <span class=\"\">{{layer.naam}}\r" +
+    "\n" +
+    "                            <span ng-show=\"layer.featuresCount > 0\"> ({{layer.featuresCount}})</span>\r" +
+    "\n" +
+    "                        </span>\r" +
+    "\n" +
+    "                        <div class=\"featureinsolr\">\r" +
+    "\n" +
+    "                            {{layer.features.join(', ')}}\r" +
+    "\n" +
+    "                        </div>\r" +
+    "\n" +
+    "                    </dd>\r" +
+    "\n" +
+    "                </dl>\r" +
+    "\n" +
+    "            </div>\r" +
+    "\n" +
+    "        </div>\r" +
+    "\n" +
+    "        <div ng-show=\"loading == false\">\r" +
+    "\n" +
+    "            <tink-pagination ng-hide=\"numberofrecordsmatched <= 5\" tink-current-page=\"currentPage\" tink-change=\"pageChanged(page,perPage,next)\"\r" +
+    "\n" +
+    "                tink-total-items=\"numberofrecordsmatched\" tink-items-per-page=\"recordsAPage\"></tink-pagination>\r" +
+    "\n" +
+    "        </div>\r" +
+    "\n" +
+    "        <div ng-if=\"loading == true\" class=\"loader\">\r" +
+    "\n" +
+    "\r" +
+    "\n" +
+    "        </div>\r" +
+    "\n" +
+    "    </div>\r" +
+    "\n" +
+    "    <div class=\"col-xs-7 flex-column flex-grow-1\">\r" +
+    "\n" +
+    "        <preview-layer ng-if=\"copySelectedTheme\" theme=\"copySelectedTheme\" addorupdatefunc=\"AddOrUpdateTheme()\">\r" +
+    "\n" +
+    "\r" +
+    "\n" +
+    "        </preview-layer>\r" +
+    "\n" +
+    "        <div ng-if \"error\">\r" +
+    "\n" +
+    "            {{error}}\r" +
+    "\n" +
+    "        </div>\r" +
+    "\n" +
+    "        <div class=\"loader\" ng-show=\"themeloading == true\"></div>\r" +
+    "\n" +
+    "\r" +
+    "\n" +
+    "    </div>\r" +
+    "\n" +
+    "</div>"
   );
 
 
   $templateCache.put('templates/layermanagement/wmsUrlTemplate.html',
-    "<div class=\"wmsUrlTemplate row relative-container\">\n" +
-    "<div class=\"col-md-4 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
-    "<div>\n" +
-    "<input class=searchbox ng-model=url ng-change=urlChanged() placeholder=\"Geef een url in\">\n" +
-    "</div>\n" +
-    "</div>\n" +
-    "<div class=\"col-md-8 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
-    "<div ng-if=urlIsValid>\n" +
-    "<button ng-click=laadUrl()>Laad url</button>\n" +
-    "</div>\n" +
-    "<preview-layer ng-show=\"themeloading == false\" class=margin-top ng-if=copySelectedTheme addorupdatefunc=AddOrUpdateTheme() theme=copySelectedTheme>\n" +
-    "</preview-layer>\n" +
-    "<div class=loader ng-show=\"themeloading == true\"></div>\n" +
-    "</div>\n" +
+    "<div class=\"wmsUrlTemplate row relative-container\">\r" +
+    "\n" +
+    "    <div class=\"col-md-4 flex-column flex-grow-1 margin-top margin-bottom\">\r" +
+    "\n" +
+    "        <div>\r" +
+    "\n" +
+    "            <input class=\"searchbox\" type=\"text\" ng-model=\"url\" ng-change=\"urlChanged()\" placeholder=\"Geef een url in\" />\r" +
+    "\n" +
+    "        </div>\r" +
+    "\n" +
+    "    </div>\r" +
+    "\n" +
+    "    <div class=\"col-md-8 flex-column flex-grow-1 margin-top margin-bottom\">\r" +
+    "\n" +
+    "        <div>\r" +
+    "\n" +
+    "            <button ng-disabled=\"!urlIsValid\" ng-click=\"laadUrl()\">Laad url</button>\r" +
+    "\n" +
+    "        </div>\r" +
+    "\n" +
+    "        <preview-layer ng-show=\"themeloading == false\" class=\"margin-top\" ng-if=\"copySelectedTheme\" addorupdatefunc=\"AddOrUpdateTheme()\"\r" +
+    "\n" +
+    "            theme=\"copySelectedTheme\">\r" +
+    "\n" +
+    "        </preview-layer>\r" +
+    "\n" +
+    "        <div ng-if \"error\">\r" +
+    "\n" +
+    "            {{error}}\r" +
+    "\n" +
+    "        </div>\r" +
+    "\n" +
+    "        <div class=\"loader\" ng-show=\"themeloading == true\"></div>\r" +
+    "\n" +
+    "    </div>\r" +
+    "\n" +
     "</div>"
   );
 
@@ -4739,7 +4864,8 @@ L.drawLocal = {
     "<button type=button class=btn ng-class=\"{active: mapctrl.ZoekenOpLocatie==false}\" ng-click=mapctrl.ZoekenInLagen() tink-tooltip=\"Zoeken binnen lagen\" tink-tooltip-align=bottom prevent-default-map><i class=\"fa fa-download\"></i></button>\n" +
     "</div>\n" +
     "<form id=zoekbalken class=\"form-force-inline ll zoekbalken\">\n" +
-    "<select ng-options=\"layer as layer.name for layer in mapctrl.SelectableLayers()\" ng-model=mapctrl.selectedFindLayer ng-show=\"mapctrl.SelectableLayers().length > 1\" ng-change=mapctrl.findLayerChange() prevent-default-map></select><input type=search ng-show=\"mapctrl.ZoekenOpLocatie == false\" placeholder=\"Geef een zoekterm\" prevent-default-map ng-keyup=\"$event.keyCode == 13 && mapctrl.zoekLaag(mapctrl.laagquery)\" ng-model=mapctrl.laagquery>\n" +
+    "<select ng-options=\"layer as layer.name for layer in mapctrl.SelectableLayers()\" ng-model=mapctrl.selectedFindLayer ng-show=\"mapctrl.SelectableLayers().length > 1\" ng-change=mapctrl.findLayerChange() prevent-default-map></select>\n" +
+    "<input type=search ng-show=\"mapctrl.ZoekenOpLocatie == false\" placeholder=\"Geef een zoekterm\" prevent-default-map ng-keyup=\"$event.keyCode == 13 && mapctrl.zoekLaag(mapctrl.laagquery)\" ng-model=mapctrl.laagquery>\n" +
     "</form>\n" +
     "</div>\n" +
     "<div class=map-buttons-right>\n" +

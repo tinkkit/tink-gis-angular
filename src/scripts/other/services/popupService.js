@@ -39,9 +39,12 @@
             _popupService.ErrorFromHTTP(data, status, url);
         };
         _popupService.ErrorFromHTTP = function (data, status, url) {
+            if (!status) { // if no status code is given, it is most likely in the body of data
+                status = data.code; 
+            }
             var title = 'HTTP error (' + status + ')';
             var message = 'Fout met het navigeren naar url: ' + url;
-            var exception = { url: url,  status: status, data: data };
+            var exception = { url: url, status: status, data: data };
             var callback = function () { _popupService.ExceptionFunc(exception) };
             _popupService.popupGenerator('Error', title, message, callback)
         };

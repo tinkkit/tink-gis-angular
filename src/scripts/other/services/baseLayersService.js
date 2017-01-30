@@ -7,7 +7,7 @@
     }
     var baseLayersService = function (map) {
         var _baseLayersService = {};
-        _baseLayersService.basemap2Naam = "geen";
+        _baseLayersService.basemap2Naam = "Geen";
         _baseLayersService.basemap1Naam = "Geen";
 
         _baseLayersService.setBaseMap = function (id, naam, url, maxZoom = 19, minZoom = 0) {

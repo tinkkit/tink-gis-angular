@@ -1,7 +1,7 @@
 'use strict';
 (function (module) {
     module = angular.module('tink.gis');
-    var theController = module.controller('mapController', function ($scope, ExternService, BaseLayersService, MapService, MapData, map, MapEvents, DrawService, HelperService, GISService, PopupService, $interval, TypeAheadService) {
+    var theController = module.controller('mapController', function ($scope, ExternService, BaseLayersService, MapService, MapData, map, MapEvents, DrawService, HelperService, GISService, PopupService, $interval, TypeAheadService, UIService) {
         //We need to include MapEvents, even tho we don t call it just to make sure it gets loaded!
         var vm = this;
         var init = function () {
@@ -32,8 +32,8 @@
         vm.showDrawControls = false;
         vm.zoekLoc = '';
 
-   
-    
+
+
         var features = [];
 
         vm.addCursorAuto = function () {
@@ -66,6 +66,8 @@
         vm.zoekLaag = function (search) {
             MapData.CleanMap();
             MapService.Find(search);
+            UIService.OpenLeftSide();
+
         };
         var setViewAndPutDot = function (loc) {
             MapData.PanToPoint(loc);
@@ -223,5 +225,5 @@
         }
 
     });
-    theController.$inject = ['BaseLayersService', 'ExternService', 'MapService', 'MapData', 'map', 'MapEvents', 'DrawService', 'HelperService', 'GISService', 'PopupService', '$interval'];
+    theController.$inject = ['BaseLayersService', 'ExternService', 'MapService', 'MapData', 'map', 'MapEvents', 'DrawService', 'HelperService', 'GISService', 'PopupService', '$interval', 'UIService'];
 })();

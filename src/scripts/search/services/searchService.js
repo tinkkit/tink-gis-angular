@@ -25,12 +25,9 @@
 
         };
         _service.ExportToCSV = function () {
-            var csvContent = ""; // "data:text/csv;charset=utf-8,";
-            var dataString = "";
-            var layName = "";
-            csvContent += 'sep=;\n'
-            csvContent += 'Laag;' + "\n"
-
+            var csvContent = "", dataString = "", layName = "";
+            csvContent += 'sep=;\n';
+            csvContent += 'Laag;\n';
             _.sortBy(ResultsData.JsonFeatures, x => x.layerName).forEach(function (feature, index) {
                 if (layName !== feature.layerName) {
                     layName = feature.layerName.replace(';', ',');
@@ -40,18 +37,18 @@
                     }
                     var layfirstline = tmparr.join(";");
 
-                    csvContent += layName + ";" + layfirstline + "\n";
+                    csvContent += layName + ";" + layfirstline + '\n';
                 }
                 var infoArray = _.values(feature.properties);
                 infoArray.unshift(layName);
                 dataString = infoArray.join(";");
                 console.log(dataString);
                 // csvContent += dataString + "\n";
-                csvContent += index < ResultsData.JsonFeatures.length ? dataString + "\n" : dataString;
+                csvContent += index < ResultsData.JsonFeatures.length ? dataString + '\n' : dataString;
 
             });
             var a = document.createElement('a');
-            a.href = 'data:attachment/csv,' + encodeURIComponent(csvContent);
+            a.href = 'data:attachment/csv,' + escape(csvContent);
             a.target = '_blank';
             a.download = 'exportsik.csv';
 
@@ -60,9 +57,7 @@
         };
         _service.ExportOneToCSV = function (result) {
             var props = Object.getOwnPropertyNames(result.properties).map(k => ({ key: k, value: result.properties[k] }));
-            var csvContent = ""; // "data:text/csv;charset=utf-8,";
-            var dataString = "";
-            var layName = "";
+            var csvContent = "", dataString = "", layName = "";
             csvContent += 'sep=;\n'
             csvContent += 'Laag;' + result.layerName + '\n';
             props.forEach(function (prop) {
@@ -75,7 +70,7 @@
                 csvContent += prop.key + ';' + prop.value + '\n';
             })
             var a = document.createElement('a');
-            a.href = 'data:attachment/csv,' + encodeURIComponent(csvContent);
+            a.href = 'data:attachment/csv,' + escape(csvContent);
             a.target = '_blank';
             a.download = 'exportsik.csv';
 

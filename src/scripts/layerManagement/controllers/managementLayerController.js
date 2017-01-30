@@ -5,7 +5,6 @@
         var vm = this;
         vm.layer = $scope.layer;
         $scope.showLayer = false; // to show and hide the layers
-        console.log(vm.layer.AllLayers);
         // console.log(vm.layer.hasLayers());
         // vm.chkChanged = function () {
         //     $scope.$emit('layerCheckboxChangedEvent', $scope.layer); // stuur naar parent ofwel group ofwel theme

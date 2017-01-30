@@ -6,14 +6,15 @@
     } catch (e) {
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
     }
-    module.controller('solrGISController', ['$scope', 'ThemeCreater', '$q', 'MapService', 'MapData', 'GISService', 'LayerManagementService', 'WMSService', '$window', '$http', 'GeopuntService', 'ThemeService',
-        function ($scope, ThemeCreater, $q, MapService, MapData, GISService, LayerManagementService, WMSService, $window, $http, GeopuntService, ThemeService) {
+    module.controller('solrGISController', ['$scope', 'ThemeCreater', '$q', 'MapService', 'MapData', 'GISService', 'LayerManagementService', 'WMSService', '$window', '$http', 'GeopuntService', 'ThemeService', 'PopupService',
+        function ($scope, ThemeCreater, $q, MapService, MapData, GISService, LayerManagementService, WMSService, $window, $http, GeopuntService, ThemeService, PopupService) {
             $scope.pagingCount = null;
             $scope.numberofrecordsmatched = 0;
             LayerManagementService.AvailableThemes.length = 0;
             $scope.availableThemes = [];
             $scope.allThemes = [];
             $scope.loading = false;
+            $scope.error = null;
             var init = function () {
                 $scope.searchTerm = '';
             } ();
@@ -28,12 +29,8 @@
                     $scope.numberofrecordsmatched = 0;
                 }
             });
-            // $scope.searchChanged = function () {
-
-            // };
             $scope.QueryGISSOLR = function (searchterm, page) {
                 $scope.loading = true;
-                $scope.clearPreview();
 
                 var prom = GISService.QuerySOLRGIS(searchterm, ((page - 1) * 5) + 1, 5);
                 prom.then(function (data) {
@@ -135,8 +132,6 @@
             $scope.selectedTheme = null;
             $scope.copySelectedTheme = null;
             $scope.previewTheme = function (theme) {
-                console.log('themeChanged');
-                console.log(theme);
                 var alreadyExistingTheme = MapData.Themes.find(x => { return x.CleanUrl === theme.CleanUrl });
                 if (alreadyExistingTheme) {
                     theme = alreadyExistingTheme;
@@ -147,15 +142,25 @@
             $scope.clearPreview = function () {
                 $scope.selectedTheme = null;
                 $scope.copySelectedTheme = null;
+                $scope.error = null;
             };
             $scope.solrThemeChanged = function (theme) {
-                GISService.GetThemeData(theme.url).then(function (data, statuscode, functie, getdata) {
+                $scope.clearPreview();
+                $scope.themeloading = true;
+
+                GISService.GetThemeData(theme.url).then(function (data, status, functie, getdata) {
                     if (!data.error) {
                         var convertedTheme = ThemeCreater.createARCGISThemeFromJson(data, theme);
                         $scope.previewTheme(convertedTheme);
                     } else {
-                        console.log('ERROR:', data.error);
+                        PopupService.ErrorFromHTTP(data.error, status, theme.url);
+                        $scope.error = "Fout bij het laden van de mapservice.";
                     }
+                    $scope.themeloading = false;
+
+                }, function (data, status, functie, getdata) {
+                    $scope.error = "Fout bij het laden van de mapservice.";
+                    $scope.themeloading = false;
                 });
                 // added to give the selected theme an Active class
                 $scope.selected = theme;
@@ -167,7 +172,6 @@
                 LayerManagementService.AddOrUpdateTheme($scope.selectedTheme, $scope.copySelectedTheme);
                 $scope.clearPreview();
             };
-
             $scope.ok = function () {
                 $modalInstance.$close();
             };

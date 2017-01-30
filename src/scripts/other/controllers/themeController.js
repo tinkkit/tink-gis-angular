@@ -21,7 +21,7 @@
                     closeOnConfirm: true
                 }, function () {
                     ThemeService.DeleteTheme(vm.theme);
-                    $scope.$apply();
+                    $scope.$applyAsync();
 
                 });
                 console.log(vm.theme);

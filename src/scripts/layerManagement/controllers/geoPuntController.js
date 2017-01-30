@@ -59,26 +59,29 @@
             $scope.pageChanged = function (page, recordsAPage) {
                 $scope.QueryGeoPunt($scope.searchTerm, page);
             };
-            // $scope.laadUrl = function () {
-            //     $scope.searchTerm = $scope.searchTerm.trim().replace('?', '');
-            //     createWMS($scope.searchTerm);
-            // };
             $scope.geopuntThemeChanged = function (theme) {
                 var questionmarkPos = theme.Url.trim().indexOf('?');
                 var url = theme.Url.trim().substring(0, questionmarkPos);
                 createWMS(url);
             };
-
             var createWMS = function (url) {
+                $scope.clearPreview();
                 var wms = MapData.Themes.find(x => x.CleanUrl == url);
                 if (wms == undefined) {
                     var getwms = WMSService.GetThemeData(url);
                     $scope.themeloading = true;
                     getwms.success(function (data, status, headers, config) {
                         $scope.themeloading = false;
-                        var wmstheme = ThemeCreater.createWMSThemeFromJSON(data, url)
-                        $scope.previewTheme(wmstheme);
+                        if (data) {
+                            var wmstheme = ThemeCreater.createWMSThemeFromJSON(data, url);
+                            $scope.previewTheme(wmstheme);
+                        }
+                        else {
+                            PopupService.Error("Ongeldige WMS", "De opgegeven url is geen geldige WMS url. (" + url + ")");
+                            $scope.error = "Fout bij het laden van WMS.";
+                        }
                     }).error(function (data, status, headers, config) {
+                        $scope.error = "Fout bij het laden van WMS.";
                         $scope.themeloading = false;
                     });
                 }
@@ -95,6 +98,7 @@
             $scope.clearPreview = function () {
                 $scope.selectedTheme = null;
                 $scope.copySelectedTheme = null;
+                $scope.error = null;
             };
 
             $scope.AddOrUpdateTheme = function () {

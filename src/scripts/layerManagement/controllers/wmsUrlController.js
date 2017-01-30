@@ -24,8 +24,8 @@
                 $scope.url = $scope.url.trim().replace('?', '');
                 createWMS($scope.url);
             };
-
             var createWMS = function (url) {
+                $scope.clearPreview();
                 var wms = MapData.Themes.find(x => x.CleanUrl == url);
                 if (wms == undefined) {
                     var getwms = WMSService.GetThemeData(url);
@@ -37,9 +37,11 @@
                             $scope.previewTheme(wmstheme);
                         }
                         else {
+                            $scope.error = "Fout bij het laden van WMS.";
                             PopupService.Error("Ongeldige WMS", "De opgegeven url is geen geldige WMS url. (" + url + ")");
                         }
                     }).error(function (data, status, headers, config) {
+                        $scope.error = "Fout bij het laden van WMS.";
                         $scope.themeloading = false;
                     });
                 }
@@ -56,6 +58,7 @@
             $scope.clearPreview = function () {
                 $scope.selectedTheme = null;
                 $scope.copySelectedTheme = null;
+                $scope.error = null;
             };
 
             $scope.AddOrUpdateTheme = function () {

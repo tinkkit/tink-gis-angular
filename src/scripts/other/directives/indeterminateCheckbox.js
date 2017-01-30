@@ -10,7 +10,7 @@
                 var property = attrs.property;
                 // Bind the onChange event to update children
                 element.bind('change', function () {
-                    scope.$apply(function () {
+                    scope.$applyAsync(function () {
                         var isChecked = element.prop('checked');
                         // Set each child's selected property to the checkbox's checked property
                         angular.forEach(scope.$eval(childList), function (child) {

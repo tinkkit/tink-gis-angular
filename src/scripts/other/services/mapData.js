@@ -125,13 +125,13 @@
         };
         _data.Apply = function () {
             console.log('apply');
-            if (!$rootScope.$$phase) {
-                //$digest or $apply
-                $rootScope.$apply();
-            }
-            else {
-                console.log('apply NOT needed');
-            }
+            // if (!$rootScope.$$phase) {
+            //$digest or $apply
+            $rootScope.$applyAsync();
+            // }
+            // else {
+            //     console.log('apply NOT needed');
+            // }
         };
 
 
@@ -362,7 +362,7 @@
                     }
                     ResultsData.JsonFeatures.push(featureItem);
                 }
-                $rootScope.$apply();
+                $rootScope.$applyAsync();
             }
         };
         return _data;

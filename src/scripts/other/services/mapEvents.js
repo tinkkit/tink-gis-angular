@@ -12,7 +12,7 @@
         map.on('draw:drawstop', function (event) {
             console.log('draw stopped');
             MapData.IsDrawing = false;
-            $rootScope.$apply(function () {
+            $rootScope.$applyAsync(function () {
                 MapData.DrawingType = DrawingOption.GEEN;
             });
             // MapData.CleanDrawings();
@@ -61,7 +61,7 @@
                             MapData.LastIdentifyBounds = map.getBounds();
                             MapService.Identify(event, 10);
                             UIService.OpenLeftSide();
-                            $rootScope.$apply(function () {
+                            $rootScope.$applyAsync(function () {
                                 MapData.ActiveInteractieKnop = ActiveInteractieButton.GEEN;
                             });
 
@@ -76,7 +76,7 @@
                                 MapService.Select(event);
                                 UIService.OpenLeftSide();
                                 _mapEvents.removeCursorAuto();
-                                $rootScope.$apply(function () {
+                                $rootScope.$applyAsync(function () {
                                     MapData.DrawingType = DrawingOption.GEEN;
                                 });
                             } // else a drawing finished
@@ -84,7 +84,7 @@
                         case ActiveInteractieButton.WATISHIER:
                             MapData.CleanWatIsHier();
                             MapService.WatIsHier(event);
-                            $rootScope.$apply(function () {
+                            $rootScope.$applyAsync(function () {
                                 MapData.ActiveInteractieKnop = ActiveInteractieButton.GEEN;
 
                             _mapEvents.removeCursorAuto();
@@ -171,7 +171,7 @@
                     console.log('MAG NIET!!!!!!!!');
                     break;
             }
-            $rootScope.$apply(function () {
+            $rootScope.$applyAsync(function () {
                 MapData.DrawingType = DrawingOption.GEEN;
             });
             MapData.IsDrawing = false;

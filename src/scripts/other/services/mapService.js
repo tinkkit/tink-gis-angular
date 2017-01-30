@@ -73,7 +73,7 @@
                                         }
                                         else {
                                             // we must still apply for the loading to get updated
-                                            $rootScope.$apply();
+                                            $rootScope.$applyAsync();
                                         }
                                     }).error(function (exception) {
                                         ResultsData.RequestCompleted++;
