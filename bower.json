@@ -33,7 +33,7 @@
     "proj4": "^2.3.12",
     "Leaflet.awesome-markers": "^2.0.2",
     "angular-filter": "^0.5.8",
-    "leaflet-draw": "leaflet.draw#^0.3.0",
+    "leaflet-draw": "^0.4.9",
     "leaflet-geodesy": "^0.2.1",
     "esri-leaflet": "^2.0.0",
     "jxon": "^1.6.1",
