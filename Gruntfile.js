@@ -299,7 +299,6 @@ module.exports = function (grunt) {
                 presets: ['es2015']
             },
             dist: {
-
                 files: [{
                     expand: true,
                     cwd: 'src/scripts',
@@ -457,7 +456,7 @@ module.exports = function (grunt) {
         'karma:build',
         'ngtemplates',
         'replace',
-        // 'copy:dist',
+        // // 'copy:dist',
         'concat',
         'uglify:dist',
         'concurrent:dist',
@@ -468,7 +467,6 @@ module.exports = function (grunt) {
         'cssmin',
         'clean:server'
     ]);
-
     grunt.registerTask('default', [
         'newer:jshint',
         'test',

@@ -7,8 +7,6 @@
             <span class="show-layer" ng-click="showLayer = !showLayer"></span>
         </div>
         <div ng-show="showLayer" ng-repeat="lay in lyrctrl.layer.Layers">
-
-            <!--{{layer.title}}-->
             <tink-managementlayer layer="lay">
             </tink-managementlayer>
         </div>

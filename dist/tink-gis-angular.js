@@ -4448,78 +4448,33 @@ L.drawLocal = {
 
 
   $templateCache.put('templates/layermanagement/geoPuntTemplate.html',
-    "<div class=\"gepoPuntTemplate row relative-container\">\r" +
-    "\n" +
-    "    <div class=\"col-md-4 flex-column flex-grow-1 margin-top margin-bottom\">\r" +
-    "\n" +
-    "        <!--<div>\r" +
-    "\n" +
-    "            <input class=\"searchbox\" type=\"text\" ng-model=\"searchTerm\" ng-change=\"searchChanged()\" ng-model-options=\"{debounce: 500}\" placeholder=\"Geef een trefwoord of een url in\" />\r" +
-    "\n" +
-    "        </div>-->\r" +
-    "\n" +
-    "        <!--<div class=\"margin-top\">\r" +
-    "\n" +
-    "            <input type=\"text\" disabled=\"disabled\" value=\"https://geodata.antwerpen.be/arcgissql/services/P_SiK/Groeninventaris/MapServer/WMSServer\" />\r" +
-    "\n" +
-    "        </div>-->\r" +
-    "\n" +
-    "        <div ng-show=\"loading == false\" class=\"overflow-wrapper flex-grow-1 list-selectable margin-top margin-bottom\">\r" +
-    "\n" +
-    "            <div ng-if=\"!searchIsUrl\" ng-repeat=\"theme in availableThemes\">\r" +
-    "\n" +
-    "                <dl ng-class=\"{active: isActive(theme)}\" ng-class=\"{'not-allowed': theme.Type != 'wms' &&  theme.Type != 'esri'}\">\r" +
-    "\n" +
-    "                    <a href=\"#\" class=\"theme-layer\" ng-click=\"geopuntThemeChanged(theme)\">\r" +
-    "\n" +
-    "                        <dt>{{theme.Naam}}</dt>\r" +
-    "\n" +
-    "                    </a>\r" +
-    "\n" +
-    "                    <i ng-if=\"theme.Added == true\" class=\"fa fa-check-circle\"></i>\r" +
-    "\n" +
-    "                    <i ng-if=\"theme.Added == null\" class=\"fa fa-check-circle-o\"></i>\r" +
-    "\n" +
-    "                </dl>\r" +
-    "\n" +
-    "            </div>\r" +
-    "\n" +
-    "        </div>\r" +
-    "\n" +
-    "        <div ng-show=\"loading == false\">\r" +
-    "\n" +
-    "            <tink-pagination ng-hide=\"numberofrecordsmatched <= 5\" tink-items-per-page-values=\"[5]\" tink-current-page=\"currentPage\" tink-change=\"pageChanged(page,perPage,next)\"\r" +
-    "\n" +
-    "                tink-total-items=\"numberofrecordsmatched\" tink-items-per-page=\"recordsAPage\"></tink-pagination>\r" +
-    "\n" +
-    "        </div>\r" +
-    "\n" +
-    "        <div ng-if=\"loading == true\" class=\"loader\">\r" +
-    "\n" +
-    "\r" +
-    "\n" +
-    "        </div>\r" +
-    "\n" +
-    "    </div>\r" +
-    "\n" +
-    "    <div class=\"col-md-8 flex-column flex-grow-1 margin-top margin-bottom\">\r" +
-    "\n" +
-    "        <preview-layer ng-show=\"themeloading == false\" class=\"margin-top\" ng-if=\"copySelectedTheme\" addorupdatefunc=\"AddOrUpdateTheme()\"\r" +
-    "\n" +
-    "            theme=\"copySelectedTheme\">\r" +
-    "\n" +
-    "        </preview-layer>\r" +
-    "\n" +
-    "        <div ng-if \"error\">\r" +
-    "\n" +
-    "            {{error}}\r" +
-    "\n" +
-    "        </div>\r" +
-    "\n" +
-    "        <div class=\"loader\" ng-show=\"themeloading == true\"></div>\r" +
-    "\n" +
-    "    </div>\r" +
-    "\n" +
+    "<div class=\"gepoPuntTemplate row relative-container\">\n" +
+    "<div class=\"col-md-4 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
+    "<div ng-show=\"loading == false\" class=\"overflow-wrapper flex-grow-1 list-selectable margin-top margin-bottom\">\n" +
+    "<div ng-if=!searchIsUrl ng-repeat=\"theme in availableThemes\">\n" +
+    "<dl ng-class=\"{active: isActive(theme)}\" ng-class=\"{'not-allowed': theme.Type != 'wms' &&  theme.Type != 'esri'}\">\n" +
+    "<a href=# class=theme-layer ng-click=geopuntThemeChanged(theme)>\n" +
+    "<dt>{{theme.Naam}}</dt>\n" +
+    "</a>\n" +
+    "<i ng-if=\"theme.Added == true\" class=\"fa fa-check-circle\"></i>\n" +
+    "<i ng-if=\"theme.Added == null\" class=\"fa fa-check-circle-o\"></i>\n" +
+    "</dl>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "<div ng-show=\"loading == false\">\n" +
+    "<tink-pagination ng-hide=\"numberofrecordsmatched <= 5\" tink-items-per-page-values=[5] tink-current-page=currentPage tink-change=pageChanged(page,perPage,next) tink-total-items=numberofrecordsmatched tink-items-per-page=recordsAPage></tink-pagination>\n" +
+    "</div>\n" +
+    "<div ng-if=\"loading == true\" class=loader>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "<div class=\"col-md-8 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
+    "<preview-layer ng-show=\"themeloading == false\" class=margin-top ng-if=copySelectedTheme addorupdatefunc=AddOrUpdateTheme() theme=copySelectedTheme>\n" +
+    "</preview-layer>\n" +
+    "<div ng-if=error>\n" +
+    "{{error}}\n" +
+    "</div>\n" +
+    "<div class=loader ng-show=\"themeloading == true\"></div>\n" +
+    "</div>\n" +
     "</div>"
   );
 
@@ -4630,121 +4585,61 @@ L.drawLocal = {
 
 
   $templateCache.put('templates/layermanagement/solrGISTemplate.html',
-    "<div class=\"solrGISTemplate row relative-container flex-grow-1\">\r" +
-    "\n" +
-    "    <div class=\"col-xs-5 flex-column flex-grow-1\">\r" +
-    "\n" +
-    "        <div class=\"overflow-wrapper flex-grow-1 list-selectable margin-top margin-bottom border-right\">\r" +
-    "\n" +
-    "            <div ng-show=\"loading == false\" ng-repeat=\"theme in availableThemes\">\r" +
-    "\n" +
-    "                <dl ng-class=\"{active: isActive(theme)}\">\r" +
-    "\n" +
-    "                    <a href=\"#\" class=\"theme-layer\" ng-click=\"solrThemeChanged(theme)\">\r" +
-    "\n" +
-    "                        <dt>{{theme.name}}</dt>\r" +
-    "\n" +
-    "                    </a>\r" +
-    "\n" +
-    "                    <dd ng-repeat=\"layer in theme.layers\">\r" +
-    "\n" +
-    "                        <span class=\"\">{{layer.naam}}\r" +
-    "\n" +
-    "                            <span ng-show=\"layer.featuresCount > 0\"> ({{layer.featuresCount}})</span>\r" +
-    "\n" +
-    "                        </span>\r" +
-    "\n" +
-    "                        <div class=\"featureinsolr\">\r" +
-    "\n" +
-    "                            {{layer.features.join(', ')}}\r" +
-    "\n" +
-    "                        </div>\r" +
-    "\n" +
-    "                    </dd>\r" +
-    "\n" +
-    "                </dl>\r" +
-    "\n" +
-    "            </div>\r" +
-    "\n" +
-    "        </div>\r" +
-    "\n" +
-    "        <div ng-show=\"loading == false\">\r" +
-    "\n" +
-    "            <tink-pagination ng-hide=\"numberofrecordsmatched <= 5\" tink-current-page=\"currentPage\" tink-change=\"pageChanged(page,perPage,next)\"\r" +
-    "\n" +
-    "                tink-total-items=\"numberofrecordsmatched\" tink-items-per-page=\"recordsAPage\"></tink-pagination>\r" +
-    "\n" +
-    "        </div>\r" +
-    "\n" +
-    "        <div ng-if=\"loading == true\" class=\"loader\">\r" +
-    "\n" +
-    "\r" +
-    "\n" +
-    "        </div>\r" +
-    "\n" +
-    "    </div>\r" +
-    "\n" +
-    "    <div class=\"col-xs-7 flex-column flex-grow-1\">\r" +
-    "\n" +
-    "        <preview-layer ng-if=\"copySelectedTheme\" theme=\"copySelectedTheme\" addorupdatefunc=\"AddOrUpdateTheme()\">\r" +
-    "\n" +
-    "\r" +
-    "\n" +
-    "        </preview-layer>\r" +
-    "\n" +
-    "        <div ng-if \"error\">\r" +
-    "\n" +
-    "            {{error}}\r" +
-    "\n" +
-    "        </div>\r" +
-    "\n" +
-    "        <div class=\"loader\" ng-show=\"themeloading == true\"></div>\r" +
-    "\n" +
-    "\r" +
-    "\n" +
-    "    </div>\r" +
-    "\n" +
+    "<div class=\"solrGISTemplate row relative-container flex-grow-1\">\n" +
+    "<div class=\"col-xs-5 flex-column flex-grow-1\">\n" +
+    "<div class=\"overflow-wrapper flex-grow-1 list-selectable margin-top margin-bottom border-right\">\n" +
+    "<div ng-show=\"loading == false\" ng-repeat=\"theme in availableThemes\">\n" +
+    "<dl ng-class=\"{active: isActive(theme)}\">\n" +
+    "<a href=# class=theme-layer ng-click=solrThemeChanged(theme)>\n" +
+    "<dt>{{theme.name}}</dt>\n" +
+    "</a>\n" +
+    "<dd ng-repeat=\"layer in theme.layers\">\n" +
+    "<span>{{layer.naam}}\n" +
+    "<span ng-show=\"layer.featuresCount > 0\"> ({{layer.featuresCount}})</span>\n" +
+    "</span>\n" +
+    "<div class=featureinsolr>\n" +
+    "{{layer.features.join(', ')}}\n" +
+    "</div>\n" +
+    "</dd>\n" +
+    "</dl>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "<div ng-show=\"loading == false\">\n" +
+    "<tink-pagination ng-hide=\"numberofrecordsmatched <= 5\" tink-current-page=currentPage tink-change=pageChanged(page,perPage,next) tink-total-items=numberofrecordsmatched tink-items-per-page=recordsAPage></tink-pagination>\n" +
+    "</div>\n" +
+    "<div ng-if=\"loading == true\" class=loader>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "<div class=\"col-xs-7 flex-column flex-grow-1\">\n" +
+    "<preview-layer ng-if=copySelectedTheme theme=copySelectedTheme addorupdatefunc=AddOrUpdateTheme()>\n" +
+    "</preview-layer>\n" +
+    "<div ng-if=error>\n" +
+    "{{error}}\n" +
+    "</div>\n" +
+    "<div class=loader ng-show=\"themeloading == true\"></div>\n" +
+    "</div>\n" +
     "</div>"
   );
 
 
   $templateCache.put('templates/layermanagement/wmsUrlTemplate.html',
-    "<div class=\"wmsUrlTemplate row relative-container\">\r" +
-    "\n" +
-    "    <div class=\"col-md-4 flex-column flex-grow-1 margin-top margin-bottom\">\r" +
-    "\n" +
-    "        <div>\r" +
-    "\n" +
-    "            <input class=\"searchbox\" type=\"text\" ng-model=\"url\" ng-change=\"urlChanged()\" placeholder=\"Geef een url in\" />\r" +
-    "\n" +
-    "        </div>\r" +
-    "\n" +
-    "    </div>\r" +
-    "\n" +
-    "    <div class=\"col-md-8 flex-column flex-grow-1 margin-top margin-bottom\">\r" +
-    "\n" +
-    "        <div>\r" +
-    "\n" +
-    "            <button ng-disabled=\"!urlIsValid\" ng-click=\"laadUrl()\">Laad url</button>\r" +
-    "\n" +
-    "        </div>\r" +
-    "\n" +
-    "        <preview-layer ng-show=\"themeloading == false\" class=\"margin-top\" ng-if=\"copySelectedTheme\" addorupdatefunc=\"AddOrUpdateTheme()\"\r" +
-    "\n" +
-    "            theme=\"copySelectedTheme\">\r" +
-    "\n" +
-    "        </preview-layer>\r" +
-    "\n" +
-    "        <div ng-if \"error\">\r" +
-    "\n" +
-    "            {{error}}\r" +
-    "\n" +
-    "        </div>\r" +
-    "\n" +
-    "        <div class=\"loader\" ng-show=\"themeloading == true\"></div>\r" +
-    "\n" +
-    "    </div>\r" +
-    "\n" +
+    "<div class=\"wmsUrlTemplate row relative-container\">\n" +
+    "<div class=\"col-md-4 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
+    "<div>\n" +
+    "<input class=searchbox ng-model=url ng-change=urlChanged() placeholder=\"Geef een url in\">\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "<div class=\"col-md-8 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
+    "<div>\n" +
+    "<button ng-disabled=!urlIsValid ng-click=laadUrl()>Laad url</button>\n" +
+    "</div>\n" +
+    "<preview-layer ng-show=\"themeloading == false\" class=margin-top ng-if=copySelectedTheme addorupdatefunc=AddOrUpdateTheme() theme=copySelectedTheme>\n" +
+    "</preview-layer>\n" +
+    "<div ng-if=error>\n" +
+    "{{error}}\n" +
+    "</div>\n" +
+    "<div class=loader ng-show=\"themeloading == true\"></div>\n" +
+    "</div>\n" +
     "</div>"
   );
 
