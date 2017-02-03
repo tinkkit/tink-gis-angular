@@ -6,12 +6,12 @@
     } catch (e) {
         module = angular.module('tink.gis', ['tink.navigation', 'tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter', 'tink.pagination', 'tink.tooltip', 'ngAnimate']); //'leaflet-directive'
     }
-    module.constant('appConfig', {
-        templateUrl: '/digipolis.stadinkaart.webui',
-        apiUrl: '/digipolis.stadinkaart.api/',
-        enableDebug: true,
-        enableLog: true
-    });
+    // module.constant('appConfig', {
+    //     templateUrl: '/digipolis.stadinkaart.webui',
+    //     apiUrl: '/digipolis.stadinkaart.api/',
+    //     enableDebug: true,
+    //     enableLog: true
+    // });
 
 
 
