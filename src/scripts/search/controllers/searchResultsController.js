@@ -19,16 +19,12 @@
 
                 vm.layerGroupFilter = 'geenfilter';
             });
-            console.log("STARTED DDDDDDDDDDDDDDDDDDDDDd");
-
-            // vm.loadingPercentage = ResultsData.GetRequestPercentage();
             $scope.$watch(function () { return ResultsData.SelectedFeature; }, function (newVal, oldVal) {
                 vm.selectedResult = newVal;
             });
             vm.deleteFeature = function (feature) {
                 SearchService.DeleteFeature(feature);
             };
-
             vm.aantalFeaturesMetType = function (type) {
                 return vm.features.filter(x => x.layerName == type).length;
             };
@@ -37,7 +33,6 @@
             };
             vm.deleteFeatureGroup = function (featureGroupName) {
                 vm.collapsestatepergroup[featureGroupName] = undefined; // at start, we want the accordions open, so we set collapse on false
-
                 SearchService.DeleteFeatureGroup(featureGroupName);
             };
             vm.showDetails = function (feature) {
@@ -47,7 +42,6 @@
                     }
                     else {
                         MapData.PanToFeature(feature.mapItem);
-
                     }
                 }
                 ResultsData.SelectedFeature = feature;

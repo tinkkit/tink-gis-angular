@@ -7,13 +7,6 @@
     } catch (e) {
         module = angular.module('tink.gis', ['tink.navigation', 'tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter', 'tink.pagination', 'tink.tooltip', 'ngAnimate']); //'leaflet-directive'
     }
-    // module.constant('appConfig', {
-    //     templateUrl: '/digipolis.stadinkaart.webui',
-    //     apiUrl: '/digipolis.stadinkaart.api/',
-    //     enableDebug: true,
-    //     enableLog: true
-    // });
-
 
     JXON.config({
         attrPrefix: '', // default: '@'
@@ -977,14 +970,14 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         //We need to include MapEvents, even tho we don t call it just to make sure it gets loaded!
         var vm = this;
         var init = function () {
+            console.log('Tink-Gis-Angular component init!!!!!!!!!');
             if (window.location.href.startsWith('http://localhost:9000/')) {
                 var externproj = JSON.parse('{"naam":"Velo en fietspad!!","extent":{"_northEast":{"lat":"51.2336102032025","lng":"4.41993402409611"},"_southWest":{"lat":"51.1802290498612","lng":"4.38998297870121"}},"guid":"bfc88ea3-8581-4204-bdbc-b5f54f46050d","extentString":"51.2336102032025,4.41993402409611,51.1802290498612,4.38998297870121","isKaart":true,"uniqId":3,"creatorId":6,"creator":null,"createDate":"2016-08-22T10:55:15.525994","updaterId":6,"updater":null,"lastUpdated":"2016-08-22T10:55:15.525994","themes":[{"cleanUrl":"services/P_Stad/Mobiliteit/MapServer","naam":"Mobiliteit","type":"esri","visible":true,"layers":[{"id":"9","name":"fietspad","visible":true},{"id":"6","name":"velo","visible":true},{"id":"0","name":"Fiets en voetganger","visible":true}]}],"isReadOnly":false}');
                 ExternService.Import(externproj);
+
                 PopupService.Success("Dev autoload", 'Velo en fietspad loaded because you are in DEV.', function () {
                     alert('onclicktestje');
                 });
-                // PopupService.ExceptionFunc = function(exception) { alert(exception.message); }
-                // PopupService.ErrorWithException("exceptiontest", "exceptiontextmessage", { message: 'OH NO EXCEP'})
             }
             TypeAheadService.init();
         }();
@@ -3648,9 +3641,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
             vm.layerGroupFilter = 'geenfilter';
         });
-        console.log("STARTED DDDDDDDDDDDDDDDDDDDDDd");
-
-        // vm.loadingPercentage = ResultsData.GetRequestPercentage();
         $scope.$watch(function () {
             return ResultsData.SelectedFeature;
         }, function (newVal, oldVal) {
@@ -3659,7 +3649,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         vm.deleteFeature = function (feature) {
             SearchService.DeleteFeature(feature);
         };
-
         vm.aantalFeaturesMetType = function (type) {
             return vm.features.filter(function (x) {
                 return x.layerName == type;
@@ -3672,7 +3661,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         };
         vm.deleteFeatureGroup = function (featureGroupName) {
             vm.collapsestatepergroup[featureGroupName] = undefined; // at start, we want the accordions open, so we set collapse on false
-
             SearchService.DeleteFeatureGroup(featureGroupName);
         };
         vm.showDetails = function (feature) {
@@ -4246,71 +4234,6 @@ L.drawLocal = {
         }
     }
 };
-;// (function() {
-//
-//     'use strict';
-//
-//     var componentName = "Logger";
-//     var theComponent = function($log, appConfig) {
-//
-//         function _success(message) {
-//             if (appConfig.enableLog) {
-//                 $log.log(message);
-//             }
-//         }
-//
-//         function _debug(message) {
-//             if (appConfig.enableLog) {
-//                 if (appConfig.enableDebug) {
-//                     $log.debug(message);
-//                 }
-//             }
-//         }
-//
-//         function _info(message) {
-//             if (appConfig.enableLog) {
-//                 $log.info(message);
-//             }
-//         }
-//
-//         function _warn(message) {
-//             if (appConfig.enableLog) {
-//                 $log.warn(message);
-//             }
-//         }
-//
-//         function _error(message) {
-//             if (appConfig.enableLog) {
-//                 $log.error(message);
-//             }
-//         }
-//
-//         function _creation(name) {
-//             _debug(name + " : gecreëerd.");
-//         }
-//
-//         function _initialization(name) {
-//             _debug(name + " : geïnitialiseerd.");
-//         }
-//
-//         /* +++++ public interface +++++ */
-//
-//         return {
-//             success: _success,
-//             debug: _debug,
-//             info: _info,
-//             warn: _warn,
-//             error: _error,
-//             creation: _creation,
-//             init: _initialization
-//         };
-//
-//     };
-//     theComponent.$inject = ['$log', 'appConfig'];
-//     angular.module('tink.gis').factory(componentName, theComponent);
-//
-// })()
-"use strict";
 ;'use strict';
 
 (function (module) {

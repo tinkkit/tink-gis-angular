@@ -99,7 +99,6 @@
 
                     });
                 }
-
             });
             var allpromises = $q.all(promises);
             allpromises.then(function () {
