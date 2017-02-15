@@ -332,6 +332,10 @@ button.btn.active {
   display: flex;
 }
 
+.flex {
+  // flex container settings
+  display: flex;
+}
 
 .flex-column {
 
@@ -346,7 +350,7 @@ button.btn.active {
 
 .overflow-wrapper {
   overflow: auto;
-  width: 100%;
+  // width: 100%; //!! possibly not necessary?
 
   &.list-selectable {
     user-select: none;
@@ -543,7 +547,8 @@ ul {
 .modal-dialog{
   // min-width: 1000px; //!! not responsive
   background-color: $white;
-  height: 90vh;
+max-height: 95%;
+  // height: 90vh; //!! possibly only necessary for lagenbeheer
   margin: 0; // the default Tink top- and bottommargin break it at small screen heights
   max-width: 95%; // keep it evenly wide
   text-align: left;
@@ -946,13 +951,27 @@ html.show-loader {
  * Dashboard
  */
 
+.dashboard {
+  height: 85vh;
+
+  h3 {
+    margin-top: $padding-base-vertical; // equal to button padding to get the the title inline with the close button
+  }
+
+  h4 {
+    i {
+      margin-right: rem(8);
+    }
+  }
+}
+
 .project-list {
   // height: 30vh;
   line-height: rem(20);
   overflow-y: auto;
 
   ul {
-    height: 27vh;
+    // height: 27vh;
   }
 }
 
@@ -975,10 +994,6 @@ html.show-loader {
   }
 }
 
-.dashboard-view-left {
-  border-right: 1px solid $gray-light;
-}
-
 .create-ticket {
   background-color: $gray-lightest;
   border-radius: $border-radius-base;
@@ -987,8 +1002,7 @@ html.show-loader {
   width: 100%;
 }
 
-.create-ticket,
-.whats-new {
+.create-ticket {
   padding: rem(15);
 
   h4 {
@@ -1006,7 +1020,6 @@ html.show-loader {
     font-size: rem(30);
   }
 }
-
 
 /**
  * Global styling
