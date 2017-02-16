@@ -2,7 +2,7 @@
 (function (module) {
     module = angular.module('tink.gis');
     var theController = module.controller('searchSelectedController',
-        function ($scope, ResultsData, MapData, SearchService, GeometryService, $modal) {
+        function ($scope, ResultsData, MapData, SearchService, GeometryService, $modal, FeatureService) {
             var vm = this;
             vm.selectedResult = null;
             vm.prevResult = null;
@@ -114,7 +114,11 @@
                 vm.nextResult = null;
                 ResultsData.SelectedFeature = null;
             };
+            vm.exportToCSVButtonIsEnabled = FeatureService.exportToCSVButtonIsEnabled;
+            $scope.$watch(function () { return FeatureService.exportToCSVButtonIsEnabled; }, function (newValue, oldValue) {
+                vm.exportToCSVButtonIsEnabled = newValue
+            });
 
         });
-    theController.$inject = ['$scope', 'ResultsData', 'GeometryService', '$modal'];
+    theController.$inject = ['$scope', 'ResultsData', 'GeometryService', '$modal', 'FeatureService'];
 })();

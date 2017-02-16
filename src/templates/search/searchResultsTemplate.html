@@ -36,7 +36,7 @@
         </div>
         <div class="margin-top margin-bottom">
             <div class="col-xs-12">
-                <button class="btn-sm" ng-click="srchrsltsctrl.exportToCSV()">Exporteer naar CSV</button>
+                <button class="btn-sm" ng-if="srchrsltsctrl.exportToCSVButtonIsEnabled" ng-click="srchrsltsctrl.exportToCSV()">Exporteer naar CSV</button>
                 <button class="btn-sm" ng-if="srchrsltsctrl.extraResultButtonIsEnabled" ng-click="srchrsltsctrl.extraResultButton()">{{srchrsltsctrl.resultButtonText}}</button>
             </div>
         </div>

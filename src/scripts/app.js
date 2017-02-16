@@ -50,7 +50,8 @@
         var map = L.map('map', {
             crs: crsLambert,
             zoomControl: false,
-            drawControl: false
+            drawControl: false,
+            attributionControl: false
         }).setView([51.2192159, 4.4028818], 5);
 
         // The min/maxZoom values provided should match the actual cache thats been published. This information can be retrieved from the service endpoint directly.

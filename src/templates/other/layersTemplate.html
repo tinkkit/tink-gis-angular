@@ -3,28 +3,23 @@
         <div class="nav-aside-section">
             <p class="nav-aside-title">Lagenoverzicht</p>
         </div>
-
             <button class="nav-right-toggle" data-tink-sidenav-collapse="asideNavRight">
               <a href="#" title="Open menu"><span class="sr-only">Open right menu</span></a>
             </button>
-
         <div class="flex-column flex-grow-1">
-
-            <div>
+            <div ng-if="lyrsctrl.layerManagementButtonIsEnabled">
                 <div class="col-xs-12 margin-top margin-bottom">
-                    <button class="btn btn-primary center-block" ng-click="lyrsctrl.Lagenbeheer()">Lagenbeheer</button>
+                    <button class="btn btn-primary center-block"  ng-click="lyrsctrl.Lagenbeheer()">Lagenbeheer</button>
                 </div>
             </div>
-
             <div class="overflow-wrapper flex-grow-1 extra-padding">
                 <ul class="ul-level" id="sortableThemes" ui-sortable="lyrsctrl.sortableOptions" ng-model="lyrsctrl.themes">
                     <li class="li-item" ng-repeat="theme in lyrsctrl.themes">
-                        <tink-Theme theme="theme" layercheckboxchange="lyrsctrl.updatethemevisibility(theme)" hidedelete="false">
+                        <tink-Theme theme="theme" layercheckboxchange="lyrsctrl.updatethemevisibility(theme)" hidedelete="!lyrsctrl.deleteLayerButtonIsEnabled">
                         </tink-Theme>
                     </li>
                 </ul>
             </div>
-
         </div>
     </aside>
 </div>
