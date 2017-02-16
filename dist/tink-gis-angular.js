@@ -757,7 +757,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
 
 (function () {
     var module = angular.module('tink.gis');
-    var service = function service($http, map, MapData, $rootScope, $q, helperService) {
+    var service = function service($http, map, MapData, $rootScope, $q, helperService, PopupService) {
         var _service = {};
         _service.getMetaData = function () {
             var searchterm = arguments.length <= 0 || arguments[0] === undefined ? 'water' : arguments[0];
@@ -801,7 +801,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 }
             }).error(function (data, status, headers, config) {
                 prom.reject(null);
-                PopupService.ErrorFromHttp(data, status, proxiedurl);
+                PopupService.ErrorFromHttp(data, status, url);
             });
             return prom.promise;
         };
@@ -828,7 +828,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         };
         return _service;
     };
-    module.factory('GeopuntService', ['$http', 'map', 'MapData', '$rootScope', '$q', 'HelperService', service]);
+    module.factory('GeopuntService', ['$http', 'map', 'MapData', '$rootScope', '$q', 'HelperService', 'PopupService', service]);
 })();
 ;
 'use strict';
@@ -1016,13 +1016,13 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             return MapData.SelectedLayer;
         }, function (newval, oldval) {
             vm.selectedLayer = newval;
-        }, true);
+        });
         vm.selectedFindLayer = MapData.SelectedFindLayer;
         $scope.$watch(function () {
             return MapData.SelectedFindLayer;
         }, function (newval, oldval) {
             vm.selectedFindLayer = newval;
-        }, true);
+        });
         vm.showMetenControls = false;
         vm.showDrawControls = false;
         vm.zoekLoc = '';
@@ -1999,14 +1999,14 @@ var esri2geo = {};
                 var returnitem = {};
                 returnitem.Naam = theme.Naam;
                 if (theme.Type == ThemeType.ESRI) {
-                    returnitem.CleanUrl = theme.Url;
+                    returnitem.cleanUrl = theme.Url;
                 } else {
-                    returnitem.CleanUrl = theme.CleanUrl || theme.Url;
+                    returnitem.cleanUrl = theme.CleanUrl || theme.Url;
                 }
 
-                returnitem.Type = theme.Type;
-                returnitem.Visible = theme.Visible;
-                returnitem.Layers = theme.AllLayers.filter(function (x) {
+                returnitem.type = theme.Type;
+                returnitem.visible = theme.Visible;
+                returnitem.layers = theme.AllLayers.filter(function (x) {
                     return x.enabled == true;
                 }).map(function (layer) {
                     var returnlayer = {};
@@ -2023,9 +2023,9 @@ var esri2geo = {};
                 });
                 return returnitem;
             });
-            exportObject.Themes = arr;
-            exportObject.Extent = map.getBounds();
-            exportObject.IsKaart = true;
+            exportObject.themes = arr;
+            exportObject.extent = map.getBounds();
+            exportObject.isKaart = true;
 
             return exportObject;
         };
@@ -2131,18 +2131,6 @@ var esri2geo = {};
             BaseLayersService.setBaseMap(1, config.BaseKaart1.Naam, config.BaseKaart1.Url, config.BaseKaart1.MaxZoom, config.BaseKaart1.MinZoom);
             BaseLayersService.setBaseMap(2, config.BaseKaart2.Naam, config.BaseKaart2.Url, config.BaseKaart2.MaxZoom, config.BaseKaart2.MinZoom);
         };
-        // _externService.layerManagementButtonIsEnabled = true;
-        // _externService.deleteLayerButtonIsEnabled = true;
-        // _externService.exportToCSVButtonIsEnabled = true;
-        // _externService.defaultLayerName = 'velo';
-        // _externService.ConfigResultButton = function (isEnabled, text, callback) {
-        //     _externService.resultButtonText = text;
-        //     _externService.extraResultButtonCallBack = callback;
-        //     _externService.extraResultButtonIsEnabled = isEnabled;
-        // }
-        // _externService.extraResultButtonIsEnabled = false;
-        // _externService.resultButtonText = 'notext';
-        // _externService.extraResultButtonCallBack = null;
         return _externService;
     };
     module.factory('ExternService', externService);
@@ -2157,14 +2145,14 @@ var esri2geo = {};
         _featureService.layerManagementButtonIsEnabled = true;
         _featureService.deleteLayerButtonIsEnabled = true;
         _featureService.exportToCSVButtonIsEnabled = true;
-        _featureService.defaultLayerName = 'velo';
+        _featureService.defaultLayerName = null;
         _featureService.ConfigResultButton = function (isEnabled, text, callback) {
             _featureService.resultButtonText = text;
             _featureService.extraResultButtonCallBack = callback;
             _featureService.extraResultButtonIsEnabled = isEnabled;
         };
         _featureService.extraResultButtonIsEnabled = false;
-        _featureService.resultButtonText = null;
+        _featureService.resultButtonText = 'extra knop text';
         _featureService.extraResultButtonCallBack = null;
         return _featureService;
     };

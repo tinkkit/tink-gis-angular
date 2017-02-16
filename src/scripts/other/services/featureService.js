@@ -7,14 +7,14 @@
         _featureService.layerManagementButtonIsEnabled = true;
         _featureService.deleteLayerButtonIsEnabled = true;
         _featureService.exportToCSVButtonIsEnabled = true;
-        _featureService.defaultLayerName = 'velo';
+        _featureService.defaultLayerName = null;
         _featureService.ConfigResultButton = function (isEnabled, text, callback) {
             _featureService.resultButtonText = text;
             _featureService.extraResultButtonCallBack = callback;
             _featureService.extraResultButtonIsEnabled = isEnabled;
         }
         _featureService.extraResultButtonIsEnabled = false;
-        _featureService.resultButtonText = null;
+        _featureService.resultButtonText = 'extra knop text';
         _featureService.extraResultButtonCallBack = null;
         return _featureService;
     };

@@ -34,14 +34,14 @@
                 let returnitem = {};
                 returnitem.Naam = theme.Naam;
                 if (theme.Type == ThemeType.ESRI) {
-                    returnitem.CleanUrl = theme.Url;
+                    returnitem.cleanUrl = theme.Url;
                 } else {
-                    returnitem.CleanUrl = theme.CleanUrl || theme.Url;
+                    returnitem.cleanUrl = theme.CleanUrl || theme.Url;
                 }
 
-                returnitem.Type = theme.Type;
-                returnitem.Visible = theme.Visible;
-                returnitem.Layers = theme.AllLayers.filter(x => { return x.enabled == true; }).map(layer => {
+                returnitem.type = theme.Type;
+                returnitem.visible = theme.Visible;
+                returnitem.layers = theme.AllLayers.filter(x => { return x.enabled == true; }).map(layer => {
                     var returnlayer = {};
                     // returnlayer.enabled = layer.enabled; // will always be true... since we only export the enabled layers
                     returnlayer.visible = layer.visible;
@@ -56,9 +56,9 @@
                 });
                 return returnitem;
             });
-            exportObject.Themes = arr;
-            exportObject.Extent = map.getBounds();
-            exportObject.IsKaart = true;
+            exportObject.themes = arr;
+            exportObject.extent = map.getBounds();
+            exportObject.isKaart = true;
 
             return exportObject;
         };
@@ -162,18 +162,6 @@
             BaseLayersService.setBaseMap(1, config.BaseKaart1.Naam, config.BaseKaart1.Url, config.BaseKaart1.MaxZoom, config.BaseKaart1.MinZoom)
             BaseLayersService.setBaseMap(2, config.BaseKaart2.Naam, config.BaseKaart2.Url, config.BaseKaart2.MaxZoom, config.BaseKaart2.MinZoom)
         }
-        // _externService.layerManagementButtonIsEnabled = true;
-        // _externService.deleteLayerButtonIsEnabled = true;
-        // _externService.exportToCSVButtonIsEnabled = true;
-        // _externService.defaultLayerName = 'velo';
-        // _externService.ConfigResultButton = function (isEnabled, text, callback) {
-        //     _externService.resultButtonText = text;
-        //     _externService.extraResultButtonCallBack = callback;
-        //     _externService.extraResultButtonIsEnabled = isEnabled;
-        // }
-        // _externService.extraResultButtonIsEnabled = false;
-        // _externService.resultButtonText = 'notext';
-        // _externService.extraResultButtonCallBack = null;
         return _externService;
     };
     module.factory('ExternService', externService);
