@@ -961,7 +961,7 @@ html.show-loader {
   overflow-y: auto;
 
   dl {
-    height: 14vh;
+    // height: 14vh;
     overflow: auto;
     margin-bottom: 0;
   }
@@ -1018,6 +1018,11 @@ html.show-loader {
 
 .text-align-right {
   text-align: right;
+}
+
+// set nav-top links white
+.nav-top a {
+  color: $white;
 }
 
 // fix for sweet-alert bug
