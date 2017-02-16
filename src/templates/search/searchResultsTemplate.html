@@ -1,11 +1,11 @@
 <div class="flex-column flex-grow-1 margin-top">
-    <div ng-if="!srchrsltsctrl.selectedResult && srchrsltsctrl.featureLayers.length == 0">
+    <div class="flex-column flex-grow-1" ng-if="!srchrsltsctrl.selectedResult && srchrsltsctrl.featureLayers.length == 0">
         <div class="col-xs-12">
             Geen resultaten.
         </div>
     </div>
 
-    <div ng-if="!srchrsltsctrl.selectedResult && srchrsltsctrl.featureLayers.length > 0">
+    <div class="flex-column flex-grow-1" ng-if="!srchrsltsctrl.selectedResult && srchrsltsctrl.featureLayers.length > 0">
         <div>
             <div class="col-xs-12">
                 <select ng-model="srchrsltsctrl.layerGroupFilter">
