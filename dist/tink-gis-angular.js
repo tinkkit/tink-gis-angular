@@ -926,7 +926,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
 
 (function (module) {
     module = angular.module('tink.gis');
-    var theController = module.controller('layersController', function ($scope, MapData, map, ThemeService, $modal) {
+    var theController = module.controller('layersController', function ($scope, MapData, map, ThemeService, $modal, FeatureService) {
         var vm = this;
         vm.themes = MapData.Themes;
         vm.selectedLayers = [];
@@ -936,6 +936,19 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 MapData.SetZIndexes();
             }
         };
+        vm.deleteLayerButtonIsEnabled = FeatureService.deleteLayerButtonIsEnabled;
+        $scope.$watch(function () {
+            return FeatureService.deleteLayerButtonIsEnabled;
+        }, function (newValue, oldValue) {
+            vm.deleteLayerButtonIsEnabled = newValue;
+        });
+        vm.layerManagementButtonIsEnabled = FeatureService.layerManagementButtonIsEnabled;
+        $scope.$watch(function () {
+            return FeatureService.layerManagementButtonIsEnabled;
+        }, function (newValue, oldValue) {
+            vm.layerManagementButtonIsEnabled = newValue;
+        });
+
         $scope.$watch(function () {
             return MapData.Themes;
         }, function (newVal, oldVal) {
@@ -960,7 +973,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             });
         };
     });
-    theController.$inject = ['MapData', 'map', 'ThemeService', '$modal'];
+    theController.$inject = ['MapData', 'map', 'ThemeService', '$modal', 'FeatureService'];
 })();
 ;'use strict';
 
@@ -998,11 +1011,20 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             return MapData.VisibleLayers;
         };
         vm.selectedLayer = MapData.SelectedLayer;
+        $scope.$watch(function () {
+            return MapData.SelectedLayer;
+        }, function (newval, oldval) {
+            vm.selectedLayer = newval;
+        }, true);
         vm.selectedFindLayer = MapData.SelectedFindLayer;
+        $scope.$watch(function () {
+            return MapData.SelectedFindLayer;
+        }, function (newval, oldval) {
+            vm.selectedFindLayer = newval;
+        }, true);
         vm.showMetenControls = false;
         vm.showDrawControls = false;
         vm.zoekLoc = '';
-
         vm.addCursorAuto = function () {
             if (!$('.leaflet-container').hasClass('cursor-auto')) {
                 $('.leaflet-container').addClass('cursor-auto');
@@ -1946,7 +1968,7 @@ var esri2geo = {};
     }
     // module.$inject = ['MapData', 'map', 'GISService', 'ThemeCreater', 'WMSService', 'ThemeService', '$q','BaseLayersService'];
 
-    var externService = function externService(MapData, map, GISService, ThemeCreater, WMSService, ThemeService, $q, BaseLayersService) {
+    var externService = function externService(MapData, map, GISService, ThemeCreater, WMSService, ThemeService, $q, BaseLayersService, FeatureService) {
         var _externService = {};
         _externService.GetAllThemes = function () {
             var legendItem = {};
@@ -2006,14 +2028,7 @@ var esri2geo = {};
 
             return exportObject;
         };
-        _externService.ConfigResultButton = function (isEnabled, text, callback) {
-            _externService.resultButtonText = text;
-            _externService.extraResultButtonCallBack = callback;
-            _externService.extraResultButtonIsEnabled = isEnabled;
-        };
-        _externService.extraResultButtonIsEnabled = false;
-        _externService.resultButtonText = 'notext';
-        _externService.extraResultButtonCallBack = null;
+
         _externService.Import = function (project) {
             console.log(project);
             _externService.setExtent(project.extent);
@@ -2087,6 +2102,15 @@ var esri2geo = {};
                 if (errorMessages.length > 0) {
                     alert(errorMessages.join('\n'));
                 }
+                if (FeatureService.defaultLayerName) {
+                    var defaultLayer = MapData.VisibleLayers.find(function (x) {
+                        return x.name == FeatureService.defaultLayerName;
+                    });
+                    if (defaultLayer) {
+                        MapData.SelectedLayer = defaultLayer;
+                        MapData.SelectedFindLayer = defaultLayer;
+                    }
+                }
             });
             return allpromises;
         };
@@ -2106,10 +2130,44 @@ var esri2geo = {};
             BaseLayersService.setBaseMap(1, config.BaseKaart1.Naam, config.BaseKaart1.Url, config.BaseKaart1.MaxZoom, config.BaseKaart1.MinZoom);
             BaseLayersService.setBaseMap(2, config.BaseKaart2.Naam, config.BaseKaart2.Url, config.BaseKaart2.MaxZoom, config.BaseKaart2.MinZoom);
         };
-
+        // _externService.layerManagementButtonIsEnabled = true;
+        // _externService.deleteLayerButtonIsEnabled = true;
+        // _externService.exportToCSVButtonIsEnabled = true;
+        // _externService.defaultLayerName = 'velo';
+        // _externService.ConfigResultButton = function (isEnabled, text, callback) {
+        //     _externService.resultButtonText = text;
+        //     _externService.extraResultButtonCallBack = callback;
+        //     _externService.extraResultButtonIsEnabled = isEnabled;
+        // }
+        // _externService.extraResultButtonIsEnabled = false;
+        // _externService.resultButtonText = 'notext';
+        // _externService.extraResultButtonCallBack = null;
         return _externService;
     };
     module.factory('ExternService', externService);
+})();
+;'use strict';
+
+(function () {
+    var module = angular.module('tink.gis');
+
+    var featureService = function featureService() {
+        var _featureService = {};
+        _featureService.layerManagementButtonIsEnabled = true;
+        _featureService.deleteLayerButtonIsEnabled = true;
+        _featureService.exportToCSVButtonIsEnabled = true;
+        _featureService.defaultLayerName = 'velo';
+        _featureService.ConfigResultButton = function (isEnabled, text, callback) {
+            _featureService.resultButtonText = text;
+            _featureService.extraResultButtonCallBack = callback;
+            _featureService.extraResultButtonIsEnabled = isEnabled;
+        };
+        _featureService.extraResultButtonIsEnabled = false;
+        _featureService.resultButtonText = null;
+        _featureService.extraResultButtonCallBack = null;
+        return _featureService;
+    };
+    module.factory('FeatureService', featureService);
 })();
 ;'use strict';
 
@@ -2448,7 +2506,7 @@ L.control.typeahead = function (args) {
 
 (function () {
     var module = angular.module('tink.gis');
-    var mapData = function mapData(map, $rootScope, HelperService, ResultsData, $compile) {
+    var mapData = function mapData(map, $rootScope, HelperService, ResultsData, $compile, FeatureService) {
         var _data = {};
 
         _data.VisibleLayers = [];
@@ -2460,6 +2518,7 @@ L.control.typeahead = function (args) {
         _data.defaultlayer = { id: '', name: 'Alle Layers' };
         _data.VisibleLayers.unshift(_data.defaultlayer);
         _data.SelectedLayer = _data.defaultlayer;
+
         _data.SelectedFindLayer = _data.defaultlayer;
 
         _data.ResetVisibleLayers = function () {
@@ -2789,7 +2848,7 @@ L.control.typeahead = function (args) {
         };
         return _data;
     };
-    module.$inject = ['ResultsData'];
+    module.$inject = ['ResultsData', 'FeatureService'];
     module.factory('MapData', mapData);
 })();
 ;'use strict';
@@ -3622,7 +3681,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 (function (module) {
     module = angular.module('tink.gis');
-    var theController = module.controller('searchResultsController', function ($scope, ResultsData, map, SearchService, MapData, ExternService) {
+    var theController = module.controller('searchResultsController', function ($scope, ResultsData, map, SearchService, MapData, FeatureService) {
         var vm = this;
         vm.features = ResultsData.JsonFeatures;
         vm.featureLayers = null;
@@ -3676,24 +3735,31 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         vm.exportToCSV = function () {
             SearchService.ExportToCSV();
         };
+        vm.exportToCSVButtonIsEnabled = FeatureService.exportToCSVButtonIsEnabled;
         $scope.$watch(function () {
-            return ExternService.extraResultButtonIsEnabled;
+            return FeatureService.exportToCSVButtonIsEnabled;
         }, function (newValue, oldValue) {
-            vm.extraResultButtonIsEnabled = ExternService.extraResultButtonIsEnabled;
-            vm.extraResultButton = ExternService.extraResultButtonCallBack;
-            vm.resultButtonText = ExternService.resultButtonText;
+            vm.exportToCSVButtonIsEnabled = newValue;
         });
-        vm.extraResultButtonIsEnabled = ExternService.extraResultButtonIsEnabled;
-        vm.extraResultButton = ExternService.extraResultButtonCallBack;
-        vm.resultButtonText = ExternService.resultButtonText;
+
+        $scope.$watch(function () {
+            return FeatureService.extraResultButtonIsEnabled;
+        }, function (newValue, oldValue) {
+            vm.extraResultButtonIsEnabled = FeatureService.extraResultButtonIsEnabled;
+            vm.extraResultButton = FeatureService.extraResultButtonCallBack;
+            vm.resultButtonText = FeatureService.resultButtonText;
+        });
+        vm.extraResultButtonIsEnabled = FeatureService.extraResultButtonIsEnabled;
+        vm.extraResultButton = FeatureService.extraResultButtonCallBack;
+        vm.resultButtonText = FeatureService.resultButtonText;
     });
-    theController.$inject = ['$scope', 'ResultsData', 'map', 'MapData', 'ExternService'];
+    theController.$inject = ['$scope', 'ResultsData', 'map', 'MapData', 'FeatureService'];
 })();
 ;'use strict';
 
 (function (module) {
     module = angular.module('tink.gis');
-    var theController = module.controller('searchSelectedController', function ($scope, ResultsData, MapData, SearchService, GeometryService, $modal) {
+    var theController = module.controller('searchSelectedController', function ($scope, ResultsData, MapData, SearchService, GeometryService, $modal, FeatureService) {
         var vm = this;
         vm.selectedResult = null;
         vm.prevResult = null;
@@ -3803,8 +3869,14 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             vm.nextResult = null;
             ResultsData.SelectedFeature = null;
         };
+        vm.exportToCSVButtonIsEnabled = FeatureService.exportToCSVButtonIsEnabled;
+        $scope.$watch(function () {
+            return FeatureService.exportToCSVButtonIsEnabled;
+        }, function (newValue, oldValue) {
+            vm.exportToCSVButtonIsEnabled = newValue;
+        });
     });
-    theController.$inject = ['$scope', 'ResultsData', 'GeometryService', '$modal'];
+    theController.$inject = ['$scope', 'ResultsData', 'GeometryService', '$modal', 'FeatureService'];
 })();
 ;'use strict';
 
@@ -4614,7 +4686,7 @@ L.drawLocal = {
     "<a href=# title=\"Open menu\"><span class=sr-only>Open right menu</span></a>\n" +
     "</button>\n" +
     "<div class=\"flex-column flex-grow-1\">\n" +
-    "<div>\n" +
+    "<div ng-if=lyrsctrl.layerManagementButtonIsEnabled>\n" +
     "<div class=\"col-xs-12 margin-top margin-bottom\">\n" +
     "<button class=\"btn btn-primary center-block\" ng-click=lyrsctrl.Lagenbeheer()>Lagenbeheer</button>\n" +
     "</div>\n" +
@@ -4622,7 +4694,7 @@ L.drawLocal = {
     "<div class=\"overflow-wrapper flex-grow-1 extra-padding\">\n" +
     "<ul class=ul-level id=sortableThemes ui-sortable=lyrsctrl.sortableOptions ng-model=lyrsctrl.themes>\n" +
     "<li class=li-item ng-repeat=\"theme in lyrsctrl.themes\">\n" +
-    "<tink-theme theme=theme layercheckboxchange=lyrsctrl.updatethemevisibility(theme) hidedelete=false>\n" +
+    "<tink-theme theme=theme layercheckboxchange=lyrsctrl.updatethemevisibility(theme) hidedelete=!lyrsctrl.deleteLayerButtonIsEnabled>\n" +
     "</tink-theme>\n" +
     "</li>\n" +
     "</ul>\n" +
@@ -4785,7 +4857,7 @@ L.drawLocal = {
     "</div>\n" +
     "<div class=\"margin-top margin-bottom\">\n" +
     "<div class=col-xs-12>\n" +
-    "<button class=btn-sm ng-click=srchrsltsctrl.exportToCSV()>Exporteer naar CSV</button>\n" +
+    "<button class=btn-sm ng-if=srchrsltsctrl.exportToCSVButtonIsEnabled ng-click=srchrsltsctrl.exportToCSV()>Exporteer naar CSV</button>\n" +
     "<button class=btn-sm ng-if=srchrsltsctrl.extraResultButtonIsEnabled ng-click=srchrsltsctrl.extraResultButton()>{{srchrsltsctrl.resultButtonText}}</button>\n" +
     "</div>\n" +
     "</div>\n" +
@@ -4820,7 +4892,7 @@ L.drawLocal = {
     "<div class=pull-right>\n" +
     "<button class=margin-right ng-click=srchslctdctrl.doordruk()>Doordruk</button>\n" +
     "<button ng-click=srchslctdctrl.buffer()>Buffer</button>\n" +
-    "<button class=btn-sm ng-click=srchslctdctrl.exportToCSV()>Exporteer naar CSV</button>\n" +
+    "<button class=btn-sm ng-if=srchslctdctrl.exportToCSVButtonIsEnabled ng-click=srchslctdctrl.exportToCSV()>Exporteer naar CSV</button>\n" +
     "</div>\n" +
     "</div>\n" +
     "<div class=\"col-xs-12 margin-top\">\n" +

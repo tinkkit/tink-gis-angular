@@ -8,7 +8,7 @@
     }
     // module.$inject = ['MapData', 'map', 'GISService', 'ThemeCreater', 'WMSService', 'ThemeService', '$q','BaseLayersService'];
 
-    var externService = function (MapData, map, GISService, ThemeCreater, WMSService, ThemeService, $q, BaseLayersService) {
+    var externService = function (MapData, map, GISService, ThemeCreater, WMSService, ThemeService, $q, BaseLayersService, FeatureService) {
         var _externService = {};
         _externService.GetAllThemes = function () {
             let legendItem = {};
@@ -62,14 +62,7 @@
 
             return exportObject;
         };
-        _externService.ConfigResultButton = function (isEnabled, text, callback) {
-            _externService.resultButtonText = text;
-            _externService.extraResultButtonCallBack = callback;
-            _externService.extraResultButtonIsEnabled = isEnabled;
-        }
-        _externService.extraResultButtonIsEnabled = false;
-        _externService.resultButtonText = 'notext';
-        _externService.extraResultButtonCallBack = null;
+
         _externService.Import = function (project) {
             console.log(project);
             _externService.setExtent(project.extent);
@@ -140,6 +133,15 @@
                 if (errorMessages.length > 0) {
                     alert(errorMessages.join('\n'));
                 }
+                if (FeatureService.defaultLayerName) {
+                    var defaultLayer = MapData.VisibleLayers.find(x => x.name == FeatureService.defaultLayerName);
+                    if (defaultLayer) {
+                        MapData.SelectedLayer = defaultLayer;
+                        MapData.SelectedFindLayer = defaultLayer;
+                    }
+                  
+                }
+
             });
             return allpromises;
 
@@ -160,8 +162,18 @@
             BaseLayersService.setBaseMap(1, config.BaseKaart1.Naam, config.BaseKaart1.Url, config.BaseKaart1.MaxZoom, config.BaseKaart1.MinZoom)
             BaseLayersService.setBaseMap(2, config.BaseKaart2.Naam, config.BaseKaart2.Url, config.BaseKaart2.MaxZoom, config.BaseKaart2.MinZoom)
         }
-
-
+        // _externService.layerManagementButtonIsEnabled = true;
+        // _externService.deleteLayerButtonIsEnabled = true;
+        // _externService.exportToCSVButtonIsEnabled = true;
+        // _externService.defaultLayerName = 'velo';
+        // _externService.ConfigResultButton = function (isEnabled, text, callback) {
+        //     _externService.resultButtonText = text;
+        //     _externService.extraResultButtonCallBack = callback;
+        //     _externService.extraResultButtonIsEnabled = isEnabled;
+        // }
+        // _externService.extraResultButtonIsEnabled = false;
+        // _externService.resultButtonText = 'notext';
+        // _externService.extraResultButtonCallBack = null;
         return _externService;
     };
     module.factory('ExternService', externService);

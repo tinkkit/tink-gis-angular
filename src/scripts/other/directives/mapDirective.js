@@ -11,7 +11,7 @@
             replace: true,
             templateUrl: 'templates/other/mapTemplate.html',
             controller: 'mapController',
-            controllerAs: 'mapctrl'
+            controllerAs: 'mapctrl',
         };
     });
 })();

@@ -1,7 +1,7 @@
 'use strict';
 (function (module) {
     module = angular.module('tink.gis');
-    var theController = module.controller('layersController', function ($scope, MapData, map, ThemeService, $modal) {
+    var theController = module.controller('layersController', function ($scope, MapData, map, ThemeService, $modal, FeatureService) {
         var vm = this;
         vm.themes = MapData.Themes;
         vm.selectedLayers = [];
@@ -11,11 +11,20 @@
                 MapData.SetZIndexes();
             }
         };
+        vm.deleteLayerButtonIsEnabled = FeatureService.deleteLayerButtonIsEnabled;
+        $scope.$watch(function () { return FeatureService.deleteLayerButtonIsEnabled; }, function (newValue, oldValue) {
+            vm.deleteLayerButtonIsEnabled = newValue
+        });
+        vm.layerManagementButtonIsEnabled = FeatureService.layerManagementButtonIsEnabled;
+        $scope.$watch(function () { return FeatureService.layerManagementButtonIsEnabled; }, function (newValue, oldValue) {
+            vm.layerManagementButtonIsEnabled = newValue
+        });
+
         $scope.$watch(function () { return MapData.Themes; }, function (newVal, oldVal) {
             MapData.SetZIndexes(newVal);
         });
         vm.updatethemevisibility = function (theme) {
-            ThemeService.UpdateThemeVisibleLayers(theme); 
+            ThemeService.UpdateThemeVisibleLayers(theme);
         };
         vm.Lagenbeheer = function () {
             var addLayerInstance = $modal.open({
@@ -33,5 +42,5 @@
             });
         };
     });
-    theController.$inject = ['MapData', 'map', 'ThemeService', '$modal'];
+    theController.$inject = ['MapData', 'map', 'ThemeService', '$modal', 'FeatureService'];
 })();

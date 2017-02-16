@@ -26,7 +26,7 @@
             <div class="pull-right">
                 <button class="margin-right" ng-click="srchslctdctrl.doordruk()">Doordruk</button>
                 <button ng-click="srchslctdctrl.buffer()">Buffer</button>
-                <button class="btn-sm" ng-click="srchslctdctrl.exportToCSV()">Exporteer naar CSV</button>
+                <button class="btn-sm" ng-if="srchslctdctrl.exportToCSVButtonIsEnabled" ng-click="srchslctdctrl.exportToCSV()">Exporteer naar CSV</button>
             </div>
         </div>
         <div class="col-xs-12 margin-top">

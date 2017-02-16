@@ -2,7 +2,7 @@
 (function (module) {
     module = angular.module('tink.gis');
     var theController = module.controller('searchResultsController',
-        function ($scope, ResultsData, map, SearchService, MapData, ExternService) {
+        function ($scope, ResultsData, map, SearchService, MapData, FeatureService) {
             var vm = this;
             vm.features = ResultsData.JsonFeatures;
             vm.featureLayers = null;
@@ -49,15 +49,21 @@
             vm.exportToCSV = function () {
                 SearchService.ExportToCSV();
             };
-            $scope.$watch(function () { return ExternService.extraResultButtonIsEnabled; }, function (newValue, oldValue) {
-                vm.extraResultButtonIsEnabled = ExternService.extraResultButtonIsEnabled;
-                vm.extraResultButton = ExternService.extraResultButtonCallBack;
-                vm.resultButtonText = ExternService.resultButtonText;
+            vm.exportToCSVButtonIsEnabled = FeatureService.exportToCSVButtonIsEnabled;
+            $scope.$watch(function () { return FeatureService.exportToCSVButtonIsEnabled; }, function (newValue, oldValue) {
+                vm.exportToCSVButtonIsEnabled = newValue
             });
-            vm.extraResultButtonIsEnabled = ExternService.extraResultButtonIsEnabled;
-            vm.extraResultButton = ExternService.extraResultButtonCallBack;
-            vm.resultButtonText = ExternService.resultButtonText;
+
+
+            $scope.$watch(function () { return FeatureService.extraResultButtonIsEnabled; }, function (newValue, oldValue) {
+                vm.extraResultButtonIsEnabled = FeatureService.extraResultButtonIsEnabled;
+                vm.extraResultButton = FeatureService.extraResultButtonCallBack;
+                vm.resultButtonText = FeatureService.resultButtonText;
+            });
+            vm.extraResultButtonIsEnabled = FeatureService.extraResultButtonIsEnabled;
+            vm.extraResultButton = FeatureService.extraResultButtonCallBack;
+            vm.resultButtonText = FeatureService.resultButtonText;
 
         });
-    theController.$inject = ['$scope', 'ResultsData', 'map', 'MapData', 'ExternService'];
+    theController.$inject = ['$scope', 'ResultsData', 'map', 'MapData', 'FeatureService'];
 })();

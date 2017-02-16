@@ -1,7 +1,7 @@
 'use strict';
 (function () {
     var module = angular.module('tink.gis');
-    var mapData = function (map, $rootScope, HelperService, ResultsData, $compile) {
+    var mapData = function (map, $rootScope, HelperService, ResultsData, $compile, FeatureService) {
         var _data = {};
 
         _data.VisibleLayers = [];
@@ -13,6 +13,8 @@
         _data.defaultlayer = { id: '', name: 'Alle Layers' };
         _data.VisibleLayers.unshift(_data.defaultlayer);
         _data.SelectedLayer = _data.defaultlayer;
+      
+
         _data.SelectedFindLayer = _data.defaultlayer;
 
         _data.ResetVisibleLayers = function () {
@@ -367,7 +369,7 @@
         };
         return _data;
     };
-    module.$inject = ['ResultsData'];
+    module.$inject = ['ResultsData', 'FeatureService'];
     module.factory('MapData', mapData);
 })();
 
