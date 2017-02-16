@@ -1,17 +1,20 @@
-<div>
+<div class="flex-column flex-grow-1 margin-top">
     <div ng-if="!srchrsltsctrl.selectedResult && srchrsltsctrl.featureLayers.length == 0">
-        Geen resultaten.
-        <!-- LIEVENHELP -->
+        <div class="col-xs-12">
+            Geen resultaten.
+        </div>
     </div>
-    <div class="flex-column flex-grow-1 margin-top" ng-if="!srchrsltsctrl.selectedResult && srchrsltsctrl.featureLayers.length > 0">
+
+    <div ng-if="!srchrsltsctrl.selectedResult && srchrsltsctrl.featureLayers.length > 0">
         <div>
             <div class="col-xs-12">
                 <select ng-model="srchrsltsctrl.layerGroupFilter">
-                <option value="geenfilter" selected="selected">Geen filter ({{srchrsltsctrl.features.length}})</option>
-                <option ng-repeat="feat in srchrsltsctrl.featureLayers" value="{{feat}}">{{feat}} ({{srchrsltsctrl.aantalFeaturesMetType(feat)}})</option>
-            </select>
+                    <option value="geenfilter" selected="selected">Geen filter ({{srchrsltsctrl.features.length}})</option>
+                    <option ng-repeat="feat in srchrsltsctrl.featureLayers" value="{{feat}}">{{feat}} ({{srchrsltsctrl.aantalFeaturesMetType(feat)}})</option>
+                </select>
             </div>
         </div>
+
         <div class="overflow-wrapper margin-top">
             <ul ng-repeat="layerGroupName in srchrsltsctrl.featureLayers">
                 <tink-accordion ng-if="srchrsltsctrl.layerGroupFilter=='geenfilter' || srchrsltsctrl.layerGroupFilter==layerGroupName " data-one-at-a-time="false">
@@ -34,6 +37,7 @@
                 </tink-accordion>
             </ul>
         </div>
+
         <div class="margin-top margin-bottom">
             <div class="col-xs-12">
                 <button class="btn-sm" ng-if="srchrsltsctrl.exportToCSVButtonIsEnabled" ng-click="srchrsltsctrl.exportToCSV()">Exporteer naar CSV</button>
