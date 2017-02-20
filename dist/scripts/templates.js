@@ -441,6 +441,12 @@ angular.module('tink.gis').run(['$templateCache', function($templateCache) {
     "</div>\n" +
     "<div class=\"flex-column flex-grow-1 margin-top\" ng-if=\"!srchrsltsctrl.selectedResult && srchrsltsctrl.featureLayers.length > 0\">\n" +
     "<div>\n" +
+    "<div class=\"col-xs-12 margin-bottom text-right\">\n" +
+    "<button class=btn ng-if=srchrsltsctrl.exportToCSVButtonIsEnabled ng-click=srchrsltsctrl.exportToCSV()>\n" +
+    "<i class=\"fa fa-file-excel-o\"></i>\n" +
+    "</button>\n" +
+    "<button class=btn-sm ng-if=srchrsltsctrl.extraResultButtonIsEnabled ng-click=srchrsltsctrl.extraResultButton()>{{srchrsltsctrl.resultButtonText}}</button>\n" +
+    "</div>\n" +
     "<div class=col-xs-12>\n" +
     "<select ng-model=srchrsltsctrl.layerGroupFilter>\n" +
     "<option value=geenfilter selected>Geen filter ({{srchrsltsctrl.features.length}})</option>\n" +
@@ -470,14 +476,6 @@ angular.module('tink.gis').run(['$templateCache', function($templateCache) {
     "</tink-accordion>\n" +
     "</ul>\n" +
     "</div>\n" +
-    "<div class=\"margin-top margin-bottom\">\n" +
-    "<div class=col-xs-12>\n" +
-    "<button class=btn tink-tooltip=\"Exporteer naar CSV\" tink-tooltip-align=top ng-if=srchslctdctrl.exportToCSVButtonIsEnabled ng-click=srchrsltsctrl.exportToCSV()>\n" +
-    "<i class=\"fa fa-file-excel-o\"></i>\n" +
-    "</button>\n" +
-    "<button class=btn ng-if=srchrsltsctrl.extraResultButtonIsEnabled ng-click=srchrsltsctrl.extraResultButton()>{{srchrsltsctrl.resultButtonText}}</button>\n" +
-    "</div>\n" +
-    "</div>\n" +
     "</div>\n" +
     "</div>\n"
   );
@@ -486,7 +484,7 @@ angular.module('tink.gis').run(['$templateCache', function($templateCache) {
   $templateCache.put('templates/search/searchSelectedTemplate.html',
     "<div class=\"SEARCHSELECTED flex-column flex-grow-1\" ng-if=srchslctdctrl.selectedResult class=extra-padding>\n" +
     "<div class=\"margin-top margin-bottom\">\n" +
-    "<div class=col-xs-12>\n" +
+    "<div class=\"col-xs-12 text-right\">\n" +
     "<button class=btn tink-tooltip=Doordruk tink-tooltip-align=top ng-click=srchslctdctrl.doordruk()>\n" +
     "<i class=\"fa fa-square-o\"></i>\n" +
     "</button>\n" +
@@ -496,7 +494,7 @@ angular.module('tink.gis').run(['$templateCache', function($templateCache) {
     "<button class=btn tink-tooltip=\"Exporteer naar CSV\" tink-tooltip-align=top ng-if=srchslctdctrl.exportToCSVButtonIsEnabled ng-click=srchslctdctrl.exportToCSV()>\n" +
     "<i class=\"fa fa-file-excel-o\"></i>\n" +
     "</button>\n" +
-    "<button class=\"btn-transparent trashcan pull-right\" ng-click=srchslctdctrl.delete()>\n" +
+    "<button class=btn ng-click=srchslctdctrl.delete()>\n" +
     "<i class=\"fa fa-trash-o\"></i>\n" +
     "</button>\n" +
     "</div>\n" +

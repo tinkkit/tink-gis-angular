@@ -7,6 +7,13 @@
 
     <div class="flex-column flex-grow-1 margin-top" ng-if="!srchrsltsctrl.selectedResult && srchrsltsctrl.featureLayers.length > 0">
         <div>
+            <div class="col-xs-12 margin-bottom text-right">
+                <button class="btn" ng-if="srchrsltsctrl.exportToCSVButtonIsEnabled" ng-click="srchrsltsctrl.exportToCSV()">
+                    <i class="fa fa-file-excel-o"></i>
+                </button>
+                <button class="btn-sm" ng-if="srchrsltsctrl.extraResultButtonIsEnabled" ng-click="srchrsltsctrl.extraResultButton()">{{srchrsltsctrl.resultButtonText}}</button>
+            </div>
+
             <div class="col-xs-12">
                 <select ng-model="srchrsltsctrl.layerGroupFilter">
                     <option value="geenfilter" selected="selected">Geen filter ({{srchrsltsctrl.features.length}})</option>
@@ -36,15 +43,6 @@
                     </tink-accordion-panel>
                 </tink-accordion>
             </ul>
-        </div>
-
-        <div class="margin-top margin-bottom">
-            <div class="col-xs-12">
-                <button class="btn" tink-tooltip="Exporteer naar CSV" tink-tooltip-align="top" ng-if="srchslctdctrl.exportToCSVButtonIsEnabled" ng-click="srchrsltsctrl.exportToCSV()">
-                    <i class="fa fa-file-excel-o"></i>
-                </button>
-                <button class="btn" ng-if="srchrsltsctrl.extraResultButtonIsEnabled" ng-click="srchrsltsctrl.extraResultButton()">{{srchrsltsctrl.resultButtonText}}</button>
-            </div>
         </div>
     </div>
 </div>
