@@ -40,10 +40,10 @@
 
         <div class="margin-top margin-bottom">
             <div class="col-xs-12">
-                <button class="btn" ng-if="srchrsltsctrl.exportToCSVButtonIsEnabled" ng-click="srchrsltsctrl.exportToCSV()">
+                <button class="btn" tink-tooltip="Exporteer naar CSV" tink-tooltip-align="top" ng-if="srchslctdctrl.exportToCSVButtonIsEnabled" ng-click="srchrsltsctrl.exportToCSV()">
                     <i class="fa fa-file-excel-o"></i>
                 </button>
-                <button class="btn-sm" ng-if="srchrsltsctrl.extraResultButtonIsEnabled" ng-click="srchrsltsctrl.extraResultButton()">{{srchrsltsctrl.resultButtonText}}</button>
+                <button class="btn" ng-if="srchrsltsctrl.extraResultButtonIsEnabled" ng-click="srchrsltsctrl.extraResultButton()">{{srchrsltsctrl.resultButtonText}}</button>
             </div>
         </div>
     </div>
