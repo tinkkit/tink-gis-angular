@@ -1,5 +1,5 @@
 <div class="gepoPuntTemplate row relative-container">
-    <div class="col-md-4 flex-column flex-grow-1 margin-top margin-bottom">
+    <div class="col-xs-4 flex-column flex-grow-1 margin-top margin-bottom">
         <div ng-show="loading == false" class="overflow-wrapper flex-grow-1 list-selectable margin-top margin-bottom">
             <div ng-if="!searchIsUrl" ng-repeat="theme in availableThemes">
                 <dl ng-class="{active: isActive(theme)}" ng-class="{'not-allowed': theme.Type != 'wms' &&  theme.Type != 'esri'}">
@@ -19,7 +19,7 @@
 
         </div>
     </div>
-    <div class="col-md-8 flex-column flex-grow-1 margin-top margin-bottom">
+    <div class="col-xs-8 flex-column flex-grow-1 margin-top margin-bottom">
         <preview-layer ng-show="themeloading == false" class="margin-top" ng-if="copySelectedTheme" addorupdatefunc="AddOrUpdateTheme()"
             theme="copySelectedTheme">
         </preview-layer>

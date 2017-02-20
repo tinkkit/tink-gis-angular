@@ -57,7 +57,7 @@ angular.module('tink.gis').run(['$templateCache', function($templateCache) {
 
   $templateCache.put('templates/layermanagement/geoPuntTemplate.html',
     "<div class=\"gepoPuntTemplate row relative-container\">\n" +
-    "<div class=\"col-md-4 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
+    "<div class=\"col-xs-4 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
     "<div ng-show=\"loading == false\" class=\"overflow-wrapper flex-grow-1 list-selectable margin-top margin-bottom\">\n" +
     "<div ng-if=!searchIsUrl ng-repeat=\"theme in availableThemes\">\n" +
     "<dl ng-class=\"{active: isActive(theme)}\" ng-class=\"{'not-allowed': theme.Type != 'wms' &&  theme.Type != 'esri'}\">\n" +
@@ -75,7 +75,7 @@ angular.module('tink.gis').run(['$templateCache', function($templateCache) {
     "<div ng-if=\"loading == true\" class=loader>\n" +
     "</div>\n" +
     "</div>\n" +
-    "<div class=\"col-md-8 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
+    "<div class=\"col-xs-8 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
     "<preview-layer ng-show=\"themeloading == false\" class=margin-top ng-if=copySelectedTheme addorupdatefunc=AddOrUpdateTheme() theme=copySelectedTheme>\n" +
     "</preview-layer>\n" +
     "<div ng-if=error>\n" +
@@ -83,7 +83,7 @@ angular.module('tink.gis').run(['$templateCache', function($templateCache) {
     "</div>\n" +
     "<div class=loader ng-show=\"themeloading == true\"></div>\n" +
     "</div>\n" +
-    "</div>"
+    "</div>\n"
   );
 
 
@@ -92,14 +92,14 @@ angular.module('tink.gis').run(['$templateCache', function($templateCache) {
     "<div class=\"layermanagerTemplate modal-header\">\n" +
     "<div class=\"row margin-bottom\">\n" +
     "<div class=col-xs-10>\n" +
-    "<h4 class=model-title>Lagenbeheer\n" +
-    "</h4></div>\n" +
+    "<h4>Lagenbeheer</h4>\n" +
+    "</div>\n" +
     "<div class=col-xs-2>\n" +
     "<button class=pull-right type=button data-ng-click=cancel()><i class=\"fa fa-times\"></i></button>\n" +
     "</div>\n" +
     "</div>\n" +
     "</div>\n" +
-    "<div class=\"modal-body flex-column flex-grow-1\">\n" +
+    "<div class=\"modal-body-size-fixed flex-column flex-grow-1\">\n" +
     "<div class=\"row margin-top margin-bottom\">\n" +
     "<div class=\"col-xs-12 col-sm-6\">\n" +
     "<form>\n" +
@@ -127,7 +127,7 @@ angular.module('tink.gis').run(['$templateCache', function($templateCache) {
 
   $templateCache.put('templates/layermanagement/layersManagementTemplate.html',
     "<div class=\"layersManagementTemplate row relative-container flex-grow-1\">\n" +
-    "<div class=\"col-md-4 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
+    "<div class=\"col-xs-4 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
     "<div class=\"overflow-wrapper flex-grow-1 list-selectable margin-top margin-bottom border-right\">\n" +
     "<div ng-repeat=\"theme in availableThemes | filter:{name: searchTerm}\">\n" +
     "<dl ng-class=\"{active: isActive(theme)}\">\n" +
@@ -139,11 +139,11 @@ angular.module('tink.gis').run(['$templateCache', function($templateCache) {
     "</div>\n" +
     "</div>\n" +
     "</div>\n" +
-    "<div class=\"col-md-8 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
+    "<div class=\"col-xs-8 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
     "<preview-layer ng-if=copySelectedTheme theme=copySelectedTheme addorupdatefunc=AddOrUpdateTheme()>\n" +
     "</preview-layer>\n" +
     "</div>\n" +
-    "</div>"
+    "</div>\n"
   );
 
 
@@ -232,12 +232,12 @@ angular.module('tink.gis').run(['$templateCache', function($templateCache) {
 
   $templateCache.put('templates/layermanagement/wmsUrlTemplate.html',
     "<div class=\"wmsUrlTemplate row relative-container\">\n" +
-    "<div class=\"col-md-4 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
+    "<div class=\"col-xs-4 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
     "<div>\n" +
     "<input class=searchbox ng-model=url ng-change=urlChanged() placeholder=\"Geef een url in\">\n" +
     "</div>\n" +
     "</div>\n" +
-    "<div class=\"col-md-8 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
+    "<div class=\"col-xs-8 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
     "<div>\n" +
     "<button ng-disabled=!urlIsValid ng-click=laadUrl()>Laad url</button>\n" +
     "</div>\n" +
@@ -248,7 +248,7 @@ angular.module('tink.gis').run(['$templateCache', function($templateCache) {
     "</div>\n" +
     "<div class=loader ng-show=\"themeloading == true\"></div>\n" +
     "</div>\n" +
-    "</div>"
+    "</div>\n"
   );
 
 
@@ -417,18 +417,41 @@ angular.module('tink.gis').run(['$templateCache', function($templateCache) {
   $templateCache.put('templates/search/bufferTemplate.html',
     "<div>\n" +
     "<div class=modal-header>\n" +
-    "<button type=button style=float:right data-ng-click=cancel()><i class=\"fa fa-times\"></i></button>\n" +
+    "<div class=\"row margin-bottom\">\n" +
+    "<div class=col-xs-10>\n" +
     "<h4 class=model-title>Buffer instellen</h4>\n" +
     "</div>\n" +
-    "<div class=modal-content>\n" +
-    "Selecteer de laag:\n" +
-    "<select ng-options=\"layer as layer.name for layer in SelectableLayers\" ng-model=selectedLayer prevent-default></select> Geef de bufferafstand:\n" +
-    "<input type=number ng-model=buffer>\n" +
+    "<div class=col-xs-2>\n" +
+    "<button class=pull-right type=button data-ng-click=cancel()><i class=\"fa fa-times\"></i></button>\n" +
     "</div>\n" +
-    "<div class=modal-footer>\n" +
-    "<button data-ng-click=ok()>Klaar</button>\n" +
     "</div>\n" +
-    "</div>"
+    "</div>\n" +
+    "<div class=\"modal-body flex-column flex-grow-1\">\n" +
+    "<div class=\"row margin-top\">\n" +
+    "<div class=col-xs-12>\n" +
+    "<div class=form-group>\n" +
+    "<label for=select>Selecteer de laag:</label>\n" +
+    "<div class=select>\n" +
+    "<select ng-options=\"layer as layer.name for layer in SelectableLayers\" ng-model=selectedLayer prevent-default></select>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "<div class=\"row margin-bottom\">\n" +
+    "<div class=col-xs-12>\n" +
+    "<div class=form-group>\n" +
+    "<label for=input-number>Geef de bufferafstand:</label>\n" +
+    "<input type=number class=hide-spin-button ng-model=buffer>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "<div class=\"modal-footer text-right\">\n" +
+    "<div class=\"col-xs-12 margin-top\">\n" +
+    "<button type=submit data-ng-click=ok()>Klaar</button>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "</div>\n"
   );
 
 

@@ -1,5 +1,5 @@
 <div class="layersManagementTemplate row relative-container flex-grow-1">
-    <div class="col-md-4 flex-column flex-grow-1 margin-top margin-bottom">
+    <div class="col-xs-4 flex-column flex-grow-1 margin-top margin-bottom">
         <div class="overflow-wrapper flex-grow-1 list-selectable margin-top margin-bottom border-right">
             <div ng-repeat="theme in availableThemes | filter:{name: searchTerm}">
                 <dl ng-class="{active: isActive(theme)}">
@@ -12,7 +12,7 @@
             </div>
         </div>
     </div>
-    <div class="col-md-8 flex-column flex-grow-1 margin-top margin-bottom">
+    <div class="col-xs-8 flex-column flex-grow-1 margin-top margin-bottom">
         <preview-layer ng-if="copySelectedTheme" theme="copySelectedTheme" addorupdatefunc="AddOrUpdateTheme()">
 
         </preview-layer>
