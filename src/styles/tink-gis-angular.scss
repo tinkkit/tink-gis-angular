@@ -1034,6 +1034,10 @@ html.show-loader {
   color: $white;
 }
 
+.tooltip {
+  z-index: 2000;
+}
+
 // fix for sweet-alert bug
   .sweet-alert {
     fieldset {

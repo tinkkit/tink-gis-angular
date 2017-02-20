@@ -440,9 +440,9 @@ angular.module('tink.gis').run(['$templateCache', function($templateCache) {
     "</div>\n" +
     "</div>\n" +
     "<div class=\"flex-column flex-grow-1 margin-top\" ng-if=\"!srchrsltsctrl.selectedResult && srchrsltsctrl.featureLayers.length > 0\">\n" +
-    "<div>\n" +
+    "<div class=\"row extra-padding\">\n" +
     "<div class=\"col-xs-12 margin-bottom text-right\">\n" +
-    "<button class=btn ng-if=srchrsltsctrl.exportToCSVButtonIsEnabled ng-click=srchrsltsctrl.exportToCSV()>\n" +
+    "<button class=btn tink-tooltip=\"Exporteer naar CSV\" tink-tooltip-align=top ng-if=srchslctdctrl.exportToCSVButtonIsEnabled ng-click=srchslctdctrl.exportToCSV()>\n" +
     "<i class=\"fa fa-file-excel-o\"></i>\n" +
     "</button>\n" +
     "<button class=btn-sm ng-if=srchrsltsctrl.extraResultButtonIsEnabled ng-click=srchrsltsctrl.extraResultButton()>{{srchrsltsctrl.resultButtonText}}</button>\n" +
@@ -466,7 +466,7 @@ angular.module('tink.gis').run(['$templateCache', function($templateCache) {
     "<data-content>\n" +
     "<li ng-repeat=\"feature in srchrsltsctrl.features | filter: { layerName:layerGroupName } :true\" ng-mouseover=srchrsltsctrl.HoverOver(feature)>\n" +
     "<div class=mouse-over>\n" +
-    "<a tink-tooltip={{feature.displayValue}} tink-tooltip-align=bottom ng-click=srchrsltsctrl.showDetails(feature)>{{ feature.displayValue| limitTo : 23 }}\n" +
+    "<a tink-tooltip={{feature.displayValue}} tink-tooltip-align=top ng-click=srchrsltsctrl.showDetails(feature)>{{ feature.displayValue| limitTo : 23 }}\n" +
     "</a>\n" +
     "<button class=\"trash pull-right mouse-over-toshow\" prevent-default ng-click=srchrsltsctrl.deleteFeature(feature)></button>\n" +
     "</div>\n" +
@@ -486,15 +486,15 @@ angular.module('tink.gis').run(['$templateCache', function($templateCache) {
     "<div class=\"margin-top margin-bottom\">\n" +
     "<div class=\"col-xs-12 text-right\">\n" +
     "<button class=btn tink-tooltip=Doordruk tink-tooltip-align=top ng-click=srchslctdctrl.doordruk()>\n" +
-    "<i class=\"fa fa-square-o\"></i>\n" +
+    "Doordruk\n" +
     "</button>\n" +
     "<button class=btn tink-tooltip=Buffer tink-tooltip-align=top ng-click=srchslctdctrl.buffer()>\n" +
-    "<i class=\"fa fa-square\"></i>\n" +
+    "Buffer\n" +
     "</button>\n" +
-    "<button class=btn tink-tooltip=\"Exporteer naar CSV\" tink-tooltip-align=top ng-if=srchslctdctrl.exportToCSVButtonIsEnabled ng-click=srchslctdctrl.exportToCSV()>\n" +
+    "<button class=btn tink-tooltip=Exporteer_naar_CSV tink-tooltip-align=top ng-if=srchslctdctrl.exportToCSVButtonIsEnabled ng-click=srchslctdctrl.exportToCSV()>\n" +
     "<i class=\"fa fa-file-excel-o\"></i>\n" +
     "</button>\n" +
-    "<button class=btn ng-click=srchslctdctrl.delete()>\n" +
+    "<button class=btn tink-tooltip=Verwijderen tink-tooltip-align=top ng-click=srchslctdctrl.delete()>\n" +
     "<i class=\"fa fa-trash-o\"></i>\n" +
     "</button>\n" +
     "</div>\n" +

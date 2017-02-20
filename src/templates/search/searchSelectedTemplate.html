@@ -3,15 +3,16 @@
     <div class="margin-top margin-bottom">
         <div class="col-xs-12 text-right">
             <button class="btn" tink-tooltip="Doordruk" tink-tooltip-align="top" ng-click="srchslctdctrl.doordruk()">
-                <i class="fa fa-square-o"></i>
+                Doordruk
             </button>
             <button class="btn" tink-tooltip="Buffer" tink-tooltip-align="top" ng-click="srchslctdctrl.buffer()">
-                <i class="fa fa-square"></i>
+                Buffer
             </button>
-            <button class="btn" tink-tooltip="Exporteer naar CSV" tink-tooltip-align="top" ng-if="srchslctdctrl.exportToCSVButtonIsEnabled" ng-click="srchslctdctrl.exportToCSV()">
+
+            <button class="btn" tink-tooltip="Exporteer_naar_CSV" tink-tooltip-align="top" ng-if="srchslctdctrl.exportToCSVButtonIsEnabled" ng-click="srchslctdctrl.exportToCSV()">
                 <i class="fa fa-file-excel-o"></i>
             </button>
-            <button class="btn" ng-click="srchslctdctrl.delete()">
+            <button class="btn" tink-tooltip="Verwijderen" tink-tooltip-align="top" ng-click="srchslctdctrl.delete()">
                 <i class="fa fa-trash-o"></i>
             </button>
         </div>
