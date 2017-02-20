@@ -456,6 +456,11 @@ button.trash {
   button.trash:before {
     content: "\f014"; }
 
+button.trashcan {
+  color: #333; }
+  button.trashcan:hover, button.trashcan:focus {
+    color: #333; }
+
 /* Table of content */
 .toc-item-without-icon {
   display: -webkit-inline-flex;
@@ -833,7 +838,6 @@ html.show-loader .loader-wrapper {
 .news-list {
   overflow-y: auto; }
   .news-list dl {
-    height: 14vh;
     overflow: auto;
     margin-bottom: 0; }
   .news-list dt {
@@ -875,6 +879,12 @@ html.show-loader .loader-wrapper {
 
 .text-align-right {
   text-align: right; }
+
+.nav-top a {
+  color: #fff; }
+
+.tooltip {
+  z-index: 2000; }
 
 .sweet-alert fieldset {
   display: none; }

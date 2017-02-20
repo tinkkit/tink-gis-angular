@@ -4809,12 +4809,20 @@ L.drawLocal = {
 
 
   $templateCache.put('templates/search/searchResultsTemplate.html',
-    "<div>\n" +
-    "<div ng-if=\"!srchrsltsctrl.selectedResult && srchrsltsctrl.featureLayers.length == 0\">\n" +
+    "<div class=\"SEARCHRESULT flex-column\">\n" +
+    "<div class=flex-column ng-if=\"!srchrsltsctrl.selectedResult && srchrsltsctrl.featureLayers.length == 0\">\n" +
+    "<div class=\"col-xs-12 flex-grow-1 margin-top\">\n" +
     "Geen resultaten.\n" +
     "</div>\n" +
+    "</div>\n" +
     "<div class=\"flex-column flex-grow-1 margin-top\" ng-if=\"!srchrsltsctrl.selectedResult && srchrsltsctrl.featureLayers.length > 0\">\n" +
-    "<div>\n" +
+    "<div class=\"row extra-padding\">\n" +
+    "<div class=\"col-xs-12 margin-bottom text-right\">\n" +
+    "<button class=btn tink-tooltip=\"Exporteer naar CSV\" tink-tooltip-align=top ng-if=srchslctdctrl.exportToCSVButtonIsEnabled ng-click=srchslctdctrl.exportToCSV()>\n" +
+    "<i class=\"fa fa-file-excel-o\"></i>\n" +
+    "</button>\n" +
+    "<button class=btn-sm ng-if=srchrsltsctrl.extraResultButtonIsEnabled ng-click=srchrsltsctrl.extraResultButton()>{{srchrsltsctrl.resultButtonText}}</button>\n" +
+    "</div>\n" +
     "<div class=col-xs-12>\n" +
     "<select ng-model=srchrsltsctrl.layerGroupFilter>\n" +
     "<option value=geenfilter selected>Geen filter ({{srchrsltsctrl.features.length}})</option>\n" +
@@ -4834,7 +4842,7 @@ L.drawLocal = {
     "<data-content>\n" +
     "<li ng-repeat=\"feature in srchrsltsctrl.features | filter: { layerName:layerGroupName } :true\" ng-mouseover=srchrsltsctrl.HoverOver(feature)>\n" +
     "<div class=mouse-over>\n" +
-    "<a tink-tooltip={{feature.displayValue}} tink-tooltip-align=bottom ng-click=srchrsltsctrl.showDetails(feature)>{{ feature.displayValue| limitTo : 23 }}\n" +
+    "<a tink-tooltip={{feature.displayValue}} tink-tooltip-align=top ng-click=srchrsltsctrl.showDetails(feature)>{{ feature.displayValue| limitTo : 23 }}\n" +
     "</a>\n" +
     "<button class=\"trash pull-right mouse-over-toshow\" prevent-default ng-click=srchrsltsctrl.deleteFeature(feature)></button>\n" +
     "</div>\n" +
@@ -4844,29 +4852,30 @@ L.drawLocal = {
     "</tink-accordion>\n" +
     "</ul>\n" +
     "</div>\n" +
-    "<div class=\"margin-top margin-bottom\">\n" +
-    "<div class=col-xs-12>\n" +
-    "<button class=btn-sm ng-if=srchrsltsctrl.exportToCSVButtonIsEnabled ng-click=srchrsltsctrl.exportToCSV()>Exporteer naar CSV</button>\n" +
-    "<button class=btn-sm ng-if=srchrsltsctrl.extraResultButtonIsEnabled ng-click=srchrsltsctrl.extraResultButton()>{{srchrsltsctrl.resultButtonText}}</button>\n" +
     "</div>\n" +
-    "</div>\n" +
-    "</div>\n" +
-    "</div>"
+    "</div>\n"
   );
 
 
   $templateCache.put('templates/search/searchSelectedTemplate.html',
-    "<div class=\"flex-column flex-grow-1 margin-top\" ng-if=srchslctdctrl.selectedResult class=extra-padding>\n" +
-    "<div class=margin-bottom>\n" +
-    "<div class=col-xs-12>\n" +
-    "<div class=btn-group>\n" +
-    "<button type=button class=btn ng-disabled=!srchslctdctrl.prevResult ng-click=srchslctdctrl.vorige()>Vorige</button>\n" +
-    "<button type=button class=btn ng-disabled=!srchslctdctrl.nextResult ng-click=srchslctdctrl.volgende()>Volgende</button>\n" +
+    "<div class=\"SEARCHSELECTED flex-column flex-grow-1\" ng-if=srchslctdctrl.selectedResult class=extra-padding>\n" +
+    "<div class=\"margin-top margin-bottom\">\n" +
+    "<div class=\"col-xs-12 text-right\">\n" +
+    "<button class=btn tink-tooltip=Doordruk tink-tooltip-align=top ng-click=srchslctdctrl.doordruk()>\n" +
+    "Doordruk\n" +
+    "</button>\n" +
+    "<button class=btn tink-tooltip=Buffer tink-tooltip-align=top ng-click=srchslctdctrl.buffer()>\n" +
+    "Buffer\n" +
+    "</button>\n" +
+    "<button class=btn tink-tooltip=Exporteer_naar_CSV tink-tooltip-align=top ng-if=srchslctdctrl.exportToCSVButtonIsEnabled ng-click=srchslctdctrl.exportToCSV()>\n" +
+    "<i class=\"fa fa-file-excel-o\"></i>\n" +
+    "</button>\n" +
+    "<button class=btn tink-tooltip=Verwijderen tink-tooltip-align=top ng-click=srchslctdctrl.delete()>\n" +
+    "<i class=\"fa fa-trash-o\"></i>\n" +
+    "</button>\n" +
     "</div>\n" +
-    "<button class=\"btn pull-right\" ng-click=srchslctdctrl.delete()>Verwijderen</button>\n" +
     "</div>\n" +
-    "</div>\n" +
-    "<div class=\"col-xs-12 overflow-wrapper\">\n" +
+    "<div class=\"col-xs-12 overflow-wrapper flex-grow-1\">\n" +
     "<dl ng-repeat=\"prop in srchslctdctrl.props\">\n" +
     "<dt>{{ prop.key}}</dt>\n" +
     "<div ng-if=\"prop.value.toLowerCase() != 'null'\">\n" +
@@ -4875,20 +4884,23 @@ L.drawLocal = {
     "</div>\n" +
     "</dl>\n" +
     "</div>\n" +
-    "<div class=\"margin-top margin-bottom\">\n" +
+    "<div class=margin-top>\n" +
     "<div class=col-xs-12>\n" +
-    "<button class=btn-primary ng-click=srchslctdctrl.toonFeatureOpKaart()>Tonen</button>\n" +
-    "<div class=pull-right>\n" +
-    "<button class=margin-right ng-click=srchslctdctrl.doordruk()>Doordruk</button>\n" +
-    "<button ng-click=srchslctdctrl.buffer()>Buffer</button>\n" +
-    "<button class=btn-sm ng-if=srchslctdctrl.exportToCSVButtonIsEnabled ng-click=srchslctdctrl.exportToCSV()>Exporteer naar CSV</button>\n" +
+    "<div class=btn-group>\n" +
+    "<button type=button class=btn ng-disabled=!srchslctdctrl.prevResult ng-click=srchslctdctrl.vorige()>\n" +
+    "<i class=\"fa fa-chevron-left\"></i>\n" +
+    "</button>\n" +
+    "<button type=button class=btn ng-disabled=!srchslctdctrl.nextResult ng-click=srchslctdctrl.volgende()>\n" +
+    "<i class=\"fa fa-chevron-right\"></i>\n" +
+    "</button>\n" +
     "</div>\n" +
+    "<button class=\"btn-primary pull-right\" ng-click=srchslctdctrl.toonFeatureOpKaart()>Tonen</button>\n" +
     "</div>\n" +
-    "<div class=\"col-xs-12 margin-top\">\n" +
+    "<div class=\"col-xs-12 margin-top margin-bottom\">\n" +
     "<a class=pull-right ng-click=srchslctdctrl.close(srchslctdctrl.selectedResult)>Terug naar resultaten</a>\n" +
     "</div>\n" +
     "</div>\n" +
-    "</div>"
+    "</div>\n"
   );
 
 
