@@ -27,14 +27,7 @@
             drawControl: false,
             attributionControl: false
         }).setView([51.2192159, 4.4028818], 5);
-
-        // The min/maxZoom values provided should match the actual cache thats been published. This information can be retrieved from the service endpoint directly.
-        // L.esri.tiledMapLayer({
-        //     url: 'https://geodata.antwerpen.be/arcgissql/rest/services/P_Publiek/P_basemap/MapServer',
-        //     maxZoom: 20,
-        //     minZoom: 1,
-        //     continuousWorld: true
-        // }).addTo(map);
+        // L.control.scale({imperial: false}).addTo(map);
 
 
         map.doubleClickZoom.disable();
@@ -3528,7 +3521,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                         }
                     } else {
                         syncResults([]);
-                        vm.zoekXY(query);
+                        zoekXY(query);
                     }
                 },
                 templates: {
@@ -3570,6 +3563,21 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                     }
                 }
             }).addTo(map);
+        };
+        var zoekXY = function zoekXY(search) {
+            search = search.trim();
+            var WGS84Check = HelperService.getWGS84CordsFromString(search);
+            if (WGS84Check.hasCordinates) {
+                setViewAndPutDot(WGS84Check);
+            } else {
+                var lambertCheck = HelperService.getLambartCordsFromString(search);
+                if (lambertCheck.hasCordinates) {
+                    var xyWGS84 = HelperService.ConvertLambert72ToWSG84({ x: lambertCheck.x, y: lambertCheck.y });
+                    setViewAndPutDot(xyWGS84);
+                } else {
+                    console.log('NIET GEVONDEN');
+                }
+            }
         };
         var isCharDigit = function isCharDigit(n) {
             return n != ' ' && n > -1;

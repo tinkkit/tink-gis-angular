@@ -53,7 +53,7 @@
 
                         } else {
                             syncResults([]);
-                            vm.zoekXY(query);
+                            zoekXY(query);
                         }
 
                     },
@@ -101,6 +101,21 @@
                 }
             ).addTo(map);
         }
+        var zoekXY = function (search) {
+            search = search.trim();
+            var WGS84Check = HelperService.getWGS84CordsFromString(search);
+            if (WGS84Check.hasCordinates) {
+                setViewAndPutDot(WGS84Check);
+            } else {
+                var lambertCheck = HelperService.getLambartCordsFromString(search);
+                if (lambertCheck.hasCordinates) {
+                    var xyWGS84 = HelperService.ConvertLambert72ToWSG84({ x: lambertCheck.x, y: lambertCheck.y });
+                    setViewAndPutDot(xyWGS84);
+                } else {
+                    console.log('NIET GEVONDEN');
+                }
+            }
+        };
         var isCharDigit = function (n) {
             return n != ' ' && n > -1;
         };
