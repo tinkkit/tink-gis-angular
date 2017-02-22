@@ -3074,8 +3074,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                                         ResultsData.RequestCompleted++;
                                         console.log('minus');
                                         // data = data.replace('<?xml version="1.0" encoding="UTF-8"?>', '').trim();
-                                        // var xmlstring = JXON.xmlToString(data);
-                                        var returnjson = JXON.stringToJs(data);
+                                        var xmlstring = JXON.xmlToString(data);
+                                        var returnjson = JXON.stringToJs(xmlstring);
                                         var processedjson = null;
                                         if (returnjson.featureinforesponse) {
                                             processedjson = returnjson.featureinforesponse.fields;
