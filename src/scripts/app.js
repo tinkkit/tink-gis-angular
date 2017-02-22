@@ -53,15 +53,15 @@
             drawControl: false,
             attributionControl: false
         }).setView([51.2192159, 4.4028818], 5);
-        // L.control.scale({imperial: false}).addTo(map);
+        L.control.scale({imperial: false}).addTo(map); // set scale on the map
 
-   
+
 
 
 
 
         map.doubleClickZoom.disable();
-        // L.control.scale({ imperial: false }).addTo(map);
+        // L.control.scale({ imperial: false }).addTo(map); // can be deleted?
         var drawnItems = L.featureGroup().addTo(map);
 
         map.on('draw:created', function (event) {
