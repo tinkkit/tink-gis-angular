@@ -27,11 +27,11 @@
             drawControl: false,
             attributionControl: false
         }).setView([51.2192159, 4.4028818], 5);
-        // L.control.scale({imperial: false}).addTo(map);
+        L.control.scale({ imperial: false }).addTo(map); // set scale on the map
 
 
         map.doubleClickZoom.disable();
-        // L.control.scale({ imperial: false }).addTo(map);
+        // L.control.scale({ imperial: false }).addTo(map); // can be deleted?
         var drawnItems = L.featureGroup().addTo(map);
 
         map.on('draw:created', function (event) {
@@ -753,9 +753,9 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
     var service = function service($http, map, MapData, $rootScope, $q, helperService, PopupService) {
         var _service = {};
         _service.getMetaData = function () {
-            var searchterm = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'water';
-            var startpos = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
-            var recordsAPage = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 10;
+            var searchterm = arguments.length <= 0 || arguments[0] === undefined ? 'water' : arguments[0];
+            var startpos = arguments.length <= 1 || arguments[1] === undefined ? 1 : arguments[1];
+            var recordsAPage = arguments.length <= 2 || arguments[2] === undefined ? 10 : arguments[2];
 
             var url = 'https://metadata.geopunt.be/zoekdienst/srv/dut/csw?service=CSW&version=2.0.2&SortBy=title&request=GetRecords&namespace=xmlns%28csw=http://www.opengis.net/cat/csw%29&resultType=results&outputSchema=http://www.opengis.net/cat/csw/2.0.2&outputFormat=application/xml&startPosition=' + startpos + '&maxRecords=' + recordsAPage + '&typeNames=csw:Record&elementSetName=full&constraintLanguage=CQL_TEXT&constraint_language_version=1.1.0&constraint=AnyText+LIKE+%27%25' + searchterm + '%25%27AND%20Type%20=%20%27service%27%20AND%20Servicetype%20=%27view%27';
             // var url = 'https://metadata.geopunt.be/zoekdienst/srv/dut/q?fast=index&from=' + startpos + '&to=' + recordsAPage + '&any=*' + searchterm + '*&sortBy=title&sortOrder=reverse&hitsperpage=' + recordsAPage;
@@ -1701,8 +1701,8 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         _baseLayersService.basemap1Naam = "Geen";
 
         _baseLayersService.setBaseMap = function (id, naam, url) {
-            var maxZoom = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 19;
-            var minZoom = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 0;
+            var maxZoom = arguments.length <= 3 || arguments[3] === undefined ? 19 : arguments[3];
+            var minZoom = arguments.length <= 4 || arguments[4] === undefined ? 0 : arguments[4];
 
             var layer = L.esri.tiledMapLayer({ url: url, maxZoom: maxZoom, minZoom: minZoom, continuousWorld: true });
             if (id == 1) {
@@ -2153,7 +2153,7 @@ var esri2geo = {};
 })();
 ;'use strict';
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
 (function () {
     var module;
@@ -3030,7 +3030,7 @@ L.control.typeahead = function (args) {
 })();
 ;'use strict';
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
 (function () {
     var module;
@@ -3535,33 +3535,20 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 'typeahead:select': function typeaheadSelect(ev, suggestion) {
                     MapData.CleanWatIsHier();
                     MapData.CleanTempFeatures();
-                    if (suggestion.layer) {
-                        switch (suggestion.layer.toLowerCase()) {
-                            case 'postzone':
-                                MapData.QueryForTempFeatures(20, 'ObjectID=' + suggestion.key);
-                                break;
-                            case 'district':
-                                MapData.QueryForTempFeatures(21, 'ObjectID=' + suggestion.key);
-                                break;
-                            default:
-                                var cors = {
-                                    x: suggestion.x,
-                                    y: suggestion.y
-                                };
-                                var xyWGS84 = HelperService.ConvertLambert72ToWSG84(cors);
-                                setViewAndPutDot(xyWGS84);
-                                break;
-
-                        }
-                    } else {
+                    if (suggestion.x && suggestion.y) {
                         var cors = {
                             x: suggestion.x,
                             y: suggestion.y
                         };
                         var xyWGS84 = HelperService.ConvertLambert72ToWSG84(cors);
                         setViewAndPutDot(xyWGS84);
+                    } else {
+                        var idsplitted = suggestion.id.split("/");
+                        var layerid = idsplitted[3];
+                        MapData.QueryForTempFeatures(layerid, 'ObjectID=' + suggestion.key);
                     }
                 }
+
             }).addTo(map);
         };
         var zoekXY = function zoekXY(search) {
