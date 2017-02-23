@@ -49,10 +49,6 @@ $leaflet-control-position-left-sm: $map-buttons-position-left-sm + 90px;
     width: rem($right-nav-aside-width);
   }
 
-  // !! not necessary anymore
-  // .fa-fw {
-  //   width: rem(10);
-  // }
 }
 
 .leafletmap {
@@ -62,17 +58,6 @@ $leaflet-control-position-left-sm: $map-buttons-position-left-sm + 90px;
 .leaflet-popup-content-wrapper, .leaflet-popup-tip {
     opacity: 0.8;
 }
-
-
-// .leaflet-left .leaflet-control-scale {
-//   margin-left: rem(130);
-//   margin-bottom: rem(13);
-
-//   @include mq($screen-sm) {
-//     margin-left: rem(135);
-//     margin-bottom: rem(18);
-//   }
-// }
 
 .leaflet-popup-content-wrapper {
     border-radius: 6px;
@@ -113,6 +98,15 @@ svg.leaflet-zoom-animated {
   z-index: 9999; //Make sure the close button is clickable when there is a popup!
 }
 
+.leaflet-control-scale-line {
+  margin-bottom: rem(7);
+  margin-left: rem(140); // set next to kaarttypes
+    @include mq($screen-sm) {
+    margin-bottom: rem(12)
+  }
+}
+
+
 /**
  * Map buttons styling
  */
@@ -145,7 +139,6 @@ button.btn.active {
     display: inline-block;
     position: relative;
     vertical-align: middle;
-    // width: rem(200);
   }
 
   @include mq($screen-sm) {
@@ -827,6 +820,9 @@ html.nav-left-open {
   }
   .leaflet-control {
     left: rem($left-nav-aside-width + $leaflet-control-position-left-xs);
+    &-scale-line {
+      margin-left: rem(45);
+    }
 
     @include mq($screen-sm) {
       left: rem($left-nav-aside-width + $leaflet-control-position-left-sm);
