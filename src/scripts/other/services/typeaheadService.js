@@ -69,26 +69,7 @@
                     'typeahead:select': function (ev, suggestion) {
                         MapData.CleanWatIsHier();
                         MapData.CleanTempFeatures();
-                        if (suggestion.layer) {
-                            switch (suggestion.layer.toLowerCase()) {
-                                case 'postzone':
-                                    MapData.QueryForTempFeatures(20, 'ObjectID=' + suggestion.key);
-                                    break;
-                                case 'district':
-                                    MapData.QueryForTempFeatures(21, 'ObjectID=' + suggestion.key);
-                                    break;
-                                default:
-                                    var cors = {
-                                        x: suggestion.x,
-                                        y: suggestion.y
-                                    };
-                                    var xyWGS84 = HelperService.ConvertLambert72ToWSG84(cors);
-                                    setViewAndPutDot(xyWGS84);
-                                    break;
-
-                            }
-                        }
-                        else {
+                        if (suggestion.x && suggestion.y) {
                             var cors = {
                                 x: suggestion.x,
                                 y: suggestion.y
@@ -96,8 +77,15 @@
                             var xyWGS84 = HelperService.ConvertLambert72ToWSG84(cors);
                             setViewAndPutDot(xyWGS84);
                         }
+                        else {
+                            var idsplitted = suggestion.id.split("/");
+                            var layerid = idsplitted[3];
+                            MapData.QueryForTempFeatures(layerid, 'ObjectID=' + suggestion.key);
 
+                        }
                     }
+
+
                 }
             ).addTo(map);
         }
