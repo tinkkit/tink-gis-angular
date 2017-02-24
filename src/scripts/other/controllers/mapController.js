@@ -29,11 +29,11 @@
         vm.selectedLayer = MapData.SelectedLayer
         $scope.$watch(function () { return MapData.SelectedLayer; }, function (newval, oldval) {
             vm.selectedLayer = newval;
-        }, true);
+        });
         vm.selectedFindLayer = MapData.SelectedFindLayer
         $scope.$watch(function () { return MapData.SelectedFindLayer; }, function (newval, oldval) {
             vm.selectedFindLayer = newval;
-        }, true);
+        });
         vm.showMetenControls = false;
         vm.showDrawControls = false;
         vm.zoekLoc = '';

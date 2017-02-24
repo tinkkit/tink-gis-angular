@@ -231,6 +231,13 @@ svg.leaflet-zoom-animated {
 .leaflet-popup-close-button {
   z-index: 9999; }
 
+.leaflet-control-scale-line {
+  margin-bottom: 0.5rem ;
+  margin-left: 10rem ; }
+  @media (min-width: 768px) {
+    .leaflet-control-scale-line {
+      margin-bottom: 0.8571428571rem ; } }
+
 /**
  * Map buttons styling
  */
@@ -455,6 +462,11 @@ button.trash {
     color: #333; }
   button.trash:before {
     content: "\f014"; }
+
+button.trashcan {
+  color: #333; }
+  button.trashcan:hover, button.trashcan:focus {
+    color: #333; }
 
 /* Table of content */
 .toc-item-without-icon {
@@ -729,6 +741,8 @@ html.nav-left-open .nav-left-toggle:before {
 
 html.nav-left-open .leaflet-control {
   left: 30rem ; }
+  html.nav-left-open .leaflet-control-scale-line {
+    margin-left: 3.2142857143rem ; }
   @media (min-width: 768px) {
     html.nav-left-open .leaflet-control {
       left: 30.3571428571rem ; } }
@@ -833,7 +847,6 @@ html.show-loader .loader-wrapper {
 .news-list {
   overflow-y: auto; }
   .news-list dl {
-    height: 14vh;
     overflow: auto;
     margin-bottom: 0; }
   .news-list dt {
@@ -875,6 +888,12 @@ html.show-loader .loader-wrapper {
 
 .text-align-right {
   text-align: right; }
+
+.nav-top a {
+  color: #fff; }
+
+.tooltip {
+  z-index: 2000; }
 
 .sweet-alert fieldset {
   display: none; }

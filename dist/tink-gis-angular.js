@@ -27,18 +27,11 @@
             drawControl: false,
             attributionControl: false
         }).setView([51.2192159, 4.4028818], 5);
-
-        // The min/maxZoom values provided should match the actual cache thats been published. This information can be retrieved from the service endpoint directly.
-        // L.esri.tiledMapLayer({
-        //     url: 'https://geodata.antwerpen.be/arcgissql/rest/services/P_Publiek/P_basemap/MapServer',
-        //     maxZoom: 20,
-        //     minZoom: 1,
-        //     continuousWorld: true
-        // }).addTo(map);
+        L.control.scale({ imperial: false }).addTo(map); // set scale on the map
 
 
         map.doubleClickZoom.disable();
-        // L.control.scale({ imperial: false }).addTo(map);
+        // L.control.scale({ imperial: false }).addTo(map); // can be deleted?
         var drawnItems = L.featureGroup().addTo(map);
 
         map.on('draw:created', function (event) {
@@ -757,7 +750,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
 
 (function () {
     var module = angular.module('tink.gis');
-    var service = function service($http, map, MapData, $rootScope, $q, helperService) {
+    var service = function service($http, map, MapData, $rootScope, $q, helperService, PopupService) {
         var _service = {};
         _service.getMetaData = function () {
             var searchterm = arguments.length <= 0 || arguments[0] === undefined ? 'water' : arguments[0];
@@ -801,7 +794,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 }
             }).error(function (data, status, headers, config) {
                 prom.reject(null);
-                PopupService.ErrorFromHttp(data, status, proxiedurl);
+                PopupService.ErrorFromHttp(data, status, url);
             });
             return prom.promise;
         };
@@ -828,7 +821,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         };
         return _service;
     };
-    module.factory('GeopuntService', ['$http', 'map', 'MapData', '$rootScope', '$q', 'HelperService', service]);
+    module.factory('GeopuntService', ['$http', 'map', 'MapData', '$rootScope', '$q', 'HelperService', 'PopupService', service]);
 })();
 ;
 'use strict';
@@ -1016,13 +1009,13 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             return MapData.SelectedLayer;
         }, function (newval, oldval) {
             vm.selectedLayer = newval;
-        }, true);
+        });
         vm.selectedFindLayer = MapData.SelectedFindLayer;
         $scope.$watch(function () {
             return MapData.SelectedFindLayer;
         }, function (newval, oldval) {
             vm.selectedFindLayer = newval;
-        }, true);
+        });
         vm.showMetenControls = false;
         vm.showDrawControls = false;
         vm.zoekLoc = '';
@@ -1999,14 +1992,14 @@ var esri2geo = {};
                 var returnitem = {};
                 returnitem.Naam = theme.Naam;
                 if (theme.Type == ThemeType.ESRI) {
-                    returnitem.CleanUrl = theme.Url;
+                    returnitem.cleanUrl = theme.Url;
                 } else {
-                    returnitem.CleanUrl = theme.CleanUrl || theme.Url;
+                    returnitem.cleanUrl = theme.CleanUrl || theme.Url;
                 }
 
-                returnitem.Type = theme.Type;
-                returnitem.Visible = theme.Visible;
-                returnitem.Layers = theme.AllLayers.filter(function (x) {
+                returnitem.type = theme.Type;
+                returnitem.visible = theme.Visible;
+                returnitem.layers = theme.AllLayers.filter(function (x) {
                     return x.enabled == true;
                 }).map(function (layer) {
                     var returnlayer = {};
@@ -2023,9 +2016,9 @@ var esri2geo = {};
                 });
                 return returnitem;
             });
-            exportObject.Themes = arr;
-            exportObject.Extent = map.getBounds();
-            exportObject.IsKaart = true;
+            exportObject.themes = arr;
+            exportObject.extent = map.getBounds();
+            exportObject.isKaart = true;
 
             return exportObject;
         };
@@ -2131,18 +2124,6 @@ var esri2geo = {};
             BaseLayersService.setBaseMap(1, config.BaseKaart1.Naam, config.BaseKaart1.Url, config.BaseKaart1.MaxZoom, config.BaseKaart1.MinZoom);
             BaseLayersService.setBaseMap(2, config.BaseKaart2.Naam, config.BaseKaart2.Url, config.BaseKaart2.MaxZoom, config.BaseKaart2.MinZoom);
         };
-        // _externService.layerManagementButtonIsEnabled = true;
-        // _externService.deleteLayerButtonIsEnabled = true;
-        // _externService.exportToCSVButtonIsEnabled = true;
-        // _externService.defaultLayerName = 'velo';
-        // _externService.ConfigResultButton = function (isEnabled, text, callback) {
-        //     _externService.resultButtonText = text;
-        //     _externService.extraResultButtonCallBack = callback;
-        //     _externService.extraResultButtonIsEnabled = isEnabled;
-        // }
-        // _externService.extraResultButtonIsEnabled = false;
-        // _externService.resultButtonText = 'notext';
-        // _externService.extraResultButtonCallBack = null;
         return _externService;
     };
     module.factory('ExternService', externService);
@@ -2157,14 +2138,14 @@ var esri2geo = {};
         _featureService.layerManagementButtonIsEnabled = true;
         _featureService.deleteLayerButtonIsEnabled = true;
         _featureService.exportToCSVButtonIsEnabled = true;
-        _featureService.defaultLayerName = 'velo';
+        _featureService.defaultLayerName = null;
         _featureService.ConfigResultButton = function (isEnabled, text, callback) {
             _featureService.resultButtonText = text;
             _featureService.extraResultButtonCallBack = callback;
             _featureService.extraResultButtonIsEnabled = isEnabled;
         };
         _featureService.extraResultButtonIsEnabled = false;
-        _featureService.resultButtonText = null;
+        _featureService.resultButtonText = 'extra knop text';
         _featureService.extraResultButtonCallBack = null;
         return _featureService;
     };
@@ -3089,12 +3070,12 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
                                     ResultsData.RequestStarted++;
                                     theme.MapData.getFeatureInfo(event.latlng, lay.name).success(function (data, status, xhr) {
-                                        data = HelperService.UnwrapProxiedData(data);
+                                        // data = HelperService.UnwrapProxiedData(data);
                                         ResultsData.RequestCompleted++;
                                         console.log('minus');
                                         // data = data.replace('<?xml version="1.0" encoding="UTF-8"?>', '').trim();
-                                        // var xmlstring = JXON.xmlToString(data);
-                                        var returnjson = JXON.stringToJs(data);
+                                        var xmlstring = JXON.xmlToString(data);
+                                        var returnjson = JXON.stringToJs(xmlstring);
                                         var processedjson = null;
                                         if (returnjson.featureinforesponse) {
                                             processedjson = returnjson.featureinforesponse.fields;
@@ -3540,7 +3521,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                         }
                     } else {
                         syncResults([]);
-                        vm.zoekXY(query);
+                        zoekXY(query);
                     }
                 },
                 templates: {
@@ -3554,34 +3535,36 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 'typeahead:select': function typeaheadSelect(ev, suggestion) {
                     MapData.CleanWatIsHier();
                     MapData.CleanTempFeatures();
-                    if (suggestion.layer) {
-                        switch (suggestion.layer.toLowerCase()) {
-                            case 'postzone':
-                                MapData.QueryForTempFeatures(20, 'ObjectID=' + suggestion.key);
-                                break;
-                            case 'district':
-                                MapData.QueryForTempFeatures(21, 'ObjectID=' + suggestion.key);
-                                break;
-                            default:
-                                var cors = {
-                                    x: suggestion.x,
-                                    y: suggestion.y
-                                };
-                                var xyWGS84 = HelperService.ConvertLambert72ToWSG84(cors);
-                                setViewAndPutDot(xyWGS84);
-                                break;
-
-                        }
-                    } else {
+                    if (suggestion.x && suggestion.y) {
                         var cors = {
                             x: suggestion.x,
                             y: suggestion.y
                         };
                         var xyWGS84 = HelperService.ConvertLambert72ToWSG84(cors);
                         setViewAndPutDot(xyWGS84);
+                    } else {
+                        var idsplitted = suggestion.id.split("/");
+                        var layerid = idsplitted[3];
+                        MapData.QueryForTempFeatures(layerid, 'ObjectID=' + suggestion.key);
                     }
                 }
+
             }).addTo(map);
+        };
+        var zoekXY = function zoekXY(search) {
+            search = search.trim();
+            var WGS84Check = HelperService.getWGS84CordsFromString(search);
+            if (WGS84Check.hasCordinates) {
+                setViewAndPutDot(WGS84Check);
+            } else {
+                var lambertCheck = HelperService.getLambartCordsFromString(search);
+                if (lambertCheck.hasCordinates) {
+                    var xyWGS84 = HelperService.ConvertLambert72ToWSG84({ x: lambertCheck.x, y: lambertCheck.y });
+                    setViewAndPutDot(xyWGS84);
+                } else {
+                    console.log('NIET GEVONDEN');
+                }
+            }
         };
         var isCharDigit = function isCharDigit(n) {
             return n != ' ' && n > -1;
@@ -4086,17 +4069,11 @@ L.TileLayer.BetterWMS = L.TileLayer.WMS.extend({
         // Make an AJAX request to the server and hope for the best
         var HelperService = angular.element(document.body).injector().get('HelperService');
         var url = this.getFeatureInfoUrl(latlng, layers);
-        // showResults = L.Util.bind(this.showGetFeatureInfo, this);
+        // url =  HelperService.CreateProxyUrl(url);
+
         var prom = $.ajax({
-            url: HelperService.CreateProxyUrl(url),
+            url: url,
             success: function success(data, status, xhr) {
-                // var err = typeof data === 'string' ? null : data;
-                // showResults(err, latlng, data);
-                // console.log(data);
-                // var xmlstring = JXON.xmlToString(data);
-                // var returnjson = JXON.stringToJs(xmlstring);
-
-
                 // console.log(returnjson);
             },
             error: function error(xhr, status, _error) {
@@ -4821,12 +4798,20 @@ L.drawLocal = {
 
 
   $templateCache.put('templates/search/searchResultsTemplate.html',
-    "<div>\n" +
-    "<div ng-if=\"!srchrsltsctrl.selectedResult && srchrsltsctrl.featureLayers.length == 0\">\n" +
+    "<div class=\"SEARCHRESULT flex-column\">\n" +
+    "<div class=flex-column ng-if=\"!srchrsltsctrl.selectedResult && srchrsltsctrl.featureLayers.length == 0\">\n" +
+    "<div class=\"col-xs-12 flex-grow-1 margin-top\">\n" +
     "Geen resultaten.\n" +
     "</div>\n" +
+    "</div>\n" +
     "<div class=\"flex-column flex-grow-1 margin-top\" ng-if=\"!srchrsltsctrl.selectedResult && srchrsltsctrl.featureLayers.length > 0\">\n" +
-    "<div>\n" +
+    "<div class=\"row extra-padding\">\n" +
+    "<div class=\"col-xs-12 margin-bottom text-right\">\n" +
+    "<button class=btn tink-tooltip=\"Exporteer naar CSV\" tink-tooltip-align=top ng-if=srchrsltsctrl.exportToCSVButtonIsEnabled ng-click=srchrsltsctrl.exportToCSV()>\n" +
+    "<i class=\"fa fa-file-excel-o\"></i>\n" +
+    "</button>\n" +
+    "<button class=btn-sm ng-if=srchrsltsctrl.extraResultButtonIsEnabled ng-click=srchrsltsctrl.extraResultButton()>{{srchrsltsctrl.resultButtonText}}</button>\n" +
+    "</div>\n" +
     "<div class=col-xs-12>\n" +
     "<select ng-model=srchrsltsctrl.layerGroupFilter>\n" +
     "<option value=geenfilter selected>Geen filter ({{srchrsltsctrl.features.length}})</option>\n" +
@@ -4846,7 +4831,7 @@ L.drawLocal = {
     "<data-content>\n" +
     "<li ng-repeat=\"feature in srchrsltsctrl.features | filter: { layerName:layerGroupName } :true\" ng-mouseover=srchrsltsctrl.HoverOver(feature)>\n" +
     "<div class=mouse-over>\n" +
-    "<a tink-tooltip={{feature.displayValue}} tink-tooltip-align=bottom ng-click=srchrsltsctrl.showDetails(feature)>{{ feature.displayValue| limitTo : 23 }}\n" +
+    "<a tink-tooltip={{feature.displayValue}} tink-tooltip-align=top ng-click=srchrsltsctrl.showDetails(feature)>{{ feature.displayValue| limitTo : 23 }}\n" +
     "</a>\n" +
     "<button class=\"trash pull-right mouse-over-toshow\" prevent-default ng-click=srchrsltsctrl.deleteFeature(feature)></button>\n" +
     "</div>\n" +
@@ -4856,29 +4841,30 @@ L.drawLocal = {
     "</tink-accordion>\n" +
     "</ul>\n" +
     "</div>\n" +
-    "<div class=\"margin-top margin-bottom\">\n" +
-    "<div class=col-xs-12>\n" +
-    "<button class=btn-sm ng-if=srchrsltsctrl.exportToCSVButtonIsEnabled ng-click=srchrsltsctrl.exportToCSV()>Exporteer naar CSV</button>\n" +
-    "<button class=btn-sm ng-if=srchrsltsctrl.extraResultButtonIsEnabled ng-click=srchrsltsctrl.extraResultButton()>{{srchrsltsctrl.resultButtonText}}</button>\n" +
-    "</div>\n" +
-    "</div>\n" +
     "</div>\n" +
     "</div>"
   );
 
 
   $templateCache.put('templates/search/searchSelectedTemplate.html',
-    "<div class=\"flex-column flex-grow-1 margin-top\" ng-if=srchslctdctrl.selectedResult class=extra-padding>\n" +
-    "<div class=margin-bottom>\n" +
-    "<div class=col-xs-12>\n" +
-    "<div class=btn-group>\n" +
-    "<button type=button class=btn ng-disabled=!srchslctdctrl.prevResult ng-click=srchslctdctrl.vorige()>Vorige</button>\n" +
-    "<button type=button class=btn ng-disabled=!srchslctdctrl.nextResult ng-click=srchslctdctrl.volgende()>Volgende</button>\n" +
+    "<div class=\"SEARCHSELECTED flex-column flex-grow-1\" ng-if=srchslctdctrl.selectedResult class=extra-padding>\n" +
+    "<div class=\"margin-top margin-bottom\">\n" +
+    "<div class=\"col-xs-12 text-right\">\n" +
+    "<button class=btn tink-tooltip=Doordruk tink-tooltip-align=top ng-click=srchslctdctrl.doordruk()>\n" +
+    "Doordruk\n" +
+    "</button>\n" +
+    "<button class=btn tink-tooltip=Buffer tink-tooltip-align=top ng-click=srchslctdctrl.buffer()>\n" +
+    "Buffer\n" +
+    "</button>\n" +
+    "<button class=btn tink-tooltip=Exporteer_naar_CSV tink-tooltip-align=top ng-if=srchslctdctrl.exportToCSVButtonIsEnabled ng-click=srchslctdctrl.exportToCSV()>\n" +
+    "<i class=\"fa fa-file-excel-o\"></i>\n" +
+    "</button>\n" +
+    "<button class=btn tink-tooltip=Verwijderen tink-tooltip-align=top ng-click=srchslctdctrl.delete()>\n" +
+    "<i class=\"fa fa-trash-o\"></i>\n" +
+    "</button>\n" +
     "</div>\n" +
-    "<button class=\"btn pull-right\" ng-click=srchslctdctrl.delete()>Verwijderen</button>\n" +
     "</div>\n" +
-    "</div>\n" +
-    "<div class=\"col-xs-12 overflow-wrapper\">\n" +
+    "<div class=\"col-xs-12 overflow-wrapper flex-grow-1\">\n" +
     "<dl ng-repeat=\"prop in srchslctdctrl.props\">\n" +
     "<dt>{{ prop.key}}</dt>\n" +
     "<div ng-if=\"prop.value.toLowerCase() != 'null'\">\n" +
@@ -4887,20 +4873,23 @@ L.drawLocal = {
     "</div>\n" +
     "</dl>\n" +
     "</div>\n" +
-    "<div class=\"margin-top margin-bottom\">\n" +
+    "<div class=margin-top>\n" +
     "<div class=col-xs-12>\n" +
-    "<button class=btn-primary ng-click=srchslctdctrl.toonFeatureOpKaart()>Tonen</button>\n" +
-    "<div class=pull-right>\n" +
-    "<button class=margin-right ng-click=srchslctdctrl.doordruk()>Doordruk</button>\n" +
-    "<button ng-click=srchslctdctrl.buffer()>Buffer</button>\n" +
-    "<button class=btn-sm ng-if=srchslctdctrl.exportToCSVButtonIsEnabled ng-click=srchslctdctrl.exportToCSV()>Exporteer naar CSV</button>\n" +
+    "<div class=btn-group>\n" +
+    "<button type=button class=btn ng-disabled=!srchslctdctrl.prevResult ng-click=srchslctdctrl.vorige()>\n" +
+    "<i class=\"fa fa-chevron-left\"></i>\n" +
+    "</button>\n" +
+    "<button type=button class=btn ng-disabled=!srchslctdctrl.nextResult ng-click=srchslctdctrl.volgende()>\n" +
+    "<i class=\"fa fa-chevron-right\"></i>\n" +
+    "</button>\n" +
     "</div>\n" +
+    "<button class=\"btn-primary pull-right\" ng-click=srchslctdctrl.toonFeatureOpKaart()>Tonen</button>\n" +
     "</div>\n" +
-    "<div class=\"col-xs-12 margin-top\">\n" +
+    "<div class=\"col-xs-12 margin-top margin-bottom\">\n" +
     "<a class=pull-right ng-click=srchslctdctrl.close(srchslctdctrl.selectedResult)>Terug naar resultaten</a>\n" +
     "</div>\n" +
     "</div>\n" +
-    "</div>"
+    "</div>\n"
   );
 
 

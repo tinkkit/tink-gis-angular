@@ -1,16 +1,24 @@
-<div class="flex-column flex-grow-1 margin-top" ng-if="srchslctdctrl.selectedResult" class="extra-padding">
+<div class="SEARCHSELECTED flex-column flex-grow-1" ng-if="srchslctdctrl.selectedResult" class="extra-padding">
 
-    <div class="margin-bottom">
-        <div class="col-xs-12">
-            <div class="btn-group">
-                <button type="button" class="btn" ng-disabled="!srchslctdctrl.prevResult" ng-click="srchslctdctrl.vorige()">Vorige</button>
-                <button type="button" class="btn" ng-disabled="!srchslctdctrl.nextResult" ng-click="srchslctdctrl.volgende()">Volgende</button>
-            </div>
-            <button class="btn pull-right" ng-click="srchslctdctrl.delete()">Verwijderen</button>
+    <div class="margin-top margin-bottom">
+        <div class="col-xs-12 text-right">
+            <button class="btn" tink-tooltip="Doordruk" tink-tooltip-align="top" ng-click="srchslctdctrl.doordruk()">
+                Doordruk
+            </button>
+            <button class="btn" tink-tooltip="Buffer" tink-tooltip-align="top" ng-click="srchslctdctrl.buffer()">
+                Buffer
+            </button>
+
+            <button class="btn" tink-tooltip="Exporteer_naar_CSV" tink-tooltip-align="top" ng-if="srchslctdctrl.exportToCSVButtonIsEnabled" ng-click="srchslctdctrl.exportToCSV()">
+                <i class="fa fa-file-excel-o"></i>
+            </button>
+            <button class="btn" tink-tooltip="Verwijderen" tink-tooltip-align="top" ng-click="srchslctdctrl.delete()">
+                <i class="fa fa-trash-o"></i>
+            </button>
         </div>
     </div>
 
-    <div class="col-xs-12 overflow-wrapper">
+    <div class="col-xs-12 overflow-wrapper flex-grow-1">
         <dl ng-repeat="prop in srchslctdctrl.props">
             <dt>{{ prop.key}}</dt>
             <div ng-if="prop.value.toLowerCase() != 'null'">
@@ -20,16 +28,25 @@
         </dl>
     </div>
 
-    <div class="margin-top margin-bottom">
+    <div class="margin-top">
         <div class="col-xs-12">
-            <button class="btn-primary" ng-click="srchslctdctrl.toonFeatureOpKaart()">Tonen</button>
-            <div class="pull-right">
-                <button class="margin-right" ng-click="srchslctdctrl.doordruk()">Doordruk</button>
-                <button ng-click="srchslctdctrl.buffer()">Buffer</button>
-                <button class="btn-sm" ng-if="srchslctdctrl.exportToCSVButtonIsEnabled" ng-click="srchslctdctrl.exportToCSV()">Exporteer naar CSV</button>
+
+
+            <div class="btn-group">
+                <button type="button" class="btn" ng-disabled="!srchslctdctrl.prevResult" ng-click="srchslctdctrl.vorige()">
+                    <i class="fa fa-chevron-left"></i>
+                </button>
+                <button type="button" class="btn" ng-disabled="!srchslctdctrl.nextResult" ng-click="srchslctdctrl.volgende()">
+                    <i class="fa fa-chevron-right"></i>
+                </button>
             </div>
+
+
+            <button class="btn-primary pull-right" ng-click="srchslctdctrl.toonFeatureOpKaart()">Tonen</button>
+
+
         </div>
-        <div class="col-xs-12 margin-top">
+        <div class="col-xs-12 margin-top margin-bottom">
             <a class="pull-right" ng-click="srchslctdctrl.close(srchslctdctrl.selectedResult)">Terug naar resultaten</a>
         </div>
     </div>

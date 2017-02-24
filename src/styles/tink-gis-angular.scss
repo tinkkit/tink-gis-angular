@@ -49,10 +49,6 @@ $leaflet-control-position-left-sm: $map-buttons-position-left-sm + 90px;
     width: rem($right-nav-aside-width);
   }
 
-  // !! not necessary anymore
-  // .fa-fw {
-  //   width: rem(10);
-  // }
 }
 
 .leafletmap {
@@ -62,17 +58,6 @@ $leaflet-control-position-left-sm: $map-buttons-position-left-sm + 90px;
 .leaflet-popup-content-wrapper, .leaflet-popup-tip {
     opacity: 0.8;
 }
-
-
-// .leaflet-left .leaflet-control-scale {
-//   margin-left: rem(130);
-//   margin-bottom: rem(13);
-
-//   @include mq($screen-sm) {
-//     margin-left: rem(135);
-//     margin-bottom: rem(18);
-//   }
-// }
 
 .leaflet-popup-content-wrapper {
     border-radius: 6px;
@@ -113,6 +98,15 @@ svg.leaflet-zoom-animated {
   z-index: 9999; //Make sure the close button is clickable when there is a popup!
 }
 
+.leaflet-control-scale-line {
+  margin-bottom: rem(7);
+  margin-left: rem(140); // set next to kaarttypes
+    @include mq($screen-sm) {
+    margin-bottom: rem(12)
+  }
+}
+
+
 /**
  * Map buttons styling
  */
@@ -145,7 +139,6 @@ button.btn.active {
     display: inline-block;
     position: relative;
     vertical-align: middle;
-    // width: rem(200);
   }
 
   @include mq($screen-sm) {
@@ -446,6 +439,15 @@ button.trash {
 
   &:before {
     content: "\f014";
+  }
+}
+
+button.trashcan {
+  color: $gray-dark;
+
+  &:hover,
+  &:focus {
+    color: #333;
   }
 }
 
@@ -819,6 +821,9 @@ html.nav-left-open {
   }
   .leaflet-control {
     left: rem($left-nav-aside-width + $leaflet-control-position-left-xs);
+    &-scale-line {
+      margin-left: rem(45);
+    }
 
     @include mq($screen-sm) {
       left: rem($left-nav-aside-width + $leaflet-control-position-left-sm);
@@ -994,6 +999,10 @@ html.show-loader {
   }
 }
 
+.dashboard-view-left {
+  border-right: 1px solid $gray-light;
+}
+
 .create-ticket {
   background-color: $gray-lightest;
   border-radius: $border-radius-base;
@@ -1002,7 +1011,8 @@ html.show-loader {
   width: 100%;
 }
 
-.create-ticket {
+.create-ticket,
+.whats-new {
   padding: rem(15);
 
   h4 {
@@ -1036,6 +1046,10 @@ html.show-loader {
 // set nav-top links white
 .nav-top a {
   color: $white;
+}
+
+.tooltip {
+  z-index: 2000;
 }
 
 // fix for sweet-alert bug
