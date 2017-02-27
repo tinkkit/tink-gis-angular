@@ -8,6 +8,14 @@
         _featureService.deleteLayerButtonIsEnabled = true;
         _featureService.exportToCSVButtonIsEnabled = true;
         _featureService.defaultLayerName = null;
+        // _featureService.ConfigResultsButton = function (isEnabled, text, callback) {
+        //     _featureService.extraresultsButtonText = text;
+        //     _featureService.extraResultsButtonCallBack = callback;
+        //     _featureService.extraResultsButtonIsEnabled = isEnabled;
+        // }
+        // _featureService.extraResultsButtonIsEnabled = false;
+        // _featureService.extraresultsButtonText = 'extra knop text';
+        // _featureService.extraResultsButtonCallBack = null;
         _featureService.ConfigResultButton = function (isEnabled, text, callback) {
             _featureService.resultButtonText = text;
             _featureService.extraResultButtonCallBack = callback;
