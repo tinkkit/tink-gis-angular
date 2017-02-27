@@ -2139,6 +2139,14 @@ var esri2geo = {};
         _featureService.deleteLayerButtonIsEnabled = true;
         _featureService.exportToCSVButtonIsEnabled = true;
         _featureService.defaultLayerName = null;
+        // _featureService.ConfigResultsButton = function (isEnabled, text, callback) {
+        //     _featureService.extraresultsButtonText = text;
+        //     _featureService.extraResultsButtonCallBack = callback;
+        //     _featureService.extraResultsButtonIsEnabled = isEnabled;
+        // }
+        // _featureService.extraResultsButtonIsEnabled = false;
+        // _featureService.extraresultsButtonText = 'extra knop text';
+        // _featureService.extraResultsButtonCallBack = null;
         _featureService.ConfigResultButton = function (isEnabled, text, callback) {
             _featureService.resultButtonText = text;
             _featureService.extraResultButtonCallBack = callback;
@@ -3190,7 +3198,30 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 });
             }
         };
-
+        //"Lro_Stad"
+        //percelen
+        //CAPAKEY
+        //11810K1905/00B002
+        //.FindAdvanced("Lro_Stad", "percelen", "CAPAKEY", "11810K1905/00B002");
+        _mapService.FindAdvanced = function (themeName, layerName, field, parameter) {
+            var theme = MapData.Themes.find(function (x) {
+                return x.Naam == themeName;
+            });
+            if (!theme) {
+                throw "No loaded theme found with the name: " + themeName;
+            }
+            var layer = theme.AllLayers.find(function (x) {
+                return x.name == layerName;
+            });
+            if (!layer) {
+                throw "No layer found with the name: " + layerName + " on the theme with name: " + themeName;
+            }
+            ResultsData.RequestStarted++;
+            theme.MapData.find().fields(field).layers(layer.id).text(parameter).run(function (error, featureCollection, response) {
+                ResultsData.RequestCompleted++;
+                MapData.AddFeatures(featureCollection, theme, layer.id);
+            });
+        };
         _mapService.Find = function (query) {
             MapData.CleanSearch();
             if (MapData.SelectedFindLayer && MapData.SelectedFindLayer.id == '') {
