@@ -457,7 +457,7 @@ button.trash {
   font-family: FontAwesome;
   font-weight: 100;
   border-width: 0;
-  padding: 0; }
+  padding: 0 0.8571428571rem ; }
   button.trash:hover, button.trash:focus {
     color: #333; }
   button.trash:before {
@@ -530,16 +530,19 @@ ul ul {
   -webkit-flex-direction: column;
       -ms-flex-direction: column;
           flex-direction: column;
-  height: 100%; }
+  height: 100%;
+  min-width: 40vh; }
 
 .modal-dialog {
   background-color: #fff;
-  height: 90vh;
   margin: 0;
   max-width: 95%;
   text-align: left;
-  width: 95%;
   z-index: 9999; }
+
+.modal-body-size-fixed {
+  height: 75vh;
+  width: 80vw; }
 
 .modal-footer {
   border-top: 1px solid #bbb; }
@@ -891,6 +894,10 @@ html.show-loader .loader-wrapper {
 
 .nav-top a {
   color: #fff; }
+
+.nav-top-right li {
+  padding-left: 0.8571428571rem ;
+  padding-right: 0.8571428571rem ; }
 
 .tooltip {
   z-index: 2000; }

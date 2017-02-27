@@ -4371,34 +4371,20 @@ L.drawLocal = {
     "<meta charset=utf-8>\n" +
     "<title>Street View side-by-side</title>\n" +
     "<style>\n" +
-    "html, body {\r" +
-    "\n" +
-    "        height: 100%;\r" +
-    "\n" +
-    "        margin: 0;\r" +
-    "\n" +
-    "        padding: 0;\r" +
-    "\n" +
-    "      }\r" +
-    "\n" +
-    "      #map,  {\r" +
-    "\n" +
-    "        float: left;\r" +
-    "\n" +
-    "        height: 0%;\r" +
-    "\n" +
-    "        width: 0%;\r" +
-    "\n" +
-    "      }\r" +
-    "\n" +
-    "       #pano {\r" +
-    "\n" +
-    "        float: left;\r" +
-    "\n" +
-    "        height: 100%;\r" +
-    "\n" +
-    "        width: 100%;\r" +
-    "\n" +
+    "html, body {\n" +
+    "        height: 100%;\n" +
+    "        margin: 0;\n" +
+    "        padding: 0;\n" +
+    "      }\n" +
+    "      #map,  {\n" +
+    "        float: left;\n" +
+    "        height: 0%;\n" +
+    "        width: 0%;\n" +
+    "      }\n" +
+    "       #pano {\n" +
+    "        float: left;\n" +
+    "        height: 100%;\n" +
+    "        width: 100%;\n" +
     "      }\n" +
     "</style>\n" +
     "</head>\n" +
@@ -4406,42 +4392,24 @@ L.drawLocal = {
     "<div id=map></div>\n" +
     "<div id=pano></div>\n" +
     "<script>\n" +
-    "function initialize() {\r" +
-    "\n" +
-    "        \r" +
-    "\n" +
-    "        var urlLat = parseFloat((location.search.split('lat=')[1]||'').split('&')[0]);\r" +
-    "\n" +
-    "        var urlLng = parseFloat((location.search.split('lng=')[1]||'').split('&')[0]);\r" +
-    "\n" +
-    "        var fenway = {lat:urlLat, lng: urlLng};\r" +
-    "\n" +
-    "        var map = new google.maps.Map(document.getElementById('map'), {\r" +
-    "\n" +
-    "          center: fenway,\r" +
-    "\n" +
-    "          zoom: 14\r" +
-    "\n" +
-    "        });\r" +
-    "\n" +
-    "        var panorama = new google.maps.StreetViewPanorama(\r" +
-    "\n" +
-    "            document.getElementById('pano'), {\r" +
-    "\n" +
-    "              position: fenway,\r" +
-    "\n" +
-    "              pov: {\r" +
-    "\n" +
-    "                heading: 34,\r" +
-    "\n" +
-    "                pitch: 10\r" +
-    "\n" +
-    "              }\r" +
-    "\n" +
-    "            });\r" +
-    "\n" +
-    "        map.setStreetView(panorama);\r" +
-    "\n" +
+    "function initialize() {\n" +
+    "        \n" +
+    "        var urlLat = parseFloat((location.search.split('lat=')[1]||'').split('&')[0]);\n" +
+    "        var urlLng = parseFloat((location.search.split('lng=')[1]||'').split('&')[0]);\n" +
+    "        var fenway = {lat:urlLat, lng: urlLng};\n" +
+    "        var map = new google.maps.Map(document.getElementById('map'), {\n" +
+    "          center: fenway,\n" +
+    "          zoom: 14\n" +
+    "        });\n" +
+    "        var panorama = new google.maps.StreetViewPanorama(\n" +
+    "            document.getElementById('pano'), {\n" +
+    "              position: fenway,\n" +
+    "              pov: {\n" +
+    "                heading: 34,\n" +
+    "                pitch: 10\n" +
+    "              }\n" +
+    "            });\n" +
+    "        map.setStreetView(panorama);\n" +
     "      }\n" +
     "</script>\n" +
     "<script async defer src=\"https://maps.googleapis.com/maps/api/js?callback=initialize\">\n" +
@@ -4453,7 +4421,7 @@ L.drawLocal = {
 
   $templateCache.put('templates/layermanagement/geoPuntTemplate.html',
     "<div class=\"gepoPuntTemplate row relative-container\">\n" +
-    "<div class=\"col-md-4 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
+    "<div class=\"col-xs-4 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
     "<div ng-show=\"loading == false\" class=\"overflow-wrapper flex-grow-1 list-selectable margin-top margin-bottom\">\n" +
     "<div ng-if=!searchIsUrl ng-repeat=\"theme in availableThemes\">\n" +
     "<dl ng-class=\"{active: isActive(theme)}\" ng-class=\"{'not-allowed': theme.Type != 'wms' &&  theme.Type != 'esri'}\">\n" +
@@ -4471,7 +4439,7 @@ L.drawLocal = {
     "<div ng-if=\"loading == true\" class=loader>\n" +
     "</div>\n" +
     "</div>\n" +
-    "<div class=\"col-md-8 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
+    "<div class=\"col-xs-8 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
     "<preview-layer ng-show=\"themeloading == false\" class=margin-top ng-if=copySelectedTheme addorupdatefunc=AddOrUpdateTheme() theme=copySelectedTheme>\n" +
     "</preview-layer>\n" +
     "<div ng-if=error>\n" +
@@ -4479,7 +4447,7 @@ L.drawLocal = {
     "</div>\n" +
     "<div class=loader ng-show=\"themeloading == true\"></div>\n" +
     "</div>\n" +
-    "</div>"
+    "</div>\n"
   );
 
 
@@ -4488,14 +4456,14 @@ L.drawLocal = {
     "<div class=\"layermanagerTemplate modal-header\">\n" +
     "<div class=\"row margin-bottom\">\n" +
     "<div class=col-xs-10>\n" +
-    "<h4 class=model-title>Lagenbeheer\n" +
-    "</h4></div>\n" +
+    "<h4>Lagenbeheer</h4>\n" +
+    "</div>\n" +
     "<div class=col-xs-2>\n" +
     "<button class=pull-right type=button data-ng-click=cancel()><i class=\"fa fa-times\"></i></button>\n" +
     "</div>\n" +
     "</div>\n" +
     "</div>\n" +
-    "<div class=\"modal-body flex-column flex-grow-1\">\n" +
+    "<div class=\"modal-body-size-fixed flex-column flex-grow-1\">\n" +
     "<div class=\"row margin-top margin-bottom\">\n" +
     "<div class=\"col-xs-12 col-sm-6\">\n" +
     "<form>\n" +
@@ -4523,7 +4491,7 @@ L.drawLocal = {
 
   $templateCache.put('templates/layermanagement/layersManagementTemplate.html',
     "<div class=\"layersManagementTemplate row relative-container flex-grow-1\">\n" +
-    "<div class=\"col-md-4 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
+    "<div class=\"col-xs-4 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
     "<div class=\"overflow-wrapper flex-grow-1 list-selectable margin-top margin-bottom border-right\">\n" +
     "<div ng-repeat=\"theme in availableThemes | filter:{name: searchTerm}\">\n" +
     "<dl ng-class=\"{active: isActive(theme)}\">\n" +
@@ -4535,11 +4503,11 @@ L.drawLocal = {
     "</div>\n" +
     "</div>\n" +
     "</div>\n" +
-    "<div class=\"col-md-8 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
+    "<div class=\"col-xs-8 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
     "<preview-layer ng-if=copySelectedTheme theme=copySelectedTheme addorupdatefunc=AddOrUpdateTheme()>\n" +
     "</preview-layer>\n" +
     "</div>\n" +
-    "</div>"
+    "</div>\n"
   );
 
 
@@ -4628,12 +4596,12 @@ L.drawLocal = {
 
   $templateCache.put('templates/layermanagement/wmsUrlTemplate.html',
     "<div class=\"wmsUrlTemplate row relative-container\">\n" +
-    "<div class=\"col-md-4 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
+    "<div class=\"col-xs-4 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
     "<div>\n" +
     "<input class=searchbox ng-model=url ng-change=urlChanged() placeholder=\"Geef een url in\">\n" +
     "</div>\n" +
     "</div>\n" +
-    "<div class=\"col-md-8 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
+    "<div class=\"col-xs-8 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
     "<div>\n" +
     "<button ng-disabled=!urlIsValid ng-click=laadUrl()>Laad url</button>\n" +
     "</div>\n" +
@@ -4644,7 +4612,7 @@ L.drawLocal = {
     "</div>\n" +
     "<div class=loader ng-show=\"themeloading == true\"></div>\n" +
     "</div>\n" +
-    "</div>"
+    "</div>\n"
   );
 
 
@@ -4813,18 +4781,41 @@ L.drawLocal = {
   $templateCache.put('templates/search/bufferTemplate.html',
     "<div>\n" +
     "<div class=modal-header>\n" +
-    "<button type=button style=float:right data-ng-click=cancel()><i class=\"fa fa-times\"></i></button>\n" +
-    "<h4 class=model-title>Buffer instellen</h4>\n" +
+    "<div class=\"row margin-bottom\">\n" +
+    "<div class=col-xs-10>\n" +
+    "<h4>Buffer instellen</h4>\n" +
     "</div>\n" +
-    "<div class=modal-content>\n" +
-    "Selecteer de laag:\n" +
-    "<select ng-options=\"layer as layer.name for layer in SelectableLayers\" ng-model=selectedLayer prevent-default></select> Geef de bufferafstand:\n" +
-    "<input type=number ng-model=buffer>\n" +
+    "<div class=col-xs-2>\n" +
+    "<button class=pull-right type=button data-ng-click=cancel()><i class=\"fa fa-times\"></i></button>\n" +
     "</div>\n" +
-    "<div class=modal-footer>\n" +
-    "<button data-ng-click=ok()>Klaar</button>\n" +
     "</div>\n" +
-    "</div>"
+    "</div>\n" +
+    "<div class=\"modal-body flex-column flex-grow-1\">\n" +
+    "<div class=\"row margin-top\">\n" +
+    "<div class=col-xs-12>\n" +
+    "<div class=form-group>\n" +
+    "<label for=select>Selecteer de laag:</label>\n" +
+    "<div class=select>\n" +
+    "<select ng-options=\"layer as layer.name for layer in SelectableLayers\" ng-model=selectedLayer prevent-default></select>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "<div class=\"row margin-bottom\">\n" +
+    "<div class=col-xs-12>\n" +
+    "<div class=form-group>\n" +
+    "<label for=input-number>Geef de bufferafstand:</label>\n" +
+    "<input type=number class=hide-spin-button ng-model=buffer>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "<div class=\"modal-footer text-right\">\n" +
+    "<div class=\"col-xs-12 margin-top\">\n" +
+    "<button type=submit data-ng-click=ok()>Klaar</button>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "</div>\n"
   );
 
 

@@ -430,7 +430,7 @@ button.trash {
   font-family: FontAwesome;
   font-weight: 100;
   border-width: 0;
-  padding: 0;
+  padding: 0 rem(12);
 
   &:hover,
   &:focus {
@@ -544,6 +544,7 @@ ul {
   display: flex;
   flex-direction: column;
   height: 100%; // container for flex-columns
+  min-width: 40vh; // don't make a modal too small
 }
 
 .modal-dialog{
@@ -554,8 +555,12 @@ max-height: 95%;
   margin: 0; // the default Tink top- and bottommargin break it at small screen heights
   max-width: 95%; // keep it evenly wide
   text-align: left;
-  width: 95%;
   z-index: 9999;
+}
+
+.modal-body-size-fixed {
+  height: 75vh;
+  width: 80vw;
 }
 
 .modal-footer {
@@ -1044,8 +1049,16 @@ html.show-loader {
 }
 
 // set nav-top links white
-.nav-top a {
-  color: $white;
+.nav-top {
+
+  a {
+    color: $white;
+  }
+
+  &-right li {
+    padding-left: rem(12);
+    padding-right: rem(12);
+  }
 }
 
 .tooltip {

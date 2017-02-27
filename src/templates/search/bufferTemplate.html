@@ -1,15 +1,37 @@
-<div style="">
+<div>
     <div class="modal-header">
-        <button type="button" style="float:right" data-ng-click="cancel()"><i class="fa fa-times"></i></button>
-        <h4 style="" class="model-title">Buffer instellen</h4>
+        <div class="row margin-bottom">
+            <div class="col-xs-10">
+                <h4>Buffer instellen</h4>
+            </div>
+            <div class="col-xs-2">
+                <button class="pull-right" type="button" data-ng-click="cancel()"><i class="fa fa-times"></i></button>
+            </div>
+        </div>
     </div>
-    <div class="modal-content">
-        Selecteer de laag:
-        <select ng-options="layer as layer.name for layer in SelectableLayers" ng-model="selectedLayer" 
-             prevent-default></select> Geef de bufferafstand:
-        <input type="number" ng-model="buffer"></input>
+    <div class="modal-body flex-column flex-grow-1">
+        <div class="row margin-top">
+            <div class="col-xs-12">
+                <div class="form-group">
+                  <label for="select">Selecteer de laag:</label>
+                  <div class="select">
+                    <select ng-options="layer as layer.name for layer in SelectableLayers" ng-model="selectedLayer" prevent-default></select>
+                  </div>
+                </div>
+            </div>
+        </div>
+        <div class="row margin-bottom">
+            <div class="col-xs-12">
+                <div class="form-group">
+                  <label for="input-number">Geef de bufferafstand:</label>
+                  <input type="number" class="hide-spin-button" ng-model="buffer">
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="modal-footer">
-        <button data-ng-click="ok()">Klaar</button>
+    <div class="modal-footer text-right">
+        <div class="col-xs-12 margin-top">
+            <button type="submit" data-ng-click="ok()">Klaar</button>
+        </div>
     </div>
 </div>
