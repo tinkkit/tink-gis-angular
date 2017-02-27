@@ -1036,7 +1036,7 @@ html.show-loader {
     color: $white;
   }
 
-  &-right li {
+  &-right > li {
     padding-left: rem(12);
     padding-right: rem(12);
   }
