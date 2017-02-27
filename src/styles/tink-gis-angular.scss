@@ -1030,8 +1030,16 @@ html.show-loader {
 }
 
 // set nav-top links white
-.nav-top a {
-  color: $white;
+.nav-top {
+
+  a {
+    color: $white;
+  }
+
+  &-right li {
+    padding-left: rem(12);
+    padding-right: rem(12);
+  }
 }
 
 .tooltip {
