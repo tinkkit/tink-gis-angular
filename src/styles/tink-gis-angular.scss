@@ -555,6 +555,10 @@ ul {
 .modal-body-size-fixed {
   height: 75vh;
   width: 80vw;
+
+  &-medium {
+    max-width: 50rem;
+  }
 }
 
 .modal-footer {
@@ -565,6 +569,14 @@ ul {
   border-bottom: 1px solid $gray-light;
 }
 
+.close {
+  font-family: FontAwesome;
+  font-weight: normal;
+
+  &:before {
+    content: "\f00d";
+  }
+}
 
 // customize pagination
 .table-sort-options {
@@ -949,6 +961,14 @@ html.show-loader {
       width: rem(100);
     }
   }
+}
+
+/**
+ * Open project
+ */
+
+.project-creator {
+  color: $gray;
 }
 
 /**
