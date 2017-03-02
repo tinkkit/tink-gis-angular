@@ -1,37 +1,37 @@
-<div>
-    <div class="modal-header">
-        <div class="row margin-bottom">
-            <div class="col-xs-10">
-                <h4>Buffer instellen</h4>
-            </div>
-            <div class="col-xs-2">
-                <button class="close pull-right" type="button" data-ng-click="cancel()"></button>
+<div class="modal-header">
+    <div class="row margin-bottom">
+        <div class="col-xs-10">
+            <h4>Buffer instellen</h4>
+        </div>
+        <div class="col-xs-2">
+            <button class="close pull-right" type="button" data-ng-click="cancel()"></button>
+        </div>
+    </div>
+</div>
+<div class="modal-body width-sm flex-column flex-grow-1">
+    <div class="row margin-top">
+        <div class="col-xs-12">
+            <div class="form-group">
+              <label for="select">Selecteer de laag:</label>
+              <div class="select">
+                <select ng-options="layer as layer.name for layer in SelectableLayers" ng-model="selectedLayer" prevent-default></select>
+              </div>
             </div>
         </div>
     </div>
-    <div class="modal-body flex-column flex-grow-1">
-        <div class="row margin-top">
-            <div class="col-xs-12">
-                <div class="form-group">
-                  <label for="select">Selecteer de laag:</label>
-                  <div class="select">
-                    <select ng-options="layer as layer.name for layer in SelectableLayers" ng-model="selectedLayer" prevent-default></select>
-                  </div>
-                </div>
-            </div>
-        </div>
-        <div class="row margin-bottom">
-            <div class="col-xs-12">
-                <div class="form-group">
-                  <label for="input-number">Geef de bufferafstand:</label>
-                  <input type="number" class="hide-spin-button" ng-model="buffer">
-                </div>
+
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="form-group">
+              <label for="input-number">Geef de bufferafstand:</label>
+              <input type="number" class="hide-spin-button" ng-model="buffer">
             </div>
         </div>
     </div>
-    <div class="modal-footer text-right">
-        <div class="row">
-            <div class="col-xs-12 margin-top">
+
+    <div class="row">
+        <div class="col-xs-12">
+            <div class="text-right">
                 <button type="submit" data-ng-click="ok()">Klaar</button>
             </div>
         </div>

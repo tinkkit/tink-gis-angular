@@ -540,11 +540,9 @@ ul {
   display: flex;
   flex-direction: column;
   height: 100%; // container for flex-columns
-  min-width: 40vh; // don't make a modal too small
 }
 
 .modal-dialog{
-  // min-width: 1000px; //!! not responsive
   background-color: $white;
   margin: 0; // the default Tink top- and bottommargin break it at small screen heights
   max-width: 95%; // keep it evenly wide
@@ -552,12 +550,30 @@ ul {
   z-index: 9999;
 }
 
-.modal-body-size-fixed {
-  height: 75vh;
-  width: 80vw;
+.modal-body {
 
-  &-medium {
-    max-width: 50rem;
+  &.height-lg {
+    height: 75vh;
+  }
+
+  &.width-lg {
+    min-width: 80vw;
+  }
+
+  &.width-md {
+    min-width: 80vw;
+
+    @include mq($screen-sm) {
+      min-width: 40vw;
+    }
+  }
+
+  &.width-sm {
+    min-width: 40vw;
+
+    @include mq($screen-sm) {
+      min-width: 20vw;
+    }
   }
 }
 
@@ -967,8 +983,12 @@ html.show-loader {
  * Open project
  */
 
-.project-creator {
-  color: $gray;
+.project {
+  margin-bottom: rem(6);
+
+  &-creator {
+    color: $gray;
+  }
 }
 
 /**
