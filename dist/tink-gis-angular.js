@@ -4459,11 +4459,11 @@ L.drawLocal = {
     "<h4>Lagenbeheer</h4>\n" +
     "</div>\n" +
     "<div class=col-xs-2>\n" +
-    "<button class=pull-right type=button data-ng-click=cancel()><i class=\"fa fa-times\"></i></button>\n" +
+    "<button class=\"close pull-right\" type=button data-ng-click=cancel()></button>\n" +
     "</div>\n" +
     "</div>\n" +
     "</div>\n" +
-    "<div class=\"modal-body-size-fixed flex-column flex-grow-1\">\n" +
+    "<div class=\"modal-body height-lg width-lg flex-column flex-grow-1\">\n" +
     "<div class=\"row margin-top margin-bottom\">\n" +
     "<div class=\"col-xs-12 col-sm-6\">\n" +
     "<form>\n" +
@@ -4779,18 +4779,17 @@ L.drawLocal = {
 
 
   $templateCache.put('templates/search/bufferTemplate.html',
-    "<div>\n" +
     "<div class=modal-header>\n" +
     "<div class=\"row margin-bottom\">\n" +
     "<div class=col-xs-10>\n" +
     "<h4>Buffer instellen</h4>\n" +
     "</div>\n" +
     "<div class=col-xs-2>\n" +
-    "<button class=pull-right type=button data-ng-click=cancel()><i class=\"fa fa-times\"></i></button>\n" +
+    "<button class=\"close pull-right\" type=button data-ng-click=cancel()></button>\n" +
     "</div>\n" +
     "</div>\n" +
     "</div>\n" +
-    "<div class=\"modal-body flex-column flex-grow-1\">\n" +
+    "<div class=\"modal-body width-sm flex-column flex-grow-1\">\n" +
     "<div class=\"row margin-top\">\n" +
     "<div class=col-xs-12>\n" +
     "<div class=form-group>\n" +
@@ -4801,7 +4800,7 @@ L.drawLocal = {
     "</div>\n" +
     "</div>\n" +
     "</div>\n" +
-    "<div class=\"row margin-bottom\">\n" +
+    "<div class=row>\n" +
     "<div class=col-xs-12>\n" +
     "<div class=form-group>\n" +
     "<label for=input-number>Geef de bufferafstand:</label>\n" +
@@ -4809,10 +4808,11 @@ L.drawLocal = {
     "</div>\n" +
     "</div>\n" +
     "</div>\n" +
-    "</div>\n" +
-    "<div class=\"modal-footer text-right\">\n" +
-    "<div class=\"col-xs-12 margin-top\">\n" +
+    "<div class=row>\n" +
+    "<div class=col-xs-12>\n" +
+    "<div class=text-right>\n" +
     "<button type=submit data-ng-click=ok()>Klaar</button>\n" +
+    "</div>\n" +
     "</div>\n" +
     "</div>\n" +
     "</div>\n"
@@ -4869,7 +4869,7 @@ L.drawLocal = {
 
 
   $templateCache.put('templates/search/searchSelectedTemplate.html',
-    "<div class=\"SEARCHSELECTED flex-column flex-grow-1\" ng-if=srchslctdctrl.selectedResult class=extra-padding>\n" +
+    "<div class=\"SEARCHSELECTED flex-column flex-grow-1 extra-padding\" ng-if=srchslctdctrl.selectedResult>\n" +
     "<div class=\"margin-top margin-bottom\">\n" +
     "<div class=\"col-xs-12 text-right\">\n" +
     "<button class=btn tink-tooltip=Doordruk tink-tooltip-align=top ng-click=srchslctdctrl.doordruk()>\n" +

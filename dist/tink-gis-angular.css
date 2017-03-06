@@ -530,8 +530,7 @@ ul ul {
   -webkit-flex-direction: column;
       -ms-flex-direction: column;
           flex-direction: column;
-  height: 100%;
-  min-width: 40vh; }
+  height: 100%; }
 
 .modal-dialog {
   background-color: #fff;
@@ -540,15 +539,35 @@ ul ul {
   text-align: left;
   z-index: 9999; }
 
-.modal-body-size-fixed {
-  height: 75vh;
-  width: 80vw; }
+.modal-body.height-lg {
+  height: 75vh; }
+
+.modal-body.width-lg {
+  min-width: 80vw; }
+
+.modal-body.width-md {
+  min-width: 80vw; }
+  @media (min-width: 768px) {
+    .modal-body.width-md {
+      min-width: 40vw; } }
+
+.modal-body.width-sm {
+  min-width: 40vw; }
+  @media (min-width: 768px) {
+    .modal-body.width-sm {
+      min-width: 20vw; } }
 
 .modal-footer {
   border-top: 1px solid #bbb; }
 
 .modal-header {
   border-bottom: 1px solid #bbb; }
+
+.close {
+  font-family: FontAwesome;
+  font-weight: normal; }
+  .close:before {
+    content: "\f00d"; }
 
 .table-sort-options .table-sort-info {
   display: none; }
@@ -839,6 +858,14 @@ html.show-loader .loader-wrapper {
     width: 7.1428571429rem ; }
 
 /**
+ * Open project
+ */
+.project {
+  margin-bottom: 0.4285714286rem ; }
+  .project-creator {
+    color: #888; }
+
+/**
  * Dashboard
  */
 .project-list {
@@ -895,7 +922,7 @@ html.show-loader .loader-wrapper {
 .nav-top a {
   color: #fff; }
 
-.nav-top-right li {
+.nav-top-right > li {
   padding-left: 0.8571428571rem ;
   padding-right: 0.8571428571rem ; }
 
