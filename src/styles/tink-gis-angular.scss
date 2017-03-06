@@ -583,6 +583,10 @@ ul {
 
 .modal-header {
   border-bottom: 1px solid $gray-light;
+
+  &.border-none {
+    border: none;
+  }
 }
 
 .close {
@@ -995,53 +999,37 @@ html.show-loader {
  * Dashboard
  */
 
-.project-list {
-  // height: 30vh;
-  line-height: rem(20);
-  overflow-y: auto;
+.dashboard {
+  ul,
+  .show-more {
+    padding-left: rem(24);
 
-  ul {
-    height: 27vh;
+    li {
+      padding-bottom: rem($padding-small-vertical);
+    }
+  }
+
+  &-left {
+    border-right: 1px solid $gray-light;
+  }
+
+  &-right {
+
   }
 }
 
-.news-list {
-  // height: 30vh;
-  overflow-y: auto;
+.block {
+  &-attention {
+    background-color: $gray-lightest;
+    border-radius: $border-radius-base;
+    bottom: 0;
+    padding: rem(15);
+    position: relative;
+    width: 100%;
 
-  dl {
-    // height: 14vh;
-    overflow: auto;
-    margin-bottom: 0;
-  }
-
-
-  dt {
-    margin-top: rem(4);
-  }
-  .read-on {
-    margin-top: rem(2);
-  }
-}
-
-.dashboard-view-left {
-  border-right: 1px solid $gray-light;
-}
-
-.create-ticket {
-  background-color: $gray-lightest;
-  border-radius: $border-radius-base;
-  bottom: 0;
-  position: relative;
-  width: 100%;
-}
-
-.create-ticket,
-.whats-new {
-  padding: rem(15);
-
-  h4 {
-    margin-top: 0;
+    h4 {
+      margin-top: 0;
+    }
   }
 }
 
