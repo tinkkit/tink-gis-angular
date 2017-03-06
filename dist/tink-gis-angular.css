@@ -562,6 +562,8 @@ ul ul {
 
 .modal-header {
   border-bottom: 1px solid #bbb; }
+  .modal-header.border-none {
+    border: none; }
 
 .close {
   font-family: FontAwesome;
@@ -868,37 +870,24 @@ html.show-loader .loader-wrapper {
 /**
  * Dashboard
  */
-.project-list {
-  line-height: 1.4285714286rem ;
-  overflow-y: auto; }
-  .project-list ul {
-    height: 27vh; }
+.dashboard ul,
+.dashboard .show-more {
+  padding-left: 1.7142857143rem ; }
+  .dashboard ul li,
+  .dashboard .show-more li {
+    padding-bottom: 0.3571428571rem ; }
 
-.news-list {
-  overflow-y: auto; }
-  .news-list dl {
-    overflow: auto;
-    margin-bottom: 0; }
-  .news-list dt {
-    margin-top: 0.2857142857rem ; }
-  .news-list .read-on {
-    margin-top: 0.1428571429rem ; }
-
-.dashboard-view-left {
+.dashboard-left {
   border-right: 1px solid #bbb; }
 
-.create-ticket {
+.block-attention {
   background-color: #f7f7f7;
   border-radius: 3px;
   bottom: 0;
+  padding: 1.0714285714rem ;
   position: relative;
   width: 100%; }
-
-.create-ticket,
-.whats-new {
-  padding: 1.0714285714rem ; }
-  .create-ticket h4,
-  .whats-new h4 {
+  .block-attention h4 {
     margin-top: 0; }
 
 .title-block {
