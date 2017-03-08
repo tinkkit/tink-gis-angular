@@ -168,6 +168,7 @@
         //11810K1905/00B002
         //.FindAdvanced("Lro_Stad", "percelen", "CAPAKEY", "11810K1905/00B002");
         _mapService.FindAdvanced = function (themeName, layerName, field, parameter) {
+            var prom = $q.defer();
             var theme = MapData.Themes.find(x => x.Naam == themeName);
             if (!theme) {
                 throw "No loaded theme found with the name: " + themeName;
@@ -182,9 +183,15 @@
                 .layers(layer.id)
                 .text(parameter)
                 .run(function (error, featureCollection, response) {
-                    ResultsData.RequestCompleted++;
-                    MapData.AddFeatures(featureCollection, theme, layer.id);
+                    if (error) {
+                        prom.reject(error);
+                    } else {
+                        prom.resolve(featureCollection, response);
+                        ResultsData.RequestCompleted++;
+                        MapData.AddFeatures(featureCollection, theme, layer.id);
+                    }
                 });
+            return prom.promise;
         }
         _mapService.Find = function (query) {
             MapData.CleanSearch();
