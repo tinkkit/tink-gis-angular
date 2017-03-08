@@ -1,16 +1,18 @@
 <div class="tink-map">
-    <div class="printpart">
-        <div class="row">
-            <h4 class="col-xs-6">Stad in kaart</h4>
+    <div class="printpart margin-top">
+
+        <div class="row mar">
             <div class="col-xs-6">
-                <div class="btn-group pull-right">
-                    <button type="button" class=" btn hidden-print" ng-click="mapctrl.print()">Print</button>
-                    <button type="button" class=" btn hidden-print" ng-click="mapctrl.cancelPrint()">Annuleer</button>
-                </div>
-                <div class="btn-group pull-right" style="margin-right: 5px;">
+                <h4>Stad in kaart</h4>
+            </div>
+            <div class="col-xs-6 text-right">
+                <div class="btn-group">
                     <button type="button" class=" btn hidden-print" ng-class="{active: mapctrl.printStyle=='portrait'}" ng-click="mapctrl.portrait()">Staand</button>
                     <button type="button" class=" btn hidden-print" ng-class="{active: mapctrl.printStyle=='landscape'}" ng-click="mapctrl.landscape()">Liggend</button>
                 </div>
+
+                <button type="button" class="btn hidden-print" ng-click="mapctrl.print()">Print</button>
+                <button type="button" class="btn hidden-print close pull-right" type="button" data-ng-click="mapctrl.cancelPrint()"></button>
 
             </div>
         </div>
@@ -90,12 +92,12 @@
 
         <div class="row">
             <div class="col-xs-2">
-                <img class="float-left print-corner-image" src="https://www.antwerpen.be/assets/aOS/gfx/gui/a-logo.svg" alt="Antwerpen logo">
+                <img class="print-corner-image" src="https://www.antwerpen.be/assets/aOS/gfx/gui/a-logo.svg" alt="Antwerpen logo">
             </div>
             <div class="col-xs-8">Voorbehoud: De kaart is een reproductie zonder juridische waarde. Zij bevat kaartmateriaal en info afkomstig van het stadsbestuur Antwerpen, AGIV, AAPD, Provinciebesturen en mogelijk nog andere organisaties.
             </div>
             <div class="col-xs-2">
-                <img class="float-right print-corner-image" src="http://images.vectorhq.com/images/previews/111/north-arrow-orienteering-137692.png" alt="Noord pijl oriëntatielopen">
+                <img class="print-corner-image pull-right" src="http://images.vectorhq.com/images/previews/111/north-arrow-orienteering-137692.png" alt="Noord pijl oriëntatielopen">
             </div>
         </div>
     </div>

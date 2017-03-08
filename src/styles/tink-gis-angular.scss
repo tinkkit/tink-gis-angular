@@ -894,7 +894,7 @@ html.nav-right-open {
 }
 .printpart {
   display: none;
-  padding-top:10px;
+  // padding-top:10px;
 }
 html.print {
   .map-buttons-left, .map-buttons-right, .tink-layers, .tink-search, .typeahead {
@@ -905,27 +905,38 @@ html.print {
   }
     .mappart {
           height:85%;
-          margin-bottom: 10px;
+          // margin-bottom: 10px;
     }
-  body { //A4 Portrait
-        height:297mm;
-        width:210mm;
+  // body { //A4 Portrait
+  //       height:297mm;
+  //       width:210mm;
+  //   }
+    // set A4 size on tink-map not on body
+    .tink-map {
+      height: 297mm;
+      margin: 0 auto;
+      width: 210mm;
     }
-
 
 }
+
 html.print.landscape {
-    body // A4 Landscape
-    {
-        height:205mm;
-        width:297mm;
-        }
-    .mappart {
-      height:75%;
+    // body // A4 Landscape
+    // {
+    //     height:205mm;
+    //     width:297mm;
+    //     }
+    // .mappart {
+    //   height:75%;
+    // }
+    // set A4 size on tink-map not on body
+    .tink-map {
+      height: 185mm;
+      margin: 0 auto;
+      width: 297mm;
     }
-
-
 }
+
 @media print  {
    body {
         margin-left: auto;
