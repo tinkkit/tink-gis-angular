@@ -11,7 +11,7 @@
                 <button class="btn" tink-tooltip="Exporteer naar CSV" tink-tooltip-align="top" ng-if="srchrsltsctrl.exportToCSVButtonIsEnabled" ng-click="srchrsltsctrl.exportToCSV()">
                     <i class="fa fa-file-excel-o"></i>
                 </button>
-                <button class="btn-sm" ng-if="srchrsltsctrl.extraResultButtonIsEnabled" ng-click="srchrsltsctrl.extraResultButton()">{{srchrsltsctrl.resultButtonText}}</button>
+                <button class="btn-sm" ng-show="srchrsltsctrl.extraResultButtonIsEnabled" ng-click="srchrsltsctrl.extraResultButton()">{{srchrsltsctrl.resultButtonText}}</button>
             </div>
 
             <div class="col-xs-12">

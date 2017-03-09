@@ -2139,22 +2139,22 @@ var esri2geo = {};
         _featureService.deleteLayerButtonIsEnabled = true;
         _featureService.exportToCSVButtonIsEnabled = true;
         _featureService.defaultLayerName = null;
-        // _featureService.ConfigResultsButton = function (isEnabled, text, callback) {
-        //     _featureService.extraresultsButtonText = text;
-        //     _featureService.extraResultsButtonCallBack = callback;
-        //     _featureService.extraResultsButtonIsEnabled = isEnabled;
-        // }
-        // _featureService.extraResultsButtonIsEnabled = false;
-        // _featureService.extraresultsButtonText = 'extra knop text';
-        // _featureService.extraResultsButtonCallBack = null;
-        _featureService.ConfigResultButton = function (isEnabled, text, callback) {
+        _featureService.ConfigResultButton = function (isEnabled, text, callback, conditioncallback) {
             _featureService.resultButtonText = text;
-            _featureService.extraResultButtonCallBack = callback;
             _featureService.extraResultButtonIsEnabled = isEnabled;
+            if (callback) {
+                _featureService.extraResultButtonCallBack = callback;
+            }
+            if (conditioncallback) {
+                _featureService.extraResultButtonConditionCallBack = conditioncallback;
+            }
         };
         _featureService.extraResultButtonIsEnabled = false;
         _featureService.resultButtonText = 'extra knop text';
-        _featureService.extraResultButtonCallBack = null;
+        _featureService.extraResultButtonCallBack = function () {};
+        _featureService.extraResultButtonConditionCallBack = function () {
+            return _featureService.extraResultButtonIsEnabled;
+        };
         return _featureService;
     };
     module.factory('FeatureService', featureService);
@@ -3763,13 +3763,19 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         }, function (newValue, oldValue) {
             vm.exportToCSVButtonIsEnabled = newValue;
         });
-
         $scope.$watch(function () {
             return FeatureService.extraResultButtonIsEnabled;
         }, function (newValue, oldValue) {
             vm.extraResultButtonIsEnabled = FeatureService.extraResultButtonIsEnabled;
             vm.extraResultButton = FeatureService.extraResultButtonCallBack;
             vm.resultButtonText = FeatureService.resultButtonText;
+        });
+
+        $scope.$watch(function () {
+            return FeatureService.extraResultButtonConditionCallBack();
+        }, function (newValue, oldValue) {
+            // console.log(newValue, oldValue, "ZZZZZZZZZZZZZZZZZZZZZ");
+            vm.extraResultButtonIsEnabled = newValue;
         });
         vm.extraResultButtonIsEnabled = FeatureService.extraResultButtonIsEnabled;
         vm.extraResultButton = FeatureService.extraResultButtonCallBack;
@@ -4871,7 +4877,7 @@ L.drawLocal = {
     "<button class=btn tink-tooltip=\"Exporteer naar CSV\" tink-tooltip-align=top ng-if=srchrsltsctrl.exportToCSVButtonIsEnabled ng-click=srchrsltsctrl.exportToCSV()>\n" +
     "<i class=\"fa fa-file-excel-o\"></i>\n" +
     "</button>\n" +
-    "<button class=btn-sm ng-if=srchrsltsctrl.extraResultButtonIsEnabled ng-click=srchrsltsctrl.extraResultButton()>{{srchrsltsctrl.resultButtonText}}</button>\n" +
+    "<button class=btn-sm ng-show=srchrsltsctrl.extraResultButtonIsEnabled ng-click=srchrsltsctrl.extraResultButton()>{{srchrsltsctrl.resultButtonText}}</button>\n" +
     "</div>\n" +
     "<div class=col-xs-12>\n" +
     "<select ng-model=srchrsltsctrl.layerGroupFilter>\n" +

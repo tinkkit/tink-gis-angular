@@ -2,7 +2,8 @@
 (function (module) {
     module = angular.module('tink.gis');
     var theController = module.controller('searchResultsController',
-        function ($scope, ResultsData, map, SearchService, MapData, FeatureService) {
+        function ($scope, ResultsData, map, SearchService, MapData, FeatureService
+        ) {
             var vm = this;
             vm.features = ResultsData.JsonFeatures;
             vm.featureLayers = null;
@@ -53,12 +54,15 @@
             $scope.$watch(function () { return FeatureService.exportToCSVButtonIsEnabled; }, function (newValue, oldValue) {
                 vm.exportToCSVButtonIsEnabled = newValue
             });
-
-
             $scope.$watch(function () { return FeatureService.extraResultButtonIsEnabled; }, function (newValue, oldValue) {
                 vm.extraResultButtonIsEnabled = FeatureService.extraResultButtonIsEnabled;
                 vm.extraResultButton = FeatureService.extraResultButtonCallBack;
                 vm.resultButtonText = FeatureService.resultButtonText;
+            });
+
+            $scope.$watch(function () { return FeatureService.extraResultButtonConditionCallBack(); }, function (newValue, oldValue) {
+                // console.log(newValue, oldValue, "ZZZZZZZZZZZZZZZZZZZZZ");
+                vm.extraResultButtonIsEnabled = newValue;
             });
             vm.extraResultButtonIsEnabled = FeatureService.extraResultButtonIsEnabled;
             vm.extraResultButton = FeatureService.extraResultButtonCallBack;
