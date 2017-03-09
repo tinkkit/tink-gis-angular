@@ -888,53 +888,74 @@ html.nav-right-open {
 // @page Landscape {
 //     size: A4 landscape;
 // }
+
+
 .mappart {
   height:100%;
   width:100%;
 }
+
+.print-menu {
+  display: none;
+}
+
+.printout {
+  height:100%;
+  width:100%;
+}
+
 .printpart {
   display: none;
-  // padding-top:10px;
 }
+
 html.print {
   .map-buttons-left, .map-buttons-right, .tink-layers, .tink-search, .typeahead {
     display: none;
   }
+
+  .mappart {
+    height: 260mm;
+  }
+
   .printpart {
     display: block;
   }
-    .mappart {
-          height:85%;
-          // margin-bottom: 10px;
-    }
-  // body { //A4 Portrait
-  //       height:297mm;
-  //       width:210mm;
-  //   }
-    // set A4 size on tink-map not on body
-    .tink-map {
-      height: 297mm;
-      margin: 0 auto;
-      width: 210mm;
+
+  .print-menu {
+    display: block;
+
+    &-header {
+
+      box-shadow: 0 1px 5px rgba(0, 0, 0, 0.06);
     }
 
+    &-footer {
+      background-color: $white;
+      bottom: 0;
+      box-shadow: 0 -1px 5px rgba(0, 0, 0, 0.06);
+      padding: $padding-base-vertical $padding-base-horizontal;
+      position: fixed;
+      width: 100%;
+      z-index: 1000; // set it above map
+    }
+  }
+
+  .printout {
+    height: 297mm;
+    margin: 0 auto;
+    width: 210mm;
+
+    box-shadow: 3px 3px 5px $gray-light;
+  }
 }
 
+
 html.print.landscape {
-    // body // A4 Landscape
-    // {
-    //     height:205mm;
-    //     width:297mm;
-    //     }
-    // .mappart {
-    //   height:75%;
-    // }
-    // set A4 size on tink-map not on body
-    .tink-map {
-      height: 185mm;
-      margin: 0 auto;
-      width: 297mm;
-    }
+  .printout {
+    height: 185mm;
+    margin: 0 auto;
+    width: 297mm;
+  }
 }
 
 @media print  {
@@ -946,6 +967,7 @@ html.print.landscape {
       display: none !important;
     }
 }
+
 .print-corner-image {
   width: 90px;
   height: 90px;
@@ -955,6 +977,7 @@ html.print.landscape {
 .mouse-over-toshow {
   display:none;
 }
+
 .mouse-over:hover {
   .mouse-over-toshow {
     display: inline-block;
