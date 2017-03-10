@@ -1,5 +1,5 @@
 <div class="tink-map">
-    <div class="print-menu print-menu-header container hidden-print">
+    <div class="print-menu print-menu-header container margin-bottom hidden-print">
         <div class="row">
             <div class="col-xs-12 col-md-3">
             </div>
@@ -33,17 +33,16 @@
             </div>
         </div>
     </div>
-    <div class="row create-some-space margin-top hidden-print">
-    </div>
-    <div class="printout">
 
-        <div class="row printpart">
+    <div class="print-content">
+        <div class="print-content-header">
             <div class="col-xs-12">
                 <h4>Stad in kaart</h4>
             </div>
         </div>
 
-        <div class="mappart">
+
+        <div class="print-map">
             <tink-Search class="tink-search"></tink-Search>
             <div id="map" class="leafletmap">
                 <div class="map-buttons-left">
@@ -112,25 +111,23 @@
 
             </div>
         </div>
-            <tink-Layers class="tink-layers"></tink-Layers>
-            <div class="printpart">
 
-                <div class="row">
-                    <div class="col-xs-2">
-                        <img class="print-corner-image" src="https://www.antwerpen.be/assets/aOS/gfx/gui/a-logo.svg" alt="Antwerpen logo">
-                    </div>
-                    <div class="col-xs-8">Voorbehoud: De kaart is een reproductie zonder juridische waarde. Zij bevat kaartmateriaal en info afkomstig van het stadsbestuur Antwerpen, AGIV, AAPD, Provinciebesturen en mogelijk nog andere organisaties.
-                    </div>
-                    <div class="col-xs-2">
-                        <img class="print-corner-image pull-right" src="http://images.vectorhq.com/images/previews/111/north-arrow-orienteering-137692.png" alt="Noord pijl oriëntatielopen">
-                    </div>
-                </div>
+        <div class="print-content-footer">
+            <div class="col-xs-2">
+                <img class="print-corner-image" src="https://www.antwerpen.be/assets/aOS/gfx/gui/a-logo.svg" alt="Antwerpen logo">
             </div>
-
-
+            <div class="col-xs-8">
+                Voorbehoud: De kaart is een reproductie zonder juridische waarde. Zij bevat kaartmateriaal en info afkomstig van het stadsbestuur Antwerpen, AGIV, AAPD, Provinciebesturen en mogelijk nog andere organisaties.
+            </div>
+            <div class="col-xs-2">
+                <img class="print-corner-image pull-right" src="http://images.vectorhq.com/images/previews/111/north-arrow-orienteering-137692.png" alt="Noord pijl oriëntatielopen">
+            </div>
+        </div>
     </div>
 
-    <div class="row create-some-space margin-bottom margin-top hidden-print">
+    <tink-Layers class="tink-layers"></tink-Layers>
+
+    <div class="margin-print-content hidden-print">
     </div>
 
     <div class="print-menu print-menu-footer hidden-print">
@@ -145,4 +142,5 @@
             </div>
         </div>
     </div>
+
 </div>

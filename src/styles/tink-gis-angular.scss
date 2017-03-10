@@ -889,36 +889,63 @@ html.nav-right-open {
 //     size: A4 landscape;
 // }
 
+// default values
 
-.mappart {
-  height:100%;
-  width:100%;
-}
-
-.print-menu {
+.print-menu,
+.print-content-header,
+.print-content-footer {
   display: none;
 }
 
-.printout {
-  height:100%;
-  width:100%;
+.print {
+  &-content,
+  &-map {
+    height:100%;
+    width:100%;
+  }
 }
 
-.printpart {
-  display: none;
-}
+// when print menu is active
 
 html.print {
-  .map-buttons-left, .map-buttons-right, .tink-layers, .tink-search, .typeahead {
+
+  .map-buttons-left,
+  .map-buttons-right,
+  .tink-layers,
+  .tink-search,
+  .typeahead {
     display: none;
   }
 
-  .mappart {
-    height: 260mm;
-  }
+  .print {
 
-  .printpart {
-    display: block;
+    &-content {
+      // box-shadow: 3px 3px 5px $gray-light;
+      height: 255mm; // 275mm works on default margins of Chrome but not on Safari
+      margin: 0 auto;
+      width: 185mm; // works best on all browsers
+
+      &-header {
+        display: block;
+        height: 15mm;
+      }
+
+      &-footer {
+        display: block;
+        font-size: 15px;
+        height: 25mm;
+        margin-top: 3mm;
+
+        [class*='col-'] {
+          padding-left: 0;
+          padding-right: 0;
+        }
+      }
+    }
+
+    &-map {
+        height: 212mm;
+    }
   }
 
   .print-menu {
@@ -940,37 +967,50 @@ html.print {
     }
   }
 
-  .printout {
-    height: 297mm;
-    margin: 0 auto;
-    width: 210mm;
-
-    box-shadow: 3px 3px 5px $gray-light;
+  .margin-print-content {
+    height: rem(60);
   }
 }
 
+// when print menu is active and landscape is set
 
 html.print.landscape {
-  .printout {
-    height: 185mm;
-    margin: 0 auto;
-    width: 297mm;
+
+  .print {
+
+    &-content {
+      // box-shadow: 3px 3px 5px $gray-light;
+      height: 175mm;
+      margin: 0 auto;
+      width: 255mm;
+
+    }
+
+    &-map {
+        height: 130mm;
+    }
   }
 }
 
+
+
 @media print  {
-   body {
-        margin-left: auto;
-        margin-right: auto;
-    }
-    .hidden-print {
-      display: none !important;
-    }
+   // body {
+   //      margin-left: auto;
+   //      margin-right: auto;
+   //  }
+  .hidden-print {
+    display: none !important;
+  }
+  .print-content {
+   // box-shadow: none;
+  }
 }
 
 .print-corner-image {
-  width: 90px;
-  height: 90px;
+  display: inline-block;
+  height: 25mm;
+  width: 25mm;
 }
 
 
@@ -984,6 +1024,16 @@ html.print.landscape {
     cursor: pointer;
   }
 }
+
+
+
+// @media print {
+//   .print-content {
+//     page-break-inside: avoid;
+//   }
+// }
+
+
 
 /**
  * Full page loader
