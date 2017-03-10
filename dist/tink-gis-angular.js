@@ -4384,34 +4384,20 @@ L.drawLocal = {
     "<meta charset=utf-8>\n" +
     "<title>Street View side-by-side</title>\n" +
     "<style>\n" +
-    "html, body {\r" +
-    "\n" +
-    "        height: 100%;\r" +
-    "\n" +
-    "        margin: 0;\r" +
-    "\n" +
-    "        padding: 0;\r" +
-    "\n" +
-    "      }\r" +
-    "\n" +
-    "      #map,  {\r" +
-    "\n" +
-    "        float: left;\r" +
-    "\n" +
-    "        height: 0%;\r" +
-    "\n" +
-    "        width: 0%;\r" +
-    "\n" +
-    "      }\r" +
-    "\n" +
-    "       #pano {\r" +
-    "\n" +
-    "        float: left;\r" +
-    "\n" +
-    "        height: 100%;\r" +
-    "\n" +
-    "        width: 100%;\r" +
-    "\n" +
+    "html, body {\n" +
+    "        height: 100%;\n" +
+    "        margin: 0;\n" +
+    "        padding: 0;\n" +
+    "      }\n" +
+    "      #map,  {\n" +
+    "        float: left;\n" +
+    "        height: 0%;\n" +
+    "        width: 0%;\n" +
+    "      }\n" +
+    "       #pano {\n" +
+    "        float: left;\n" +
+    "        height: 100%;\n" +
+    "        width: 100%;\n" +
     "      }\n" +
     "</style>\n" +
     "</head>\n" +
@@ -4419,42 +4405,24 @@ L.drawLocal = {
     "<div id=map></div>\n" +
     "<div id=pano></div>\n" +
     "<script>\n" +
-    "function initialize() {\r" +
-    "\n" +
-    "        \r" +
-    "\n" +
-    "        var urlLat = parseFloat((location.search.split('lat=')[1]||'').split('&')[0]);\r" +
-    "\n" +
-    "        var urlLng = parseFloat((location.search.split('lng=')[1]||'').split('&')[0]);\r" +
-    "\n" +
-    "        var fenway = {lat:urlLat, lng: urlLng};\r" +
-    "\n" +
-    "        var map = new google.maps.Map(document.getElementById('map'), {\r" +
-    "\n" +
-    "          center: fenway,\r" +
-    "\n" +
-    "          zoom: 14\r" +
-    "\n" +
-    "        });\r" +
-    "\n" +
-    "        var panorama = new google.maps.StreetViewPanorama(\r" +
-    "\n" +
-    "            document.getElementById('pano'), {\r" +
-    "\n" +
-    "              position: fenway,\r" +
-    "\n" +
-    "              pov: {\r" +
-    "\n" +
-    "                heading: 34,\r" +
-    "\n" +
-    "                pitch: 10\r" +
-    "\n" +
-    "              }\r" +
-    "\n" +
-    "            });\r" +
-    "\n" +
-    "        map.setStreetView(panorama);\r" +
-    "\n" +
+    "function initialize() {\n" +
+    "        \n" +
+    "        var urlLat = parseFloat((location.search.split('lat=')[1]||'').split('&')[0]);\n" +
+    "        var urlLng = parseFloat((location.search.split('lng=')[1]||'').split('&')[0]);\n" +
+    "        var fenway = {lat:urlLat, lng: urlLng};\n" +
+    "        var map = new google.maps.Map(document.getElementById('map'), {\n" +
+    "          center: fenway,\n" +
+    "          zoom: 14\n" +
+    "        });\n" +
+    "        var panorama = new google.maps.StreetViewPanorama(\n" +
+    "            document.getElementById('pano'), {\n" +
+    "              position: fenway,\n" +
+    "              pov: {\n" +
+    "                heading: 34,\n" +
+    "                pitch: 10\n" +
+    "              }\n" +
+    "            });\n" +
+    "        map.setStreetView(panorama);\n" +
     "      }\n" +
     "</script>\n" +
     "<script async defer src=\"https://maps.googleapis.com/maps/api/js?callback=initialize\">\n" +
@@ -4710,7 +4678,7 @@ L.drawLocal = {
     "<div class=\"flex-column flex-grow-1\">\n" +
     "<div ng-if=lyrsctrl.layerManagementButtonIsEnabled>\n" +
     "<div class=\"col-xs-12 margin-top margin-bottom\">\n" +
-    "<button class=\"btn btn-primary center-block\" ng-click=lyrsctrl.Lagenbeheer()>Lagenbeheer</button>\n" +
+    "<button class=\"btn btn-primary btn-layermanagement center-block\" ng-click=lyrsctrl.Lagenbeheer()>Lagenbeheer</button>\n" +
     "</div>\n" +
     "</div>\n" +
     "<div class=\"overflow-wrapper flex-grow-1 extra-padding\">\n" +
@@ -4729,22 +4697,46 @@ L.drawLocal = {
 
   $templateCache.put('templates/other/mapTemplate.html',
     "<div class=tink-map>\n" +
-    "<div class=printpart>\n" +
+    "<div class=\"print-menu print-menu-header container margin-bottom hidden-print\">\n" +
     "<div class=row>\n" +
-    "<h4 class=col-xs-6>Stad in kaart</h4>\n" +
-    "<div class=col-xs-6>\n" +
-    "<div class=\"btn-group pull-right\">\n" +
-    "<button type=button class=\"btn hidden-print\" ng-click=mapctrl.print()>Print</button>\n" +
-    "<button type=button class=\"btn hidden-print\" ng-click=mapctrl.cancelPrint()>Annuleer</button>\n" +
+    "<div class=\"col-xs-12 col-md-3\">\n" +
     "</div>\n" +
-    "<div class=\"btn-group pull-right\" style=\"margin-right: 5px\">\n" +
-    "<button type=button class=\"btn hidden-print\" ng-class=\"{active: mapctrl.printStyle=='portrait'}\" ng-click=mapctrl.portrait()>Staand</button>\n" +
-    "<button type=button class=\"btn hidden-print\" ng-class=\"{active: mapctrl.printStyle=='landscape'}\" ng-click=mapctrl.landscape()>Liggend</button>\n" +
+    "<div class=\"col-xs-12 col-md-6\">\n" +
+    "<h4>Printen</h4>\n" +
+    "</div>\n" +
+    "<div class=\"col-xs-12 col-md-3\">\n" +
     "</div>\n" +
     "</div>\n" +
+    "<div class=\"row form-inline hidden-print margin-bottom\">\n" +
+    "<div class=\"col-xs-1 col-md-3\">\n" +
+    "</div>\n" +
+    "<div class=\"col-xs-5 col-md-3\">\n" +
+    "<div class=radio>\n" +
+    "<input type=radio id=radioKaart name=chooseprint checked ng-class=\"{active: mapctrl.printStyle=='previewMap'}\" ng-click=mapctrl.previewMap()>\n" +
+    "<label for=radioKaart>Kaart</label>\n" +
+    "</div>\n" +
+    "<div class=radio>\n" +
+    "<input type=radio id=radioLegende name=chooseprint ng-class=\"{active: mapctrl.printStyle=='previewLegend'}\" ng-click=mapctrl.previewLegend()>\n" +
+    "<label for=radioLegende>Legende</label>\n" +
     "</div>\n" +
     "</div>\n" +
-    "<div class=mappart>\n" +
+    "<div class=\"col-xs-5 col-md-3\">\n" +
+    "<div class=\"btn-group btn-group-sm pull-right\">\n" +
+    "<button type=button class=\"btn hidden-print\" ng-class=\"{active: mapctrl.printStyle=='portrait'}\" ng-click=mapctrl.portrait()><i class=\"fa fa-file-o\"></i> Staand</button>\n" +
+    "<button type=button class=\"btn hidden-print\" ng-class=\"{active: mapctrl.printStyle=='landscape'}\" ng-click=mapctrl.landscape()><i class=\"fa fa-file-o fa-rotate-270\"></i> Liggend</button>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "<div class=\"col-xs-1 col-md-3\">\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "<div class=print-content>\n" +
+    "<div class=print-content-header>\n" +
+    "<div class=col-xs-12>\n" +
+    "<h4>Stad in kaart</h4>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "<div class=print-map>\n" +
     "<tink-search class=tink-search></tink-search>\n" +
     "<div id=map class=leafletmap>\n" +
     "<div class=map-buttons-left>\n" +
@@ -4795,18 +4787,33 @@ L.drawLocal = {
     "</div>\n" +
     "<tink-layers class=tink-layers></tink-layers>\n" +
     "</div>\n" +
-    "<div class=printpart>\n" +
+    "<div class=print-content-footer>\n" +
+    "<div class=col-xs-2>\n" +
+    "<img class=print-corner-image src=https://www.antwerpen.be/assets/aOS/gfx/gui/a-logo.svg alt=\"Antwerpen logo\">\n" +
+    "</div>\n" +
+    "<div class=col-xs-8>\n" +
+    "Voorbehoud: De kaart is een reproductie zonder juridische waarde. Zij bevat kaartmateriaal en info afkomstig van het stadsbestuur Antwerpen, AGIV, AAPD, Provinciebesturen en mogelijk nog andere organisaties.\n" +
+    "</div>\n" +
+    "<div class=col-xs-2>\n" +
+    "<img class=\"print-corner-image pull-right\" src=http://images.vectorhq.com/images/previews/111/north-arrow-orienteering-137692.png alt=\"Noord pijl oriëntatielopen\">\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "<div class=\"margin-print-content hidden-print\">\n" +
+    "</div>\n" +
+    "<div class=\"print-menu print-menu-footer hidden-print\">\n" +
     "<div class=row>\n" +
-    "<div class=col-xs-2>\n" +
-    "<img class=\"float-left print-corner-image\" src=https://www.antwerpen.be/assets/aOS/gfx/gui/a-logo.svg alt=\"Antwerpen logo\">\n" +
+    "<div class=\"col-xs-12 col-md-3\">\n" +
     "</div>\n" +
-    "<div class=col-xs-8>Voorbehoud: De kaart is een reproductie zonder juridische waarde. Zij bevat kaartmateriaal en info afkomstig van het stadsbestuur Antwerpen, AGIV, AAPD, Provinciebesturen en mogelijk nog andere organisaties.\n" +
+    "<div class=\"col-xs-12 col-md-6\">\n" +
+    "<button type=button class=btn-primary ng-click=mapctrl.print()>Printen</button>\n" +
+    "<a href=# data-ng-click=mapctrl.cancelPrint()>Annuleren</a>\n" +
     "</div>\n" +
-    "<div class=col-xs-2>\n" +
-    "<img class=\"float-right print-corner-image\" src=http://images.vectorhq.com/images/previews/111/north-arrow-orienteering-137692.png alt=\"Noord pijl oriëntatielopen\">\n" +
+    "<div class=\"col-xs-12 col-md-3\">\n" +
     "</div>\n" +
     "</div>\n" +
-    "</div></div>"
+    "</div>\n" +
+    "</div>\n"
   );
 
 
