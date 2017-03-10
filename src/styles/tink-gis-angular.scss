@@ -917,6 +917,42 @@ html.print {
     display: none;
   }
 
+  &.preview-legend {
+    .print {
+
+      &-content-footer {
+        display: none;
+      }
+    }
+
+    .leafletmap {
+      display: none;
+    }
+
+    .nav-aside:before {
+      background: none;
+    }
+
+    .nav-right {
+      position: relative; // sets the legend relative to the print-content-header
+    }
+
+    .print-content, // trying to make a long legend spread over multiple pages
+    .print-map {
+      height: 100%;
+    }
+
+    .tink-layers {
+      display: block;
+
+      .btn-layermanagement,
+      .nav-aside-section,
+      .nav-right-toggle {
+        display: none;
+      }
+    }
+  }
+
   .print {
 
     &-content {

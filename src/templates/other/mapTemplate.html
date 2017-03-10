@@ -15,11 +15,11 @@
             </div>
             <div class="col-xs-5 col-md-3">
                 <div class="radio">
-                    <input type="radio" id="radioKaart" name="chooseprint" value="" checked="">
+                    <input type="radio" id="radioKaart" name="chooseprint" value="" checked="" ng-class="{active: mapctrl.printStyle=='previewMap'}" ng-click="mapctrl.previewMap()" >
                     <label for="radioKaart">Kaart</label>
                 </div>
                 <div class="radio">
-                    <input type="radio" id="radioLegende" name="chooseprint" value="">
+                    <input type="radio" id="radioLegende" name="chooseprint" value="" ng-class="{active: mapctrl.printStyle=='previewLegend'}" ng-click="mapctrl.previewLegend()">
                     <label for="radioLegende">Legende</label>
                 </div>
             </div>
@@ -110,6 +110,8 @@
                 </div>
 
             </div>
+
+            <tink-Layers class="tink-layers"></tink-Layers>
         </div>
 
         <div class="print-content-footer">
@@ -124,8 +126,6 @@
             </div>
         </div>
     </div>
-
-    <tink-Layers class="tink-layers"></tink-Layers>
 
     <div class="margin-print-content hidden-print">
     </div>

@@ -301,7 +301,7 @@ angular.module('tink.gis').run(['$templateCache', function($templateCache) {
     "<div class=\"flex-column flex-grow-1\">\n" +
     "<div ng-if=lyrsctrl.layerManagementButtonIsEnabled>\n" +
     "<div class=\"col-xs-12 margin-top margin-bottom\">\n" +
-    "<button class=\"btn btn-primary center-block\" ng-click=lyrsctrl.Lagenbeheer()>Lagenbeheer</button>\n" +
+    "<button class=\"btn btn-primary btn-layermanagement center-block\" ng-click=lyrsctrl.Lagenbeheer()>Lagenbeheer</button>\n" +
     "</div>\n" +
     "</div>\n" +
     "<div class=\"overflow-wrapper flex-grow-1 extra-padding\">\n" +
@@ -320,7 +320,7 @@ angular.module('tink.gis').run(['$templateCache', function($templateCache) {
 
   $templateCache.put('templates/other/mapTemplate.html',
     "<div class=tink-map>\n" +
-    "<div class=\"print-menu print-menu-header container hidden-print\">\n" +
+    "<div class=\"print-menu print-menu-header container margin-bottom hidden-print\">\n" +
     "<div class=row>\n" +
     "<div class=\"col-xs-12 col-md-3\">\n" +
     "</div>\n" +
@@ -335,11 +335,11 @@ angular.module('tink.gis').run(['$templateCache', function($templateCache) {
     "</div>\n" +
     "<div class=\"col-xs-5 col-md-3\">\n" +
     "<div class=radio>\n" +
-    "<input type=radio id=radioKaart name=chooseprint checked>\n" +
+    "<input type=radio id=radioKaart name=chooseprint checked ng-class=\"{active: mapctrl.printStyle=='previewMap'}\" ng-click=mapctrl.previewMap()>\n" +
     "<label for=radioKaart>Kaart</label>\n" +
     "</div>\n" +
     "<div class=radio>\n" +
-    "<input type=radio id=radioLegende name=chooseprint>\n" +
+    "<input type=radio id=radioLegende name=chooseprint ng-class=\"{active: mapctrl.printStyle=='previewLegend'}\" ng-click=mapctrl.previewLegend()>\n" +
     "<label for=radioLegende>Legende</label>\n" +
     "</div>\n" +
     "</div>\n" +
@@ -353,15 +353,13 @@ angular.module('tink.gis').run(['$templateCache', function($templateCache) {
     "</div>\n" +
     "</div>\n" +
     "</div>\n" +
-    "<div class=\"row create-some-space margin-top hidden-print\">\n" +
-    "</div>\n" +
-    "<div class=printout>\n" +
-    "<div class=\"row printpart\">\n" +
+    "<div class=print-content>\n" +
+    "<div class=print-content-header>\n" +
     "<div class=col-xs-12>\n" +
     "<h4>Stad in kaart</h4>\n" +
     "</div>\n" +
     "</div>\n" +
-    "<div class=mappart>\n" +
+    "<div class=print-map>\n" +
     "<tink-search class=tink-search></tink-search>\n" +
     "<div id=map class=leafletmap>\n" +
     "<div class=map-buttons-left>\n" +
@@ -410,22 +408,21 @@ angular.module('tink.gis').run(['$templateCache', function($templateCache) {
     "</div>\n" +
     "</div>\n" +
     "</div>\n" +
-    "</div>\n" +
     "<tink-layers class=tink-layers></tink-layers>\n" +
-    "<div class=printpart>\n" +
-    "<div class=row>\n" +
+    "</div>\n" +
+    "<div class=print-content-footer>\n" +
     "<div class=col-xs-2>\n" +
     "<img class=print-corner-image src=https://www.antwerpen.be/assets/aOS/gfx/gui/a-logo.svg alt=\"Antwerpen logo\">\n" +
     "</div>\n" +
-    "<div class=col-xs-8>Voorbehoud: De kaart is een reproductie zonder juridische waarde. Zij bevat kaartmateriaal en info afkomstig van het stadsbestuur Antwerpen, AGIV, AAPD, Provinciebesturen en mogelijk nog andere organisaties.\n" +
+    "<div class=col-xs-8>\n" +
+    "Voorbehoud: De kaart is een reproductie zonder juridische waarde. Zij bevat kaartmateriaal en info afkomstig van het stadsbestuur Antwerpen, AGIV, AAPD, Provinciebesturen en mogelijk nog andere organisaties.\n" +
     "</div>\n" +
     "<div class=col-xs-2>\n" +
     "<img class=\"print-corner-image pull-right\" src=http://images.vectorhq.com/images/previews/111/north-arrow-orienteering-137692.png alt=\"Noord pijl oriëntatielopen\">\n" +
     "</div>\n" +
     "</div>\n" +
     "</div>\n" +
-    "</div>\n" +
-    "<div class=\"row create-some-space margin-bottom margin-top hidden-print\">\n" +
+    "<div class=\"margin-print-content hidden-print\">\n" +
     "</div>\n" +
     "<div class=\"print-menu print-menu-footer hidden-print\">\n" +
     "<div class=row>\n" +
