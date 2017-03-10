@@ -1,101 +1,146 @@
 <div class="tink-map">
-    <div class="printpart">
+    <div class="print-menu print-menu-header container margin-bottom hidden-print">
         <div class="row">
-            <h4 class="col-xs-6">Stad in kaart</h4>
-            <div class="col-xs-6">
-                <div class="btn-group pull-right">
-                    <button type="button" class=" btn hidden-print" ng-click="mapctrl.print()">Print</button>
-                    <button type="button" class=" btn hidden-print" ng-click="mapctrl.cancelPrint()">Annuleer</button>
-                </div>
-                <div class="btn-group pull-right" style="margin-right: 5px;">
-                    <button type="button" class=" btn hidden-print" ng-class="{active: mapctrl.printStyle=='portrait'}" ng-click="mapctrl.portrait()">Staand</button>
-                    <button type="button" class=" btn hidden-print" ng-class="{active: mapctrl.printStyle=='landscape'}" ng-click="mapctrl.landscape()">Liggend</button>
-                </div>
+            <div class="col-xs-12 col-md-3">
+            </div>
+            <div class="col-xs-12 col-md-6">
+                <h4>Printen</h4>
+            </div>
+            <div class="col-xs-12 col-md-3">
+            </div>
+        </div>
 
+        <div class="row form-inline hidden-print margin-bottom">
+            <div class="col-xs-1 col-md-3">
+            </div>
+            <div class="col-xs-5 col-md-3">
+                <div class="radio">
+                    <input type="radio" id="radioKaart" name="chooseprint" value="" checked="" ng-class="{active: mapctrl.printStyle=='previewMap'}" ng-click="mapctrl.previewMap()" >
+                    <label for="radioKaart">Kaart</label>
+                </div>
+                <div class="radio">
+                    <input type="radio" id="radioLegende" name="chooseprint" value="" ng-class="{active: mapctrl.printStyle=='previewLegend'}" ng-click="mapctrl.previewLegend()">
+                    <label for="radioLegende">Legende</label>
+                </div>
+            </div>
+            <div class="col-xs-5 col-md-3">
+                <div class="btn-group btn-group-sm pull-right">
+                    <button type="button" class=" btn hidden-print" ng-class="{active: mapctrl.printStyle=='portrait'}" ng-click="mapctrl.portrait()"><i class="fa fa-file-o"></i> Staand</button>
+                    <button type="button" class=" btn hidden-print" ng-class="{active: mapctrl.printStyle=='landscape'}" ng-click="mapctrl.landscape()"><i class="fa fa-file-o fa-rotate-270"></i> Liggend</button>
+                </div>
+            </div>
+            <div class="col-xs-1 col-md-3">
             </div>
         </div>
     </div>
-    <div class="mappart">
-        <tink-Search class="tink-search"></tink-Search>
-        <div id="map" class="leafletmap">
-            <div class="map-buttons-left">
-                <div class="ll drawingbtns" ng-show="mapctrl.showDrawControls">
-                    <div class="btn-group ">
-                        <button ng-click="mapctrl.selectpunt()" ng-class="{active: mapctrl.drawingType==''}" type="button" class="btn" prevent-default-map tink-tooltip="Selecteer met een punt" tink-tooltip-align="bottom"><i class="fa fa-circle" style="font-size: 0.75em;"></i></button>
-                        <button ng-click="mapctrl.drawingButtonChanged('lijn')" ng-class="{active: mapctrl.drawingType=='lijn'}" type="button" class="btn" prevent-default-map><i class="fa fa-minus" tink-tooltip="Selecteer met een lijn" tink-tooltip-align="bottom"></i></button>
-                        <button ng-click="mapctrl.drawingButtonChanged('vierkant')" ng-class="{active: mapctrl.drawingType=='vierkant'}" type="button" class="btn" prevent-default-map tink-tooltip="Selecteer met een vierkant" tink-tooltip-align="bottom"><i class="fa fa-square-o"></i></button>
-                        <button ng-click="mapctrl.drawingButtonChanged('polygon')" ng-class="{active: mapctrl.drawingType=='polygon'}" type="button" class="btn" prevent-default-map tink-tooltip="Selecteer met een veelhoek" tink-tooltip-align="bottom"><i class="fa fa-star-o"></i></button>
-                    </div>
-                    <div class="select">
-                        <select ng-options="layer as layer.name for layer in mapctrl.SelectableLayers()" ng-model="mapctrl.selectedLayer" ng-show="mapctrl.SelectableLayers().length > 1" ng-change="mapctrl.layerChange()" prevent-default-map></select>
-                    </div>
-                </div>
 
-                <div class="btn-group btn-group-vertical ll interactiebtns">
-                    <button type="button" class="btn" ng-click="mapctrl.interactieButtonChanged('identify')" ng-class="{active: mapctrl.activeInteractieKnop=='identify'}" tink-tooltip="Identificeren" tink-tooltip-align="right" prevent-default-map><i class="fa fa-info"></i></button>
-                    <button type="button" class="btn" ng-click="mapctrl.interactieButtonChanged('select')" ng-class="{active: mapctrl.activeInteractieKnop=='select'}" tink-tooltip="Selecteren" tink-tooltip-align="right" prevent-default-map><i class="fa fa-mouse-pointer"></i></button>
-                    <button type="button" class="btn" ng-click="mapctrl.interactieButtonChanged('meten')" ng-class="{active: mapctrl.activeInteractieKnop=='meten'}" tink-tooltip="Meten" tink-tooltip-align="right" prevent-default-map><i class="fa fa-expand"></i></button>
-                    <button type="button" class="btn" ng-click="mapctrl.interactieButtonChanged('watishier')" ng-class="{active: mapctrl.activeInteractieKnop=='watishier'}" tink-tooltip="Wat is hier?" tink-tooltip-align="right" prevent-default-map><i class="fa  fa-thumb-tack"></i></button>
-                    <!-- fa-map-pin -->
-                </div>
-
-                <div class="btn-group ll kaarttypes">
-                    <button class="btn" ng-class="{active: mapctrl.IsBaseMap1==true}" ng-click="mapctrl.toonBaseMap1()" prevent-default-map>{{mapctrl.baseMap1Naam()}}</button>
-                    <button class="btn" ng-class="{active: mapctrl.IsBaseMap1==false}" ng-click="mapctrl.toonBaseMap2()" prevent-default-map>{{mapctrl.baseMap2Naam()}}</button>
-                </div>
-
-                <div class="btn-group ll metenbtns" ng-show="mapctrl.showMetenControls">
-                    <button ng-click="mapctrl.drawingButtonChanged('afstand')" ng-class="{active: mapctrl.drawingType=='afstand'}" type="button" tink-tooltip="Meten afstand" tink-tooltip-align="bottom" class="btn" prevent-default-map><i class="fa fa-arrows-h "></i></button>
-                    <button ng-click="mapctrl.drawingButtonChanged('oppervlakte')" ng-class="{active: mapctrl.drawingType=='oppervlakte'}" type="button" tink-tooltip="Meten oppervlakte en omtrek" tink-tooltip-align="bottom" class="btn" prevent-default-map><i class="fa fa-star-o"></i></button>
-                </div>
-
-                <div class="btn-group ll searchbtns">
-                    <button type="button" class="btn" ng-class="{active: mapctrl.ZoekenOpLocatie==true}" ng-click="mapctrl.fnZoekenOpLocatie()" tink-tooltip="Zoeken op locatie" tink-tooltip-align="bottom" prevent-default-map><i class="fa fa-map-marker"></i></button>
-                    <button type="button" class="btn" ng-class="{active: mapctrl.ZoekenOpLocatie==false}" ng-click="mapctrl.ZoekenInLagen()" tink-tooltip="Zoeken binnen lagen" tink-tooltip-align="bottom" prevent-default-map><i class="fa fa-download"></i></button>
-                </div>
-
-                <form id="zoekbalken" class="form-force-inline ll zoekbalken">
-                    <!--<input id="locatiezoek" class="zoekbalk typeahead" type="text" ng-show="mapctrl.ZoekenOpLocatie == true" placeholder="Geef een X,Y / locatie of POI in."
-                        prevent-default-map />-->
-                    <select ng-options="layer as layer.name for layer in mapctrl.SelectableLayers()" ng-model="mapctrl.selectedFindLayer" ng-show="mapctrl.SelectableLayers().length > 1" ng-change="mapctrl.findLayerChange()" prevent-default-map></select>
-                    <input
-                        type="search" ng-show="mapctrl.ZoekenOpLocatie == false" placeholder="Geef een zoekterm" prevent-default-map ng-keyup="$event.keyCode == 13 && mapctrl.zoekLaag(mapctrl.laagquery)" ng-model="mapctrl.laagquery" />
-                </form>
+    <div class="print-content">
+        <div class="print-content-header">
+            <div class="col-xs-12">
+                <h4>Stad in kaart</h4>
             </div>
-
-            <div class="map-buttons-right">
-
-
-                <div class="btn-group btn-group-vertical ll viewbtns">
-                    <button type="button" class="btn" ng-click="mapctrl.zoomIn()" prevent-default-map tink-tooltip="Inzoomen" tink-tooltip-align="bottom"><i class="fa fa-plus"></i></button>
-                    <button type="button" class="btn" ng-click="mapctrl.zoomOut()" prevent-default-map tink-tooltip="Uitzoomen" tink-tooltip-align="bottom"><i class="fa fa-minus"></i></button>
-                    <button type="button" class="btn" ng-click="mapctrl.zoomToGps()" ng-class="{active: mapctrl.gpstracking==true}" prevent-default-map tink-tooltip="Je locatie weergeven" tink-tooltip-align="bottom"><i class="fa fa-crosshairs"></i></button>
-                    <!--<button type="button" class="btn" ng-click="mapctrl.fullExtent()" prevent-default-map><i class="fa fa-home"></i></button>-->
-                </div>
-                <!--<div class="btn-group btn-group-vertical ll localiseerbtn">
-                    <button type="button" class="btn" prevent-default-map><i class="fa fa-male"></i></button>
-                </div>-->
-
-                <div class="ll loading" ng-show="mapctrl.Loading > 0">
-                    <div class="loader"></div> {{mapctrl.MaxLoading - mapctrl.Loading}}/ {{mapctrl.MaxLoading}}
-                </div>
-
-            </div>
-
         </div>
 
-        <tink-Layers class="tink-layers"></tink-Layers>
-    </div>
-    <div class="printpart">
 
+        <div class="print-map">
+            <tink-Search class="tink-search"></tink-Search>
+            <div id="map" class="leafletmap">
+                <div class="map-buttons-left">
+                    <div class="ll drawingbtns" ng-show="mapctrl.showDrawControls">
+                        <div class="btn-group ">
+                            <button ng-click="mapctrl.selectpunt()" ng-class="{active: mapctrl.drawingType==''}" type="button" class="btn" prevent-default-map tink-tooltip="Selecteer met een punt" tink-tooltip-align="bottom"><i class="fa fa-circle" style="font-size: 0.75em;"></i></button>
+                            <button ng-click="mapctrl.drawingButtonChanged('lijn')" ng-class="{active: mapctrl.drawingType=='lijn'}" type="button" class="btn" prevent-default-map><i class="fa fa-minus" tink-tooltip="Selecteer met een lijn" tink-tooltip-align="bottom"></i></button>
+                            <button ng-click="mapctrl.drawingButtonChanged('vierkant')" ng-class="{active: mapctrl.drawingType=='vierkant'}" type="button" class="btn" prevent-default-map tink-tooltip="Selecteer met een vierkant" tink-tooltip-align="bottom"><i class="fa fa-square-o"></i></button>
+                            <button ng-click="mapctrl.drawingButtonChanged('polygon')" ng-class="{active: mapctrl.drawingType=='polygon'}" type="button" class="btn" prevent-default-map tink-tooltip="Selecteer met een veelhoek" tink-tooltip-align="bottom"><i class="fa fa-star-o"></i></button>
+                        </div>
+                        <div class="select">
+                            <select ng-options="layer as layer.name for layer in mapctrl.SelectableLayers()" ng-model="mapctrl.selectedLayer" ng-show="mapctrl.SelectableLayers().length > 1" ng-change="mapctrl.layerChange()" prevent-default-map></select>
+                        </div>
+                    </div>
+
+                    <div class="btn-group btn-group-vertical ll interactiebtns">
+                        <button type="button" class="btn" ng-click="mapctrl.interactieButtonChanged('identify')" ng-class="{active: mapctrl.activeInteractieKnop=='identify'}" tink-tooltip="Identificeren" tink-tooltip-align="right" prevent-default-map><i class="fa fa-info"></i></button>
+                        <button type="button" class="btn" ng-click="mapctrl.interactieButtonChanged('select')" ng-class="{active: mapctrl.activeInteractieKnop=='select'}" tink-tooltip="Selecteren" tink-tooltip-align="right" prevent-default-map><i class="fa fa-mouse-pointer"></i></button>
+                        <button type="button" class="btn" ng-click="mapctrl.interactieButtonChanged('meten')" ng-class="{active: mapctrl.activeInteractieKnop=='meten'}" tink-tooltip="Meten" tink-tooltip-align="right" prevent-default-map><i class="fa fa-expand"></i></button>
+                        <button type="button" class="btn" ng-click="mapctrl.interactieButtonChanged('watishier')" ng-class="{active: mapctrl.activeInteractieKnop=='watishier'}" tink-tooltip="Wat is hier?" tink-tooltip-align="right" prevent-default-map><i class="fa  fa-thumb-tack"></i></button>
+                        <!-- fa-map-pin -->
+                    </div>
+
+                    <div class="btn-group ll kaarttypes">
+                        <button class="btn" ng-class="{active: mapctrl.IsBaseMap1==true}" ng-click="mapctrl.toonBaseMap1()" prevent-default-map>{{mapctrl.baseMap1Naam()}}</button>
+                        <button class="btn" ng-class="{active: mapctrl.IsBaseMap1==false}" ng-click="mapctrl.toonBaseMap2()" prevent-default-map>{{mapctrl.baseMap2Naam()}}</button>
+                    </div>
+
+                    <div class="btn-group ll metenbtns" ng-show="mapctrl.showMetenControls">
+                        <button ng-click="mapctrl.drawingButtonChanged('afstand')" ng-class="{active: mapctrl.drawingType=='afstand'}" type="button" tink-tooltip="Meten afstand" tink-tooltip-align="bottom" class="btn" prevent-default-map><i class="fa fa-arrows-h "></i></button>
+                        <button ng-click="mapctrl.drawingButtonChanged('oppervlakte')" ng-class="{active: mapctrl.drawingType=='oppervlakte'}" type="button" tink-tooltip="Meten oppervlakte en omtrek" tink-tooltip-align="bottom" class="btn" prevent-default-map><i class="fa fa-star-o"></i></button>
+                    </div>
+
+                    <div class="btn-group ll searchbtns">
+                        <button type="button" class="btn" ng-class="{active: mapctrl.ZoekenOpLocatie==true}" ng-click="mapctrl.fnZoekenOpLocatie()" tink-tooltip="Zoeken op locatie" tink-tooltip-align="bottom" prevent-default-map><i class="fa fa-map-marker"></i></button>
+                        <button type="button" class="btn" ng-class="{active: mapctrl.ZoekenOpLocatie==false}" ng-click="mapctrl.ZoekenInLagen()" tink-tooltip="Zoeken binnen lagen" tink-tooltip-align="bottom" prevent-default-map><i class="fa fa-download"></i></button>
+                    </div>
+
+                    <form id="zoekbalken" class="form-force-inline ll zoekbalken">
+                        <!--<input id="locatiezoek" class="zoekbalk typeahead" type="text" ng-show="mapctrl.ZoekenOpLocatie == true" placeholder="Geef een X,Y / locatie of POI in."
+                            prevent-default-map />-->
+                        <select ng-options="layer as layer.name for layer in mapctrl.SelectableLayers()" ng-model="mapctrl.selectedFindLayer" ng-show="mapctrl.SelectableLayers().length > 1" ng-change="mapctrl.findLayerChange()" prevent-default-map></select>
+                        <input
+                            type="search" ng-show="mapctrl.ZoekenOpLocatie == false" placeholder="Geef een zoekterm" prevent-default-map ng-keyup="$event.keyCode == 13 && mapctrl.zoekLaag(mapctrl.laagquery)" ng-model="mapctrl.laagquery" />
+                    </form>
+                </div>
+
+                <div class="map-buttons-right">
+
+
+                    <div class="btn-group btn-group-vertical ll viewbtns">
+                        <button type="button" class="btn" ng-click="mapctrl.zoomIn()" prevent-default-map tink-tooltip="Inzoomen" tink-tooltip-align="bottom"><i class="fa fa-plus"></i></button>
+                        <button type="button" class="btn" ng-click="mapctrl.zoomOut()" prevent-default-map tink-tooltip="Uitzoomen" tink-tooltip-align="bottom"><i class="fa fa-minus"></i></button>
+                        <button type="button" class="btn" ng-click="mapctrl.zoomToGps()" ng-class="{active: mapctrl.gpstracking==true}" prevent-default-map tink-tooltip="Je locatie weergeven" tink-tooltip-align="bottom"><i class="fa fa-crosshairs"></i></button>
+                        <!--<button type="button" class="btn" ng-click="mapctrl.fullExtent()" prevent-default-map><i class="fa fa-home"></i></button>-->
+                    </div>
+                    <!--<div class="btn-group btn-group-vertical ll localiseerbtn">
+                        <button type="button" class="btn" prevent-default-map><i class="fa fa-male"></i></button>
+                    </div>-->
+
+                    <div class="ll loading" ng-show="mapctrl.Loading > 0">
+                        <div class="loader"></div> {{mapctrl.MaxLoading - mapctrl.Loading}}/ {{mapctrl.MaxLoading}}
+                    </div>
+
+                </div>
+
+            </div>
+
+            <tink-Layers class="tink-layers"></tink-Layers>
+        </div>
+
+        <div class="print-content-footer">
+            <div class="col-xs-2">
+                <img class="print-corner-image" src="https://www.antwerpen.be/assets/aOS/gfx/gui/a-logo.svg" alt="Antwerpen logo">
+            </div>
+            <div class="col-xs-8">
+                Voorbehoud: De kaart is een reproductie zonder juridische waarde. Zij bevat kaartmateriaal en info afkomstig van het stadsbestuur Antwerpen, AGIV, AAPD, Provinciebesturen en mogelijk nog andere organisaties.
+            </div>
+            <div class="col-xs-2">
+                <img class="print-corner-image pull-right" src="http://images.vectorhq.com/images/previews/111/north-arrow-orienteering-137692.png" alt="Noord pijl oriëntatielopen">
+            </div>
+        </div>
+    </div>
+
+    <div class="margin-print-content hidden-print">
+    </div>
+
+    <div class="print-menu print-menu-footer hidden-print">
         <div class="row">
-            <div class="col-xs-2">
-                <img class="float-left print-corner-image" src="https://www.antwerpen.be/assets/aOS/gfx/gui/a-logo.svg" alt="Antwerpen logo">
+            <div class="col-xs-12 col-md-3">
             </div>
-            <div class="col-xs-8">Voorbehoud: De kaart is een reproductie zonder juridische waarde. Zij bevat kaartmateriaal en info afkomstig van het stadsbestuur Antwerpen, AGIV, AAPD, Provinciebesturen en mogelijk nog andere organisaties.
+            <div class="col-xs-12 col-md-6">
+                <button type="button" class="btn-primary" ng-click="mapctrl.print()">Printen</button>
+                <a href="#" data-ng-click="mapctrl.cancelPrint()">Annuleren</a>
             </div>
-            <div class="col-xs-2">
-                <img class="float-right print-corner-image" src="http://images.vectorhq.com/images/previews/111/north-arrow-orienteering-137692.png" alt="Noord pijl oriëntatielopen">
+            <div class="col-xs-12 col-md-3">
             </div>
         </div>
     </div>
+
+</div>

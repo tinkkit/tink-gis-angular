@@ -888,68 +888,188 @@ html.nav-right-open {
 // @page Landscape {
 //     size: A4 landscape;
 // }
-.mappart {
-  height:100%;
-  width:100%;
-}
-.printpart {
+
+// default values
+
+.print-menu,
+.print-content-header,
+.print-content-footer {
   display: none;
-  padding-top:10px;
 }
+
+.print {
+  &-content,
+  &-map {
+    height:100%;
+    width:100%;
+  }
+}
+
+// when print menu is active
+
 html.print {
-  .map-buttons-left, .map-buttons-right, .tink-layers, .tink-search, .typeahead {
+
+  .map-buttons-left,
+  .map-buttons-right,
+  .tink-layers,
+  .tink-search,
+  .typeahead {
     display: none;
   }
-  .printpart {
-    display: block;
+
+  &.preview-legend {
+    .print {
+
+      &-content-footer {
+        display: none;
+      }
+    }
+
+    .leafletmap {
+      display: none;
+    }
+
+    .nav-aside:before {
+      background: none;
+    }
+
+    .nav-right {
+      position: relative; // sets the legend relative to the print-content-header
+    }
+
+    .print-content, // trying to make a long legend spread over multiple pages
+    .print-map {
+      height: 100%;
+    }
+
+    .tink-layers {
+      display: block;
+
+      .btn-layermanagement,
+      .nav-aside-section,
+      .nav-right-toggle {
+        display: none;
+      }
+    }
   }
-    .mappart {
-          height:85%;
-          margin-bottom: 10px;
-    }
-  body { //A4 Portrait
-        height:297mm;
-        width:210mm;
-    }
 
+  .print {
 
-}
-html.print.landscape {
-    body // A4 Landscape
-    {
-        height:205mm;
-        width:297mm;
+    &-content {
+      // box-shadow: 3px 3px 5px $gray-light;
+      height: 255mm; // 275mm works on default margins of Chrome but not on Safari
+      margin: 0 auto;
+      width: 185mm; // works best on all browsers
+
+      &-header {
+        display: block;
+        height: 15mm;
+      }
+
+      &-footer {
+        display: block;
+        font-size: 15px;
+        height: 25mm;
+        margin-top: 3mm;
+
+        [class*='col-'] {
+          padding-left: 0;
+          padding-right: 0;
         }
-    .mappart {
-      height:75%;
+      }
     }
 
+    &-map {
+        height: 212mm;
+    }
+  }
 
+  .print-menu {
+    display: block;
+
+    &-header {
+
+      box-shadow: 0 1px 5px rgba(0, 0, 0, 0.06);
+    }
+
+    &-footer {
+      background-color: $white;
+      bottom: 0;
+      box-shadow: 0 -1px 5px rgba(0, 0, 0, 0.06);
+      padding: $padding-base-vertical $padding-base-horizontal;
+      position: fixed;
+      width: 100%;
+      z-index: 1000; // set it above map
+    }
+  }
+
+  .margin-print-content {
+    height: rem(60);
+  }
 }
+
+// when print menu is active and landscape is set
+
+html.print.landscape {
+
+  .print {
+
+    &-content {
+      // box-shadow: 3px 3px 5px $gray-light;
+      height: 175mm;
+      margin: 0 auto;
+      width: 255mm;
+
+    }
+
+    &-map {
+        height: 130mm;
+    }
+  }
+}
+
+
+
 @media print  {
-   body {
-        margin-left: auto;
-        margin-right: auto;
-    }
-    .hidden-print {
-      display: none !important;
-    }
+   // body {
+   //      margin-left: auto;
+   //      margin-right: auto;
+   //  }
+  .hidden-print {
+    display: none !important;
+  }
+  .print-content {
+   // box-shadow: none;
+  }
 }
+
 .print-corner-image {
-  width: 90px;
-  height: 90px;
+  display: inline-block;
+  height: 25mm;
+  width: 25mm;
 }
 
 
 .mouse-over-toshow {
   display:none;
 }
+
 .mouse-over:hover {
   .mouse-over-toshow {
     display: inline-block;
     cursor: pointer;
   }
 }
+
+
+
+// @media print {
+//   .print-content {
+//     page-break-inside: avoid;
+//   }
+// }
+
+
 
 /**
  * Full page loader
