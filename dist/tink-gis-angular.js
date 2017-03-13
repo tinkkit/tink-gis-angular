@@ -4807,7 +4807,7 @@ L.drawLocal = {
     "</div>\n" +
     "<div class=\"col-xs-12 col-md-6\">\n" +
     "<button type=button class=btn-primary ng-click=mapctrl.print()>Printen</button>\n" +
-    "<a href=# data-ng-click=mapctrl.cancelPrint()>Annuleren</a>\n" +
+    "<a href=# class=link-cancel data-ng-click=mapctrl.cancelPrint()>Annuleren</a>\n" +
     "</div>\n" +
     "<div class=\"col-xs-12 col-md-3\">\n" +
     "</div>\n" +

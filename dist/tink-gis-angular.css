@@ -377,9 +377,9 @@ button.btn.active {
 .full-width {
   padding-left: 0 !important;
   padding-right: 0 !important;
-  -webkit-transform: translate(0, 0) !important;
-      -ms-transform: translate(0, 0) !important;
-          transform: translate(0, 0) !important; }
+  -webkit-transform: none;
+      -ms-transform: none;
+          transform: none; }
 
 .relative-container {
   display: -webkit-flex;
@@ -546,16 +546,16 @@ ul ul {
   min-width: 80vw; }
 
 .modal-body.width-md {
-  min-width: 80vw; }
-  @media (min-width: 768px) {
-    .modal-body.width-md {
-      min-width: 40vw; } }
-
-.modal-body.width-sm {
   min-width: 40vw; }
   @media (min-width: 768px) {
+    .modal-body.width-md {
+      min-width: 80vw; } }
+
+.modal-body.width-sm {
+  min-width: 20vw; }
+  @media (min-width: 768px) {
     .modal-body.width-sm {
-      min-width: 20vw; } }
+      min-width: 40vw; } }
 
 .modal-footer {
   border-top: 1px solid #bbb; }
@@ -843,6 +843,9 @@ html.print .print-content {
 html.print .print-map {
   height: 212mm; }
 
+html.print .print .leaflet-control-scale-line {
+  margin-left: 0.6428571429rem ; }
+
 html.print .print-menu {
   display: block; }
   html.print .print-menu-header {
@@ -958,6 +961,9 @@ html.show-loader .loader-wrapper {
 
 .text-align-right {
   text-align: right; }
+
+.link-cancel {
+  padding: 0.4285714286rem  0.8571428571rem ; }
 
 .nav-top a {
   color: #fff; }
