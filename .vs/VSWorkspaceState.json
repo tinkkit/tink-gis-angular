@@ -1,0 +1,13 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\src",
+    "\\src\\scripts",
+    "\\src\\scripts\\other",
+    "\\src\\scripts\\other\\services",
+    "\\src\\scripts\\search",
+    "\\src\\scripts\\theme"
+  ],
+  "SelectedNode": "\\src\\scripts\\other\\services\\mapService.js",
+  "PreviewInSolutionExplorer": false
+}

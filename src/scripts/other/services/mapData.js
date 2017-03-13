@@ -13,7 +13,7 @@
         _data.defaultlayer = { id: '', name: 'Alle Layers' };
         _data.VisibleLayers.unshift(_data.defaultlayer);
         _data.SelectedLayer = _data.defaultlayer;
-      
+        _data.DrawLayer = null;
 
         _data.SelectedFindLayer = _data.defaultlayer;
 
@@ -48,6 +48,7 @@
                 map.clearDrawings();
             }
         };
+        
         _data.SetStyle = function (mapItem, polyStyle, pointStyle) {
             if (mapItem) {
                 var tmplayer = mapItem._layers[Object.keys(mapItem._layers)[0]];
@@ -266,30 +267,7 @@
         };
 
 
-        _data.QueryForTempFeatures = function (layerid, where) {
-            locatieMapData.query()
-                .layer(layerid)
-                .where(where)
-                .run(function (error, featureCollection, response) {
-                    if (!error) {
-                        console.log(error, featureCollection, response);
-                        _data.AddTempFeatures(featureCollection);
-                    }
-                    else {
-                        console.log("ERRRORRRRRRRRRRR", error);
-                    }
-
-                });
-        }
-        var locatieMapData = L.esri.dynamicMapLayer({
-            maxZoom: 19,
-            minZoom: 0,
-            url: 'https://geoint-a.antwerpen.be/arcgissql/rest/services/A_DA/Locaties/MapServer',
-            opacity: 1,
-            layers: 0,
-            continuousWorld: true,
-            useCors: true
-        });
+     
 
         var tempFeatures = [];
         _data.AddTempFeatures = function (featureCollection) {

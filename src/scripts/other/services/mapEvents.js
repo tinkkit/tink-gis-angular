@@ -74,6 +74,7 @@
                             }
                             if (MapData.DrawingType === DrawingOption.NIETS) {
                                 MapService.Select(event);
+                                console.log('select');
                                 UIService.OpenLeftSide();
                                 _mapEvents.removeCursorAuto();
                                 $rootScope.$applyAsync(function () {
@@ -126,16 +127,7 @@
             console.log('draw created');
             switch (MapData.ActiveInteractieKnop) {
                 case ActiveInteractieButton.SELECT:
-                    switch (MapData.DrawingType) {
-                        case DrawingOption.LIJN:
-                            break;
-                        case DrawingOption.VIERKANT:
-                            break;
-                        case DrawingOption.POLYGON:
-                            break;
-                        default:
-                            break;
-                    }
+                    MapData.DrawLayer = e.layer;
                     MapService.Query(e.layer);
                     UIService.OpenLeftSide();
                     break;

@@ -10,6 +10,7 @@
             vm.selectedResult = null;
             vm.layerGroupFilter = 'geenfilter';
             vm.collapsestatepergroup = {};
+            vm.drawingObject = null;
             $scope.$watchCollection(function () { return ResultsData.JsonFeatures; }, function (newValue, oldValue) {
                 vm.featureLayers = _.uniq(_.map(vm.features, 'layerName'));
                 vm.featureLayers.forEach(lay => {
@@ -17,12 +18,22 @@
                         vm.collapsestatepergroup[lay] = false; // at start, we want the accordions open, so we set collapse on false
                     }
                 });
-
                 vm.layerGroupFilter = 'geenfilter';
             });
             $scope.$watch(function () { return ResultsData.SelectedFeature; }, function (newVal, oldVal) {
                 vm.selectedResult = newVal;
             });
+            $scope.$watch(function () { return MapData.DrawLayer; }, function (newdrawobject, oldVal) {
+                if (newdrawobject) {
+                    vm.drawingObject = newdrawobject;
+                }
+                else {
+                    vm.drawingObject = null;
+                }
+            });
+            vm.zoom2Drawing = function () {
+                Mapdata.PanToFeature(vm.drawingObject);
+            }
             vm.deleteFeature = function (feature) {
                 SearchService.DeleteFeature(feature);
             };

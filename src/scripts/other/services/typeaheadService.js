@@ -80,7 +80,7 @@
                         else {
                             var idsplitted = suggestion.id.split("/");
                             var layerid = idsplitted[3];
-                            MapData.QueryForTempFeatures(layerid, 'ObjectID=' + suggestion.key);
+                            QueryForTempFeatures(layerid, 'ObjectID=' + suggestion.key);
 
                         }
                     }
@@ -104,6 +104,30 @@
                 }
             }
         };
+        var QueryForTempFeatures = function (layerid, where) {
+            locatieMapData.query()
+                .layer(layerid)
+                .where(where)
+                .run(function (error, featureCollection, response) {
+                    if (!error) {
+                        console.log(error, featureCollection, response);
+                        MapData.AddTempFeatures(featureCollection);
+                    }
+                    else {
+                        console.log("ERRRORRRRRRRRRRR", error);
+                    }
+
+                });
+        }
+        var locatieMapData = L.esri.dynamicMapLayer({
+            maxZoom: 19,
+            minZoom: 0,
+            url: 'https://geoint-a.antwerpen.be/arcgissql/rest/services/A_DA/Locaties/MapServer',
+            opacity: 1,
+            layers: 0,
+            continuousWorld: true,
+            useCors: true
+        });
         var isCharDigit = function (n) {
             return n != ' ' && n > -1;
         };

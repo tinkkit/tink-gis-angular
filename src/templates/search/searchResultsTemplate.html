@@ -1,14 +1,22 @@
 <div class="SEARCHRESULT flex-column">
+    <div class="flex-column" ng-show="srchrsltsctrl.drawingObject">
+        <div class="col-xs-12 flex-grow-1 margin-top">
+            Drawing:
+            <button class="btn-sm" ng-click="srchrsltsctrl.deleteDrawing()">Delete</button>
+            <button class="btn-sm" ng-click="srchrsltsctrl.zoom2Drawing()">Tonen</button>
+            <button class="btn-sm" ng-click="srchrsltsctrl.bufferFromDrawing()">Buffer</button>
+        </div>
+    </div>
     <div class="flex-column" ng-if="!srchrsltsctrl.selectedResult && srchrsltsctrl.featureLayers.length == 0">
         <div class="col-xs-12 flex-grow-1 margin-top">
             Geen resultaten.
         </div>
     </div>
-
     <div class="flex-column flex-grow-1 margin-top" ng-if="!srchrsltsctrl.selectedResult && srchrsltsctrl.featureLayers.length > 0">
         <div class="row extra-padding">
             <div class="col-xs-12 margin-bottom text-right">
-                <button class="btn" tink-tooltip="Exporteer naar CSV" tink-tooltip-align="top" ng-if="srchrsltsctrl.exportToCSVButtonIsEnabled" ng-click="srchrsltsctrl.exportToCSV()">
+                <button class="btn" tink-tooltip="Exporteer naar CSV" tink-tooltip-align="top" ng-if="srchrsltsctrl.exportToCSVButtonIsEnabled"
+                    ng-click="srchrsltsctrl.exportToCSV()">
                     <i class="fa fa-file-excel-o"></i>
                 </button>
                 <button class="btn-sm" ng-show="srchrsltsctrl.extraResultButtonIsEnabled" ng-click="srchrsltsctrl.extraResultButton()">{{srchrsltsctrl.resultButtonText}}</button>

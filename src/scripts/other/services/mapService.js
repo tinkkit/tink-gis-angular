@@ -115,21 +115,7 @@
             }
 
         };
-        _mapService.WatIsHier = function (event) {
-            var prom = GISService.ReverseGeocode(event);
-            prom.success(function (data, status, headers, config) {
-                MapData.CleanWatIsHier();
-                if (!data.error) {
-                    var converted = HelperService.ConvertLambert72ToWSG84(data.location);
-                    MapData.CreateDot(converted);
-                    MapData.CreateOrigineleMarker(event.latlng, true, data.address.Street + ' (' + data.address.Postal + ')');
-                } else {
-                    MapData.CreateOrigineleMarker(event.latlng, false);
-                }
-            }).error(function (data, status, headers, config) {
-                console.log(data, status, headers, config);
-            });
-        };
+
 
         _mapService.Query = function (box, layer) {
             MapData.CleanSearch();
@@ -161,6 +147,21 @@
                         MapData.AddFeatures(featureCollection, layer.theme, layer.id);
                     });
             }
+        };
+        _mapService.WatIsHier = function (event) {
+            var prom = GISService.ReverseGeocode(event);
+            prom.success(function (data, status, headers, config) {
+                MapData.CleanWatIsHier();
+                if (!data.error) {
+                    var converted = HelperService.ConvertLambert72ToWSG84(data.location);
+                    MapData.CreateDot(converted);
+                    MapData.CreateOrigineleMarker(event.latlng, true, data.address.Street + ' (' + data.address.Postal + ')');
+                } else {
+                    MapData.CreateOrigineleMarker(event.latlng, false);
+                }
+            }).error(function (data, status, headers, config) {
+                console.log(data, status, headers, config);
+            });
         };
         //"Lro_Stad"
         //percelen
