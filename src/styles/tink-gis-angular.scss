@@ -312,11 +312,11 @@ button.btn.active {
  * Separate components
  */
 
-//Add this class to .main to override default padding
+//Add this class to .main to override default padding and transform
 .full-width {
     padding-left: 0 !important;
     padding-right: 0 !important;
-    transform: translate(0, 0) !important
+    transform: none; // translate(0, 0) !important; // translate setting created a fixed bug with print-menu-footer
 }
 
 //Creating parent container for flex column and overflow-wrapper
@@ -981,6 +981,10 @@ html.print {
 
     &-map {
         height: 212mm;
+    }
+
+    .leaflet-control-scale-line {
+      margin-left: rem(9);
     }
   }
 
