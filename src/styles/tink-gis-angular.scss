@@ -561,18 +561,18 @@ ul {
   }
 
   &.width-md {
-    min-width: 80vw;
+    min-width: 40vw;
 
     @include mq($screen-sm) {
-      min-width: 40vw;
+      min-width: 80vw;
     }
   }
 
   &.width-sm {
-    min-width: 40vw;
+    min-width: 20vw;
 
     @include mq($screen-sm) {
-      min-width: 20vw;
+      min-width: 40vw;
     }
   }
 }
@@ -1179,6 +1179,10 @@ html.show-loader {
 
 .text-align-right {
   text-align: right;
+}
+
+.link-cancel {
+  padding: rem($padding-base-vertical) rem($padding-base-horizontal);
 }
 
 // set nav-top links white
