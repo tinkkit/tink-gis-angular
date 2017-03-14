@@ -1116,6 +1116,10 @@ html.show-loader {
 .project {
   margin-bottom: rem(6);
 
+  a {
+    color: $btn-default-color;
+  }
+
   &-creator {
     color: $gray;
   }
@@ -1126,8 +1130,11 @@ html.show-loader {
  */
 
 .dashboard {
-  ul,
   .show-more {
+    font-weight: 700;
+  }
+
+  ul {
     padding-left: rem(24);
 
     li {
@@ -1194,7 +1201,7 @@ html.show-loader {
     color: $white;
   }
 
-  &-right > li {
+  &-right > ul > li {
     padding-left: rem(12);
     padding-right: rem(12);
   }

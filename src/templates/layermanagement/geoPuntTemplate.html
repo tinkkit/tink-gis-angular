@@ -23,7 +23,7 @@
         <preview-layer ng-show="themeloading == false" class="margin-top" ng-if="copySelectedTheme" addorupdatefunc="AddOrUpdateTheme()"
             theme="copySelectedTheme">
         </preview-layer>
-        <div ng-if="error">
+        <div ng-if="error" class="margin-top">
             {{error}}
         </div>
         <div class="loader" ng-show="themeloading == true"></div>
