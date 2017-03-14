@@ -316,8 +316,8 @@ button.btn.active {
 .full-width {
     padding-left: 0 !important;
     padding-right: 0 !important;
-    transform: none; // translate(0, 0) !important; // translate setting created a fixed bug with print-menu-footer
-}
+    transform: translate(0, 0) !important;
+  }
 
 //Creating parent container for flex column and overflow-wrapper
 .relative-container {
@@ -561,18 +561,11 @@ ul {
   }
 
   &.width-md {
-    min-width: 40vw;
+    min-width: 30rem;
+    max-width: 80vw;
 
-    @include mq($screen-sm) {
-      min-width: 80vw;
-    }
-  }
-
-  &.width-sm {
-    min-width: 20vw;
-
-    @include mq($screen-sm) {
-      min-width: 40vw;
+    .form-group {
+      max-width: 80vw;
     }
   }
 }
@@ -909,6 +902,10 @@ html.nav-right-open {
 
 html.print {
 
+  .leaflet-control-scale-line {
+    margin-left: rem(9);
+  }
+
   .map-buttons-left,
   .map-buttons-right,
   .tink-layers,
@@ -982,10 +979,6 @@ html.print {
     &-map {
         height: 212mm;
     }
-
-    .leaflet-control-scale-line {
-      margin-left: rem(9);
-    }
   }
 
   .print-menu {
@@ -1014,6 +1007,10 @@ html.print {
 
   .margin-print-content {
     height: rem(60);
+
+    &-top {
+      height: rem(100);
+    }
   }
 }
 
