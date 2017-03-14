@@ -1,10 +1,10 @@
 <div class="SEARCHRESULT flex-column">
-    <div class="flex-column" ng-show="srchrsltsctrl.drawLayer">
-        <div class="col-xs-12 flex-grow-1 margin-top">
-            Drawing:
-            <button class="btn-sm" ng-click="srchrsltsctrl.deleteDrawing()">Delete</button>
-            <button class="btn-sm" ng-click="srchrsltsctrl.zoom2Drawing()">Tonen</button>
-            <button class="btn-sm" ng-click="srchrsltsctrl.bufferFromDrawing()">Buffer</button>
+    <div class="flex-column" ng-show="srchrsltsctrl.drawLayer && !srchrsltsctrl.selectedResult">
+        <div class="col-xs-12 flex-grow-1 margin-top ">
+            Selectievorm:
+            <button class="btn pull-right btn-primary" ng-click="srchrsltsctrl.zoom2Drawing()">Tonen</button>
+            <button class="btn pull-right" ng-click="srchrsltsctrl.deleteDrawing()"><i class="fa fa-trash-o"></i></button>
+            <button class="btn pull-right" ng-click="srchrsltsctrl.bufferFromDrawing()">Buffer</button>
         </div>
     </div>
     <div class="flex-column" ng-if="!srchrsltsctrl.selectedResult && srchrsltsctrl.featureLayers.length == 0">

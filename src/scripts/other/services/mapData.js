@@ -7,7 +7,6 @@
         _data.VisibleLayers = [];
         _data.SelectableLayers = [];
         _data.VisibleFeatures = [];
-        // _data.Loading = 0;
         _data.IsDrawing = false;
         _data.Themes = [];
         _data.defaultlayer = { id: '', name: 'Alle Layers' };
@@ -51,7 +50,18 @@
                 map.clearDrawings();
             }
         };
-
+        _data.SetDrawPoint = function (latlng) {
+            var pinIcon = L.AwesomeMarkers.icon({
+                icon: 'fa-map-pin',
+                markerColor: 'orange'
+            });
+            _data.SetDrawLayer(L.marker(latlng, { icon: pinIcon }).addTo(map));
+        }
+        _data.SetDrawLayer = function (layer) {
+            _data.DrawLayer = layer;
+            _data.DrawingObject = layer;
+            map.addToDrawings(layer);
+        }
         _data.SetStyle = function (mapItem, polyStyle, pointStyle) {
             if (mapItem) {
                 var tmplayer = mapItem._layers[Object.keys(mapItem._layers)[0]];
@@ -68,7 +78,6 @@
         _data.CleanMap = function () {
             _data.CleanDrawings();
             _data.CleanWatIsHier();
-            // _data.CleanSearch(); Moet nog alleen maar gebeuren bij nieuwe results
             _data.CleanBuffer();
             _data.CleanTempFeatures();
         };
@@ -131,22 +140,13 @@
         };
         _data.Apply = function () {
             console.log('apply');
-            // if (!$rootScope.$$phase) {
-            //$digest or $apply
             $rootScope.$applyAsync();
-            // }
-            // else {
-            //     console.log('apply NOT needed');
-            // }
         };
-
-
         _data.CreateOrigineleMarker = function (latlng, addressFound, straatNaam) {
             if (addressFound) {
                 var foundMarker = L.AwesomeMarkers.icon({
                     icon: 'fa-map-marker',
                     markerColor: 'orange'
-
                 });
                 WatIsHierOriginalMarker = L.marker([latlng.lat, latlng.lng], { icon: foundMarker, opacity: 0.5 }).addTo(map);
             }
@@ -238,12 +238,10 @@
             if (bufferitem) {
                 _data.VisibleFeatures.push(bufferitem);
             }
-
         };
         _data.PanToPoint = function (loc) {
             map.setView(L.latLng(loc.x, loc.y), 12);
         };
-
         _data.PanToFeature = function (feature) {
             console.log("PANNING TO FEATURE");
             var featureBounds = feature.getBounds();
@@ -273,13 +271,8 @@
                     theme.MapData.setZIndex(counter);
                 }
                 counter--;
-
             });
         };
-
-
-
-
         var tempFeatures = [];
         _data.AddTempFeatures = function (featureCollection) {
             featureCollection.features.forEach(feature => {

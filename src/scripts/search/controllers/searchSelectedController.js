@@ -2,7 +2,7 @@
 (function (module) {
     module = angular.module('tink.gis');
     var theController = module.controller('searchSelectedController',
-        function ($scope, ResultsData, MapData, SearchService, GeometryService, $modal, FeatureService) {
+        function ($scope, ResultsData, MapData, SearchService, GeometryService, $modal, FeatureService, map) {
             var vm = this;
             vm.selectedResult = null;
             vm.prevResult = null;
@@ -71,7 +71,9 @@
                 });
             };
             vm.buffer = function () {
-                MapData.CleanMap();
+                MapData.CleanDrawings();
+                MapData.CleanBuffer();
+                MapData.SetDrawLayer(ResultsData.SelectedFeature.mapItem);
                 var bufferInstance = $modal.open({
                     templateUrl: 'templates/search/bufferTemplate.html',
                     controller: 'BufferController',
@@ -118,5 +120,5 @@
             });
 
         });
-    theController.$inject = ['$scope', 'ResultsData', 'GeometryService', '$modal', 'FeatureService'];
+    theController.$inject = ['$scope', 'ResultsData', 'GeometryService', '$modal', 'FeatureService', 'map'];
 })();

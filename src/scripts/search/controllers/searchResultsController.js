@@ -47,7 +47,16 @@
                     }
                 });
                 bufferInstance.result.then(function (returnobj) {
-                    GeometryService.Buffer(vm.drawLayer.toGeoJSON(), returnobj.buffer, returnobj.layer);
+                    if (vm.drawLayer.toGeoJSON().features) {
+                        vm.drawLayer.toGeoJSON().features.forEach(feature => {
+                            GeometryService.Buffer(feature, returnobj.buffer, returnobj.layer);
+                        });
+                    }
+                    else {
+                        GeometryService.Buffer(vm.drawLayer.toGeoJSON(), returnobj.buffer, returnobj.layer);
+
+                    }
+
                 }, function (obj) {
                     console.log('Modal dismissed at: ' + new Date()); // The contoller is closed by the use of the $dismiss call
                 });

@@ -98,8 +98,6 @@
             if (drawOption == DrawingOption.AFSTAND || drawOption == DrawingOption.OPPERVLAKTE) {
                 // MapData.CleanDrawings();
             }
-
-            // MapData.CleanMap();
             MapData.DrawingType = drawOption; // pff must be possible to be able to sync them...
             vm.drawingType = drawOption;
             DrawService.StartDraw(drawOption);
@@ -109,8 +107,13 @@
 
 
         vm.selectpunt = function () {
-            vm.addCursorAuto();
             MapData.DrawingType = DrawingOption.NIETS; // pff must be possible to be able to sync them...
+            vm.drawingType = DrawingOption.NIETS;
+            MapData.CleanMap();
+            MapData.CleanSearch();
+            vm.addCursorAuto();
+
+
         };
         vm.layerChange = function () {
             // MapData.CleanMap();
