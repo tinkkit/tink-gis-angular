@@ -71,15 +71,13 @@
                 });
             };
             vm.buffer = function () {
+                MapData.CleanMap();
                 var bufferInstance = $modal.open({
                     templateUrl: 'templates/search/bufferTemplate.html',
                     controller: 'BufferController',
                     resolve: {
                         backdrop: false,
                         keyboard: true
-                        // urls: function() {
-                        //     return MapData.ThemeUrls;
-                        // }
                     }
                 });
                 bufferInstance.result.then(function (returnobj) {

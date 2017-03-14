@@ -5,14 +5,15 @@
         var _service = {};
 
         _service.Buffer = function (loc, distance, selectedlayer) {
-            MapData.CleanMap();
             var geo = getGeo(loc.geometry);
             delete geo.geometry.spatialReference;
             geo.geometries = geo.geometry;
             delete geo.geometry;
             var sergeo = serialize(geo);
             var url = Gis.GeometryUrl;
-            loc.mapItem.isBufferedItem = true;
+            if (loc.mapItem) {
+                loc.mapItem.isBufferedItem = true;
+            }
             var body = 'inSR=4326&outSR=4326&bufferSR=31370&distances=' + distance * 100 + '&unit=109006&unionResults=true&geodesic=false&geometries=%7B' + sergeo + '%7D&f=json';
             var prom = $http({
                 method: 'POST',

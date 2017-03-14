@@ -43,12 +43,15 @@
                 if (_data.DrawingObject.layer) { // if the layer (drawing) is created
                     _data.DrawingObject.layer._popup = null; // remove popup first because else it will fire close event which will do an other clean of the drawings which is not needed
                 }
-                _data.DrawingObject.disable();
+                if (_data.DrawingObject.disable) { // if it is a drawing item (not a point) then we must disable it
+                    _data.DrawingObject.disable();
+                }
                 _data.DrawingObject = null;
+                _data.DrawLayer = null;
                 map.clearDrawings();
             }
         };
-        
+
         _data.SetStyle = function (mapItem, polyStyle, pointStyle) {
             if (mapItem) {
                 var tmplayer = mapItem._layers[Object.keys(mapItem._layers)[0]];
@@ -246,6 +249,14 @@
             var featureBounds = feature.getBounds();
             map.fitBounds(featureBounds);
         };
+        _data.PanToItem = function (item) {
+            if (item.toGeoJSON().geometry.type == 'Point') {
+                _data.PanToPoint({ x: item.toGeoJSON().geometry.coordinates[1], y: item.toGeoJSON().geometry.coordinates[0] });
+            }
+            else {
+                _data.PanToFeature(item);
+            }
+        };
         _data.GoToLastClickBounds = function () {
             map.fitBounds(_data.LastIdentifyBounds, { paddingTopLeft: L.point(0, 0), paddingBottomRight: L.point(0, 0) });
         };
@@ -267,7 +278,7 @@
         };
 
 
-     
+
 
         var tempFeatures = [];
         _data.AddTempFeatures = function (featureCollection) {

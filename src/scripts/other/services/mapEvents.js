@@ -75,6 +75,15 @@
                             if (MapData.DrawingType === DrawingOption.NIETS) {
                                 MapService.Select(event);
                                 console.log('select');
+                                // var pinIcon = L.divIcon({ className: 'fa fa-thumb-tack fa-2x blue' });
+                                var pinIcon = L.AwesomeMarkers.icon({
+                                    icon: 'fa-map-pin',
+                                    markerColor: 'orange'
+
+                                });
+                                MapData.DrawLayer = L.marker(event.latlng, { icon: pinIcon }).addTo(map);
+                                MapData.DrawingObject = MapData.DrawLayer
+                                map.addToDrawings(MapData.DrawLayer);
                                 UIService.OpenLeftSide();
                                 _mapEvents.removeCursorAuto();
                                 $rootScope.$applyAsync(function () {
@@ -88,7 +97,7 @@
                             $rootScope.$applyAsync(function () {
                                 MapData.ActiveInteractieKnop = ActiveInteractieButton.GEEN;
 
-                            _mapEvents.removeCursorAuto();
+                                _mapEvents.removeCursorAuto();
                             });
                             break;
                         case ActiveInteractieButton.METEN:

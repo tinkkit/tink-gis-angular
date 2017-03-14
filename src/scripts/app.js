@@ -53,7 +53,7 @@
             drawControl: false,
             attributionControl: false
         }).setView([51.2192159, 4.4028818], 5);
-        L.control.scale({imperial: false}).addTo(map); // set scale on the map
+        L.control.scale({ imperial: false }).addTo(map); // set scale on the map
 
 
 
@@ -73,6 +73,9 @@
             //console.log(drawnItems);
             //map.clearDrawings();
         });
+        map.addToDrawings = function (layer) {
+            drawnItems.addLayer(layer);
+        };
         map.clearDrawings = function () {
             console.log('clearingDrawings');
             console.log(drawnItems);

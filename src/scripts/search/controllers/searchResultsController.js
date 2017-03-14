@@ -2,15 +2,14 @@
 (function (module) {
     module = angular.module('tink.gis');
     var theController = module.controller('searchResultsController',
-        function ($scope, ResultsData, map, SearchService, MapData, FeatureService
-        ) {
+        function ($scope, ResultsData, map, SearchService, MapData, FeatureService, $modal, GeometryService) {
             var vm = this;
             vm.features = ResultsData.JsonFeatures;
             vm.featureLayers = null;
             vm.selectedResult = null;
             vm.layerGroupFilter = 'geenfilter';
             vm.collapsestatepergroup = {};
-            vm.drawingObject = null;
+            vm.drawLayer = null;
             $scope.$watchCollection(function () { return ResultsData.JsonFeatures; }, function (newValue, oldValue) {
                 vm.featureLayers = _.uniq(_.map(vm.features, 'layerName'));
                 vm.featureLayers.forEach(lay => {
@@ -25,15 +24,34 @@
             });
             $scope.$watch(function () { return MapData.DrawLayer; }, function (newdrawobject, oldVal) {
                 if (newdrawobject) {
-                    vm.drawingObject = newdrawobject;
+                    vm.drawLayer = newdrawobject;
                 }
                 else {
-                    vm.drawingObject = null;
+                    vm.drawLayer = null;
                 }
             });
             vm.zoom2Drawing = function () {
-                Mapdata.PanToFeature(vm.drawingObject);
-            }
+                MapData.PanToItem(vm.drawLayer);
+            };
+            vm.deleteDrawing = function () {
+                MapData.CleanDrawings();
+            };
+            vm.bufferFromDrawing = function () {
+                MapData.CleanBuffer();
+                var bufferInstance = $modal.open({
+                    templateUrl: 'templates/search/bufferTemplate.html',
+                    controller: 'BufferController',
+                    resolve: {
+                        backdrop: false,
+                        keyboard: true
+                    }
+                });
+                bufferInstance.result.then(function (returnobj) {
+                    GeometryService.Buffer(vm.drawLayer.toGeoJSON(), returnobj.buffer, returnobj.layer);
+                }, function (obj) {
+                    console.log('Modal dismissed at: ' + new Date()); // The contoller is closed by the use of the $dismiss call
+                });
+            };
             vm.deleteFeature = function (feature) {
                 SearchService.DeleteFeature(feature);
             };
@@ -48,14 +66,6 @@
                 SearchService.DeleteFeatureGroup(featureGroupName);
             };
             vm.showDetails = function (feature) {
-                if (feature.theme.Type === 'esri') {
-                    if (feature.geometry.type == 'Point') {
-                        MapData.PanToPoint({ x: feature.geometry.coordinates[1], y: feature.geometry.coordinates[0] });
-                    }
-                    else {
-                        MapData.PanToFeature(feature.mapItem);
-                    }
-                }
                 ResultsData.SelectedFeature = feature;
             };
             vm.exportToCSV = function () {
@@ -80,5 +90,6 @@
             vm.resultButtonText = FeatureService.resultButtonText;
 
         });
-    theController.$inject = ['$scope', 'ResultsData', 'map', 'MapData', 'FeatureService'];
+    theController.$inject = ['$scope', 'ResultsData', 'map', 'SearchService', 'MapData', 'FeatureService', '$modal', 'GeometryService'];
+
 })();
