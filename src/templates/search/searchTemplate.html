@@ -1,5 +1,19 @@
 <div data-tink-nav-aside="" id="leftaside" data-auto-select="true" data-toggle-id="asideNavLeft" class="nav-aside nav-left">
     <aside class="flex-column flex-grow-1">
+        <div class="buffer-panel" ng-show="srchrsltsctrl.drawLayer && !srchrsltsctrl.selectedResult">
+            <div class="nav-aside-section">
+                <p class="nav-aside-title">
+                    Selectievorm
+                    <button prevent-default="" ng-click="srchrsltsctrl.deleteDrawing()" class="trash pull-right"></button>
+                </p>
+            </div>
+            <div class="row extra-padding margin-top">
+                <div class="col-xs-12 text-right">
+                   <button class="btn" ng-click="srchrsltsctrl.bufferFromDrawing()">Buffer</button>
+                   <button class="btn btn-primary" ng-click="srchrsltsctrl.zoom2Drawing()">Tonen</button>
+                </div>
+            </div>
+        </div>
         <div class="nav-aside-section">
             <p class="nav-aside-title">Resultaten</p>
         </div>
