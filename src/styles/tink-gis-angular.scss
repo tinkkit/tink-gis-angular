@@ -316,7 +316,7 @@ button.btn.active {
 .full-width {
     padding-left: 0 !important;
     padding-right: 0 !important;
-    transform: none; // translate(0, 0) !important; // translate setting created a fixed bug with print-menu-footer
+    transform: translate(0, 0) !important; // translate setting created a fixed bug with print-menu-footer
 }
 
 //Creating parent container for flex column and overflow-wrapper
@@ -992,8 +992,13 @@ html.print {
     display: block;
 
     &-header {
-
+      background-color: $white;
       box-shadow: 0 1px 5px rgba(0, 0, 0, 0.06);
+      padding: $padding-base-vertical $padding-base-horizontal;
+      position: fixed;
+      top:0;
+      width: 100%;
+      z-index: 1000; // set it above map
     }
 
     &-footer {
