@@ -248,8 +248,12 @@
             map.fitBounds(featureBounds);
         };
         _data.PanToItem = function (item) {
-            if (item.toGeoJSON().geometry.type == 'Point') {
-                _data.PanToPoint({ x: item.toGeoJSON().geometry.coordinates[1], y: item.toGeoJSON().geometry.coordinates[0] });
+            var geojsonitem = item.toGeoJSON()
+            if (geojsonitem.features) {
+                geojsonitem = geojsonitem.features[0];
+            }
+            if (geojsonitem.geometry.type == 'Point') {
+                _data.PanToPoint({ x: geojsonitem.geometry.coordinates[1], y: geojsonitem.geometry.coordinates[0] });
             }
             else {
                 _data.PanToFeature(item);
