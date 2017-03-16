@@ -59,7 +59,7 @@
                     },
                     templates: {
                         suggestion: suggestionfunc,
-                        notFound: ['<div class="empty-message"><b>Geen match gevonden</b></div>'],
+                        notFound: ['<div class="empty-message"><b>Geen resultaten gevonden</b></div>'],
                         empty: ['<div class="empty-message"><b>Zoek naar straten, POI en districten</b></div>']
                     }
 

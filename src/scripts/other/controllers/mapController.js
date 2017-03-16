@@ -1,7 +1,7 @@
 'use strict';
 (function (module) {
     module = angular.module('tink.gis');
-    var theController = module.controller('mapController', function ($scope, ExternService, BaseLayersService, MapService, MapData, map, MapEvents, DrawService, HelperService, GISService, PopupService, $interval, TypeAheadService, UIService) {
+    var theController = module.controller('mapController', function ($scope, ExternService, BaseLayersService, MapService, MapData, map, MapEvents, DrawService, HelperService, GISService, PopupService, $interval, TypeAheadService, UIService, tinkApi) {
         //We need to include MapEvents, even tho we don t call it just to make sure it gets loaded!
         var vm = this;
         var init = function () {
@@ -155,7 +155,8 @@
                 html.removeClass('print');
             }
             vm.portrait(); // also put it back to portrait view
-
+            tinkApi.sideNavToggle.recalculate("asideNavRight");
+            tinkApi.sideNavToggle.recalculate("asideNavLeft");
         }
         vm.print = function () {
             window.print();
@@ -178,7 +179,21 @@
             cssPagedMedia.size(oriantation);
         };
         vm.setPrintStyle('portrait');
-
+        vm.printLegendPreview = false;
+        vm.previewMap = function () {
+            let html = $('html');
+            vm.printLegendPreview = false;
+            if (html.hasClass('preview-legend')) {
+                html.removeClass('preview-legend');
+            }
+        };
+        vm.previewLegend = function () {
+            let html = $('html');
+            vm.printLegendPreview = true;
+            if (!html.hasClass('preview-legend')) {
+                html.addClass('preview-legend');
+            }
+        };
         vm.portrait = function () {
             let html = $('html');
             vm.setPrintStyle('portrait');
@@ -229,5 +244,5 @@
         }
 
     });
-    theController.$inject = ['BaseLayersService', 'ExternService', 'MapService', 'MapData', 'map', 'MapEvents', 'DrawService', 'HelperService', 'GISService', 'PopupService', '$interval', 'UIService'];
+    theController.$inject = ['BaseLayersService', 'ExternService', 'MapService', 'MapData', 'map', 'MapEvents', 'DrawService', 'HelperService', 'GISService', 'PopupService', '$interval', 'UIService', 'tinkApi'];
 })();

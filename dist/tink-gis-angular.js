@@ -976,7 +976,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
 
 (function (module) {
     module = angular.module('tink.gis');
-    var theController = module.controller('mapController', function ($scope, ExternService, BaseLayersService, MapService, MapData, map, MapEvents, DrawService, HelperService, GISService, PopupService, $interval, TypeAheadService, UIService) {
+    var theController = module.controller('mapController', function ($scope, ExternService, BaseLayersService, MapService, MapData, map, MapEvents, DrawService, HelperService, GISService, PopupService, $interval, TypeAheadService, UIService, tinkApi) {
         //We need to include MapEvents, even tho we don t call it just to make sure it gets loaded!
         var vm = this;
         var init = function () {
@@ -1136,6 +1136,8 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 html.removeClass('print');
             }
             vm.portrait(); // also put it back to portrait view
+            tinkApi.sideNavToggle.recalculate("asideNavRight");
+            tinkApi.sideNavToggle.recalculate("asideNavLeft");
         };
         vm.print = function () {
             window.print();
@@ -1158,7 +1160,21 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             cssPagedMedia.size(oriantation);
         };
         vm.setPrintStyle('portrait');
-
+        vm.printLegendPreview = false;
+        vm.previewMap = function () {
+            var html = $('html');
+            vm.printLegendPreview = false;
+            if (html.hasClass('preview-legend')) {
+                html.removeClass('preview-legend');
+            }
+        };
+        vm.previewLegend = function () {
+            var html = $('html');
+            vm.printLegendPreview = true;
+            if (!html.hasClass('preview-legend')) {
+                html.addClass('preview-legend');
+            }
+        };
         vm.portrait = function () {
             var html = $('html');
             vm.setPrintStyle('portrait');
@@ -1206,7 +1222,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             }
         };
     });
-    theController.$inject = ['BaseLayersService', 'ExternService', 'MapService', 'MapData', 'map', 'MapEvents', 'DrawService', 'HelperService', 'GISService', 'PopupService', '$interval', 'UIService'];
+    theController.$inject = ['BaseLayersService', 'ExternService', 'MapService', 'MapData', 'map', 'MapEvents', 'DrawService', 'HelperService', 'GISService', 'PopupService', '$interval', 'UIService', 'tinkApi'];
 })();
 ;'use strict';
 
@@ -3553,7 +3569,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 },
                 templates: {
                     suggestion: suggestionfunc,
-                    notFound: ['<div class="empty-message"><b>Geen match gevonden</b></div>'],
+                    notFound: ['<div class="empty-message"><b>Geen resultaten gevonden</b></div>'],
                     empty: ['<div class="empty-message"><b>Zoek naar straten, POI en districten</b></div>']
                 }
 
@@ -4767,38 +4783,7 @@ L.drawLocal = {
 
   $templateCache.put('templates/other/mapTemplate.html',
     "<div class=tink-map>\n" +
-    "<div class=\"print-menu print-menu-header container margin-bottom hidden-print\">\n" +
-    "<div class=row>\n" +
-    "<div class=\"col-xs-12 col-md-3\">\n" +
-    "</div>\n" +
-    "<div class=\"col-xs-12 col-md-6\">\n" +
-    "<h4>Printen</h4>\n" +
-    "</div>\n" +
-    "<div class=\"col-xs-12 col-md-3\">\n" +
-    "</div>\n" +
-    "</div>\n" +
-    "<div class=\"row form-inline hidden-print margin-bottom\">\n" +
-    "<div class=\"col-xs-1 col-md-3\">\n" +
-    "</div>\n" +
-    "<div class=\"col-xs-5 col-md-3\">\n" +
-    "<div class=radio>\n" +
-    "<input type=radio id=radioKaart name=chooseprint checked ng-class=\"{active: mapctrl.printStyle=='previewMap'}\" ng-click=mapctrl.previewMap()>\n" +
-    "<label for=radioKaart>Kaart</label>\n" +
-    "</div>\n" +
-    "<div class=radio>\n" +
-    "<input type=radio id=radioLegende name=chooseprint ng-class=\"{active: mapctrl.printStyle=='previewLegend'}\" ng-click=mapctrl.previewLegend()>\n" +
-    "<label for=radioLegende>Legende</label>\n" +
-    "</div>\n" +
-    "</div>\n" +
-    "<div class=\"col-xs-5 col-md-3\">\n" +
-    "<div class=\"btn-group btn-group-sm pull-right\">\n" +
-    "<button type=button class=\"btn hidden-print\" ng-class=\"{active: mapctrl.printStyle=='portrait'}\" ng-click=mapctrl.portrait()><i class=\"fa fa-file-o\"></i> Staand</button>\n" +
-    "<button type=button class=\"btn hidden-print\" ng-class=\"{active: mapctrl.printStyle=='landscape'}\" ng-click=mapctrl.landscape()><i class=\"fa fa-file-o fa-rotate-270\"></i> Liggend</button>\n" +
-    "</div>\n" +
-    "</div>\n" +
-    "<div class=\"col-xs-1 col-md-3\">\n" +
-    "</div>\n" +
-    "</div>\n" +
+    "<div class=\"margin-print-content hidden-print\">\n" +
     "</div>\n" +
     "<div class=print-content>\n" +
     "<div class=print-content-header>\n" +
@@ -4871,18 +4856,6 @@ L.drawLocal = {
     "</div>\n" +
     "<div class=\"margin-print-content hidden-print\">\n" +
     "</div>\n" +
-    "<div class=\"print-menu print-menu-footer hidden-print\">\n" +
-    "<div class=row>\n" +
-    "<div class=\"col-xs-12 col-md-3\">\n" +
-    "</div>\n" +
-    "<div class=\"col-xs-12 col-md-6\">\n" +
-    "<button type=button class=btn-primary ng-click=mapctrl.print()>Printen</button>\n" +
-    "<a href=# data-ng-click=mapctrl.cancelPrint()>Annuleren</a>\n" +
-    "</div>\n" +
-    "<div class=\"col-xs-12 col-md-3\">\n" +
-    "</div>\n" +
-    "</div>\n" +
-    "</div>\n" +
     "</div>\n"
   );
 
@@ -4891,7 +4864,7 @@ L.drawLocal = {
     "<div>\n" +
     "<input class=\"visible-box hidden-print\" type=checkbox id=chk{{thmctrl.theme.Naam}} ng-model=thmctrl.theme.Visible ng-change=layercheckboxchange(thmctrl.theme)>\n" +
     "<label for=chk{{thmctrl.theme.Naam}}> {{thmctrl.theme.Naam}} <span class=\"label-info hidden-print\" ng-show=\"thmctrl.theme.Type=='esri'\">stad</span><span class=\"label-info hidden-print\" ng-hide=\"thmctrl.theme.Type=='esri'\">{{thmctrl.theme.Type}}</span></label>\n" +
-    "<button ng-hide=\"hidedelete == true\" class=trash ng-click=thmctrl.deleteTheme()></button>\n" +
+    "<button ng-hide=\"hidedelete == true\" class=\"trash hidden-print\" ng-click=thmctrl.deleteTheme()></button>\n" +
     "<ul class=\"ul-level no-theme-layercontroller-checkbox\" ng-repeat=\"layer in thmctrl.theme.Layers | filter: { enabled: true }\">\n" +
     "<tink-layer layer=layer layercheckboxchange=layercheckboxchange(layer.theme)>\n" +
     "</tink-layer>\n" +
@@ -4943,14 +4916,6 @@ L.drawLocal = {
 
   $templateCache.put('templates/search/searchResultsTemplate.html',
     "<div class=\"SEARCHRESULT flex-column\">\n" +
-    "<div class=flex-column ng-show=\"srchrsltsctrl.drawLayer && !srchrsltsctrl.selectedResult\">\n" +
-    "<div class=\"col-xs-12 flex-grow-1 margin-top\">\n" +
-    "Selectievorm:\n" +
-    "<button class=\"btn pull-right btn-primary\" ng-click=srchrsltsctrl.zoom2Drawing()>Tonen</button>\n" +
-    "<button class=\"btn pull-right\" ng-click=srchrsltsctrl.deleteDrawing()><i class=\"fa fa-trash-o\"></i></button>\n" +
-    "<button class=\"btn pull-right\" ng-click=srchrsltsctrl.bufferFromDrawing()>Buffer</button>\n" +
-    "</div>\n" +
-    "</div>\n" +
     "<div class=flex-column ng-if=\"!srchrsltsctrl.selectedResult && srchrsltsctrl.featureLayers.length == 0\">\n" +
     "<div class=\"col-xs-12 flex-grow-1 margin-top\">\n" +
     "Geen resultaten.\n" +
@@ -4994,7 +4959,7 @@ L.drawLocal = {
     "</ul>\n" +
     "</div>\n" +
     "</div>\n" +
-    "</div>"
+    "</div>\n"
   );
 
 
@@ -5048,6 +5013,20 @@ L.drawLocal = {
   $templateCache.put('templates/search/searchTemplate.html',
     "<div data-tink-nav-aside=\"\" id=leftaside data-auto-select=true data-toggle-id=asideNavLeft class=\"nav-aside nav-left\">\n" +
     "<aside class=\"flex-column flex-grow-1\">\n" +
+    "<div class=buffer-panel ng-show=\"srchrsltsctrl.drawLayer && !srchrsltsctrl.selectedResult\">\n" +
+    "<div class=nav-aside-section>\n" +
+    "<p class=nav-aside-title>\n" +
+    "Selectievorm\n" +
+    "<button prevent-default=\"\" ng-click=srchrsltsctrl.deleteDrawing() class=\"trash pull-right\"></button>\n" +
+    "</p>\n" +
+    "</div>\n" +
+    "<div class=\"row extra-padding margin-top\">\n" +
+    "<div class=\"col-xs-12 text-right\">\n" +
+    "<button class=btn ng-click=srchrsltsctrl.bufferFromDrawing()>Buffer</button>\n" +
+    "<button class=\"btn btn-primary\" ng-click=srchrsltsctrl.zoom2Drawing()>Tonen</button>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "</div>\n" +
     "<div class=nav-aside-section>\n" +
     "<p class=nav-aside-title>Resultaten</p>\n" +
     "</div>\n" +
@@ -5063,7 +5042,7 @@ L.drawLocal = {
     "<span class=loader-percentage>{{srchctrl.loadingPercentage}}%</span>\n" +
     "</div>\n" +
     "</aside>\n" +
-    "</div>"
+    "</div>\n"
   );
 
 }]);

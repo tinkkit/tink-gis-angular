@@ -377,9 +377,9 @@ button.btn.active {
 .full-width {
   padding-left: 0 !important;
   padding-right: 0 !important;
-  -webkit-transform: none;
-      -ms-transform: none;
-          transform: none; }
+  -webkit-transform: translate(0, 0) !important;
+      -ms-transform: translate(0, 0) !important;
+          transform: translate(0, 0) !important; }
 
 .relative-container {
   display: -webkit-flex;
@@ -849,7 +849,13 @@ html.print .print .leaflet-control-scale-line {
 html.print .print-menu {
   display: block; }
   html.print .print-menu-header {
-    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.06); }
+    background-color: #fff;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.06);
+    padding: 6px 12px;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000; }
   html.print .print-menu-footer {
     background-color: #fff;
     bottom: 0;
