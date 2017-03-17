@@ -4438,34 +4438,20 @@ L.drawLocal = {
     "<meta charset=utf-8>\n" +
     "<title>Street View side-by-side</title>\n" +
     "<style>\n" +
-    "html, body {\r" +
-    "\n" +
-    "        height: 100%;\r" +
-    "\n" +
-    "        margin: 0;\r" +
-    "\n" +
-    "        padding: 0;\r" +
-    "\n" +
-    "      }\r" +
-    "\n" +
-    "      #map,  {\r" +
-    "\n" +
-    "        float: left;\r" +
-    "\n" +
-    "        height: 0%;\r" +
-    "\n" +
-    "        width: 0%;\r" +
-    "\n" +
-    "      }\r" +
-    "\n" +
-    "       #pano {\r" +
-    "\n" +
-    "        float: left;\r" +
-    "\n" +
-    "        height: 100%;\r" +
-    "\n" +
-    "        width: 100%;\r" +
-    "\n" +
+    "html, body {\n" +
+    "        height: 100%;\n" +
+    "        margin: 0;\n" +
+    "        padding: 0;\n" +
+    "      }\n" +
+    "      #map,  {\n" +
+    "        float: left;\n" +
+    "        height: 0%;\n" +
+    "        width: 0%;\n" +
+    "      }\n" +
+    "       #pano {\n" +
+    "        float: left;\n" +
+    "        height: 100%;\n" +
+    "        width: 100%;\n" +
     "      }\n" +
     "</style>\n" +
     "</head>\n" +
@@ -4473,42 +4459,24 @@ L.drawLocal = {
     "<div id=map></div>\n" +
     "<div id=pano></div>\n" +
     "<script>\n" +
-    "function initialize() {\r" +
-    "\n" +
-    "        \r" +
-    "\n" +
-    "        var urlLat = parseFloat((location.search.split('lat=')[1]||'').split('&')[0]);\r" +
-    "\n" +
-    "        var urlLng = parseFloat((location.search.split('lng=')[1]||'').split('&')[0]);\r" +
-    "\n" +
-    "        var fenway = {lat:urlLat, lng: urlLng};\r" +
-    "\n" +
-    "        var map = new google.maps.Map(document.getElementById('map'), {\r" +
-    "\n" +
-    "          center: fenway,\r" +
-    "\n" +
-    "          zoom: 14\r" +
-    "\n" +
-    "        });\r" +
-    "\n" +
-    "        var panorama = new google.maps.StreetViewPanorama(\r" +
-    "\n" +
-    "            document.getElementById('pano'), {\r" +
-    "\n" +
-    "              position: fenway,\r" +
-    "\n" +
-    "              pov: {\r" +
-    "\n" +
-    "                heading: 34,\r" +
-    "\n" +
-    "                pitch: 10\r" +
-    "\n" +
-    "              }\r" +
-    "\n" +
-    "            });\r" +
-    "\n" +
-    "        map.setStreetView(panorama);\r" +
-    "\n" +
+    "function initialize() {\n" +
+    "        \n" +
+    "        var urlLat = parseFloat((location.search.split('lat=')[1]||'').split('&')[0]);\n" +
+    "        var urlLng = parseFloat((location.search.split('lng=')[1]||'').split('&')[0]);\n" +
+    "        var fenway = {lat:urlLat, lng: urlLng};\n" +
+    "        var map = new google.maps.Map(document.getElementById('map'), {\n" +
+    "          center: fenway,\n" +
+    "          zoom: 14\n" +
+    "        });\n" +
+    "        var panorama = new google.maps.StreetViewPanorama(\n" +
+    "            document.getElementById('pano'), {\n" +
+    "              position: fenway,\n" +
+    "              pov: {\n" +
+    "                heading: 34,\n" +
+    "                pitch: 10\n" +
+    "              }\n" +
+    "            });\n" +
+    "        map.setStreetView(panorama);\n" +
     "      }\n" +
     "</script>\n" +
     "<script async defer src=\"https://maps.googleapis.com/maps/api/js?callback=initialize\">\n" +
@@ -4762,7 +4730,7 @@ L.drawLocal = {
     "<a href=# title=\"Open menu\"><span class=sr-only>Open right menu</span></a>\n" +
     "</button>\n" +
     "<div class=\"flex-column flex-grow-1\">\n" +
-    "<div ng-if=lyrsctrl.layerManagementButtonIsEnabled>\n" +
+    "<div class=layer-management ng-if=lyrsctrl.layerManagementButtonIsEnabled>\n" +
     "<div class=\"col-xs-12 margin-top margin-bottom\">\n" +
     "<button class=\"btn btn-primary btn-layermanagement center-block\" ng-click=lyrsctrl.Lagenbeheer()>Lagenbeheer</button>\n" +
     "</div>\n" +
@@ -4864,7 +4832,7 @@ L.drawLocal = {
     "<div>\n" +
     "<input class=\"visible-box hidden-print\" type=checkbox id=chk{{thmctrl.theme.Naam}} ng-model=thmctrl.theme.Visible ng-change=layercheckboxchange(thmctrl.theme)>\n" +
     "<label for=chk{{thmctrl.theme.Naam}}> {{thmctrl.theme.Naam}} <span class=\"label-info hidden-print\" ng-show=\"thmctrl.theme.Type=='esri'\">stad</span><span class=\"label-info hidden-print\" ng-hide=\"thmctrl.theme.Type=='esri'\">{{thmctrl.theme.Type}}</span></label>\n" +
-    "<button ng-hide=\"hidedelete == true\" class=\"trash hidden-print\" ng-click=thmctrl.deleteTheme()></button>\n" +
+    "<button ng-hide=\"hidedelete == true\" class=\"trash hidden-print pull-right\" ng-click=thmctrl.deleteTheme()></button>\n" +
     "<ul class=\"ul-level no-theme-layercontroller-checkbox\" ng-repeat=\"layer in thmctrl.theme.Layers | filter: { enabled: true }\">\n" +
     "<tink-layer layer=layer layercheckboxchange=layercheckboxchange(layer.theme)>\n" +
     "</tink-layer>\n" +

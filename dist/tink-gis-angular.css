@@ -400,8 +400,7 @@ button.btn.active {
           flex-grow: 1; }
 
 .overflow-wrapper {
-  overflow: auto;
-  width: 100%; }
+  overflow: auto; }
   .overflow-wrapper.list-selectable {
     -webkit-user-select: none;
        -moz-user-select: none;
@@ -798,7 +797,8 @@ html.print .map-buttons-left,
 html.print .map-buttons-right,
 html.print .tink-layers,
 html.print .tink-search,
-html.print .typeahead {
+html.print .typeahead,
+html.print .layer-management {
   display: none; }
 
 html.print.preview-legend .print-content-footer {
@@ -866,7 +866,10 @@ html.print .print-menu {
     z-index: 1000; }
 
 html.print .margin-print-content {
-  height: 4.2857142857rem ; }
+  height: 8.5714285714rem ; }
+  @media (min-width: 768px) {
+    html.print .margin-print-content {
+      height: 7.1428571429rem ; } }
 
 html.print.landscape .print-content {
   height: 175mm;
@@ -959,9 +962,32 @@ html.show-loader .loader-wrapper {
   .title-block .fa {
     font-size: 2.1428571429rem ; }
 
+.index li {
+  padding-top: 0.3571428571rem ; }
+
+.title {
+  font-weight: 600; }
+
+.news-items a {
+  display: inline-block;
+  padding-left: 0.8571428571rem ; }
+
+.news-items h6 {
+  margin-bottom: 0; }
+
+.news-items li {
+  padding: 0; }
+
 /**
  * Global styling
  */
+button.disabled {
+  background-color: #bbb; }
+
+.link-cancel,
+.button-padding {
+  padding: 0.4285714286rem  0.8571428571rem ; }
+
 .cursor-auto {
   cursor: auto; }
 
