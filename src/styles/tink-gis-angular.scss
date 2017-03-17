@@ -913,7 +913,8 @@ html.print {
   .map-buttons-right,
   .tink-layers,
   .tink-search,
-  .typeahead {
+  .typeahead,
+  .layer-management {
     display: none;
   }
 
@@ -1013,7 +1014,11 @@ html.print {
   }
 
   .margin-print-content {
-    height: rem(60);
+    height: rem(120);
+
+    @include mq($screen-sm) {
+      height: rem(100);
+    }
   }
 }
 
