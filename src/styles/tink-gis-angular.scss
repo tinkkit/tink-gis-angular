@@ -1208,6 +1208,10 @@ html.show-loader {
  * Global styling
  */
 
+button.disabled {
+  background-color: $gray-light;
+}
+
 .link-cancel,
 .button-padding {
   padding: rem($padding-base-vertical) rem($padding-base-horizontal);
