@@ -339,7 +339,7 @@ button.btn.active {
 
 .overflow-wrapper {
   overflow: auto;
-  width: 100%;
+  // width: 100%; // !!perhaps not necessary?
 
   &.list-selectable {
     user-select: none;
@@ -1178,10 +1178,40 @@ html.show-loader {
   }
 }
 
+.index {
+  li {
+    padding-top: rem(5);
+  }
+}
+
+.title {
+  font-weight: 600;
+}
+
+.news-items {
+  a {
+    display: inline-block;
+    padding-left: rem(12);
+  }
+
+  h6 {
+  //  color: $gray;
+    margin-bottom: 0;
+  }
+
+  li {
+    padding: 0;
+  }
+}
 
 /**
  * Global styling
  */
+
+.link-cancel,
+.button-padding {
+  padding: rem($padding-base-vertical) rem($padding-base-horizontal);
+}
 
 .cursor-auto {
   cursor: auto;
