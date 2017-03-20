@@ -14,7 +14,7 @@
                     <div class="ll drawingbtns" ng-show="mapctrl.showDrawControls">
                         <div class="btn-group ">
                             <button ng-click="mapctrl.selectpunt()" ng-class="{active: mapctrl.drawingType==''}" type="button" class="btn" prevent-default-map tink-tooltip="Selecteer met een punt" tink-tooltip-align="bottom"><i class="fa fa-circle" style="font-size: 0.75em;"></i></button>
-                            <button ng-click="mapctrl.drawingButtonChanged('lijn')" ng-class="{active: mapctrl.drawingType=='lijn'}" type="button" class="btn" prevent-default-map><i class="fa fa-minus" tink-tooltip="Selecteer met een lijn" tink-tooltip-align="bottom"></i></button>
+                            <button ng-click="mapctrl.drawingButtonChanged('lijn')" ng-class="{active: mapctrl.drawingType=='lijn'}" type="button" class="btn" prevent-default-map tink-tooltip="Selecteer met een lijn" tink-tooltip-align="bottom"><i class="fa fa-minus"></i></button>
                             <button ng-click="mapctrl.drawingButtonChanged('vierkant')" ng-class="{active: mapctrl.drawingType=='vierkant'}" type="button" class="btn" prevent-default-map tink-tooltip="Selecteer met een vierkant" tink-tooltip-align="bottom"><i class="fa fa-square-o"></i></button>
                             <button ng-click="mapctrl.drawingButtonChanged('polygon')" ng-class="{active: mapctrl.drawingType=='polygon'}" type="button" class="btn" prevent-default-map tink-tooltip="Selecteer met een veelhoek" tink-tooltip-align="bottom"><i class="fa fa-star-o"></i></button>
                         </div>
@@ -29,7 +29,9 @@
                         <button type="button" class="btn" ng-click="mapctrl.interactieButtonChanged('meten')" ng-class="{active: mapctrl.activeInteractieKnop=='meten'}" tink-tooltip="Meten" tink-tooltip-align="right" prevent-default-map>
                         <svg class="icon icon-sik-ruler"><use xlink:href="#icon-sik-ruler"></use></svg>
                         </button>
-                        <button type="button" class="btn" ng-click="mapctrl.interactieButtonChanged('watishier')" ng-class="{active: mapctrl.activeInteractieKnop=='watishier'}" tink-tooltip="Wat is hier?" tink-tooltip-align="right" prevent-default-map><i class="fa  fa-thumb-tack"></i></button>
+                        <button type="button" class="btn" ng-click="mapctrl.interactieButtonChanged('watishier')" ng-class="{active: mapctrl.activeInteractieKnop=='watishier'}" tink-tooltip="Wat is hier" tink-tooltip-align="right" prevent-default-map>
+                        <i class="fa  fa-thumb-tack"></i>
+                        </button>
                     </div>
 
                     <div class="btn-group ll kaarttypes">
@@ -41,13 +43,13 @@
                         <button ng-click="mapctrl.drawingButtonChanged('afstand')" ng-class="{active: mapctrl.drawingType=='afstand'}" type="button" tink-tooltip="Meten afstand" tink-tooltip-align="bottom" class="btn" prevent-default-map>
                         <svg class="icon icon-sik-measure-line"><use xlink:href="#icon-sik-measure-line"></use></svg>
                         </button>
-                        <button ng-click="mapctrl.drawingButtonChanged('oppervlakte')" ng-class="{active: mapctrl.drawingType=='oppervlakte'}" type="button" tink-tooltip="Meten oppervlakte en omtrek" tink-tooltip-align="bottom" class="btn" prevent-default-map>
+                        <button ng-click="mapctrl.drawixngButtonChanged('oppervlakte')" ng-class="{active: mapctrl.drawingType=='oppervlakte'}" type="button" tink-tooltip="Meten oppervlakte en omtrek" tink-tooltip-align="bottom" class="btn" prevent-default-map>
                         <svg class="icon icon-sik-measure-shape"><use xlink:href="#icon-sik-measure-shape"></use></svg>
                         </button>
                     </div>
 
                     <div class="btn-group ll searchbtns">
-                        <button type="button" class="btn" ng-class="{active: mapctrl.ZoekenOpLocatie==true}" ng-click="mapctrl.fnZoekenOpLocatie()" tink-tooltip="Zoeken op locatie" tink-tooltip-align="bottom" prevent-default-map>
+                        <button type="button" class="btn tooltip-margin-left" ng-class="{active: mapctrl.ZoekenOpLocatie==true}" ng-click="mapctrl.fnZoekenOpLocatie()" tink-tooltip="... Zoeken op locatie" tink-tooltip-align="bottom" prevent-default-map>
                         <svg class="icon icon-sik-location-search"><use xlink:href="#icon-sik-location-search"></use></svg>
                         </button>
                         <button type="button" class="btn" ng-class="{active: mapctrl.ZoekenOpLocatie==false}" ng-click="mapctrl.ZoekenInLagen()" tink-tooltip="Zoeken binnen lagen" tink-tooltip-align="bottom" prevent-default-map>
@@ -66,12 +68,16 @@
                 </div>
 
                 <div class="map-buttons-right">
-
-
                     <div class="btn-group btn-group-vertical ll viewbtns">
-                        <button type="button" class="btn" ng-click="mapctrl.zoomIn()" prevent-default-map tink-tooltip="Inzoomen" tink-tooltip-align="bottom"><i class="fa fa-plus"></i></button>
-                        <button type="button" class="btn" ng-click="mapctrl.zoomOut()" prevent-default-map tink-tooltip="Uitzoomen" tink-tooltip-align="bottom"><i class="fa fa-minus"></i></button>
-                        <button type="button" class="btn" ng-click="mapctrl.zoomToGps()" ng-class="{active: mapctrl.gpstracking==true}" prevent-default-map tink-tooltip="Je locatie weergeven" tink-tooltip-align="bottom"><i class="fa fa-crosshairs"></i></button>
+                        <button type="button" class="btn" ng-click="mapctrl.zoomIn()" tink-tooltip="Zoom in" tink-tooltip-align="left" prevent-default-map>
+                        <i class="fa fa-plus"></i>
+                        </button>
+                        <button type="button" class="btn" ng-click="mapctrl.zoomOut()" tink-tooltip="Zoom uit" tink-tooltip-align="left" prevent-default-map>
+                        <i class="fa fa-minus"></i>
+                        </button>
+                        <button type="button" class="btn" ng-click="mapctrl.zoomToGps()" ng-class="{active: mapctrl.gpstracking==true}" tink-tooltip="Huidige locatie" tink-tooltip-align="left" prevent-default-map>
+                        <i class="fa fa-crosshairs"></i>
+                        </button>
                         <!--<button type="button" class="btn" ng-click="mapctrl.fullExtent()" prevent-default-map><i class="fa fa-home"></i></button>-->
                     </div>
                     <!--<div class="btn-group btn-group-vertical ll localiseerbtn">

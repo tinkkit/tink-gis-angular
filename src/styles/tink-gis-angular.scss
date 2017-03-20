@@ -475,6 +475,21 @@ button.trashcan {
 //   }
 // }
 
+// extra styling when sorting li-items
+
+.ui-sortable-helper {
+  background-color: rgba(0, 0, 0, .03);
+  border-radius: $border-radius-base;
+  cursor: move;
+}
+
+.ui-sortable-placeholder {
+  background: $gray-lightest;
+  border: 1px dashed $brand-light;
+  border-radius: $border-radius-base;
+  visibility: visible !important;
+}
+
 /* Layer result */
 
 .theme-layer { // is a actually an a href
@@ -1249,7 +1264,7 @@ button.disabled {
 }
 
 .tooltip {
-  z-index: 2000;
+  white-space: nowrap;
 }
 
 // fix for sweet-alert bug
