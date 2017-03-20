@@ -954,6 +954,7 @@ html.show-loader .loader-wrapper {
   width: 21.4285714286rem ; }
 
 .column-right {
+  padding-left: 2rem;
   width: 42.8571428571rem ; }
 
 .block-attention {

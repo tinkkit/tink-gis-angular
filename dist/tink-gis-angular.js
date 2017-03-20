@@ -4487,8 +4487,8 @@ L.drawLocal = {
 
 
   $templateCache.put('templates/layermanagement/geoPuntTemplate.html',
-    "<div class=\"gepoPuntTemplate row relative-container\">\n" +
-    "<div class=\"col-xs-4 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
+    "<div class=\"gepoPuntTemplate row relative-container flex-grow-1\">\n" +
+    "<div class=\"col-xs-4 flex-column flex-grow-1 margin-top margin-bottom border-right\">\n" +
     "<div ng-show=\"loading == false\" class=\"overflow-wrapper flex-grow-1 list-selectable margin-top margin-bottom\">\n" +
     "<div ng-if=!searchIsUrl ng-repeat=\"theme in availableThemes\">\n" +
     "<dl ng-class=\"{active: isActive(theme)}\" ng-class=\"{'not-allowed': theme.Type != 'wms' &&  theme.Type != 'esri'}\">\n" +
