@@ -4766,7 +4766,7 @@ L.drawLocal = {
     "<div class=\"ll drawingbtns\" ng-show=mapctrl.showDrawControls>\n" +
     "<div class=btn-group>\n" +
     "<button ng-click=mapctrl.selectpunt() ng-class=\"{active: mapctrl.drawingType==''}\" type=button class=btn prevent-default-map tink-tooltip=\"Selecteer met een punt\" tink-tooltip-align=bottom><i class=\"fa fa-circle\" style=\"font-size: 0.75em\"></i></button>\n" +
-    "<button ng-click=\"mapctrl.drawingButtonChanged('lijn')\" ng-class=\"{active: mapctrl.drawingType=='lijn'}\" type=button class=btn prevent-default-map><i class=\"fa fa-minus\" tink-tooltip=\"Selecteer met een lijn\" tink-tooltip-align=bottom></i></button>\n" +
+    "<button ng-click=\"mapctrl.drawingButtonChanged('lijn')\" ng-class=\"{active: mapctrl.drawingType=='lijn'}\" type=button class=btn prevent-default-map tink-tooltip=\"Selecteer met een lijn\" tink-tooltip-align=bottom><i class=\"fa fa-minus\"></i></button>\n" +
     "<button ng-click=\"mapctrl.drawingButtonChanged('vierkant')\" ng-class=\"{active: mapctrl.drawingType=='vierkant'}\" type=button class=btn prevent-default-map tink-tooltip=\"Selecteer met een vierkant\" tink-tooltip-align=bottom><i class=\"fa fa-square-o\"></i></button>\n" +
     "<button ng-click=\"mapctrl.drawingButtonChanged('polygon')\" ng-class=\"{active: mapctrl.drawingType=='polygon'}\" type=button class=btn prevent-default-map tink-tooltip=\"Selecteer met een veelhoek\" tink-tooltip-align=bottom><i class=\"fa fa-star-o\"></i></button>\n" +
     "</div>\n" +
@@ -4780,7 +4780,9 @@ L.drawLocal = {
     "<button type=button class=btn ng-click=\"mapctrl.interactieButtonChanged('meten')\" ng-class=\"{active: mapctrl.activeInteractieKnop=='meten'}\" tink-tooltip=Meten tink-tooltip-align=right prevent-default-map>\n" +
     "<svg class=\"icon icon-sik-ruler\"><use xlink:href=#icon-sik-ruler></use></svg>\n" +
     "</button>\n" +
-    "<button type=button class=btn ng-click=\"mapctrl.interactieButtonChanged('watishier')\" ng-class=\"{active: mapctrl.activeInteractieKnop=='watishier'}\" tink-tooltip=\"Wat is hier?\" tink-tooltip-align=right prevent-default-map><i class=\"fa fa-thumb-tack\"></i></button>\n" +
+    "<button type=button class=btn ng-click=\"mapctrl.interactieButtonChanged('watishier')\" ng-class=\"{active: mapctrl.activeInteractieKnop=='watishier'}\" tink-tooltip=\"Wat is hier\" tink-tooltip-align=right prevent-default-map>\n" +
+    "<i class=\"fa fa-thumb-tack\"></i>\n" +
+    "</button>\n" +
     "</div>\n" +
     "<div class=\"btn-group ll kaarttypes\">\n" +
     "<button class=btn ng-class=\"{active: mapctrl.IsBaseMap1==true}\" ng-click=mapctrl.toonBaseMap1() prevent-default-map>{{mapctrl.baseMap1Naam()}}</button>\n" +
@@ -4790,12 +4792,12 @@ L.drawLocal = {
     "<button ng-click=\"mapctrl.drawingButtonChanged('afstand')\" ng-class=\"{active: mapctrl.drawingType=='afstand'}\" type=button tink-tooltip=\"Meten afstand\" tink-tooltip-align=bottom class=btn prevent-default-map>\n" +
     "<svg class=\"icon icon-sik-measure-line\"><use xlink:href=#icon-sik-measure-line></use></svg>\n" +
     "</button>\n" +
-    "<button ng-click=\"mapctrl.drawingButtonChanged('oppervlakte')\" ng-class=\"{active: mapctrl.drawingType=='oppervlakte'}\" type=button tink-tooltip=\"Meten oppervlakte en omtrek\" tink-tooltip-align=bottom class=btn prevent-default-map>\n" +
+    "<button ng-click=\"mapctrl.drawixngButtonChanged('oppervlakte')\" ng-class=\"{active: mapctrl.drawingType=='oppervlakte'}\" type=button tink-tooltip=\"Meten oppervlakte en omtrek\" tink-tooltip-align=bottom class=btn prevent-default-map>\n" +
     "<svg class=\"icon icon-sik-measure-shape\"><use xlink:href=#icon-sik-measure-shape></use></svg>\n" +
     "</button>\n" +
     "</div>\n" +
     "<div class=\"btn-group ll searchbtns\">\n" +
-    "<button type=button class=btn ng-class=\"{active: mapctrl.ZoekenOpLocatie==true}\" ng-click=mapctrl.fnZoekenOpLocatie() tink-tooltip=\"Zoeken op locatie\" tink-tooltip-align=bottom prevent-default-map>\n" +
+    "<button type=button class=\"btn tooltip-margin-left\" ng-class=\"{active: mapctrl.ZoekenOpLocatie==true}\" ng-click=mapctrl.fnZoekenOpLocatie() tink-tooltip=\"... Zoeken op locatie\" tink-tooltip-align=bottom prevent-default-map>\n" +
     "<svg class=\"icon icon-sik-location-search\"><use xlink:href=#icon-sik-location-search></use></svg>\n" +
     "</button>\n" +
     "<button type=button class=btn ng-class=\"{active: mapctrl.ZoekenOpLocatie==false}\" ng-click=mapctrl.ZoekenInLagen() tink-tooltip=\"Zoeken binnen lagen\" tink-tooltip-align=bottom prevent-default-map>\n" +
@@ -4809,9 +4811,15 @@ L.drawLocal = {
     "</div>\n" +
     "<div class=map-buttons-right>\n" +
     "<div class=\"btn-group btn-group-vertical ll viewbtns\">\n" +
-    "<button type=button class=btn ng-click=mapctrl.zoomIn() prevent-default-map tink-tooltip=Inzoomen tink-tooltip-align=bottom><i class=\"fa fa-plus\"></i></button>\n" +
-    "<button type=button class=btn ng-click=mapctrl.zoomOut() prevent-default-map tink-tooltip=Uitzoomen tink-tooltip-align=bottom><i class=\"fa fa-minus\"></i></button>\n" +
-    "<button type=button class=btn ng-click=mapctrl.zoomToGps() ng-class=\"{active: mapctrl.gpstracking==true}\" prevent-default-map tink-tooltip=\"Je locatie weergeven\" tink-tooltip-align=bottom><i class=\"fa fa-crosshairs\"></i></button>\n" +
+    "<button type=button class=btn ng-click=mapctrl.zoomIn() tink-tooltip=\"Zoom in\" tink-tooltip-align=left prevent-default-map>\n" +
+    "<i class=\"fa fa-plus\"></i>\n" +
+    "</button>\n" +
+    "<button type=button class=btn ng-click=mapctrl.zoomOut() tink-tooltip=\"Zoom uit\" tink-tooltip-align=left prevent-default-map>\n" +
+    "<i class=\"fa fa-minus\"></i>\n" +
+    "</button>\n" +
+    "<button type=button class=btn ng-click=mapctrl.zoomToGps() ng-class=\"{active: mapctrl.gpstracking==true}\" tink-tooltip=\"Huidige locatie\" tink-tooltip-align=left prevent-default-map>\n" +
+    "<i class=\"fa fa-crosshairs\"></i>\n" +
+    "</button>\n" +
     "</div>\n" +
     "<div class=\"ll loading\" ng-show=\"mapctrl.Loading > 0\">\n" +
     "<div class=loader></div> {{mapctrl.MaxLoading - mapctrl.Loading}}/ {{mapctrl.MaxLoading}}\n" +
@@ -4903,7 +4911,7 @@ L.drawLocal = {
     "<div class=\"row extra-padding\">\n" +
     "<div class=\"col-xs-12 margin-bottom text-right\">\n" +
     "<button class=btn tink-tooltip=\"Exporteer naar CSV\" tink-tooltip-align=top ng-if=srchrsltsctrl.exportToCSVButtonIsEnabled ng-click=srchrsltsctrl.exportToCSV()>\n" +
-    "<i class=\"fa fa-file-excel-o\"></i>\n" +
+    "<svg class=\"icon icon-sik-file-csv\"><use xmlns:xlink=http://www.w3.org/1999/xlink xlink:href=#icon-sik-file-csv></use></svg>\n" +
     "</button>\n" +
     "<button class=btn-sm ng-show=srchrsltsctrl.extraResultButtonIsEnabled ng-click=srchrsltsctrl.extraResultButton()>{{srchrsltsctrl.resultButtonText}}</button>\n" +
     "</div>\n" +
@@ -4948,10 +4956,10 @@ L.drawLocal = {
     "<button class=btn tink-tooltip=Doordruk tink-tooltip-align=top ng-click=srchslctdctrl.doordruk()>\n" +
     "<svg class=\"icon icon-sik-press-through\"><use xlink:href=#icon-sik-press-through></use></svg>\n" +
     "</button>\n" +
-    "<button class=btn tink-tooltip=Buffer tink-tooltip-align=top ng-click=srchslctdctrl.buffer()>\n" +
+    "<button class=btn tink-tooltip=Buffer tink-tooltip-align=top ng-click=srchslctdctrl.buffer() tink-tooltip=Buffer tink-tooltip-align=bottom>\n" +
     "<svg class=\"icon icon-sik-buffer\"><use xlink:href=#icon-sik-buffer></use></svg>\n" +
     "</button>\n" +
-    "<button class=btn tink-tooltip=Exporteer_naar_CSV tink-tooltip-align=top ng-if=srchslctdctrl.exportToCSVButtonIsEnabled ng-click=srchslctdctrl.exportToCSV()>\n" +
+    "<button class=btn tink-tooltip=\"Exporteer naar CSV\" tink-tooltip-align=top ng-if=srchslctdctrl.exportToCSVButtonIsEnabled ng-click=srchslctdctrl.exportToCSV()>\n" +
     "<svg class=\"icon icon-sik-file-csv\"><use xlink:href=#icon-sik-file-csv></use></svg>\n" +
     "</button>\n" +
     "<button class=btn tink-tooltip=Verwijderen tink-tooltip-align=top ng-click=srchslctdctrl.delete()>\n" +
@@ -5000,7 +5008,7 @@ L.drawLocal = {
     "</div>\n" +
     "<div class=\"row extra-padding margin-top\">\n" +
     "<div class=\"col-xs-12 text-right\">\n" +
-    "<button class=btn ng-click=srchrsltsctrl.bufferFromDrawing()>\n" +
+    "<button class=btn ng-click=srchrsltsctrl.bufferFromDrawing() tink-tooltip=\"Buffer rond selectievorm\" tink-tooltip-align=top>\n" +
     "<svg class=\"icon icon-sik-buffer\"><use xlink:href=#icon-sik-buffer></use></svg>\n" +
     "</button>\n" +
     "<button class=\"btn btn-primary\" ng-click=srchrsltsctrl.zoom2Drawing()>Tonen</button>\n" +

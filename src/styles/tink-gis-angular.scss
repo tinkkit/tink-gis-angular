@@ -572,16 +572,16 @@ ul {
   }
 
   &.width-lg {
-    min-width: 80vw;
+    min-width: 90vw;
   }
 
-  &.width-md {
-    min-width: 80vw;
+  // &.width-md { // deprecated
+  //   min-width: 60vw;
 
-    @include mq($screen-sm) {
-      min-width: 40vw;
-    }
-  }
+  //   @include mq($screen-sm) {
+  //     min-width: 40vw;
+  //   }
+  // }
 
   &.width-sm {
     min-width: 40vw;
@@ -594,6 +594,10 @@ ul {
 
 .modal-footer {
   border-top: 1px solid $gray-light;
+
+  &.border-none {
+    border: none;
+  }
 }
 
 .modal-header {
@@ -1149,22 +1153,26 @@ html.show-loader {
  */
 
 .dashboard {
-  ul,
-  .show-more {
-    padding-left: rem(24);
-
-    li {
+  li {
       padding-bottom: rem($padding-small-vertical);
     }
+
+  .show-more {
+    font-weight: 700;
   }
 
-  &-left {
-    border-right: 1px solid $gray-light;
-  }
+  .column-right {
+    width: rem(500);
+}
+}
 
-  &-right {
+.column-left {
+  border-right: 1px solid $gray-light;
+  width: rem(300);
+}
 
-  }
+.column-right {
+  width: rem(600);
 }
 
 .block {
@@ -1182,7 +1190,7 @@ html.show-loader {
   }
 }
 
-.title-block {
+.title-block { // deprecated
   background-color: $gray-lightest;
   border-radius: $border-radius-base;
   height: rem(120);
