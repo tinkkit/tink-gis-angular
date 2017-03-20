@@ -1,5 +1,5 @@
-<div class="gepoPuntTemplate row relative-container">
-    <div class="col-xs-4 flex-column flex-grow-1 margin-top margin-bottom">
+<div class="gepoPuntTemplate row relative-container flex-grow-1">
+    <div class="col-xs-4 flex-column flex-grow-1 margin-top margin-bottom border-right">
         <div ng-show="loading == false" class="overflow-wrapper flex-grow-1 list-selectable margin-top margin-bottom">
             <div ng-if="!searchIsUrl" ng-repeat="theme in availableThemes">
                 <dl ng-class="{active: isActive(theme)}" ng-class="{'not-allowed': theme.Type != 'wms' &&  theme.Type != 'esri'}">
