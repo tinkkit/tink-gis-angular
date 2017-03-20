@@ -5001,7 +5001,7 @@ L.drawLocal = {
     "<div class=\"row extra-padding margin-top\">\n" +
     "<div class=\"col-xs-12 text-right\">\n" +
     "<button class=btn ng-click=srchrsltsctrl.bufferFromDrawing()>\n" +
-    "<svg class=\"icon icon-buffer\"><use xlink:href=#icon-buffer></use></svg>\n" +
+    "<svg class=\"icon icon-sik-buffer\"><use xlink:href=#icon-sik-buffer></use></svg>\n" +
     "</button>\n" +
     "<button class=\"btn btn-primary\" ng-click=srchrsltsctrl.zoom2Drawing()>Tonen</button>\n" +
     "</div>\n" +
