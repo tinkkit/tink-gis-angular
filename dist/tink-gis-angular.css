@@ -1025,7 +1025,8 @@ button.disabled {
   padding-right: 0.8571428571rem ; }
 
 .tooltip {
-  white-space: nowrap; }
+  white-space: nowrap;
+  z-index: 2000; }
 
 .sweet-alert fieldset {
   display: none; }
