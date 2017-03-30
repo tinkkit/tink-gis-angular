@@ -5044,12 +5044,12 @@ L.drawLocal = {
     "<div class=nav-aside-section>\n" +
     "<p class=nav-aside-title>\n" +
     "Selectievorm\n" +
-    "<button prevent-default=\"\" ng-click=srchrsltsctrl.deleteDrawing() class=\"trash pull-right\"></button>\n" +
     "</p>\n" +
     "</div>\n" +
     "<div class=\"row extra-padding margin-top\">\n" +
     "<div class=\"col-xs-12 text-right\">\n" +
-    "<button class=btn ng-click=srchrsltsctrl.bufferFromDrawing() tink-tooltip=\"Buffer rond selectievorm\" tink-tooltip-align=left>\n" +
+    "<button ng-click=srchrsltsctrl.deleteDrawing() tink-tooltip=\"Verwijder de selectievorm\" tink-tooltip-align=right class=btn><i class=\"fa fa-trash\" aria-hidden=true></i></button>\n" +
+    "<button class=btn ng-click=srchrsltsctrl.bufferFromDrawing() tink-tooltip=\"Buffer rond selectievorm\" tink-tooltip-align=right>\n" +
     "<svg class=\"icon icon-sik-buffer\"><use xlink:href=#icon-sik-buffer></use></svg>\n" +
     "</button>\n" +
     "<button class=\"btn btn-primary\" ng-click=srchrsltsctrl.zoom2Drawing()>Tonen</button>\n" +
