@@ -976,12 +976,13 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
 
 (function (module) {
     module = angular.module('tink.gis');
-    var theController = module.controller('mapController', function ($scope, ExternService, BaseLayersService, MapService, MapData, map, MapEvents, DrawService, HelperService, GISService, PopupService, $interval, TypeAheadService, UIService, tinkApi) {
+    var theController = module.controller('mapController', function ($scope, ExternService, BaseLayersService, MapService, MapData, map, MapEvents, DrawService, HelperService, GISService, PopupService, $interval, TypeAheadService, UIService, tinkApi, FeatureService) {
         //We need to include MapEvents, even tho we don t call it just to make sure it gets loaded!
         var vm = this;
         var init = function () {
             console.log('Tink-Gis-Angular component init!!!!!!!!!');
             if (window.location.href.startsWith('http://localhost:9000/')) {
+                FeatureService.defaultLayerName = "fietspad";
                 var externproj = JSON.parse('{"naam":"Velo en fietspad!!","extent":{"_northEast":{"lat":"51.2336102032025","lng":"4.41993402409611"},"_southWest":{"lat":"51.1802290498612","lng":"4.38998297870121"}},"guid":"bfc88ea3-8581-4204-bdbc-b5f54f46050d","extentString":"51.2336102032025,4.41993402409611,51.1802290498612,4.38998297870121","isKaart":true,"uniqId":3,"creatorId":6,"creator":null,"createDate":"2016-08-22T10:55:15.525994","updaterId":6,"updater":null,"lastUpdated":"2016-08-22T10:55:15.525994","themes":[{"cleanUrl":"services/P_Stad/Mobiliteit/MapServer","naam":"Mobiliteit","type":"esri","visible":true,"layers":[{"id":"9","name":"fietspad","visible":true},{"id":"6","name":"velo","visible":true},{"id":"0","name":"Fiets en voetganger","visible":true}]}],"isReadOnly":false}');
                 ExternService.Import(externproj);
 
@@ -1028,7 +1029,6 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             }
         };
         vm.interactieButtonChanged = function (ActiveButton) {
-            // MapData.CleanMap()
             if (ActiveButton == "identify" || "watishier") {
                 vm.addCursorAuto();
             }
@@ -1045,7 +1045,6 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 case ActiveInteractieButton.METEN:
                     vm.showMetenControls = true;
                     MapData.DrawingType = DrawingOption.GEEN;
-                    // vm.drawingButtonChanged(DrawingOption.GEEN);
                     break;
             }
         };
@@ -1222,7 +1221,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             }
         };
     });
-    theController.$inject = ['BaseLayersService', 'ExternService', 'MapService', 'MapData', 'map', 'MapEvents', 'DrawService', 'HelperService', 'GISService', 'PopupService', '$interval', 'UIService', 'tinkApi'];
+    theController.$inject = ['BaseLayersService', 'ExternService', 'MapService', 'MapData', 'map', 'MapEvents', 'DrawService', 'HelperService', 'GISService', 'PopupService', '$interval', 'UIService', 'tinkApi', 'FeatureService'];
 })();
 ;'use strict';
 
@@ -2040,7 +2039,6 @@ var esri2geo = {};
             exportObject.themes = arr;
             exportObject.extent = map.getBounds();
             exportObject.isKaart = true;
-
             return exportObject;
         };
 
@@ -2124,6 +2122,7 @@ var esri2geo = {};
                     if (defaultLayer) {
                         MapData.SelectedLayer = defaultLayer;
                         MapData.SelectedFindLayer = defaultLayer;
+                        MapData.DefaultLayer = defaultLayer;
                     }
                 }
             });
@@ -2529,9 +2528,8 @@ L.control.typeahead = function (args) {
         _data.VisibleLayers.unshift(_data.defaultlayer);
         _data.SelectedLayer = _data.defaultlayer;
         _data.DrawLayer = null;
-
+        _data.DefaultLayer = null; // can be set from the featureservice
         _data.SelectedFindLayer = _data.defaultlayer;
-
         _data.ResetVisibleLayers = function () {
             console.log("RestVisLayers");
             var curSelectedLayer = _data.SelectedLayer;
@@ -3140,7 +3138,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         _mapService.Select = function (event) {
             MapData.CleanSearch();
             console.log(event);
-            if (MapData.SelectedLayer.id == '') {
+            if (MapData.SelectedLayer.id === '') {
                 // alle layers selected
                 MapData.Themes.filter(function (x) {
                     return x.Type == ThemeType.ESRI;
@@ -3166,7 +3164,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             if (!layer) {
                 layer = MapData.SelectedLayer;
             }
-            if (!layer || layer.id == '') {
+            if (!layer || layer.id === '') {
                 // alle layers selected
                 MapData.Themes.forEach(function (theme) {
                     // dus doen we de qry op alle lagen.
@@ -3236,7 +3234,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         };
         _mapService.Find = function (query) {
             MapData.CleanSearch();
-            if (MapData.SelectedFindLayer && MapData.SelectedFindLayer.id == '') {
+            if (MapData.SelectedFindLayer && MapData.SelectedFindLayer.id === '') {
                 // alle layers selected
                 MapData.Themes.forEach(function (theme) {
                     // dus doen we de qry op alle lagen.
@@ -3694,10 +3692,21 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     }
     module.controller('BufferController', ['$scope', '$modalInstance', 'MapData', function ($scope, $modalInstance, MapData) {
         var vm = this;
-        $scope.buffer = 100;
+        $scope.buffer = 50;
         $scope.SelectableLayers = angular.copy(MapData.VisibleLayers);
-        $scope.SelectableLayers.shift();
-        $scope.selectedLayer = $scope.SelectableLayers[0];
+        $scope.SelectableLayers.shift(); // remove the alllayers for buffer
+        if (MapData.DefaultLayer) {
+            var selectedLayer = $scope.SelectableLayers.find(function (x) {
+                return x.name == MapData.DefaultLayer.name;
+            });
+            if (selectedLayer) {
+                $scope.selectedLayer = selectedLayer;
+            } else {
+                $scope.selectedLayer = $scope.SelectableLayers[0];
+            }
+        } else {
+            $scope.selectedLayer = $scope.SelectableLayers[0];
+        }
         $scope.ok = function () {
             $modalInstance.$close({ buffer: $scope.buffer, layer: $scope.selectedLayer }); // return the themes.
         };
@@ -4438,20 +4447,34 @@ L.drawLocal = {
     "<meta charset=utf-8>\n" +
     "<title>Street View side-by-side</title>\n" +
     "<style>\n" +
-    "html, body {\n" +
-    "        height: 100%;\n" +
-    "        margin: 0;\n" +
-    "        padding: 0;\n" +
-    "      }\n" +
-    "      #map,  {\n" +
-    "        float: left;\n" +
-    "        height: 0%;\n" +
-    "        width: 0%;\n" +
-    "      }\n" +
-    "       #pano {\n" +
-    "        float: left;\n" +
-    "        height: 100%;\n" +
-    "        width: 100%;\n" +
+    "html, body {\r" +
+    "\n" +
+    "        height: 100%;\r" +
+    "\n" +
+    "        margin: 0;\r" +
+    "\n" +
+    "        padding: 0;\r" +
+    "\n" +
+    "      }\r" +
+    "\n" +
+    "      #map,  {\r" +
+    "\n" +
+    "        float: left;\r" +
+    "\n" +
+    "        height: 0%;\r" +
+    "\n" +
+    "        width: 0%;\r" +
+    "\n" +
+    "      }\r" +
+    "\n" +
+    "       #pano {\r" +
+    "\n" +
+    "        float: left;\r" +
+    "\n" +
+    "        height: 100%;\r" +
+    "\n" +
+    "        width: 100%;\r" +
+    "\n" +
     "      }\n" +
     "</style>\n" +
     "</head>\n" +
@@ -4459,24 +4482,42 @@ L.drawLocal = {
     "<div id=map></div>\n" +
     "<div id=pano></div>\n" +
     "<script>\n" +
-    "function initialize() {\n" +
-    "        \n" +
-    "        var urlLat = parseFloat((location.search.split('lat=')[1]||'').split('&')[0]);\n" +
-    "        var urlLng = parseFloat((location.search.split('lng=')[1]||'').split('&')[0]);\n" +
-    "        var fenway = {lat:urlLat, lng: urlLng};\n" +
-    "        var map = new google.maps.Map(document.getElementById('map'), {\n" +
-    "          center: fenway,\n" +
-    "          zoom: 14\n" +
-    "        });\n" +
-    "        var panorama = new google.maps.StreetViewPanorama(\n" +
-    "            document.getElementById('pano'), {\n" +
-    "              position: fenway,\n" +
-    "              pov: {\n" +
-    "                heading: 34,\n" +
-    "                pitch: 10\n" +
-    "              }\n" +
-    "            });\n" +
-    "        map.setStreetView(panorama);\n" +
+    "function initialize() {\r" +
+    "\n" +
+    "        \r" +
+    "\n" +
+    "        var urlLat = parseFloat((location.search.split('lat=')[1]||'').split('&')[0]);\r" +
+    "\n" +
+    "        var urlLng = parseFloat((location.search.split('lng=')[1]||'').split('&')[0]);\r" +
+    "\n" +
+    "        var fenway = {lat:urlLat, lng: urlLng};\r" +
+    "\n" +
+    "        var map = new google.maps.Map(document.getElementById('map'), {\r" +
+    "\n" +
+    "          center: fenway,\r" +
+    "\n" +
+    "          zoom: 14\r" +
+    "\n" +
+    "        });\r" +
+    "\n" +
+    "        var panorama = new google.maps.StreetViewPanorama(\r" +
+    "\n" +
+    "            document.getElementById('pano'), {\r" +
+    "\n" +
+    "              position: fenway,\r" +
+    "\n" +
+    "              pov: {\r" +
+    "\n" +
+    "                heading: 34,\r" +
+    "\n" +
+    "                pitch: 10\r" +
+    "\n" +
+    "              }\r" +
+    "\n" +
+    "            });\r" +
+    "\n" +
+    "        map.setStreetView(panorama);\r" +
+    "\n" +
     "      }\n" +
     "</script>\n" +
     "<script async defer src=\"https://maps.googleapis.com/maps/api/js?callback=initialize\">\n" +
@@ -4884,7 +4925,7 @@ L.drawLocal = {
     "<div class=row>\n" +
     "<div class=col-xs-12>\n" +
     "<div class=form-group>\n" +
-    "<label for=input-number>Geef de bufferafstand:</label>\n" +
+    "<label for=input-number>Geef de bufferafstand (m):</label>\n" +
     "<input type=number class=hide-spin-button ng-model=buffer>\n" +
     "</div>\n" +
     "</div>\n" +

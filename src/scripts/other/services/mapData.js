@@ -13,9 +13,8 @@
         _data.VisibleLayers.unshift(_data.defaultlayer);
         _data.SelectedLayer = _data.defaultlayer;
         _data.DrawLayer = null;
-
+        _data.DefaultLayer = null; // can be set from the featureservice
         _data.SelectedFindLayer = _data.defaultlayer;
-
         _data.ResetVisibleLayers = function () {
             console.log("RestVisLayers");
             var curSelectedLayer = _data.SelectedLayer;

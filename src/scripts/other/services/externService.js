@@ -27,7 +27,7 @@
             }
             map.invalidateSize(false);
             map.setView(cent);
-        }
+        };
         _externService.Export = function () {
             var exportObject = {};
             var arr = MapData.Themes.map(theme => {
@@ -59,7 +59,6 @@
             exportObject.themes = arr;
             exportObject.extent = map.getBounds();
             exportObject.isKaart = true;
-
             return exportObject;
         };
 
@@ -138,6 +137,7 @@
                     if (defaultLayer) {
                         MapData.SelectedLayer = defaultLayer;
                         MapData.SelectedFindLayer = defaultLayer;
+                        MapData.DefaultLayer = defaultLayer;
                     }
                   
                 }

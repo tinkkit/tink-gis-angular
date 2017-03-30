@@ -96,7 +96,7 @@
         _mapService.Select = function (event) {
             MapData.CleanSearch();
             console.log(event);
-            if (MapData.SelectedLayer.id == '') { // alle layers selected
+            if (MapData.SelectedLayer.id === '') { // alle layers selected
                 MapData.Themes.filter(x => x.Type == ThemeType.ESRI).forEach(theme => { // dus doen we de qry op alle lagen.
                     ResultsData.RequestStarted++;
                     theme.MapData.identify().on(map).at(event.latlng).layers('visible: ' + theme.VisibleLayerIds).run(function (error, featureCollection) {
@@ -122,7 +122,7 @@
             if (!layer) {
                 layer = MapData.SelectedLayer;
             }
-            if (!layer || layer.id == '') { // alle layers selected
+            if (!layer || layer.id === '') { // alle layers selected
                 MapData.Themes.forEach(theme => { // dus doen we de qry op alle lagen.
                     if (theme.Type === ThemeType.ESRI) {
                         theme.VisibleLayers.forEach(lay => {
@@ -196,7 +196,7 @@
         }
         _mapService.Find = function (query) {
             MapData.CleanSearch();
-            if (MapData.SelectedFindLayer && MapData.SelectedFindLayer.id == '') { // alle layers selected
+            if (MapData.SelectedFindLayer && MapData.SelectedFindLayer.id === '') { // alle layers selected
                 MapData.Themes.forEach(theme => { // dus doen we de qry op alle lagen.
                     if (theme.Type === ThemeType.ESRI) {
                         theme.VisibleLayers.forEach(lay => {

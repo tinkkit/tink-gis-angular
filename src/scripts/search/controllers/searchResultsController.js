@@ -82,7 +82,7 @@
             };
             vm.exportToCSVButtonIsEnabled = FeatureService.exportToCSVButtonIsEnabled;
             $scope.$watch(function () { return FeatureService.exportToCSVButtonIsEnabled; }, function (newValue, oldValue) {
-                vm.exportToCSVButtonIsEnabled = newValue
+                vm.exportToCSVButtonIsEnabled = newValue;
             });
             $scope.$watch(function () { return FeatureService.extraResultButtonIsEnabled; }, function (newValue, oldValue) {
                 vm.extraResultButtonIsEnabled = FeatureService.extraResultButtonIsEnabled;
