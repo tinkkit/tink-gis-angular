@@ -110,7 +110,6 @@
                 MapData.SelectedLayer.theme.MapData.identify().on(map).at(event.latlng).layers('visible: ' + MapData.SelectedLayer.id).run(function (error, featureCollection) {
                     ResultsData.RequestCompleted++;
                     MapData.AddFeatures(featureCollection, MapData.SelectedLayer.theme);
-
                 });
             }
 
@@ -118,7 +117,6 @@
 
 
         _mapService.Query = function (box, layer) {
-            MapData.CleanSearch();
             if (!layer) {
                 layer = MapData.SelectedLayer;
             }

@@ -130,6 +130,16 @@ var Style = {
     DEFAULT: {
         fillOpacity: 0,
         color: 'blue',
+        weight: 4
+    },
+    ADD: {
+        fillOpacity: 0,
+        color: 'green',
+        weight: 5
+    },
+    REMOVE: {
+        fillOpacity: 0,
+        color: 'yellow',
         weight: 5
     },
     HIGHLIGHT: {
@@ -1074,13 +1084,18 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             }
         };
         vm.drawingButtonChanged = function (drawOption) {
-            if (drawOption == DrawingOption.LIJN || drawOption == DrawingOption.POLYGON || drawOption == DrawingOption.NIETS || drawOption == DrawingOption.VIERKANT) {
-                MapData.CleanMap();
-                MapData.CleanSearch();
+            if (MapData.ExtendedType == null) {
+                // else we don t have to clean the map!
+
+                if (drawOption == DrawingOption.LIJN || drawOption == DrawingOption.POLYGON || drawOption == DrawingOption.NIETS || drawOption == DrawingOption.VIERKANT) {
+                    MapData.CleanMap();
+                    MapData.CleanSearch();
+                }
+                if (drawOption == DrawingOption.AFSTAND || drawOption == DrawingOption.OPPERVLAKTE) {
+                    // MapData.CleanDrawings();
+                }
             }
-            if (drawOption == DrawingOption.AFSTAND || drawOption == DrawingOption.OPPERVLAKTE) {
-                // MapData.CleanDrawings();
-            }
+
             MapData.DrawingType = drawOption; // pff must be possible to be able to sync them...
             vm.drawingType = drawOption;
             DrawService.StartDraw(drawOption);
@@ -1091,8 +1106,11 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         vm.selectpunt = function () {
             MapData.DrawingType = DrawingOption.NIETS; // pff must be possible to be able to sync them...
             vm.drawingType = DrawingOption.NIETS;
-            MapData.CleanMap();
-            MapData.CleanSearch();
+            if (MapData.ExtendedType == null) {
+                // else we don t have to clean the map!
+                MapData.CleanMap();
+                MapData.CleanSearch();
+            }
             vm.addCursorAuto();
         };
         vm.layerChange = function () {
@@ -1570,6 +1588,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 }
             });
             prom.success(function (response) {
+                MapData.CleanSearch();
                 var buffer = MapData.CreateBuffer(response);
                 MapService.Query(buffer, selectedlayer);
                 MapData.SetStyle(loc.mapItem, Style.COREBUFFER, L.AwesomeMarkers.icon({ icon: 'fa-circle-o', markerColor: 'lightgreen' }));
@@ -1577,6 +1596,8 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             });
         };
         _service.Doordruk = function (location) {
+            MapData.CleanSearch();
+
             MapData.CleanMap();
             console.log(location);
             MapService.Query(location);
@@ -2522,6 +2543,7 @@ L.control.typeahead = function (args) {
         _data.VisibleLayers = [];
         _data.SelectableLayers = [];
         _data.VisibleFeatures = [];
+        _data.TempExtendFeatures = [];
         _data.IsDrawing = false;
         _data.Themes = [];
         _data.defaultlayer = { id: '', name: 'Alle Layers' };
@@ -2552,6 +2574,7 @@ L.control.typeahead = function (args) {
         };
         _data.ActiveInteractieKnop = ActiveInteractieButton.NIETS;
         _data.DrawingType = DrawingOption.NIETS;
+        _data.ExtendedType = null;
         _data.DrawingObject = null;
         _data.LastIdentifyBounds = null;
         _data.CleanDrawings = function () {
@@ -2780,77 +2803,118 @@ L.control.typeahead = function (args) {
             });
         };
         _data.AddFeatures = function (features, theme, layerId) {
-            var bufferid = null;
-            var bufferlayer = null;
-            var buffereditem = _data.VisibleFeatures.find(function (x) {
-                return x.isBufferedItem;
-            });
-            if (buffereditem) {
-                bufferid = buffereditem.toGeoJSON().features[0].id;
-                bufferlayer = buffereditem.toGeoJSON().features[0].layer;
-            }
+
             if (!features || features.features.length == 0) {
                 ResultsData.EmptyResult = true;
             } else {
                 ResultsData.EmptyResult = false;
-                for (var x = 0; x < features.features.length; x++) {
-                    var featureItem = features.features[x];
-
-                    var layer = {};
-                    if (featureItem.layerId != null) {
-                        layer = theme.AllLayers.find(function (x) {
-                            return x.id === featureItem.layerId;
-                        });
-                    } else if (layerId != null) {
-                        layer = theme.AllLayers.find(function (x) {
-                            return x.id === layerId;
-                        });
+                var featureArray = _data.GetResultsData(features, theme, layerId);
+                if (_data.ExtendedType == null) {
+                    // else we don t have to clean the map!
+                    featureArray.forEach(function (featureItem) {
+                        ResultsData.JsonFeatures.push(featureItem);
+                    });
+                } else {
+                    _data.ConfirmExtendDialog();
+                }
+            }
+            $rootScope.$applyAsync();
+        };
+        _data.SetDisplayValue = function (featureItem, layer) {
+            featureItem.displayValue = featureItem.properties[layer.displayField];
+            if (!featureItem.displayValue) {
+                var displayFieldProperties = layer.fields.find(function (x) {
+                    return x.name == layer.displayField;
+                });
+                if (displayFieldProperties) {
+                    if (featureItem.properties[displayFieldProperties.alias]) {
+                        featureItem.displayValue = featureItem.properties[displayFieldProperties.alias];
                     } else {
-                        console.log('NO LAYER ID WAS GIVEN EITHER FROM FEATURE ITEM OR FROM PARAMETER');
+                        featureItem.displayValue = 'LEEG';
                     }
-                    featureItem.theme = theme;
-                    featureItem.layerName = layer.name;
-                    if (theme.Type === ThemeType.ESRI) {
-                        layer.fields.forEach(function (field) {
-                            if (field.type == 'esriFieldTypeDate') {
-                                var date = new Date(featureItem.properties[field.name]);
-                                var date_string = date.getDate() + 1 + '/' + (date.getMonth() + 1) + '/' + date.getFullYear(); // "2013-9-23"
-                                featureItem.properties[field.name] = date_string;
-                            }
-                        });
-                        featureItem.displayValue = featureItem.properties[layer.displayField];
-                        if (!featureItem.displayValue) {
-                            var displayFieldProperties = layer.fields.find(function (x) {
-                                return x.name == layer.displayField;
-                            });
-                            if (displayFieldProperties) {
-                                if (featureItem.properties[displayFieldProperties.alias]) {
-                                    featureItem.displayValue = featureItem.properties[displayFieldProperties.alias];
-                                } else {
-                                    featureItem.displayValue = 'LEEG';
-                                }
-                            } else {
-                                featureItem.displayValue = 'LEEG';
-                            }
+                } else {
+                    featureItem.displayValue = 'LEEG';
+                }
+            }
+            if (featureItem.displayValue.toString().trim() == '') {
+                featureItem.displayValue = 'LEEG';
+            }
+        };
+        _data.GetResultsData = function (features, theme, layerId) {
+            var buffereditem = _data.VisibleFeatures.find(function (x) {
+                return x.isBufferedItem;
+            });
+            var resultArray = [];
+            _data.TempExtendFeatures = []; //make sure it is empty
+            for (var x = 0; x < features.features.length; x++) {
+                var featureItem = features.features[x];
+
+                var layer = {};
+                if (featureItem.layerId != null) {
+                    layer = theme.AllLayers.find(function (x) {
+                        return x.id === featureItem.layerId;
+                    });
+                } else if (layerId != null) {
+                    layer = theme.AllLayers.find(function (x) {
+                        return x.id === layerId;
+                    });
+                } else {
+                    console.log('NO LAYER ID WAS GIVEN EITHER FROM FEATURE ITEM OR FROM PARAMETER');
+                }
+                featureItem.theme = theme;
+                featureItem.layerName = layer.name;
+                if (theme.Type === ThemeType.ESRI) {
+                    layer.fields.forEach(function (field) {
+                        if (field.type == 'esriFieldTypeDate') {
+                            var date = new Date(featureItem.properties[field.name]);
+                            var date_string = date.getDate() + 1 + '/' + (date.getMonth() + 1) + '/' + date.getFullYear(); // "2013-9-23"
+                            featureItem.properties[field.name] = date_string;
                         }
-                        if (featureItem.displayValue.toString().trim() == '') {
-                            featureItem.displayValue = 'LEEG';
-                        }
+                    });
+                    _data.SetDisplayValue(featureItem, layer);
+                    if (buffereditem) {
+                        var bufferid = buffereditem.toGeoJSON().features[0].id;
+                        var bufferlayer = buffereditem.toGeoJSON().features[0].layer;
                         if (bufferid && bufferid == featureItem.id && bufferlayer == featureItem.layer) {
                             featureItem.mapItem = buffereditem;
+                        }
+                    } else {
+                        var thestyle = Style.DEFAULT;
+                        if (_data.ExtendedType == "add") {
+                            thestyle = Style.ADD;
+                            var alreadyexists = _data.VisibleFeatures.some(function (x) {
+                                return x.toGeoJSON().features[0].id == featureItem.id && x.toGeoJSON().features[0].layerName == featureItem.layerName;
+                            });
+                            if (!alreadyexists) {
+                                var mapItem = L.geoJson(featureItem, { style: thestyle }).addTo(map);
+                                _data.TempExtendFeatures.push(mapItem);
+                                featureItem.mapItem = mapItem;
+                            }
+                        } else if (_data.ExtendedType == "remove") {
+                            thestyle = Style.REMOVE;
+                            var alreadyexists = _data.VisibleFeatures.some(function (x) {
+                                return x.toGeoJSON().features[0].id == featureItem.id && x.toGeoJSON().features[0].layerName == featureItem.layerName;
+                            });
+                            if (alreadyexists) {
+                                var mapItem = L.geoJson(featureItem, { style: thestyle }).addTo(map);
+                                _data.TempExtendFeatures.push(mapItem);
+                                featureItem.mapItem = mapItem;
+                            }
                         } else {
-                            var mapItem = L.geoJson(featureItem, { style: Style.DEFAULT }).addTo(map);
+                            var mapItem = L.geoJson(featureItem, { style: thestyle }).addTo(map);
                             _data.VisibleFeatures.push(mapItem);
                             featureItem.mapItem = mapItem;
                         }
-                    } else {
-                        featureItem.displayValue = featureItem.properties[Object.keys(featureItem.properties)[0]];
                     }
-                    ResultsData.JsonFeatures.push(featureItem);
+                } else {
+                    featureItem.displayValue = featureItem.properties[Object.keys(featureItem.properties)[0]];
                 }
-                $rootScope.$applyAsync();
+                resultArray.push(featureItem);
             }
+            return resultArray;
         };
+
+        _data.ConfirmExtendDialog = function () {};
         return _data;
     };
     module.$inject = ['ResultsData', 'FeatureService'];
@@ -3160,7 +3224,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         };
 
         _mapService.Query = function (box, layer) {
-            MapData.CleanSearch();
             if (!layer) {
                 layer = MapData.SelectedLayer;
             }
@@ -3678,7 +3741,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         };
         return _service;
     };
-    // module.$inject = ['$http', 'map'];
     module.factory('UIService', service);
 })();
 ;'use strict';
@@ -3796,6 +3858,24 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             }, function (obj) {
                 console.log('Modal dismissed at: ' + new Date()); // The contoller is closed by the use of the $dismiss call
             });
+        };
+        vm.extendedType = null;
+        $scope.$watch(function () {
+            return MapData.ExtendedType;
+        }, function (newValue, oldValue) {
+            vm.extendedType = newValue;
+        });
+        vm.addSelection = function () {
+            if (vm.extendedType != "add") {
+                vm.extendedType = "add";
+                MapData.ExtendedType = "add";
+            }
+        };
+        vm.removeSelection = function () {
+            if (vm.extendedType != "remove") {
+                vm.extendedType = "remove";
+                MapData.ExtendedType = "remove";
+            }
         };
         vm.deleteFeature = function (feature) {
             SearchService.DeleteFeature(feature);
@@ -4954,6 +5034,12 @@ L.drawLocal = {
     "<button class=btn tink-tooltip=\"Exporteer naar CSV\" tink-tooltip-align=left ng-if=srchrsltsctrl.exportToCSVButtonIsEnabled ng-click=srchrsltsctrl.exportToCSV()>\n" +
     "<svg class=\"icon icon-sik-file-csv\"><use xmlns:xlink=http://www.w3.org/1999/xlink xlink:href=#icon-sik-file-csv></use></svg>\n" +
     "</button>\n" +
+    "<button class=btn ng-class=\"{active: srchrsltsctrl.extendedType =='add'}\" tink-tooltip=\"Selectie toevoegen\" tink-tooltip-align=left ng-click=srchrsltsctrl.addSelection()>\n" +
+    "<i class=\"fa fa-plus\" aria-hidden=true></i>\n" +
+    "</button>\n" +
+    "<button class=btn ng-class=\"{active: srchrsltsctrl.extendedType=='remove'}\" tink-tooltip=\"Selectie verwijderen\" tink-tooltip-align=left ng-click=srchrsltsctrl.removeSelection()>\n" +
+    "<i class=\"fa fa-minus\" aria-hidden=true></i>\n" +
+    "</button>\n" +
     "<button class=btn-sm ng-show=srchrsltsctrl.extraResultButtonIsEnabled ng-click=srchrsltsctrl.extraResultButton()>{{srchrsltsctrl.resultButtonText}}</button>\n" +
     "</div>\n" +
     "<div class=col-xs-12>\n" +
@@ -4986,7 +5072,7 @@ L.drawLocal = {
     "</ul>\n" +
     "</div>\n" +
     "</div>\n" +
-    "</div>\n"
+    "</div>"
   );
 
 

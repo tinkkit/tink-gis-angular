@@ -22,6 +22,5 @@
         };
         return _service;
     };
-    // module.$inject = ['$http', 'map'];
     module.factory('UIService', service);
 })();

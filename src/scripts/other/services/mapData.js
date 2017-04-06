@@ -7,6 +7,7 @@
         _data.VisibleLayers = [];
         _data.SelectableLayers = [];
         _data.VisibleFeatures = [];
+        _data.TempExtendFeatures = [];
         _data.IsDrawing = false;
         _data.Themes = [];
         _data.defaultlayer = { id: '', name: 'Alle Layers' };
@@ -34,6 +35,7 @@
         }
         _data.ActiveInteractieKnop = ActiveInteractieButton.NIETS;
         _data.DrawingType = DrawingOption.NIETS;
+        _data.ExtendedType = null;
         _data.DrawingObject = null;
         _data.LastIdentifyBounds = null;
         _data.CleanDrawings = function () {
@@ -285,73 +287,115 @@
             })
         }
         _data.AddFeatures = function (features, theme, layerId) {
-            var bufferid = null;
-            var bufferlayer = null;
-            var buffereditem = _data.VisibleFeatures.find(x => x.isBufferedItem);
-            if (buffereditem) {
-                bufferid = buffereditem.toGeoJSON().features[0].id;
-                bufferlayer = buffereditem.toGeoJSON().features[0].layer;
-            }
+
             if (!features || features.features.length == 0) {
                 ResultsData.EmptyResult = true;
             } else {
                 ResultsData.EmptyResult = false;
-                for (var x = 0; x < features.features.length; x++) {
-                    var featureItem = features.features[x];
+                var featureArray = _data.GetResultsData(features, theme, layerId);
+                if (_data.ExtendedType == null) { // else we don t have to clean the map!
+                    featureArray.forEach(featureItem => {
+                        ResultsData.JsonFeatures.push(featureItem);
+                    });
+                } else {
+                    _data.ConfirmExtendDialog();
+                }
 
-                    var layer = {};
-                    if (featureItem.layerId != null) {
-                        layer = theme.AllLayers.find(x => x.id === featureItem.layerId);
+
+            }
+            $rootScope.$applyAsync();
+        };
+        _data.SetDisplayValue = function (featureItem, layer) {
+            featureItem.displayValue = featureItem.properties[layer.displayField];
+            if (!featureItem.displayValue) {
+                var displayFieldProperties = layer.fields.find(x => x.name == layer.displayField);
+                if (displayFieldProperties) {
+                    if (featureItem.properties[displayFieldProperties.alias]) {
+                        featureItem.displayValue = featureItem.properties[displayFieldProperties.alias];
                     }
-                    else if (layerId != null) {
-                        layer = theme.AllLayers.find(x => x.id === layerId);
-                    } else {
-                        console.log('NO LAYER ID WAS GIVEN EITHER FROM FEATURE ITEM OR FROM PARAMETER');
+                    else {
+                        featureItem.displayValue = 'LEEG';
                     }
-                    featureItem.theme = theme;
-                    featureItem.layerName = layer.name;
-                    if (theme.Type === ThemeType.ESRI) {
-                        layer.fields.forEach(field => {
-                            if (field.type == 'esriFieldTypeDate') {
-                                var date = new Date(featureItem.properties[field.name]);
-                                var date_string = (date.getDate() + 1) + '/' + (date.getMonth() + 1) + '/' + date.getFullYear(); // "2013-9-23"
-                                featureItem.properties[field.name] = date_string;
-                            }
-                        });
-                        featureItem.displayValue = featureItem.properties[layer.displayField];
-                        if (!featureItem.displayValue) {
-                            var displayFieldProperties = layer.fields.find(x => x.name == layer.displayField);
-                            if (displayFieldProperties) {
-                                if (featureItem.properties[displayFieldProperties.alias]) {
-                                    featureItem.displayValue = featureItem.properties[displayFieldProperties.alias];
-                                }
-                                else {
-                                    featureItem.displayValue = 'LEEG';
-                                }
-                            } else {
-                                featureItem.displayValue = 'LEEG';
-                            }
+                } else {
+                    featureItem.displayValue = 'LEEG';
+                }
+            }
+            if (featureItem.displayValue.toString().trim() == '') {
+                featureItem.displayValue = 'LEEG'
+            }
+        }
+        _data.GetResultsData = function (features, theme, layerId) {
+            var buffereditem = _data.VisibleFeatures.find(x => x.isBufferedItem);
+            var resultArray = [];
+            _data.TempExtendFeatures = []; //make sure it is empty
+            for (var x = 0; x < features.features.length; x++) {
+                var featureItem = features.features[x];
+
+                var layer = {};
+                if (featureItem.layerId != null) {
+                    layer = theme.AllLayers.find(x => x.id === featureItem.layerId);
+                }
+                else if (layerId != null) {
+                    layer = theme.AllLayers.find(x => x.id === layerId);
+                } else {
+                    console.log('NO LAYER ID WAS GIVEN EITHER FROM FEATURE ITEM OR FROM PARAMETER');
+                }
+                featureItem.theme = theme;
+                featureItem.layerName = layer.name;
+                if (theme.Type === ThemeType.ESRI) {
+                    layer.fields.forEach(field => {
+                        if (field.type == 'esriFieldTypeDate') {
+                            var date = new Date(featureItem.properties[field.name]);
+                            var date_string = (date.getDate() + 1) + '/' + (date.getMonth() + 1) + '/' + date.getFullYear(); // "2013-9-23"
+                            featureItem.properties[field.name] = date_string;
                         }
-                        if (featureItem.displayValue.toString().trim() == '') {
-                            featureItem.displayValue = 'LEEG'
-                        }
+                    });
+                    _data.SetDisplayValue(featureItem, layer);
+                    if (buffereditem) {
+                        var bufferid = buffereditem.toGeoJSON().features[0].id;
+                        var bufferlayer = buffereditem.toGeoJSON().features[0].layer;
                         if (bufferid && bufferid == featureItem.id && bufferlayer == featureItem.layer) {
                             featureItem.mapItem = buffereditem;
                         }
-                        else {
-                            var mapItem = L.geoJson(featureItem, { style: Style.DEFAULT }).addTo(map);
+                    }
+
+                    else {
+                        var thestyle = Style.DEFAULT;
+                        if (_data.ExtendedType == "add") {
+                            thestyle = Style.ADD;
+                            var alreadyexists = _data.VisibleFeatures.some(x => x.toGeoJSON().features[0].id == featureItem.id && x.toGeoJSON().features[0].layerName == featureItem.layerName);
+                            if (!alreadyexists) {
+                                var mapItem = L.geoJson(featureItem, { style: thestyle }).addTo(map);
+                                _data.TempExtendFeatures.push(mapItem);
+                                featureItem.mapItem = mapItem;
+                            }
+                        } else if (_data.ExtendedType == "remove") {
+                            thestyle = Style.REMOVE;
+                            var alreadyexists = _data.VisibleFeatures.some(x => x.toGeoJSON().features[0].id == featureItem.id && x.toGeoJSON().features[0].layerName == featureItem.layerName);
+                            if (alreadyexists) {
+                                var mapItem = L.geoJson(featureItem, { style: thestyle }).addTo(map);
+                                _data.TempExtendFeatures.push(mapItem);
+                                featureItem.mapItem = mapItem;
+                            }
+                        } else {
+                            var mapItem = L.geoJson(featureItem, { style: thestyle }).addTo(map);
                             _data.VisibleFeatures.push(mapItem);
                             featureItem.mapItem = mapItem;
                         }
+
                     }
-                    else {
-                        featureItem.displayValue = featureItem.properties[Object.keys(featureItem.properties)[0]];
-                    }
-                    ResultsData.JsonFeatures.push(featureItem);
                 }
-                $rootScope.$applyAsync();
+                else {
+                    featureItem.displayValue = featureItem.properties[Object.keys(featureItem.properties)[0]];
+                }
+                resultArray.push(featureItem);
             }
-        };
+            return resultArray;
+        }
+
+        _data.ConfirmExtendDialog = function () {
+
+        }
         return _data;
     };
     module.$inject = ['ResultsData', 'FeatureService'];

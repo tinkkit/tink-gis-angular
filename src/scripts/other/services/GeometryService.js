@@ -24,6 +24,7 @@
                 }
             });
             prom.success(function (response) {
+                MapData.CleanSearch();
                 var buffer = MapData.CreateBuffer(response);
                 MapService.Query(buffer, selectedlayer);
                 MapData.SetStyle(loc.mapItem, Style.COREBUFFER, L.AwesomeMarkers.icon({ icon: 'fa-circle-o', markerColor: 'lightgreen' }));
@@ -31,6 +32,8 @@
             });
         }
         _service.Doordruk = function (location) {
+            MapData.CleanSearch();
+
             MapData.CleanMap();
             console.log(location);
             MapService.Query(location);

@@ -42,6 +42,16 @@ var Style = {
     DEFAULT: {
         fillOpacity: 0,
         color: 'blue',
+        weight: 4
+    },
+    ADD: {
+        fillOpacity: 0,
+        color: 'green',
+        weight: 5
+    },
+    REMOVE: {
+        fillOpacity: 0,
+        color: 'yellow',
         weight: 5
     },
     HIGHLIGHT: {

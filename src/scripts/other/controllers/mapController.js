@@ -90,16 +90,21 @@
             }
         };
         vm.drawingButtonChanged = function (drawOption) {
-            if (drawOption == DrawingOption.LIJN || drawOption == DrawingOption.POLYGON || drawOption == DrawingOption.NIETS || drawOption == DrawingOption.VIERKANT) {
-                MapData.CleanMap();
-                MapData.CleanSearch();
+            if (MapData.ExtendedType == null) { // else we don t have to clean the map!
+
+                if (drawOption == DrawingOption.LIJN || drawOption == DrawingOption.POLYGON || drawOption == DrawingOption.NIETS || drawOption == DrawingOption.VIERKANT) {
+                    MapData.CleanMap();
+                    MapData.CleanSearch();
+                }
+                if (drawOption == DrawingOption.AFSTAND || drawOption == DrawingOption.OPPERVLAKTE) {
+                    // MapData.CleanDrawings();
+                }
             }
-            if (drawOption == DrawingOption.AFSTAND || drawOption == DrawingOption.OPPERVLAKTE) {
-                // MapData.CleanDrawings();
-            }
+
             MapData.DrawingType = drawOption; // pff must be possible to be able to sync them...
             vm.drawingType = drawOption;
             DrawService.StartDraw(drawOption);
+
         };
         vm.Loading = 0;
         vm.MaxLoading = 0;
@@ -108,8 +113,10 @@
         vm.selectpunt = function () {
             MapData.DrawingType = DrawingOption.NIETS; // pff must be possible to be able to sync them...
             vm.drawingType = DrawingOption.NIETS;
-            MapData.CleanMap();
-            MapData.CleanSearch();
+            if (MapData.ExtendedType == null) { // else we don t have to clean the map!
+                MapData.CleanMap();
+                MapData.CleanSearch();
+            }
             vm.addCursorAuto();
 
 

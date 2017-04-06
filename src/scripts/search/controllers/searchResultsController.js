@@ -61,6 +61,23 @@
                     console.log('Modal dismissed at: ' + new Date()); // The contoller is closed by the use of the $dismiss call
                 });
             };
+            vm.extendedType = null;
+            $scope.$watch(function () { return MapData.ExtendedType; }, function (newValue, oldValue) {
+                 vm.extendedType = newValue;
+            });
+            vm.addSelection = function () {
+                if(vm.extendedType != "add") {
+                    vm.extendedType = "add";
+                    MapData.ExtendedType = "add";
+                }
+            };
+            vm.removeSelection = function () {
+                if(vm.extendedType != "remove") {
+                    vm.extendedType = "remove";
+                    MapData.ExtendedType = "remove";
+                }
+
+            };
             vm.deleteFeature = function (feature) {
                 SearchService.DeleteFeature(feature);
             };

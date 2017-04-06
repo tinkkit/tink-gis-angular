@@ -11,6 +11,12 @@
                     ng-click="srchrsltsctrl.exportToCSV()">
                     <svg class="icon icon-sik-file-csv"><use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-sik-file-csv"></use></svg>
                 </button>
+                <button class="btn" ng-class="{active: srchrsltsctrl.extendedType =='add'}" tink-tooltip="Selectie toevoegen" tink-tooltip-align="left" ng-click="srchrsltsctrl.addSelection()">
+                      <i class="fa fa-plus" aria-hidden="true"></i>
+                </button>
+                <button class="btn" ng-class="{active: srchrsltsctrl.extendedType=='remove'}" tink-tooltip="Selectie verwijderen" tink-tooltip-align="left" ng-click="srchrsltsctrl.removeSelection()">
+                      <i class="fa fa-minus" aria-hidden="true"></i>
+                </button>
                 <button class="btn-sm" ng-show="srchrsltsctrl.extraResultButtonIsEnabled" ng-click="srchrsltsctrl.extraResultButton()">{{srchrsltsctrl.resultButtonText}}</button>
             </div>
 
