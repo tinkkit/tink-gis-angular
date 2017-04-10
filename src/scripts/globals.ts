@@ -51,7 +51,7 @@ var Style = {
     },
     REMOVE: {
         fillOpacity: 0,
-        color: 'yellow',
+        color: 'red',
         weight: 5
     },
     HIGHLIGHT: {

@@ -4,10 +4,11 @@
     var service = function (ResultsData, map) {
         var _service = {};
         _service.DeleteFeature = function (feature) {
-            var featureIndex = ResultsData.JsonFeatures.indexOf(feature);
+            var featureOfArray = ResultsData.JsonFeatures.find(x => x.layerName == feature.layerName && x.id == feature.id);
+            var featureIndex = ResultsData.JsonFeatures.indexOf(featureOfArray);
             if (featureIndex > -1) {
-                if (feature.mapItem) {
-                    map.removeLayer(feature.mapItem);
+                if (featureOfArray.mapItem) {
+                    map.removeLayer(featureOfArray.mapItem);
                 }
                 ResultsData.JsonFeatures.splice(featureIndex, 1);
             }

@@ -123,7 +123,9 @@
             console.log('draw created');
             switch (MapData.ActiveInteractieKnop) {
                 case ActiveInteractieButton.SELECT:
-                    MapData.DrawLayer = e.layer;
+                    if (MapData.ExtendedType == null) {
+                        MapData.DrawLayer = e.layer; // it is used for buffering etc so we don t want it to be added when we are extending (when extendingtype is add or remove)
+                    }
                     MapService.Query(e.layer);
                     UIService.OpenLeftSide();
                     break;

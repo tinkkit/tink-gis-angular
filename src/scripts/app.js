@@ -62,11 +62,12 @@
 
         map.doubleClickZoom.disable();
         // L.control.scale({ imperial: false }).addTo(map); // can be deleted?
-        var drawnItems = L.featureGroup().addTo(map);
+        map.featureGroup = L.featureGroup().addTo(map);
+        map.extendFeatureGroup = L.featureGroup().addTo(map);
 
         map.on('draw:created', function (event) {
-            var layer = event.layer;
-            drawnItems.addLayer(layer);
+            // var layer = event.layer;
+            // map.featureGroup.addLayer(layer);
         });
         map.on('draw:drawstart', function (event) {
             console.log("draw started");
@@ -74,12 +75,11 @@
             //map.clearDrawings();
         });
         map.addToDrawings = function (layer) {
-            drawnItems.addLayer(layer);
+            map.featureGroup.addLayer(layer);
         };
         map.clearDrawings = function () {
-            console.log('clearingDrawings');
-            console.log(drawnItems);
-            drawnItems.clearLayers();
+            map.featureGroup.clearLayers();
+            map.extendFeatureGroup.clearLayers();
         }
 
         return map;

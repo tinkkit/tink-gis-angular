@@ -45,17 +45,35 @@ L.Draw.Rectangle = L.Draw.Rectangle.extend({
             switch (MapData.DrawingType) {
                 case DrawingOption.LIJN:
                 case DrawingOption.AFSTAND:
-                    MapData.DrawingObject = new L.Draw.Polyline(map, options);
-                    MapData.DrawingObject.enable();
+                    if (MapData.ExtendedType == null) {
+                        MapData.DrawingObject = new L.Draw.Polyline(map, options);
+                        MapData.DrawingObject.enable();
+                    }
+                    else {
+                        MapData.DrawingExtendedObject = new L.Draw.Polyline(map, options);
+                        MapData.DrawingExtendedObject.enable();
+                    }
                     break;
                 case DrawingOption.POLYGON:
                 case DrawingOption.OPPERVLAKTE:
-                    MapData.DrawingObject = new L.Draw.Polygon(map, options);
-                    MapData.DrawingObject.enable();
+                    if (MapData.ExtendedType == null) {
+                        MapData.DrawingObject = new L.Draw.Polygon(map, options);
+                        MapData.DrawingObject.enable();
+                    }
+                    else {
+                        MapData.DrawingExtendedObject = new L.Draw.Polygon(map, options);
+                        MapData.DrawingExtendedObject.enable();
+                    }
                     break;
                 case DrawingOption.VIERKANT:
-                    MapData.DrawingObject = new L.Draw.Rectangle(map, options);
-                    MapData.DrawingObject.enable();
+                    if (MapData.ExtendedType == null) {
+                        MapData.DrawingObject = new L.Draw.Rectangle(map, options);
+                        MapData.DrawingObject.enable();
+                    }
+                    else {
+                        MapData.DrawingExtendedObject = new L.Draw.Rectangle(map, options);
+                        MapData.DrawingExtendedObject.enable();
+                    }
                     break;
                 default:
                     break;

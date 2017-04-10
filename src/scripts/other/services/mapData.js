@@ -1,7 +1,7 @@
 'use strict';
 (function () {
     var module = angular.module('tink.gis');
-    var mapData = function (map, $rootScope, HelperService, ResultsData, $compile, FeatureService) {
+    var mapData = function (map, $rootScope, HelperService, ResultsData, $compile, FeatureService, SearchService) {
         var _data = {};
 
         _data.VisibleLayers = [];
@@ -37,8 +37,30 @@
         _data.DrawingType = DrawingOption.NIETS;
         _data.ExtendedType = null;
         _data.DrawingObject = null;
+        _data.DrawingExtendedObject = null;
         _data.LastIdentifyBounds = null;
+        _data.CleanDrawingExtendedObject = function () {
+            if (_data.DrawingExtendedObject) {
+                if (_data.DrawingExtendedObject.layer) { // if the layer (drawing) is created
+                    _data.DrawingExtendedObject.layer._popup = null; // remove popup first because else it will fire close event which will do an other clean of the drawings which is not needed
+                }
+                if (_data.DrawingExtendedObject.disable) { // if it is a drawing item (not a point) then we must disable it
+                    _data.DrawingExtendedObject.disable();
+                }
+                map.extendFeatureGroup.clearLayers();
+                _data.DrawingExtendedObject = null;
+            }
+        }
+        map.on('draw:created', function (event) {
+            var layer = event.layer;
+            if (_data.ExtendedType == null) {
+                map.featureGroup.addLayer(layer);
+            } else {
+                map.extendFeatureGroup.addLayer(layer);
+            }
+        });
         _data.CleanDrawings = function () {
+            _data.CleanDrawingExtendedObject();
             if (_data.DrawingObject) {
                 if (_data.DrawingObject.layer) { // if the layer (drawing) is created
                     _data.DrawingObject.layer._popup = null; // remove popup first because else it will fire close event which will do an other clean of the drawings which is not needed
@@ -298,13 +320,53 @@
                         ResultsData.JsonFeatures.push(featureItem);
                     });
                 } else {
-                    _data.ConfirmExtendDialog();
+                    _data.ConfirmExtendDialog(featureArray);
                 }
 
 
             }
             $rootScope.$applyAsync();
         };
+        _data.ConfirmExtendDialog = function (featureArray) {
+            var dialogtext = "Weet u zeker dat u de selectie wilt toevoegen?"
+            swal({
+                title: 'Verwijderen?',
+                text: dialogtext,
+                // type: ,
+                showCancelButton: true,
+                confirmButtonColor: '#DD6B55',
+                confirmButtonText: 'Verder',
+                closeOnConfirm: true
+            }, function (isConfirm) {
+                _data.CleanDrawingExtendedObject();
+                if (isConfirm) {
+                    if (_data.ExtendedType == "add") {
+                        _data.TempExtendFeatures.forEach(x => {
+                            var item = x.setStyle(Style.DEFAULT);
+                            _data.VisibleFeatures.push(item);
+                        });
+                        featureArray.forEach(featureItem => {
+                            ResultsData.JsonFeatures.push(featureItem);
+                        });
+                    } else if (_data.ExtendedType == "remove") {
+                        featureArray.forEach(featureItem => {
+                            SearchService.DeleteFeature(featureItem)
+                        });
+                        _data.TempExtendFeatures.forEach(x => {
+                            map.removeLayer(x);
+                        });
+                    }
+                }
+                else {
+                    _data.TempExtendFeatures.forEach(x => {
+                        map.removeLayer(x);
+                    });
+                }
+                _data.TempExtendFeature = [];
+                _data.ExtendedType = null;
+
+            });
+        }
         _data.SetDisplayValue = function (featureItem, layer) {
             featureItem.displayValue = featureItem.properties[layer.displayField];
             if (!featureItem.displayValue) {
@@ -393,12 +455,10 @@
             return resultArray;
         }
 
-        _data.ConfirmExtendDialog = function () {
 
-        }
         return _data;
     };
-    module.$inject = ['ResultsData', 'FeatureService'];
+    module.$inject = ['ResultsData', 'FeatureService', 'SearchService'];
     module.factory('MapData', mapData);
 })();
 
