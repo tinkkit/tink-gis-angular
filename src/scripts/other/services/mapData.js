@@ -328,9 +328,14 @@
             $rootScope.$applyAsync();
         };
         _data.ConfirmExtendDialog = function (featureArray) {
-            var dialogtext = "Weet u zeker dat u de selectie wilt toevoegen?"
+            var dialogtext = "Seletie verwijderen?"
+
+            if (_data.ExtendedType == "add") {
+                dialogtext = "Seletie toevoegen?"
+            }
+
             swal({
-                title: 'Verwijderen?',
+                title: 'Zeker?',
                 text: dialogtext,
                 // type: ,
                 showCancelButton: true,
