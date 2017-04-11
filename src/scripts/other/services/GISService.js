@@ -20,10 +20,10 @@
         };
         _service.QueryCrab = function (straatnaam, huisnummer) {
             var prom = $q.defer();
-            $http.get('https://geoint.antwerpen.be/arcgissql/rest/services/P_Stad/CRAB_adresposities/MapServer/0/query?' + 
-            'where=GEMEENTE%3D%27Antwerpen%27%20and%20STRAATNM%20%3D%27' + straatnaam  +'%27%20and%20' +
-            '(HUISNR%20like%20%27' + huisnummer +'%27%20or%20Huisnr%20like%20%27' + huisnummer + '%5Ba-z%5D%27or%20Huisnr%20like%20%27' + huisnummer + '%5B_%5D%25%27)%20and%20APPTNR%20%3D%20%27%27%20and%20busnr%20%3D%20%27%27' + 
-            '&text=&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=*&returnGeometry=true&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&f=pjson')
+            $http.get('https://geoint.antwerpen.be/arcgissql/rest/services/P_Stad/CRAB_adresposities/MapServer/0/query?' +
+                'where=GEMEENTE%3D%27Antwerpen%27%20and%20STRAATNM%20%3D%27' + straatnaam + '%27%20and%20' +
+                '(HUISNR%20like%20%27' + huisnummer + '%27%20or%20Huisnr%20like%20%27' + huisnummer + '%5Ba-z%5D%27or%20Huisnr%20like%20%27' + huisnummer + '%5B_%5D%25%27)%20and%20APPTNR%20%3D%20%27%27%20and%20busnr%20%3D%20%27%27' +
+                '&text=&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=*&returnGeometry=true&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&f=pjson')
                 .success(function (data, status, headers, config) {
                     // data = HelperService.UnwrapProxiedData(data);
                     prom.resolve(data);
@@ -123,7 +123,9 @@
                     if (layerInfo) {
                         layer.legend = layerInfo.legend;
                         layer.legend.forEach(legenditem => {
-                            legenditem.fullurl = theme.CleanUrl + '/' + layerInfo.layerId + '/images/' + legenditem.url;
+
+                            legenditem.fullurl = "data:" + legenditem.contentType + ";base64," + legenditem.imageData;
+                            // legenditem.fullurl = theme.CleanUrl + '/' + layerInfo.layerId + '/images/' + legenditem.url;
                         });
                     }
                 });

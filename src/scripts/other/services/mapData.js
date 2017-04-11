@@ -328,49 +328,63 @@
             $rootScope.$applyAsync();
         };
         _data.ConfirmExtendDialog = function (featureArray) {
-            var dialogtext = "Seletie verwijderen?"
-
-            if (_data.ExtendedType == "add") {
-                dialogtext = "Seletie toevoegen?"
-            }
-
-            swal({
-                title: 'Zeker?',
-                text: dialogtext,
-                // type: ,
-                showCancelButton: true,
-                confirmButtonColor: '#DD6B55',
-                confirmButtonText: 'Verder',
-                closeOnConfirm: true
-            }, function (isConfirm) {
+            if (featureArray.length == 0) {
+                _data.TempExtendFeature = [];
+                _data.ExtendedType = null;
                 _data.CleanDrawingExtendedObject();
-                if (isConfirm) {
-                    if (_data.ExtendedType == "add") {
-                        _data.TempExtendFeatures.forEach(x => {
-                            var item = x.setStyle(Style.DEFAULT);
-                            _data.VisibleFeatures.push(item);
-                        });
-                        featureArray.forEach(featureItem => {
-                            ResultsData.JsonFeatures.push(featureItem);
-                        });
-                    } else if (_data.ExtendedType == "remove") {
-                        featureArray.forEach(featureItem => {
-                            SearchService.DeleteFeature(featureItem)
-                        });
+                swal({
+                    title: 'Oeps!',
+                    text: "Geen resultaten met de nieuwe selectie",
+                    type: "warning",
+                    showCancelButton: false,
+                    confirmButtonColor: '#DD6B55',
+                    confirmButtonText: 'Ok',
+                    closeOnConfirm: true
+                });
+            }
+            else {
+                var dialogtext = "Seletie verwijderen?"
+                if (_data.ExtendedType == "add") {
+                    dialogtext = "Seletie toevoegen?"
+                }
+                swal({
+                    title: 'Zeker?',
+                    text: dialogtext,
+                    // type: ,
+                    showCancelButton: true,
+                    confirmButtonColor: '#DD6B55',
+                    confirmButtonText: 'Verder',
+                    closeOnConfirm: true
+                }, function (isConfirm) {
+                    if (isConfirm) {
+                        if (_data.ExtendedType == "add") {
+                            _data.TempExtendFeatures.forEach(x => {
+                                var item = x.setStyle(Style.DEFAULT);
+                                _data.VisibleFeatures.push(item);
+                            });
+                            featureArray.forEach(featureItem => {
+                                ResultsData.JsonFeatures.push(featureItem);
+                            });
+                        } else if (_data.ExtendedType == "remove") {
+                            featureArray.forEach(featureItem => {
+                                SearchService.DeleteFeature(featureItem)
+                            });
+                            _data.TempExtendFeatures.forEach(x => {
+                                map.removeLayer(x);
+                            });
+                        }
+                    }
+                    else {
                         _data.TempExtendFeatures.forEach(x => {
                             map.removeLayer(x);
                         });
                     }
-                }
-                else {
-                    _data.TempExtendFeatures.forEach(x => {
-                        map.removeLayer(x);
-                    });
-                }
-                _data.TempExtendFeature = [];
-                _data.ExtendedType = null;
+                    _data.TempExtendFeature = [];
+                    _data.ExtendedType = null;
+                    _data.CleanDrawingExtendedObject();
 
-            });
+                });
+            }
         }
         _data.SetDisplayValue = function (featureItem, layer) {
             featureItem.displayValue = featureItem.properties[layer.displayField];
@@ -435,6 +449,7 @@
                                 var mapItem = L.geoJson(featureItem, { style: thestyle }).addTo(map);
                                 _data.TempExtendFeatures.push(mapItem);
                                 featureItem.mapItem = mapItem;
+                                resultArray.push(featureItem);
                             }
                         } else if (_data.ExtendedType == "remove") {
                             thestyle = Style.REMOVE;
@@ -443,19 +458,21 @@
                                 var mapItem = L.geoJson(featureItem, { style: thestyle }).addTo(map);
                                 _data.TempExtendFeatures.push(mapItem);
                                 featureItem.mapItem = mapItem;
+                                resultArray.push(featureItem);
                             }
                         } else {
                             var mapItem = L.geoJson(featureItem, { style: thestyle }).addTo(map);
                             _data.VisibleFeatures.push(mapItem);
                             featureItem.mapItem = mapItem;
+                            resultArray.push(featureItem);
                         }
-
                     }
                 }
                 else {
+                    resultArray.push(featureItem);
+
                     featureItem.displayValue = featureItem.properties[Object.keys(featureItem.properties)[0]];
                 }
-                resultArray.push(featureItem);
             }
             return resultArray;
         }

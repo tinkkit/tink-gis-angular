@@ -8,6 +8,7 @@
     var theController = module.controller('layerController', function ($scope) {
         var vm = this;
         vm.layer = $scope.layer;
+        console.log(vm.layer);
     });
     // theController.$inject = ['ThemeService'];
 })();

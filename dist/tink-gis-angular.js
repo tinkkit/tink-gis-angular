@@ -926,6 +926,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
     var theController = module.controller('layerController', function ($scope) {
         var vm = this;
         vm.layer = $scope.layer;
+        console.log(vm.layer);
     });
     // theController.$inject = ['ThemeService'];
 })();
@@ -1539,7 +1540,9 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                     if (layerInfo) {
                         layer.legend = layerInfo.legend;
                         layer.legend.forEach(function (legenditem) {
-                            legenditem.fullurl = theme.CleanUrl + '/' + layerInfo.layerId + '/images/' + legenditem.url;
+
+                            legenditem.fullurl = "data:" + legenditem.contentType + ";base64," + legenditem.imageData;
+                            // legenditem.fullurl = theme.CleanUrl + '/' + layerInfo.layerId + '/images/' + legenditem.url;
                         });
                     }
                 });
@@ -2860,42 +2863,60 @@ L.control.typeahead = function (args) {
             $rootScope.$applyAsync();
         };
         _data.ConfirmExtendDialog = function (featureArray) {
-            var dialogtext = "Weet u zeker dat u de selectie wilt toevoegen?";
-            swal({
-                title: 'Verwijderen?',
-                text: dialogtext,
-                // type: ,
-                showCancelButton: true,
-                confirmButtonColor: '#DD6B55',
-                confirmButtonText: 'Verder',
-                closeOnConfirm: true
-            }, function (isConfirm) {
+            if (featureArray.length == 0) {
+                _data.TempExtendFeature = [];
+                _data.ExtendedType = null;
                 _data.CleanDrawingExtendedObject();
-                if (isConfirm) {
-                    if (_data.ExtendedType == "add") {
-                        _data.TempExtendFeatures.forEach(function (x) {
-                            var item = x.setStyle(Style.DEFAULT);
-                            _data.VisibleFeatures.push(item);
-                        });
-                        featureArray.forEach(function (featureItem) {
-                            ResultsData.JsonFeatures.push(featureItem);
-                        });
-                    } else if (_data.ExtendedType == "remove") {
-                        featureArray.forEach(function (featureItem) {
-                            SearchService.DeleteFeature(featureItem);
-                        });
+                swal({
+                    title: 'Oeps!',
+                    text: "Geen resultaten met de nieuwe selectie",
+                    type: "warning",
+                    showCancelButton: false,
+                    confirmButtonColor: '#DD6B55',
+                    confirmButtonText: 'Ok',
+                    closeOnConfirm: true
+                });
+            } else {
+                var dialogtext = "Seletie verwijderen?";
+                if (_data.ExtendedType == "add") {
+                    dialogtext = "Seletie toevoegen?";
+                }
+                swal({
+                    title: 'Zeker?',
+                    text: dialogtext,
+                    // type: ,
+                    showCancelButton: true,
+                    confirmButtonColor: '#DD6B55',
+                    confirmButtonText: 'Verder',
+                    closeOnConfirm: true
+                }, function (isConfirm) {
+                    if (isConfirm) {
+                        if (_data.ExtendedType == "add") {
+                            _data.TempExtendFeatures.forEach(function (x) {
+                                var item = x.setStyle(Style.DEFAULT);
+                                _data.VisibleFeatures.push(item);
+                            });
+                            featureArray.forEach(function (featureItem) {
+                                ResultsData.JsonFeatures.push(featureItem);
+                            });
+                        } else if (_data.ExtendedType == "remove") {
+                            featureArray.forEach(function (featureItem) {
+                                SearchService.DeleteFeature(featureItem);
+                            });
+                            _data.TempExtendFeatures.forEach(function (x) {
+                                map.removeLayer(x);
+                            });
+                        }
+                    } else {
                         _data.TempExtendFeatures.forEach(function (x) {
                             map.removeLayer(x);
                         });
                     }
-                } else {
-                    _data.TempExtendFeatures.forEach(function (x) {
-                        map.removeLayer(x);
-                    });
-                }
-                _data.TempExtendFeature = [];
-                _data.ExtendedType = null;
-            });
+                    _data.TempExtendFeature = [];
+                    _data.ExtendedType = null;
+                    _data.CleanDrawingExtendedObject();
+                });
+            }
         };
         _data.SetDisplayValue = function (featureItem, layer) {
             featureItem.displayValue = featureItem.properties[layer.displayField];
@@ -2966,6 +2987,7 @@ L.control.typeahead = function (args) {
                                 var mapItem = L.geoJson(featureItem, { style: thestyle }).addTo(map);
                                 _data.TempExtendFeatures.push(mapItem);
                                 featureItem.mapItem = mapItem;
+                                resultArray.push(featureItem);
                             }
                         } else if (_data.ExtendedType == "remove") {
                             thestyle = Style.REMOVE;
@@ -2976,17 +2998,20 @@ L.control.typeahead = function (args) {
                                 var mapItem = L.geoJson(featureItem, { style: thestyle }).addTo(map);
                                 _data.TempExtendFeatures.push(mapItem);
                                 featureItem.mapItem = mapItem;
+                                resultArray.push(featureItem);
                             }
                         } else {
                             var mapItem = L.geoJson(featureItem, { style: thestyle }).addTo(map);
                             _data.VisibleFeatures.push(mapItem);
                             featureItem.mapItem = mapItem;
+                            resultArray.push(featureItem);
                         }
                     }
                 } else {
+                    resultArray.push(featureItem);
+
                     featureItem.displayValue = featureItem.properties[Object.keys(featureItem.properties)[0]];
                 }
-                resultArray.push(featureItem);
             }
             return resultArray;
         };
@@ -4903,22 +4928,26 @@ L.drawLocal = {
     "</ul>\n" +
     "</div>\n" +
     "<li class=\"li-item toc-item-with-icon\" ng-if=!lyrctrl.layer.hasLayers>\n" +
-    "<img class=layer-icon ng-if=\"lyrctrl.layer.theme.Type=='esri' && lyrctrl.layer.legend.length==1\" ng-src=\"{{lyrctrl.layer.legend[0].fullurl}} \">\n" +
-    "<div class=can-open ng-class=\"{'open': showLayer2}\">\n" +
+    "<img class=layer-icon ng-if=\"lyrctrl.layer.theme.Type=='esri' && lyrctrl.layer.legend.length===1\" class=layer-icon ng-src=\"{{lyrctrl.layer.legend[0].fullurl}} \">\n" +
+    "<div class=can-open ng-class=\"{'open': showLayer2 || showMultiLegend}\">\n" +
     "<input class=\"visible-box hidden-print\" type=checkbox ng-model=lyrctrl.layer.visible ng-change=layercheckboxchange(lyrctrl.layer.theme) id=\"{{lyrctrl.layer.name}}{{lyrctrl.layer.id}} \">\n" +
     "<label ng-class=\"{ 'greytext': lyrctrl.layer.displayed==false} \" for={{lyrctrl.layer.name}}{{lyrctrl.layer.id}}> {{lyrctrl.layer.title}}\n" +
     "<span class=\"hidden-print greytext\" ng-show=\"lyrctrl.layer.theme.Type=='wms' && lyrctrl.layer.queryable\"> <i class=\"fa fa-info\"></i></span>\n" +
     "</label>\n" +
-    "<span class=show-layer ng-show=\"lyrctrl.layer.theme.Type=='wms' && lyrctrl.layer.queryable \" ng-click=\"showLayer2 = !showLayer2\"></span>\n" +
+    "<span style=color:#76b9f4 class=show-layer ng-show=\"lyrctrl.layer.theme.Type=='wms'\" ng-click=\"showLayer2 = !showLayer2\"></span>\n" +
+    "<span style=color:#76b9f4 class=show-layer ng-show=\"lyrctrl.layer.theme.Type=='esri' && lyrctrl.layer.legend.length>1\" ng-click=\"showMultiLegend = !showMultiLegend\"></span>\n" +
+    "<ul ng-show=\"showMultiLegend && lyrctrl.layer.legend.length>1\" ng-repeat=\"legend in lyrctrl.layer.legend\" ng-class=\"{'open': showMultiLegend}\">\n" +
+    "<img class=layer-icon ng-src=\"{{legend.fullurl}} \"><span>{{legend.label}}</span>\n" +
+    "</ul>\n" +
     "<img class=normal-size ng-src={{lyrctrl.layer.legendUrl}} ng-show=showLayer2>\n" +
     "</div>\n" +
     "</li>\n" +
-    "<ul class=li-item ng-if=\"lyrctrl.layer.theme.Type=='wms'\" ng-show=showLayer>\n" +
-    "<li ng-if=\"lyrctrl.layer.theme.Type=='esri' && lyrctrl.layer.legend.length> 1\" ng-repeat=\"legend in lyrctrl.legends\">\n" +
-    "<img style=\"width:20px; height:20px\" ng-src={{legend.url}}><img><span>²{{legend.label}}</span>\n" +
+    "<ul class=li-item ng-if=\"lyrctrl.layer.theme.Type=='esri' && lyrctrl.layer.legend.length>1\" ng-show=showLayer>\n" +
+    "<li ng-repeat=\"legend in lyrctrl.layer.legend\">\n" +
+    "<img style=\"width:20px; height:20px\" ng-src=\"{{legend.fullurl}} \"><span>{{legend.label}}</span>\n" +
     "</li>\n" +
     "</ul>\n" +
-    "</div>\n"
+    "</div>"
   );
 
 
