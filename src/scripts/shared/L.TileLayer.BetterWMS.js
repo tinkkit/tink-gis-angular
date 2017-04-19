@@ -19,10 +19,16 @@ L.TileLayer.BetterWMS = L.TileLayer.WMS.extend({
         // Make an AJAX request to the server and hope for the best
         var HelperService = angular.element(document.body).injector().get('HelperService');
         var url = this.getFeatureInfoUrl(latlng, layers);
-        // url =  HelperService.CreateProxyUrl(url);
+        url = HelperService.CreateProxyUrl(url);
 
         var prom = $.ajax({
             url: url,
+            transformResponse: function(data) {
+                if (data) {
+                    data = HelperService.UnwrapProxiedData(data);
+                }
+                return data;
+            },
             success: function(data, status, xhr) {
                 // console.log(returnjson);
             },
