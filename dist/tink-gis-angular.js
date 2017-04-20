@@ -2572,7 +2572,7 @@ L.control.typeahead = function (args) {
         _data.SelectedFindLayer = _data.defaultlayer;
         _data.ResetVisibleLayers = function () {
             console.log("RestVisLayers");
-            var curSelectedLayer = _data.SelectedLayer;
+            var curSelectedLayer = _data.SelectedLayer || _data.defaultlayer;
             _data.VisibleLayers.length = 0;
             _data.Themes.forEach(function (x) {
                 _data.VisibleLayers = _data.VisibleLayers.concat(x.VisibleLayers);
@@ -3248,6 +3248,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
                                     ResultsData.RequestStarted++;
                                     theme.MapData.getFeatureInfo(event.latlng, lay.name).success(function (data, status, xhr) {
+                                        if (data) {
+                                            data = HelperService.UnwrapProxiedData(data);
+                                        }
                                         // data = HelperService.UnwrapProxiedData(data);
                                         ResultsData.RequestCompleted++;
                                         console.log('minus');
@@ -4362,10 +4365,16 @@ L.TileLayer.BetterWMS = L.TileLayer.WMS.extend({
         // Make an AJAX request to the server and hope for the best
         var HelperService = angular.element(document.body).injector().get('HelperService');
         var url = this.getFeatureInfoUrl(latlng, layers);
-        // url =  HelperService.CreateProxyUrl(url);
+        url = HelperService.CreateProxyUrl(url);
 
         var prom = $.ajax({
             url: url,
+            transformResponse: function transformResponse(data) {
+                if (data) {
+                    data = HelperService.UnwrapProxiedData(data);
+                }
+                return data;
+            },
             success: function success(data, status, xhr) {
                 // console.log(returnjson);
             },
@@ -4761,7 +4770,7 @@ L.drawLocal = {
     "<div class=\"row margin-top margin-bottom\">\n" +
     "<div class=\"col-xs-12 col-sm-6\">\n" +
     "<form>\n" +
-    "<input type=search ng-model=searchTerm ng-change=searchChanged() ng-model-options=\"{debounce: 250}\" placeholder=\"Geef een trefwoord of een url in\">\n" +
+    "<input type=search ng-model=searchTerm ng-change=searchChanged() ng-model-options=\"{debounce: 250}\" placeholder=\"Geef een trefwoord in\">\n" +
     "</form>\n" +
     "</div>\n" +
     "</div>\n" +
@@ -4770,7 +4779,7 @@ L.drawLocal = {
     "<ul class=nav-tabs>\n" +
     "<li role=presentation ng-class=\"{'active': active=='solr'}\"><a href=\"\" ng-click=\"active='solr'\">Stad <span ng-if=\"solrLoading==true\" class=loader></span><span ng-if=\"solrLoading==false && solrCount != null\">({{solrCount}})</span></a></li>\n" +
     "<li role=presentation ng-class=\"{'active': active=='geopunt'}\"><a href=\"\" ng-click=\"active='geopunt'\">GeoPunt <span ng-if=\"geopuntLoading==true\" class=loader></span><span ng-if=\"geopuntLoading==false && geopuntCount != null\">({{geopuntCount}})</span></a></li>\n" +
-    "<li role=presentation ng-class=\"{'active': active=='wmsurl'}\"><a href=\"\" ng-click=\"active='wmsurl'\">Url</a></li>\n" +
+    "<li role=presentation ng-class=\"{'active': active=='wmsurl'}\"><a href=\"\" ng-click=\"active='wmsurl'\">URL ingeven</a></li>\n" +
     "<li role=presentation ng-class=\"{'active': active=='beheer'}\"><a href=\"\" ng-click=\"active='beheer'\">Beheer</a></li>\n" +
     "</ul>\n" +
     "</div>\n" +
@@ -4892,7 +4901,7 @@ L.drawLocal = {
     "<div class=\"wmsUrlTemplate row relative-container\">\n" +
     "<div class=\"col-xs-4 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
     "<div>\n" +
-    "<input class=searchbox ng-model=url ng-change=urlChanged() placeholder=\"Geef een url in\">\n" +
+    "<input class=searchbox ng-model=url ng-change=urlChanged() placeholder=\"Geef een wms url in\">\n" +
     "</div>\n" +
     "</div>\n" +
     "<div class=\"col-xs-8 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
@@ -5080,7 +5089,7 @@ L.drawLocal = {
   $templateCache.put('templates/other/themeTemplate.html',
     "<div>\n" +
     "<input class=\"visible-box hidden-print\" type=checkbox id=chk{{thmctrl.theme.Naam}} ng-model=thmctrl.theme.Visible ng-change=layercheckboxchange(thmctrl.theme)>\n" +
-    "<label for=chk{{thmctrl.theme.Naam}}> {{thmctrl.theme.Naam}} <span class=\"label-info hidden-print\" ng-show=\"thmctrl.theme.Type=='esri'\">stad</span><span class=\"label-info hidden-print\" ng-hide=\"thmctrl.theme.Type=='esri'\">{{thmctrl.theme.Type}}</span></label>\n" +
+    "<label for=chk{{thmctrl.theme.Naam}}> {{thmctrl.theme.Naam}} <span class=\"label-info hidden-print\" ng-show=\"thmctrl.theme.Type=='esri'\">ArcGIS</span><span class=\"label-info hidden-print\" ng-hide=\"thmctrl.theme.Type=='esri'\">{{thmctrl.theme.Type}}</span></label>\n" +
     "<button ng-hide=\"hidedelete == true\" class=\"trash hidden-print pull-right\" ng-click=thmctrl.deleteTheme()></button>\n" +
     "<ul class=\"ul-level no-theme-layercontroller-checkbox\" ng-repeat=\"layer in thmctrl.theme.Layers | filter: { enabled: true }\">\n" +
     "<tink-layer layer=layer layercheckboxchange=layercheckboxchange(layer.theme)>\n" +

@@ -18,7 +18,7 @@
         _data.SelectedFindLayer = _data.defaultlayer;
         _data.ResetVisibleLayers = function () {
             console.log("RestVisLayers");
-            var curSelectedLayer = _data.SelectedLayer;
+            var curSelectedLayer = _data.SelectedLayer || _data.defaultlayer;
             _data.VisibleLayers.length = 0;
             _data.Themes.forEach(x => {
                 _data.VisibleLayers = _data.VisibleLayers.concat(x.VisibleLayers);
