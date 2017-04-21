@@ -73,14 +73,14 @@ namespace TinkGis {
     }
     export class wmslayer extends Layer {
         id: string;
-        constructor(info: any, parenttheme: Theme) {
+        constructor(layerData: any, parenttheme: Theme) {
             super();
-            Object.assign(this, info);
+            Object.assign(this, layerData);
             this.visible = true;
             this.enabled = true;
             this.displayed = true;
             this.theme = parenttheme;
-            this.queryable = info.queryable;
+            this.queryable = layerData.queryable;
             this.id = this.name; //names are the ids of the layer in wms
         }
         get legendUrl(): string {
@@ -99,12 +99,12 @@ namespace TinkGis {
     export class arcgislayer extends Layer {
         legend: Array<any>;
         id: number;
-        constructor(info: LayerJSON, parenttheme: Theme) {
+        constructor(layerData: LayerJSON, parenttheme: Theme) {
             super();
-            Object.assign(this, info);
-            this.visible = info.defaultVisibility;
+            Object.assign(this, layerData);
+            this.visible = layerData.defaultVisibility;
             this.enabled = true;
-            this.title = info.name;
+            this.title = layerData.name;
             this.theme = parenttheme;
             this.displayed = true;
             this.queryable = false;

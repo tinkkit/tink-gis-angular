@@ -57,6 +57,7 @@
                 }
             };
             vm.volgende = function () {
+                console.log(ResultsData.SelectedFeature);
                 ResultsData.SelectedFeature = vm.nextResult;
             };
             vm.vorige = function () {

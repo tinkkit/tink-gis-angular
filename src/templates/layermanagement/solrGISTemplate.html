@@ -5,15 +5,16 @@
                 <dl ng-class="{active: isActive(theme)}">
                     <a href="#" class="theme-layer" ng-click="solrThemeChanged(theme)">
                         <dt>{{theme.name}}</dt>
-                    </a>
-                    <dd ng-repeat="layer in theme.layers">
-                        <span class="">{{layer.naam}}
+
+                        <dd ng-repeat="layer in theme.layers">
+                            <span class="">{{layer.naam}}
                             <span ng-show="layer.featuresCount > 0"> ({{layer.featuresCount}})</span>
-                        </span>
-                        <div class="featureinsolr">
-                            {{layer.features.join(', ')}}
-                        </div>
-                    </dd>
+                            </span>
+                            <div class="featureinsolr">
+                                {{layer.features.join(', ')}}
+                            </div>
+                        </dd>
+                    </a>
                 </dl>
             </div>
         </div>

@@ -349,7 +349,7 @@ button.btn.active {
 
       dd {
         color: $gray;
-        cursor: default;
+        // cursor: default;
         margin-left: rem(10);
         transition: all $animation-speed linear;
       }

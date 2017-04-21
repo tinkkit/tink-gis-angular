@@ -24,6 +24,9 @@
         $scope.$watch(function () { return MapData.DrawingType; }, function (data) {
             vm.drawingType = data;
         }, true);
+        $scope.$watch(function () { return MapData.ShowDrawControls; }, function (data) {
+            vm.showDrawControls = data;
+        }, true);
         vm.SelectableLayers = function () {
             return MapData.VisibleLayers;
         };
@@ -36,7 +39,7 @@
             vm.selectedFindLayer = newval;
         });
         vm.showMetenControls = false;
-        vm.showDrawControls = false;
+        vm.showDrawControls = MapData.ShowDrawControls;
         vm.zoekLoc = '';
         vm.addCursorAuto = function () {
             if (!$('.leaflet-container').hasClass('cursor-auto')) {
@@ -50,10 +53,10 @@
             MapData.ActiveInteractieKnop = ActiveButton; // If we only could keep the vmactiveInteractieKnop in sync with the one from MapData
             vm.activeInteractieKnop = ActiveButton;
             vm.showMetenControls = false;
-            vm.showDrawControls = false;
+            MapData.ShowDrawControls = false;
             switch (ActiveButton) {
                 case ActiveInteractieButton.SELECT:
-                    vm.showDrawControls = true;
+                    MapData.ShowDrawControls = true;
                     MapData.DrawingType = DrawingOption.GEEN; // pff must be possible to be able to sync them...
 
                     break;

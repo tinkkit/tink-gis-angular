@@ -9,11 +9,12 @@
     module.controller('BufferController', ['$scope', '$modalInstance', 'MapData',
         function ($scope, $modalInstance, MapData) {
             var vm = this;
-            $scope.buffer = 50;
+            $scope.buffer = MapData.LastBufferedDistance;
             $scope.SelectableLayers = angular.copy(MapData.VisibleLayers);
             $scope.SelectableLayers.shift(); // remove the alllayers for buffer
-            if (MapData.DefaultLayer) {
-                let selectedLayer = $scope.SelectableLayers.find(x => x.name == MapData.DefaultLayer.name);
+            var bufferDefault = MapData.LastBufferedLayer || MapData.DefaultLayer;
+            if (bufferDefault) {
+                let selectedLayer = $scope.SelectableLayers.find(x => x.name == bufferDefault.name);
                 if (selectedLayer) {
                     $scope.selectedLayer = selectedLayer;
                 }
@@ -25,6 +26,8 @@
                 $scope.selectedLayer = $scope.SelectableLayers[0];
             }
             $scope.ok = function () {
+                MapData.LastBufferedDistance = $scope.buffer;
+                MapData.LastBufferedLayer = $scope.selectedLayer;
                 $modalInstance.$close({ buffer: $scope.buffer, layer: $scope.selectedLayer }); // return the themes.
             };
             $scope.cancel = function () {

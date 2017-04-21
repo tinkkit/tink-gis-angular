@@ -410,7 +410,6 @@ button.btn.active {
       margin-bottom: 0.7142857143rem ; }
       .overflow-wrapper.list-selectable dl dd {
         color: #888;
-        cursor: default;
         margin-left: 0.7142857143rem ;
         transition: all 0.1s linear; }
       .overflow-wrapper.list-selectable dl dt {

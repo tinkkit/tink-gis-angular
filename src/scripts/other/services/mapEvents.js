@@ -68,6 +68,7 @@
                             _mapEvents.removeCursorAuto();
                             break;
                         case ActiveInteractieButton.SELECT:
+
                             if (MapData.DrawingType != DrawingOption.GEEN) {
                                 MapData.CleanMap();
                                 MapData.CleanSearch();
@@ -79,6 +80,8 @@
                                 _mapEvents.removeCursorAuto();
                                 $rootScope.$applyAsync(function () {
                                     MapData.DrawingType = DrawingOption.GEEN;
+                                    MapData.ShowDrawControls = false;
+                                    MapData.ActiveInteractieKnop = ActiveInteractieButton.GEEN;
                                 });
                             } // else a drawing finished
                             break;
@@ -163,6 +166,8 @@
             }
             $rootScope.$applyAsync(function () {
                 MapData.DrawingType = DrawingOption.GEEN;
+                MapData.ShowDrawControls = false;
+                MapData.ActiveInteractieKnop = ActiveInteractieButton.GEEN;
             });
             MapData.IsDrawing = false;
         });

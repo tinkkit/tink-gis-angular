@@ -35,6 +35,9 @@
         }
         _data.ActiveInteractieKnop = ActiveInteractieButton.NIETS;
         _data.DrawingType = DrawingOption.NIETS;
+        _data.ShowDrawControls = false;
+        _data.LastBufferedLayer = null;
+        _data.LastBufferedDistance = 50;
         _data.ExtendedType = null;
         _data.DrawingObject = null;
         _data.DrawingExtendedObject = null;
@@ -438,9 +441,13 @@
                         if (bufferid && bufferid == featureItem.id && bufferlayer == featureItem.layer) {
                             featureItem.mapItem = buffereditem;
                         }
-                    }
-
-                    else {
+                        else {
+                            var mapItem = L.geoJson(featureItem, { style: Style.DEFAULT }).addTo(map);
+                            featureItem.mapItem = mapItem;
+                            _data.VisibleFeatures.push(mapItem);
+                        }
+                        resultArray.push(featureItem);
+                    } else {
                         var thestyle = Style.DEFAULT;
                         if (_data.ExtendedType == "add") {
                             thestyle = Style.ADD;

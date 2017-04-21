@@ -1016,6 +1016,11 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         }, function (data) {
             vm.drawingType = data;
         }, true);
+        $scope.$watch(function () {
+            return MapData.ShowDrawControls;
+        }, function (data) {
+            vm.showDrawControls = data;
+        }, true);
         vm.SelectableLayers = function () {
             return MapData.VisibleLayers;
         };
@@ -1032,7 +1037,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             vm.selectedFindLayer = newval;
         });
         vm.showMetenControls = false;
-        vm.showDrawControls = false;
+        vm.showDrawControls = MapData.ShowDrawControls;
         vm.zoekLoc = '';
         vm.addCursorAuto = function () {
             if (!$('.leaflet-container').hasClass('cursor-auto')) {
@@ -1046,10 +1051,10 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             MapData.ActiveInteractieKnop = ActiveButton; // If we only could keep the vmactiveInteractieKnop in sync with the one from MapData
             vm.activeInteractieKnop = ActiveButton;
             vm.showMetenControls = false;
-            vm.showDrawControls = false;
+            MapData.ShowDrawControls = false;
             switch (ActiveButton) {
                 case ActiveInteractieButton.SELECT:
-                    vm.showDrawControls = true;
+                    MapData.ShowDrawControls = true;
                     MapData.DrawingType = DrawingOption.GEEN; // pff must be possible to be able to sync them...
 
                     break;
@@ -2592,6 +2597,9 @@ L.control.typeahead = function (args) {
         };
         _data.ActiveInteractieKnop = ActiveInteractieButton.NIETS;
         _data.DrawingType = DrawingOption.NIETS;
+        _data.ShowDrawControls = false;
+        _data.LastBufferedLayer = null;
+        _data.LastBufferedDistance = 50;
         _data.ExtendedType = null;
         _data.DrawingObject = null;
         _data.DrawingExtendedObject = null;
@@ -2975,7 +2983,12 @@ L.control.typeahead = function (args) {
                         var bufferlayer = buffereditem.toGeoJSON().features[0].layer;
                         if (bufferid && bufferid == featureItem.id && bufferlayer == featureItem.layer) {
                             featureItem.mapItem = buffereditem;
+                        } else {
+                            var mapItem = L.geoJson(featureItem, { style: Style.DEFAULT }).addTo(map);
+                            featureItem.mapItem = mapItem;
+                            _data.VisibleFeatures.push(mapItem);
                         }
+                        resultArray.push(featureItem);
                     } else {
                         var thestyle = Style.DEFAULT;
                         if (_data.ExtendedType == "add") {
@@ -3092,6 +3105,7 @@ L.control.typeahead = function (args) {
                             _mapEvents.removeCursorAuto();
                             break;
                         case ActiveInteractieButton.SELECT:
+
                             if (MapData.DrawingType != DrawingOption.GEEN) {
                                 MapData.CleanMap();
                                 MapData.CleanSearch();
@@ -3103,6 +3117,8 @@ L.control.typeahead = function (args) {
                                 _mapEvents.removeCursorAuto();
                                 $rootScope.$applyAsync(function () {
                                     MapData.DrawingType = DrawingOption.GEEN;
+                                    MapData.ShowDrawControls = false;
+                                    MapData.ActiveInteractieKnop = ActiveInteractieButton.GEEN;
                                 });
                             } // else a drawing finished
                             break;
@@ -3182,6 +3198,8 @@ L.control.typeahead = function (args) {
             }
             $rootScope.$applyAsync(function () {
                 MapData.DrawingType = DrawingOption.GEEN;
+                MapData.ShowDrawControls = false;
+                MapData.ActiveInteractieKnop = ActiveInteractieButton.GEEN;
             });
             MapData.IsDrawing = false;
         });
@@ -3480,7 +3498,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 status = data.code;
             }
             var title = 'HTTP error (' + status + ')';
-            var message = 'Fout met het navigeren naar url: ' + url;
+            var baseurl = url.split('/').slice(0, 3).join('/');
+            var message = 'Fout met het navigeren naar url: ' + baseurl;
             var exception = { url: url, status: status, data: data };
             var callback = function callback() {
                 _popupService.ExceptionFunc(exception);
@@ -3860,12 +3879,13 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     }
     module.controller('BufferController', ['$scope', '$modalInstance', 'MapData', function ($scope, $modalInstance, MapData) {
         var vm = this;
-        $scope.buffer = 50;
+        $scope.buffer = MapData.LastBufferedDistance;
         $scope.SelectableLayers = angular.copy(MapData.VisibleLayers);
         $scope.SelectableLayers.shift(); // remove the alllayers for buffer
-        if (MapData.DefaultLayer) {
+        var bufferDefault = MapData.LastBufferedLayer || MapData.DefaultLayer;
+        if (bufferDefault) {
             var selectedLayer = $scope.SelectableLayers.find(function (x) {
-                return x.name == MapData.DefaultLayer.name;
+                return x.name == bufferDefault.name;
             });
             if (selectedLayer) {
                 $scope.selectedLayer = selectedLayer;
@@ -3876,6 +3896,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             $scope.selectedLayer = $scope.SelectableLayers[0];
         }
         $scope.ok = function () {
+            MapData.LastBufferedDistance = $scope.buffer;
+            MapData.LastBufferedLayer = $scope.selectedLayer;
             $modalInstance.$close({ buffer: $scope.buffer, layer: $scope.selectedLayer }); // return the themes.
         };
         $scope.cancel = function () {
@@ -4093,6 +4115,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             }
         };
         vm.volgende = function () {
+            console.log(ResultsData.SelectedFeature);
             ResultsData.SelectedFeature = vm.nextResult;
         };
         vm.vorige = function () {
@@ -4867,7 +4890,6 @@ L.drawLocal = {
     "<dl ng-class=\"{active: isActive(theme)}\">\n" +
     "<a href=# class=theme-layer ng-click=solrThemeChanged(theme)>\n" +
     "<dt>{{theme.name}}</dt>\n" +
-    "</a>\n" +
     "<dd ng-repeat=\"layer in theme.layers\">\n" +
     "<span>{{layer.naam}}\n" +
     "<span ng-show=\"layer.featuresCount > 0\"> ({{layer.featuresCount}})</span>\n" +
@@ -4876,6 +4898,7 @@ L.drawLocal = {
     "{{layer.features.join(', ')}}\n" +
     "</div>\n" +
     "</dd>\n" +
+    "</a>\n" +
     "</dl>\n" +
     "</div>\n" +
     "</div>\n" +
@@ -5073,7 +5096,7 @@ L.drawLocal = {
     "<img class=print-corner-image src=https://www.antwerpen.be/assets/aOS/gfx/gui/a-logo.svg alt=\"Antwerpen logo\">\n" +
     "</div>\n" +
     "<div class=col-xs-8>\n" +
-    "Voorbehoud: De kaart is een reproductie zonder juridische waarde. Zij bevat kaartmateriaal en info afkomstig van het stadsbestuur Antwerpen, AGIV, AAPD, Provinciebesturen en mogelijk nog andere organisaties.\n" +
+    "Voorbehoud: De kaart is een reproductie zonder juridische waarde. Zij bevat kaartmateriaal en info afkomstig van het stadsbestuur Antwerpen, IV, AAPD, Provinciebesturen en mogelijk nog andere organisaties.\n" +
     "</div>\n" +
     "<div class=col-xs-2>\n" +
     "<img class=\"print-corner-image pull-right\" src=http://images.vectorhq.com/images/previews/111/north-arrow-orienteering-137692.png alt=\"Noord pijl oriëntatielopen\">\n" +
@@ -5232,7 +5255,7 @@ L.drawLocal = {
     "<i class=\"fa fa-chevron-right\"></i>\n" +
     "</button>\n" +
     "</div>\n" +
-    "<button class=\"btn-primary pull-right\" ng-click=srchslctdctrl.toonFeatureOpKaart()>Tonen</button>\n" +
+    "<button class=\"btn-primary pull-right\" ng-disabled=\"srchslctdctrl.selectedResult.theme.Type != 'esri'\" ng-click=srchslctdctrl.toonFeatureOpKaart()>Tonen</button>\n" +
     "</div>\n" +
     "<div class=\"col-xs-12 margin-top margin-bottom\">\n" +
     "<a class=pull-right ng-click=srchslctdctrl.close(srchslctdctrl.selectedResult)>Terug naar resultaten</a>\n" +
@@ -5381,17 +5404,17 @@ var TinkGis;
     var wmslayer = function (_Layer) {
         _inherits(wmslayer, _Layer);
 
-        function wmslayer(info, parenttheme) {
+        function wmslayer(layerData, parenttheme) {
             _classCallCheck(this, wmslayer);
 
             var _this2 = _possibleConstructorReturn(this, (wmslayer.__proto__ || Object.getPrototypeOf(wmslayer)).call(this));
 
-            Object.assign(_this2, info);
+            Object.assign(_this2, layerData);
             _this2.visible = true;
             _this2.enabled = true;
             _this2.displayed = true;
             _this2.theme = parenttheme;
-            _this2.queryable = info.queryable;
+            _this2.queryable = layerData.queryable;
             _this2.id = _this2.name;
             return _this2;
         }
@@ -5420,15 +5443,15 @@ var TinkGis;
     var arcgislayer = function (_Layer2) {
         _inherits(arcgislayer, _Layer2);
 
-        function arcgislayer(info, parenttheme) {
+        function arcgislayer(layerData, parenttheme) {
             _classCallCheck(this, arcgislayer);
 
             var _this3 = _possibleConstructorReturn(this, (arcgislayer.__proto__ || Object.getPrototypeOf(arcgislayer)).call(this));
 
-            Object.assign(_this3, info);
-            _this3.visible = info.defaultVisibility;
+            Object.assign(_this3, layerData);
+            _this3.visible = layerData.defaultVisibility;
             _this3.enabled = true;
-            _this3.title = info.name;
+            _this3.title = layerData.name;
             _this3.theme = parenttheme;
             _this3.displayed = true;
             _this3.queryable = false;
@@ -5610,6 +5633,11 @@ var TinkGis;
                 lays.push(data.capability.layer);
             }
             lays.forEach(function (layer) {
+                if (layer.queryable == true) {
+                    layer.queryable = data.capability.request.getfeatureinfo.format.some(function (x) {
+                        return x == "text/xml";
+                    });
+                }
                 var lay = new TinkGis.wmslayer(layer, _this3);
                 _this3.Layers.push(lay);
             });
