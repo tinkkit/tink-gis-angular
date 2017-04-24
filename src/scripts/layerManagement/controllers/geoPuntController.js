@@ -21,7 +21,7 @@
             var init = function () {
                 $scope.searchTerm = '';
                 $scope.searchIsUrl = false;
-            } ();
+            }();
             $scope.$on("searchChanged", function (event, searchTerm) {
                 $scope.searchTerm = searchTerm;
                 if ($scope.searchTerm != null && $scope.searchTerm != '' && $scope.searchTerm.length > 2) {
@@ -61,7 +61,10 @@
             };
             $scope.geopuntThemeChanged = function (theme) {
                 var questionmarkPos = theme.Url.trim().indexOf('?');
-                var url = theme.Url.trim().substring(0, questionmarkPos);
+                var url = theme.Url.trim();
+                if (questionmarkPos != -1) {
+                    url = theme.Url.trim().substring(0, questionmarkPos);
+                }
                 createWMS(url);
             };
             var createWMS = function (url) {
@@ -77,7 +80,7 @@
                             $scope.previewTheme(wmstheme);
                         }
                         else {
-                            PopupService.Error("Ongeldige WMS", "De opgegeven url is geen geldige WMS url. (" + url + ")");
+                            PopupService.Error("Fout bij het laden van de WMS", "Er is een fout opgetreden bij opvragen van de wms met de url: " + url );
                             $scope.error = "Fout bij het laden van WMS.";
                         }
                     }).error(function (data, status, headers, config) {

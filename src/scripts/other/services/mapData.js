@@ -346,9 +346,9 @@
                 });
             }
             else {
-                var dialogtext = "Seletie verwijderen?"
+                var dialogtext = "Selectie verwijderen?"
                 if (_data.ExtendedType == "add") {
-                    dialogtext = "Seletie toevoegen?"
+                    dialogtext = "Selectie toevoegen?"
                 }
                 swal({
                     title: 'Zeker?',

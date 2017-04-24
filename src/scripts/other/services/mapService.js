@@ -6,7 +6,7 @@
     } catch (e) {
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'tink.modal']); //'leaflet-directive'
     }
-    var mapService = function ($rootScope, MapData, map, ThemeCreater, $q, GISService, ResultsData, HelperService) {
+    var mapService = function ($rootScope, MapData, map, ThemeCreater, $q, GISService, ResultsData, HelperService, PopupService) {
         var _mapService = {};
         _mapService.Identify = function (event, tolerance) {
             MapData.CleanSearch();
@@ -14,7 +14,8 @@
             _.each(MapData.Themes, function (theme) {
                 // theme.RecalculateVisibleLayerIds();
                 var identifOnThisTheme = true;
-                if (theme.VisibleLayerIds.length === 1 && theme.VisibleLayerIds[0] === -1) {
+                // if (theme.VisibleLayerIds.length === 1 && theme.VisibleLayerIds[0] === -1) {
+                if (theme.VisibleLayerIds.length === 0 || (theme.VisibleLayerIds.length === 1 && theme.VisibleLayerIds[0] === -1)) {
                     identifOnThisTheme = false; // we moeten de layer niet qryen wnnr er geen vis layers zijn
                 }
                 if (identifOnThisTheme) {
@@ -117,36 +118,88 @@
             }
 
         };
+        _mapService.LayerQuery = function (theme, layerid, geometry, oncomplete) {
 
-
+            var promise = new Promise(
+                function (resolve, reject) {
+                    ResultsData.RequestStarted++;
+                    theme.MapData.query()
+                        .layer(layerid)
+                        .intersects(geometry)
+                        .run(function (error, featureCollection, response) {
+                            ResultsData.RequestCompleted++;
+                            resolve({ error, featureCollection, response });
+                        });
+                });
+            return promise;
+        };
+        _mapService.LayerQueryCount = function (theme, layerid, geometry) {
+            var promise = new Promise(
+                function (resolve, reject) {
+                    ResultsData.RequestStarted++;
+                    theme.MapData.query()
+                        .layer(layerid)
+                        .intersects(geometry)
+                        .count(function (error, count, response) {
+                            ResultsData.RequestCompleted++;
+                            resolve({ error, count, response });
+                        });
+                });
+            return promise;
+        };
         _mapService.Query = function (box, layer) {
             if (!layer) {
                 layer = MapData.SelectedLayer;
             }
             if (!layer || layer.id === '') { // alle layers selected
+                var featureCount = 0;
+                var allproms = [];
                 MapData.Themes.forEach(theme => { // dus doen we de qry op alle lagen.
                     if (theme.Type === ThemeType.ESRI) {
                         theme.VisibleLayers.forEach(lay => {
-                            ResultsData.RequestStarted++;
-                            theme.MapData.query()
-                                .layer(lay.id)
-                                .intersects(box)
-                                .run(function (error, featureCollection, response) {
-                                    ResultsData.RequestCompleted++;
-                                    MapData.AddFeatures(featureCollection, theme, lay.id);
-                                });
+                            var layerCountProm = _mapService.LayerQueryCount(theme, lay.id, box);
+                            layerCountProm.then(function (arg) {
+                                featureCount += arg.count;
+                            });
+                            allproms.push(layerCountProm);
                         });
                     }
                 });
+                Promise.all(allproms).then(function AcceptHandler(results) {
+                    console.log(results, featureCount);
+                    if (featureCount <= 500) {
+                        MapData.Themes.forEach(theme => { // dus doen we de qry op alle lagen.
+                            if (theme.Type === ThemeType.ESRI) {
+                                theme.VisibleLayers.forEach(lay => {
+                                    var prom = _mapService.LayerQuery(theme, lay.id, box);
+                                    prom.then(function (arg) {
+                                        MapData.AddFeatures(arg.featureCollection, theme, lay.id);
+                                    });
+
+                                });
+                            }
+                        });
+                    }
+                    else {
+                        PopupService.Warning("U selecteerde " + featureCount + " resultaten.", "Om een vlotte werking te garanderen is het maximum is ingesteld op 500")
+                    }
+                });
+
+
             } else {
-                ResultsData.RequestStarted++;
-                layer.theme.MapData.query()
-                    .layer(layer.id)
-                    .intersects(box)
-                    .run(function (error, featureCollection, response) {
-                        ResultsData.RequestCompleted++;
-                        MapData.AddFeatures(featureCollection, layer.theme, layer.id);
-                    });
+                var prom = _mapService.LayerQueryCount(layer.theme, layer.id, box);
+                prom.then(function (arg) {
+                    if (arg.count <= 500) {
+                        var prom = _mapService.LayerQuery(layer.theme, layer.id, box);
+                        prom.then(function (arg) {
+                            MapData.AddFeatures(arg.featureCollection, layer.theme, layer.id);
+                        });
+                    }
+                    else {
+                        PopupService.Warning("U selecteerde " + arg.count + " resultaten.", "Om een vlotte werking te garanderen is het maximum is ingesteld op 500")
+                    }
+                });
+
             }
         };
         _mapService.WatIsHier = function (event) {
@@ -229,6 +282,6 @@
 
         return _mapService;
     };
-    module.$inject = ['$rootScope', 'MapData', 'map', 'ThemeCreater', '$q', 'GISService', 'ResultsData', 'HelperService'];
+    module.$inject = ['$rootScope', 'MapData', 'map', 'ThemeCreater', '$q', 'GISService', 'ResultsData', 'HelperService', 'PopupService'];
     module.factory('MapService', mapService);
 })();

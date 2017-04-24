@@ -8,7 +8,7 @@
     }
     // module.$inject = ['MapData', 'map', 'GISService', 'ThemeCreater', 'WMSService', 'ThemeService', '$q','BaseLayersService'];
 
-    var externService = function (MapData, map, GISService, ThemeCreater, WMSService, ThemeService, $q, BaseLayersService, FeatureService) {
+    var externService = function (MapData, map, GISService, ThemeCreater, WMSService, ThemeService, $q, BaseLayersService, FeatureService, ResultsData) {
         var _externService = {};
         _externService.GetAllThemes = function () {
             let legendItem = {};
@@ -139,7 +139,7 @@
                         MapData.SelectedFindLayer = defaultLayer;
                         MapData.DefaultLayer = defaultLayer;
                     }
-                  
+
                 }
 
             });
@@ -149,6 +149,18 @@
         _externService.setExtent = function (extent) {
             map.fitBounds([[extent._northEast.lat, extent._northEast.lng], [extent._southWest.lat, extent._southWest.lng]]);
         };
+        _externService.setExtendFromResults = function () {
+            if (ResultsData.JsonFeatures && ResultsData.JsonFeatures.length > 0) {
+                var featuregrp = L.featureGroup();
+                ResultsData.JsonFeatures.forEach(feature => {
+                    featuregrp.addLayer(feature.mapItem);
+                });
+                var featureBounds = featuregrp.getBounds();
+                map.fitBounds(featureBounds);
+            }
+        };
+
+
         _externService.CleanMapAndThemes = function () {
             MapData.CleanMap();
             ThemeService.CleanThemes();

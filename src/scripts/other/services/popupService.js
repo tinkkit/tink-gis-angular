@@ -14,7 +14,7 @@
             toastr.options.timeOut = 0; // How long the toast will display without user interaction, when timeOut and extendedTimeOut are set to 0 it will only close after user has clocked the close button
             toastr.options.extendedTimeOut = 0; // How long the toast will display after a user hovers over it
             toastr.options.closeButton = true;
-        } ();
+        }();
         _popupService.popupGenerator = function (type, title, message, callback, options) {
             var messagetype = type.toLowerCase().trim();
             if (messagetype != 'error' && messagetype != 'warning' && messagetype != 'info' && messagetype != 'success') {
@@ -22,6 +22,12 @@
             }
             if (!options) {
                 options = {}
+            }
+            if (!options.timeOut) {
+                options.timeOut = 1500;
+            }
+            if (!options.extendedTimeOut) {
+                options.extendedTimeOut = 1500;
             }
             if (callback) {
                 options.onclick = callback;
@@ -40,10 +46,10 @@
         };
         _popupService.ErrorFromHTTP = function (data, status, url) {
             if (!status) { // if no status code is given, it is most likely in the body of data
-                status = data.code; 
+                status = data.code;
             }
             var title = 'HTTP error (' + status + ')';
-            var baseurl = url.split('/').slice(0,3).join('/')
+            var baseurl = url.split('/').slice(0, 3).join('/')
             var message = 'Fout met het navigeren naar url: ' + baseurl;
             var exception = { url: url, status: status, data: data };
             var callback = function () { _popupService.ExceptionFunc(exception) };
@@ -61,12 +67,6 @@
         _popupService.Success = function (title, message, callback, options) {
             if (!options) {
                 options = {};
-            }
-            if (!options.timeOut) {
-                options.timeOut = 1500;
-            }
-            if (!options.extendedTimeOut) {
-                options.extendedTimeOut = 1500;
             }
             if (!options.closeButton) {
                 options.closeButton = false;

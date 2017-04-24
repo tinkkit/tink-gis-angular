@@ -69,7 +69,7 @@
                             break;
                         case ActiveInteractieButton.SELECT:
 
-                            if (MapData.DrawingType != DrawingOption.GEEN) {
+                            if (MapData.DrawingType != DrawingOption.GEEN && MapData.ExtendedType == null) {
                                 MapData.CleanMap();
                                 MapData.CleanSearch();
                             }
@@ -83,7 +83,7 @@
                                     MapData.ShowDrawControls = false;
                                     MapData.ActiveInteractieKnop = ActiveInteractieButton.GEEN;
                                 });
-                            } // else a drawing finished
+                            } // else wait for a drawing finished
                             break;
                         case ActiveInteractieButton.WATISHIER:
                             MapData.CleanWatIsHier();

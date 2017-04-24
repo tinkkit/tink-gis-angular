@@ -222,7 +222,10 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         };
         $scope.geopuntThemeChanged = function (theme) {
             var questionmarkPos = theme.Url.trim().indexOf('?');
-            var url = theme.Url.trim().substring(0, questionmarkPos);
+            var url = theme.Url.trim();
+            if (questionmarkPos != -1) {
+                url = theme.Url.trim().substring(0, questionmarkPos);
+            }
             createWMS(url);
         };
         var createWMS = function createWMS(url) {
@@ -239,7 +242,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                         var wmstheme = ThemeCreater.createWMSThemeFromJSON(data, url);
                         $scope.previewTheme(wmstheme);
                     } else {
-                        PopupService.Error("Ongeldige WMS", "De opgegeven url is geen geldige WMS url. (" + url + ")");
+                        PopupService.Error("Fout bij het laden van de WMS", "Er is een fout opgetreden bij opvragen van de wms met de url: " + url);
                         $scope.error = "Fout bij het laden van WMS.";
                     }
                 }).error(function (data, status, headers, config) {
@@ -993,7 +996,6 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         var init = function () {
             console.log('Tink-Gis-Angular component init!!!!!!!!!');
             if (window.location.href.startsWith('http://localhost:9000/')) {
-                FeatureService.defaultLayerName = "fietspad";
                 var externproj = JSON.parse('{"naam":"Velo en fietspad!!","extent":{"_northEast":{"lat":"51.2336102032025","lng":"4.41993402409611"},"_southWest":{"lat":"51.1802290498612","lng":"4.38998297870121"}},"guid":"bfc88ea3-8581-4204-bdbc-b5f54f46050d","extentString":"51.2336102032025,4.41993402409611,51.1802290498612,4.38998297870121","isKaart":true,"uniqId":3,"creatorId":6,"creator":null,"createDate":"2016-08-22T10:55:15.525994","updaterId":6,"updater":null,"lastUpdated":"2016-08-22T10:55:15.525994","themes":[{"cleanUrl":"services/P_Stad/Mobiliteit/MapServer","naam":"Mobiliteit","type":"esri","visible":true,"layers":[{"id":"9","name":"fietspad","visible":true},{"id":"6","name":"velo","visible":true},{"id":"0","name":"Fiets en voetganger","visible":true}]}],"isReadOnly":false}');
                 ExternService.Import(externproj);
 
@@ -2026,7 +2028,7 @@ var esri2geo = {};
     }
     // module.$inject = ['MapData', 'map', 'GISService', 'ThemeCreater', 'WMSService', 'ThemeService', '$q','BaseLayersService'];
 
-    var externService = function externService(MapData, map, GISService, ThemeCreater, WMSService, ThemeService, $q, BaseLayersService, FeatureService) {
+    var externService = function externService(MapData, map, GISService, ThemeCreater, WMSService, ThemeService, $q, BaseLayersService, FeatureService, ResultsData) {
         var _externService = {};
         _externService.GetAllThemes = function () {
             var legendItem = {};
@@ -2175,6 +2177,17 @@ var esri2geo = {};
         _externService.setExtent = function (extent) {
             map.fitBounds([[extent._northEast.lat, extent._northEast.lng], [extent._southWest.lat, extent._southWest.lng]]);
         };
+        _externService.setExtendFromResults = function () {
+            if (ResultsData.JsonFeatures && ResultsData.JsonFeatures.length > 0) {
+                var featuregrp = L.featureGroup();
+                ResultsData.JsonFeatures.forEach(function (feature) {
+                    featuregrp.addLayer(feature.mapItem);
+                });
+                var featureBounds = featuregrp.getBounds();
+                map.fitBounds(featureBounds);
+            }
+        };
+
         _externService.CleanMapAndThemes = function () {
             MapData.CleanMap();
             ThemeService.CleanThemes();
@@ -2885,9 +2898,9 @@ L.control.typeahead = function (args) {
                     closeOnConfirm: true
                 });
             } else {
-                var dialogtext = "Seletie verwijderen?";
+                var dialogtext = "Selectie verwijderen?";
                 if (_data.ExtendedType == "add") {
-                    dialogtext = "Seletie toevoegen?";
+                    dialogtext = "Selectie toevoegen?";
                 }
                 swal({
                     title: 'Zeker?',
@@ -3106,7 +3119,7 @@ L.control.typeahead = function (args) {
                             break;
                         case ActiveInteractieButton.SELECT:
 
-                            if (MapData.DrawingType != DrawingOption.GEEN) {
+                            if (MapData.DrawingType != DrawingOption.GEEN && MapData.ExtendedType == null) {
                                 MapData.CleanMap();
                                 MapData.CleanSearch();
                             }
@@ -3120,7 +3133,7 @@ L.control.typeahead = function (args) {
                                     MapData.ShowDrawControls = false;
                                     MapData.ActiveInteractieKnop = ActiveInteractieButton.GEEN;
                                 });
-                            } // else a drawing finished
+                            } // else wait for a drawing finished
                             break;
                         case ActiveInteractieButton.WATISHIER:
                             MapData.CleanWatIsHier();
@@ -3235,7 +3248,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     } catch (e) {
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'tink.modal']); //'leaflet-directive'
     }
-    var mapService = function mapService($rootScope, MapData, map, ThemeCreater, $q, GISService, ResultsData, HelperService) {
+    var mapService = function mapService($rootScope, MapData, map, ThemeCreater, $q, GISService, ResultsData, HelperService, PopupService) {
         var _mapService = {};
         _mapService.Identify = function (event, tolerance) {
             MapData.CleanSearch();
@@ -3245,7 +3258,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             _.each(MapData.Themes, function (theme) {
                 // theme.RecalculateVisibleLayerIds();
                 var identifOnThisTheme = true;
-                if (theme.VisibleLayerIds.length === 1 && theme.VisibleLayerIds[0] === -1) {
+                // if (theme.VisibleLayerIds.length === 1 && theme.VisibleLayerIds[0] === -1) {
+                if (theme.VisibleLayerIds.length === 0 || theme.VisibleLayerIds.length === 1 && theme.VisibleLayerIds[0] === -1) {
                     identifOnThisTheme = false; // we moeten de layer niet qryen wnnr er geen vis layers zijn
                 }
                 if (identifOnThisTheme) {
@@ -3346,30 +3360,76 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 });
             }
         };
+        _mapService.LayerQuery = function (theme, layerid, geometry, oncomplete) {
 
+            var promise = new Promise(function (resolve, reject) {
+                ResultsData.RequestStarted++;
+                theme.MapData.query().layer(layerid).intersects(geometry).run(function (error, featureCollection, response) {
+                    ResultsData.RequestCompleted++;
+                    resolve({ error: error, featureCollection: featureCollection, response: response });
+                });
+            });
+            return promise;
+        };
+        _mapService.LayerQueryCount = function (theme, layerid, geometry) {
+            var promise = new Promise(function (resolve, reject) {
+                ResultsData.RequestStarted++;
+                theme.MapData.query().layer(layerid).intersects(geometry).count(function (error, count, response) {
+                    ResultsData.RequestCompleted++;
+                    resolve({ error: error, count: count, response: response });
+                });
+            });
+            return promise;
+        };
         _mapService.Query = function (box, layer) {
             if (!layer) {
                 layer = MapData.SelectedLayer;
             }
             if (!layer || layer.id === '') {
                 // alle layers selected
+                var featureCount = 0;
+                var allproms = [];
                 MapData.Themes.forEach(function (theme) {
                     // dus doen we de qry op alle lagen.
                     if (theme.Type === ThemeType.ESRI) {
                         theme.VisibleLayers.forEach(function (lay) {
-                            ResultsData.RequestStarted++;
-                            theme.MapData.query().layer(lay.id).intersects(box).run(function (error, featureCollection, response) {
-                                ResultsData.RequestCompleted++;
-                                MapData.AddFeatures(featureCollection, theme, lay.id);
+                            var layerCountProm = _mapService.LayerQueryCount(theme, lay.id, box);
+                            layerCountProm.then(function (arg) {
+                                featureCount += arg.count;
                             });
+                            allproms.push(layerCountProm);
                         });
                     }
                 });
+                Promise.all(allproms).then(function AcceptHandler(results) {
+                    console.log(results, featureCount);
+                    if (featureCount <= 500) {
+                        MapData.Themes.forEach(function (theme) {
+                            // dus doen we de qry op alle lagen.
+                            if (theme.Type === ThemeType.ESRI) {
+                                theme.VisibleLayers.forEach(function (lay) {
+                                    var prom = _mapService.LayerQuery(theme, lay.id, box);
+                                    prom.then(function (arg) {
+                                        MapData.AddFeatures(arg.featureCollection, theme, lay.id);
+                                    });
+                                });
+                            }
+                        });
+                    } else {
+                        PopupService.Warning("U selecteerde " + featureCount + " resultaten.", "Om een vlotte werking te garanderen is het maximum is ingesteld op 500");
+                    }
+                });
             } else {
-                ResultsData.RequestStarted++;
-                layer.theme.MapData.query().layer(layer.id).intersects(box).run(function (error, featureCollection, response) {
-                    ResultsData.RequestCompleted++;
-                    MapData.AddFeatures(featureCollection, layer.theme, layer.id);
+                var prom = _mapService.LayerQueryCount(layer.theme, layer.id, box);
+                prom.then(function (arg) {
+                    if (arg.count <= 500) {
+                        var prom = _mapService.LayerQuery(layer.theme, layer.id, box);
+                        prom.then(function (arg) {
+                            MapData.AddFeatures(arg.featureCollection, layer.theme, layer.id);
+                        });
+                    } else {
+                        PopupService.Warning("U selecteerde " + arg.count + " resultaten.", "Om een vlotte werking te garanderen is het maximum is ingesteld op 500");
+                    }
                 });
             }
         };
@@ -3446,7 +3506,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
         return _mapService;
     };
-    module.$inject = ['$rootScope', 'MapData', 'map', 'ThemeCreater', '$q', 'GISService', 'ResultsData', 'HelperService'];
+    module.$inject = ['$rootScope', 'MapData', 'map', 'ThemeCreater', '$q', 'GISService', 'ResultsData', 'HelperService', 'PopupService'];
     module.factory('MapService', mapService);
 })();
 ;'use strict';
@@ -3474,6 +3534,12 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             }
             if (!options) {
                 options = {};
+            }
+            if (!options.timeOut) {
+                options.timeOut = 1500;
+            }
+            if (!options.extendedTimeOut) {
+                options.extendedTimeOut = 1500;
             }
             if (callback) {
                 options.onclick = callback;
@@ -3518,12 +3584,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         _popupService.Success = function (title, message, callback, options) {
             if (!options) {
                 options = {};
-            }
-            if (!options.timeOut) {
-                options.timeOut = 1500;
-            }
-            if (!options.extendedTimeOut) {
-                options.extendedTimeOut = 1500;
             }
             if (!options.closeButton) {
                 options.closeButton = false;
