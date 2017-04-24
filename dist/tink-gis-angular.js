@@ -197,7 +197,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             var prom = GeopuntService.getMetaData(searchTerm, (page - 1) * 5 + 1, 5);
             prom.then(function (metadata) {
 
-                if ($scope.currentPage == null) {
+                if ($scope.currentPage == 0) {
                     $scope.currentPage = 1;
                 }
                 $scope.loading = false;
