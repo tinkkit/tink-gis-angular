@@ -2865,6 +2865,7 @@ L.control.typeahead = function (args) {
                 tempFeatures.push(mapItem);
             });
         };
+        _data.processedFeatureArray = [];
         _data.AddFeatures = function (features, theme, layerId) {
 
             if (!features || features.features.length == 0) {
@@ -2878,12 +2879,14 @@ L.control.typeahead = function (args) {
                         ResultsData.JsonFeatures.push(featureItem);
                     });
                 } else {
-                    _data.ConfirmExtendDialog(featureArray);
+                    _data.processedFeatureArray = featureArray.concat(_data.processedFeatureArray);
+                    // add them to processedFeatureArray for later ConfirmExtendDialog
                 }
             }
             $rootScope.$applyAsync();
         };
-        _data.ConfirmExtendDialog = function (featureArray) {
+        _data.ConfirmExtendDialog = function () {
+            var featureArray = _data.processedFeatureArray;
             if (featureArray.length == 0) {
                 _data.TempExtendFeature = [];
                 _data.ExtendedType = null;
@@ -2933,8 +2936,9 @@ L.control.typeahead = function (args) {
                             map.removeLayer(x);
                         });
                     }
-                    _data.TempExtendFeature = [];
+                    _data.TempExtendFeatures = [];
                     _data.ExtendedType = null;
+                    _data.processedFeatureArray = [];
                     _data.CleanDrawingExtendedObject();
                 });
             }
@@ -2964,7 +2968,7 @@ L.control.typeahead = function (args) {
                 return x.isBufferedItem;
             });
             var resultArray = [];
-            _data.TempExtendFeatures = []; //make sure it is empty
+            // _data.TempExtendFeatures = []; //make sure it is empty
             for (var x = 0; x < features.features.length; x++) {
                 var featureItem = features.features[x];
 
@@ -3338,7 +3342,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         };
 
         _mapService.Select = function (event) {
-            MapData.CleanSearch();
+            // MapData.CleanSearch();
             console.log(event);
             if (MapData.SelectedLayer.id === '') {
                 // alle layers selected
@@ -3350,6 +3354,10 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                     theme.MapData.identify().on(map).at(event.latlng).layers('visible: ' + theme.VisibleLayerIds).run(function (error, featureCollection) {
                         ResultsData.RequestCompleted++;
                         MapData.AddFeatures(featureCollection, theme);
+                        if (MapData.ExtendedType != null) {
+                            MapData.ConfirmExtendDialog(MapData.processedFeatureArray);
+                            MapData.processedFeatureArray = [];
+                        }
                     });
                 });
             } else {
@@ -3357,6 +3365,10 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 MapData.SelectedLayer.theme.MapData.identify().on(map).at(event.latlng).layers('visible: ' + MapData.SelectedLayer.id).run(function (error, featureCollection) {
                     ResultsData.RequestCompleted++;
                     MapData.AddFeatures(featureCollection, MapData.SelectedLayer.theme);
+                    if (MapData.ExtendedType != null) {
+                        MapData.ConfirmExtendDialog(MapData.processedFeatureArray);
+                        MapData.processedFeatureArray = [];
+                    }
                 });
             }
         };
@@ -3388,7 +3400,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             if (!layer || layer.id === '') {
                 // alle layers selected
                 var featureCount = 0;
-                var allproms = [];
+                var allcountproms = [];
                 MapData.Themes.forEach(function (theme) {
                     // dus doen we de qry op alle lagen.
                     if (theme.Type === ThemeType.ESRI) {
@@ -3397,24 +3409,32 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                             layerCountProm.then(function (arg) {
                                 featureCount += arg.count;
                             });
-                            allproms.push(layerCountProm);
+                            allcountproms.push(layerCountProm);
                         });
                     }
                 });
-                Promise.all(allproms).then(function AcceptHandler(results) {
+                Promise.all(allcountproms).then(function AcceptHandler(results) {
                     console.log(results, featureCount);
                     if (featureCount <= 500) {
+                        var allproms = [];
                         MapData.Themes.forEach(function (theme) {
                             // dus doen we de qry op alle lagen.
                             if (theme.Type === ThemeType.ESRI) {
                                 theme.VisibleLayers.forEach(function (lay) {
                                     var prom = _mapService.LayerQuery(theme, lay.id, box);
+                                    allproms.push(prom);
                                     prom.then(function (arg) {
                                         MapData.AddFeatures(arg.featureCollection, theme, lay.id);
                                     });
                                 });
                             }
                         });
+                        if (MapData.ExtendedType != null) {
+                            Promise.all(allproms).then(function AcceptHandler(results) {
+                                MapData.ConfirmExtendDialog(MapData.processedFeatureArray);
+                                MapData.processedFeatureArray = [];
+                            });
+                        }
                     } else {
                         PopupService.Warning("U selecteerde " + featureCount + " resultaten.", "Om een vlotte werking te garanderen is het maximum is ingesteld op 500");
                     }
@@ -3426,6 +3446,10 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                         var prom = _mapService.LayerQuery(layer.theme, layer.id, box);
                         prom.then(function (arg) {
                             MapData.AddFeatures(arg.featureCollection, layer.theme, layer.id);
+                            if (MapData.ExtendedType != null) {
+                                MapData.ConfirmExtendDialog(MapData.processedFeatureArray);
+                                MapData.processedFeatureArray = [];
+                            }
                         });
                     } else {
                         PopupService.Warning("U selecteerde " + arg.count + " resultaten.", "Om een vlotte werking te garanderen is het maximum is ingesteld op 500");
