@@ -26,6 +26,7 @@
                             theme.MapData.identify().on(map).at(event.latlng).layers(layersVoorIdentify).tolerance(tolerance).run(function (error, featureCollection) {
                                 ResultsData.RequestCompleted++;
                                 MapData.AddFeatures(featureCollection, theme);
+
                             });
                             break;
                         case ThemeType.WMS:
@@ -98,7 +99,7 @@
         };
 
         _mapService.Select = function (event) {
-            MapData.CleanSearch();
+            // MapData.CleanSearch();
             console.log(event);
             if (MapData.SelectedLayer.id === '') { // alle layers selected
                 MapData.Themes.filter(x => x.Type == ThemeType.ESRI).forEach(theme => { // dus doen we de qry op alle lagen.
@@ -106,6 +107,10 @@
                     theme.MapData.identify().on(map).at(event.latlng).layers('visible: ' + theme.VisibleLayerIds).run(function (error, featureCollection) {
                         ResultsData.RequestCompleted++;
                         MapData.AddFeatures(featureCollection, theme);
+                        if (MapData.ExtendedType != null) {
+                            MapData.ConfirmExtendDialog(MapData.processedFeatureArray);
+                            MapData.processedFeatureArray = [];
+                        }
 
                     });
                 });
@@ -114,6 +119,10 @@
                 MapData.SelectedLayer.theme.MapData.identify().on(map).at(event.latlng).layers('visible: ' + MapData.SelectedLayer.id).run(function (error, featureCollection) {
                     ResultsData.RequestCompleted++;
                     MapData.AddFeatures(featureCollection, MapData.SelectedLayer.theme);
+                    if (MapData.ExtendedType != null) {
+                        MapData.ConfirmExtendDialog(MapData.processedFeatureArray);
+                        MapData.processedFeatureArray = [];
+                    }
                 });
             }
 
@@ -153,7 +162,7 @@
             }
             if (!layer || layer.id === '') { // alle layers selected
                 var featureCount = 0;
-                var allproms = [];
+                var allcountproms = [];
                 MapData.Themes.forEach(theme => { // dus doen we de qry op alle lagen.
                     if (theme.Type === ThemeType.ESRI) {
                         theme.VisibleLayers.forEach(lay => {
@@ -161,17 +170,19 @@
                             layerCountProm.then(function (arg) {
                                 featureCount += arg.count;
                             });
-                            allproms.push(layerCountProm);
+                            allcountproms.push(layerCountProm);
                         });
                     }
                 });
-                Promise.all(allproms).then(function AcceptHandler(results) {
+                Promise.all(allcountproms).then(function AcceptHandler(results) {
                     console.log(results, featureCount);
                     if (featureCount <= 500) {
+                        var allproms = [];
                         MapData.Themes.forEach(theme => { // dus doen we de qry op alle lagen.
                             if (theme.Type === ThemeType.ESRI) {
                                 theme.VisibleLayers.forEach(lay => {
                                     var prom = _mapService.LayerQuery(theme, lay.id, box);
+                                    allproms.push(prom);
                                     prom.then(function (arg) {
                                         MapData.AddFeatures(arg.featureCollection, theme, lay.id);
                                     });
@@ -179,6 +190,14 @@
                                 });
                             }
                         });
+                        if (MapData.ExtendedType != null) {
+                            Promise.all(allproms).then(function AcceptHandler(results) {
+                                MapData.ConfirmExtendDialog(MapData.processedFeatureArray);
+                                MapData.processedFeatureArray = [];
+
+                            });
+                        }
+
                     }
                     else {
                         PopupService.Warning("U selecteerde " + featureCount + " resultaten.", "Om een vlotte werking te garanderen is het maximum is ingesteld op 500")
@@ -193,6 +212,10 @@
                         var prom = _mapService.LayerQuery(layer.theme, layer.id, box);
                         prom.then(function (arg) {
                             MapData.AddFeatures(arg.featureCollection, layer.theme, layer.id);
+                            if (MapData.ExtendedType != null) {
+                                MapData.ConfirmExtendDialog(MapData.processedFeatureArray);
+                                MapData.processedFeatureArray = [];
+                            }
                         });
                     }
                     else {

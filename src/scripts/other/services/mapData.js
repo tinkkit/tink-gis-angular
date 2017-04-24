@@ -311,6 +311,7 @@
                 tempFeatures.push(mapItem);
             })
         }
+        _data.processedFeatureArray = [];
         _data.AddFeatures = function (features, theme, layerId) {
 
             if (!features || features.features.length == 0) {
@@ -323,14 +324,16 @@
                         ResultsData.JsonFeatures.push(featureItem);
                     });
                 } else {
-                    _data.ConfirmExtendDialog(featureArray);
+                    _data.processedFeatureArray = featureArray.concat(_data.processedFeatureArray);
+                    // add them to processedFeatureArray for later ConfirmExtendDialog
                 }
 
 
             }
             $rootScope.$applyAsync();
         };
-        _data.ConfirmExtendDialog = function (featureArray) {
+        _data.ConfirmExtendDialog = function () {
+            var featureArray = _data.processedFeatureArray
             if (featureArray.length == 0) {
                 _data.TempExtendFeature = [];
                 _data.ExtendedType = null;
@@ -382,8 +385,9 @@
                             map.removeLayer(x);
                         });
                     }
-                    _data.TempExtendFeature = [];
+                    _data.TempExtendFeatures = [];
                     _data.ExtendedType = null;
+                    _data.processedFeatureArray = [];
                     _data.CleanDrawingExtendedObject();
 
                 });
@@ -411,7 +415,7 @@
         _data.GetResultsData = function (features, theme, layerId) {
             var buffereditem = _data.VisibleFeatures.find(x => x.isBufferedItem);
             var resultArray = [];
-            _data.TempExtendFeatures = []; //make sure it is empty
+            // _data.TempExtendFeatures = []; //make sure it is empty
             for (var x = 0; x < features.features.length; x++) {
                 var featureItem = features.features[x];
 
