@@ -1,5 +1,5 @@
 'use strict';
-(function (module) {
+(function(module) {
     var module;
     try {
         module = angular.module('tink.gis');
@@ -7,7 +7,7 @@
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
     }
     module.controller('solrGISController', ['$scope', 'ThemeCreater', '$q', 'MapService', 'MapData', 'GISService', 'LayerManagementService', 'WMSService', '$window', '$http', 'GeopuntService', 'ThemeService', 'PopupService',
-        function ($scope, ThemeCreater, $q, MapService, MapData, GISService, LayerManagementService, WMSService, $window, $http, GeopuntService, ThemeService, PopupService) {
+        function($scope, ThemeCreater, $q, MapService, MapData, GISService, LayerManagementService, WMSService, $window, $http, GeopuntService, ThemeService, PopupService) {
             $scope.pagingCount = null;
             $scope.numberofrecordsmatched = 0;
             LayerManagementService.AvailableThemes.length = 0;
@@ -15,25 +15,24 @@
             $scope.allThemes = [];
             $scope.loading = false;
             $scope.error = null;
-            var init = function () {
+            var init = function() {
                 $scope.searchTerm = '';
-            } ();
-            $scope.$on("searchChanged", function (event, searchTerm) {
+            }();
+            $scope.$on("searchChanged", function(event, searchTerm) {
                 $scope.searchTerm = searchTerm;
                 if ($scope.searchTerm != null && $scope.searchTerm != '' && $scope.searchTerm.length > 2) {
                     $scope.$parent.solrLoading = true;
                     $scope.QueryGISSOLR($scope.searchTerm, 1);
-                }
-                else {
+                } else {
                     $scope.availableThemes.length = 0;
                     $scope.numberofrecordsmatched = 0;
                 }
             });
-            $scope.QueryGISSOLR = function (searchterm, page) {
+            $scope.QueryGISSOLR = function(searchterm, page) {
                 $scope.loading = true;
 
                 var prom = GISService.QuerySOLRGIS(searchterm, ((page - 1) * 5) + 1, 5);
-                prom.then(function (data) {
+                prom.then(function(data) {
                     $scope.loading = false;
                     $scope.$parent.solrLoading = false;
                     $scope.currentPage = 1;
@@ -91,8 +90,7 @@
                                         url: 'services/P_Stad/' + themeName + '/MapServer'
                                     }
                                     themes.push(theme);
-                                }
-                                else {
+                                } else {
                                     theme.layersCount = itemMetData.doclist.numFound;
                                 }
                                 itemMetData.doclist.docs.forEach(item => {
@@ -106,8 +104,7 @@
                                             features: []
                                         };
                                         theme.layers.push(layer);
-                                    }
-                                    else {
+                                    } else {
                                         layer.isMatch = true;
                                     }
                                 });
@@ -121,17 +118,17 @@
                     $scope.allThemes = themes;
                     $scope.numberofrecordsmatched = themes.length;
                     console.log(data);
-                }, function (reason) {
+                }, function(reason) {
                     console.log(reason);
                 });
             };
-            $scope.pageChanged = function (page, recordsAPage) {
+            $scope.pageChanged = function(page, recordsAPage) {
                 let startItem = ((page - 1) * recordsAPage);
                 $scope.availableThemes = $scope.allThemes.slice(startItem, startItem + recordsAPage)
             };
             $scope.selectedTheme = null;
             $scope.copySelectedTheme = null;
-            $scope.previewTheme = function (theme) {
+            $scope.previewTheme = function(theme) {
                 var alreadyExistingTheme = MapData.Themes.find(x => { return x.CleanUrl === theme.CleanUrl });
                 if (alreadyExistingTheme) {
                     theme = alreadyExistingTheme;
@@ -139,16 +136,16 @@
                 $scope.selectedTheme = theme;
                 $scope.copySelectedTheme = angular.copy(theme);
             };
-            $scope.clearPreview = function () {
+            $scope.clearPreview = function() {
                 $scope.selectedTheme = null;
                 $scope.copySelectedTheme = null;
                 $scope.error = null;
             };
-            $scope.solrThemeChanged = function (theme) {
+            $scope.solrThemeChanged = function(theme) {
                 $scope.clearPreview();
                 $scope.themeloading = true;
 
-                GISService.GetThemeData(theme.url).then(function (data, status, functie, getdata) {
+                GISService.GetThemeData(theme.url).then(function(data, status, functie, getdata) {
                     if (!data.error) {
                         var convertedTheme = ThemeCreater.createARCGISThemeFromJson(data, theme);
                         $scope.previewTheme(convertedTheme);
@@ -158,26 +155,27 @@
                     }
                     $scope.themeloading = false;
 
-                }, function (data, status, functie, getdata) {
+                }, function(data, status, functie, getdata) {
                     $scope.error = "Fout bij het laden van de mapservice.";
                     $scope.themeloading = false;
                 });
                 // added to give the selected theme an Active class
                 $scope.selected = theme;
-                $scope.isActive = function (theme) {
+                $scope.isActive = function(theme) {
                     return $scope.selected === theme;
                 };
             };
-            $scope.AddOrUpdateTheme = function () {
+            $scope.AddOrUpdateTheme = function() {
                 LayerManagementService.AddOrUpdateTheme($scope.selectedTheme, $scope.copySelectedTheme);
                 $scope.clearPreview();
             };
-            $scope.ok = function () {
+            $scope.ok = function() {
                 $modalInstance.$close();
             };
-            $scope.cancel = function () {
+            $scope.cancel = function() {
                 $modalInstance.$dismiss('cancel is pressed');
             };
 
-        }]);
+        }
+    ]);
 })();

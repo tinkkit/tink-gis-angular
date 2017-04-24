@@ -19,8 +19,7 @@
             </div>
         </div>
         <div ng-show="loading == false">
-            <tink-pagination ng-hide="numberofrecordsmatched <= 5" tink-current-page="currentPage" tink-change="pageChanged(page,perPage,next)"
-                tink-total-items="numberofrecordsmatched" tink-items-per-page="recordsAPage"></tink-pagination>
+            <tink-pagination ng-hide="numberofrecordsmatched <= 5" tink-current-page="currentPage" tink-change="pageChanged(page,perPage,next)" tink-total-items="numberofrecordsmatched" tink-items-per-page="recordsAPage"></tink-pagination>
         </div>
         <div ng-if="loading == true" class="loader">
 

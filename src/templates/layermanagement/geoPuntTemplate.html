@@ -12,16 +12,14 @@
             </div>
         </div>
         <div ng-show="loading == false">
-            <tink-pagination ng-hide="numberofrecordsmatched <= 5" tink-items-per-page-values="[5]" tink-current-page="currentPage" tink-change="pageChanged(page,perPage,next)"
-                tink-total-items="numberofrecordsmatched" tink-items-per-page="recordsAPage"></tink-pagination>
+            <tink-pagination ng-hide="numberofrecordsmatched <= 5" tink-current-page="currentPage" tink-change="pageChanged(page,perPage,next)" tink-total-items="numberofrecordsmatched" tink-items-per-page="recordsAPage"></tink-pagination>
         </div>
         <div ng-if="loading == true" class="loader">
 
         </div>
     </div>
     <div class="col-xs-8 flex-column flex-grow-1 margin-top margin-bottom">
-        <preview-layer ng-show="themeloading == false" class="margin-top" ng-if="copySelectedTheme" addorupdatefunc="AddOrUpdateTheme()"
-            theme="copySelectedTheme">
+        <preview-layer ng-show="themeloading == false" class="margin-top" ng-if="copySelectedTheme" addorupdatefunc="AddOrUpdateTheme()" theme="copySelectedTheme">
         </preview-layer>
         <div ng-if="error">
             {{error}}
