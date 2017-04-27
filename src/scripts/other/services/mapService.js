@@ -176,7 +176,7 @@
                 });
                 Promise.all(allcountproms).then(function AcceptHandler(results) {
                     console.log(results, featureCount);
-                    if (featureCount <= 500) {
+                    if (featureCount <= 1000) {
                         var allproms = [];
                         MapData.Themes.forEach(theme => { // dus doen we de qry op alle lagen.
                             if (theme.Type === ThemeType.ESRI) {
@@ -200,7 +200,7 @@
 
                     }
                     else {
-                        PopupService.Warning("U selecteerde " + featureCount + " resultaten.", "Om een vlotte werking te garanderen is het maximum is ingesteld op 500")
+                        PopupService.Warning("U selecteerde " + featureCount + " resultaten.", "Om een vlotte werking te garanderen is het maximum is ingesteld op 1000")
                     }
                 });
 
@@ -208,7 +208,7 @@
             } else {
                 var prom = _mapService.LayerQueryCount(layer.theme, layer.id, box);
                 prom.then(function (arg) {
-                    if (arg.count <= 500) {
+                    if (arg.count <= 1000) {
                         var prom = _mapService.LayerQuery(layer.theme, layer.id, box);
                         prom.then(function (arg) {
                             MapData.AddFeatures(arg.featureCollection, layer.theme, layer.id);
@@ -219,7 +219,7 @@
                         });
                     }
                     else {
-                        PopupService.Warning("U selecteerde " + arg.count + " resultaten.", "Om een vlotte werking te garanderen is het maximum is ingesteld op 500")
+                        PopupService.Warning("U selecteerde " + arg.count + " resultaten.", "Om een vlotte werking te garanderen is het maximum is ingesteld op 1000")
                     }
                 });
 

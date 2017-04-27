@@ -45,24 +45,40 @@
                 $('.leaflet-container').addClass('cursor-auto');
             }
         };
-        vm.interactieButtonChanged = function (ActiveButton) {
-            if (ActiveButton == "identify" || "watishier") {
-                vm.addCursorAuto();
-            }
-            MapData.ActiveInteractieKnop = ActiveButton; // If we only could keep the vmactiveInteractieKnop in sync with the one from MapData
-            vm.activeInteractieKnop = ActiveButton;
+        vm.resetButtonBar = function () {
+            MapData.ActiveInteractieKnop = ActiveInteractieButton.NIETS;
+            vm.activeInteractieKnop = ActiveInteractieButton.NIETS;
+            MapData.DrawingType = DrawingOption.NIETS;
+            MapData.ExtendedType = null;
             vm.showMetenControls = false;
             MapData.ShowDrawControls = false;
-            switch (ActiveButton) {
-                case ActiveInteractieButton.SELECT:
-                    MapData.ShowDrawControls = true;
-                    MapData.DrawingType = DrawingOption.GEEN; // pff must be possible to be able to sync them...
 
-                    break;
-                case ActiveInteractieButton.METEN:
-                    vm.showMetenControls = true;
-                    MapData.DrawingType = DrawingOption.GEEN;
-                    break;
+        }
+        vm.interactieButtonChanged = function (ActiveButton) {
+            if (vm.activeInteractieKnop != ActiveButton) {
+                if (ActiveButton == "identify" || "watishier") {
+                    MapData.ExtendedType = null;
+                    vm.addCursorAuto();
+                }
+                MapData.ActiveInteractieKnop = ActiveButton; // If we only could keep the vmactiveInteractieKnop in sync with the one from MapData
+                vm.activeInteractieKnop = ActiveButton;
+                vm.showMetenControls = false;
+                MapData.ShowDrawControls = false;
+                switch (ActiveButton) {
+                    case ActiveInteractieButton.SELECT:
+                        MapData.ShowDrawControls = true;
+                        MapData.DrawingType = DrawingOption.GEEN; // pff must be possible to be able to sync them...
+
+                        break;
+                    case ActiveInteractieButton.METEN:
+                        MapData.ExtendedType = null;
+                        vm.showMetenControls = true;
+                        MapData.DrawingType = DrawingOption.GEEN;
+                        break;
+                }
+            }
+            else {
+                vm.resetButtonBar()
             }
         };
         vm.zoekLaag = function (search) {

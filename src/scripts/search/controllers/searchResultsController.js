@@ -37,6 +37,7 @@
                 MapData.CleanDrawings();
             };
             vm.bufferFromDrawing = function () {
+                MapData.ExtendedType = null;
                 MapData.CleanBuffer();
                 var bufferInstance = $modal.open({
                     templateUrl: 'templates/search/bufferTemplate.html',
@@ -63,20 +64,25 @@
             };
             vm.extendedType = null;
             $scope.$watch(function () { return MapData.ExtendedType; }, function (newValue, oldValue) {
-                 vm.extendedType = newValue;
+                vm.extendedType = newValue;
             });
             vm.addSelection = function () {
-                if(vm.extendedType != "add") {
+                MapData.ActiveInteractieKnop = ActiveInteractieButton.SELECT;
+                MapData.DrawingType = DrawingOption.NIETS;
+                MapData.ShowDrawControls = true;
+                if (vm.extendedType != "add") {
                     vm.extendedType = "add";
                     MapData.ExtendedType = "add";
                 }
             };
             vm.removeSelection = function () {
-                if(vm.extendedType != "remove") {
+                MapData.ActiveInteractieKnop = ActiveInteractieButton.SELECT;
+                MapData.DrawingType = DrawingOption.NIETS;
+                MapData.ShowDrawControls = true;
+                if (vm.extendedType != "remove") {
                     vm.extendedType = "remove";
                     MapData.ExtendedType = "remove";
                 }
-
             };
             vm.deleteFeature = function (feature) {
                 SearchService.DeleteFeature(feature);

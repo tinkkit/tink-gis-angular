@@ -1040,24 +1040,38 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 $('.leaflet-container').addClass('cursor-auto');
             }
         };
-        vm.interactieButtonChanged = function (ActiveButton) {
-            if (ActiveButton == "identify" || "watishier") {
-                vm.addCursorAuto();
-            }
-            MapData.ActiveInteractieKnop = ActiveButton; // If we only could keep the vmactiveInteractieKnop in sync with the one from MapData
-            vm.activeInteractieKnop = ActiveButton;
+        vm.resetButtonBar = function () {
+            MapData.ActiveInteractieKnop = ActiveInteractieButton.NIETS;
+            vm.activeInteractieKnop = ActiveInteractieButton.NIETS;
+            MapData.DrawingType = DrawingOption.NIETS;
+            MapData.ExtendedType = null;
             vm.showMetenControls = false;
             MapData.ShowDrawControls = false;
-            switch (ActiveButton) {
-                case ActiveInteractieButton.SELECT:
-                    MapData.ShowDrawControls = true;
-                    MapData.DrawingType = DrawingOption.GEEN; // pff must be possible to be able to sync them...
+        };
+        vm.interactieButtonChanged = function (ActiveButton) {
+            if (vm.activeInteractieKnop != ActiveButton) {
+                if (ActiveButton == "identify" || "watishier") {
+                    MapData.ExtendedType = null;
+                    vm.addCursorAuto();
+                }
+                MapData.ActiveInteractieKnop = ActiveButton; // If we only could keep the vmactiveInteractieKnop in sync with the one from MapData
+                vm.activeInteractieKnop = ActiveButton;
+                vm.showMetenControls = false;
+                MapData.ShowDrawControls = false;
+                switch (ActiveButton) {
+                    case ActiveInteractieButton.SELECT:
+                        MapData.ShowDrawControls = true;
+                        MapData.DrawingType = DrawingOption.GEEN; // pff must be possible to be able to sync them...
 
-                    break;
-                case ActiveInteractieButton.METEN:
-                    vm.showMetenControls = true;
-                    MapData.DrawingType = DrawingOption.GEEN;
-                    break;
+                        break;
+                    case ActiveInteractieButton.METEN:
+                        MapData.ExtendedType = null;
+                        vm.showMetenControls = true;
+                        MapData.DrawingType = DrawingOption.GEEN;
+                        break;
+                }
+            } else {
+                vm.resetButtonBar();
             }
         };
         vm.zoekLaag = function (search) {
@@ -3409,7 +3423,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 });
                 Promise.all(allcountproms).then(function AcceptHandler(results) {
                     console.log(results, featureCount);
-                    if (featureCount <= 500) {
+                    if (featureCount <= 1000) {
                         var allproms = [];
                         MapData.Themes.forEach(function (theme) {
                             // dus doen we de qry op alle lagen.
@@ -3430,13 +3444,13 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                             });
                         }
                     } else {
-                        PopupService.Warning("U selecteerde " + featureCount + " resultaten.", "Om een vlotte werking te garanderen is het maximum is ingesteld op 500");
+                        PopupService.Warning("U selecteerde " + featureCount + " resultaten.", "Om een vlotte werking te garanderen is het maximum is ingesteld op 1000");
                     }
                 });
             } else {
                 var prom = _mapService.LayerQueryCount(layer.theme, layer.id, box);
                 prom.then(function (arg) {
-                    if (arg.count <= 500) {
+                    if (arg.count <= 1000) {
                         var prom = _mapService.LayerQuery(layer.theme, layer.id, box);
                         prom.then(function (arg) {
                             MapData.AddFeatures(arg.featureCollection, layer.theme, layer.id);
@@ -3446,7 +3460,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                             }
                         });
                     } else {
-                        PopupService.Warning("U selecteerde " + arg.count + " resultaten.", "Om een vlotte werking te garanderen is het maximum is ingesteld op 500");
+                        PopupService.Warning("U selecteerde " + arg.count + " resultaten.", "Om een vlotte werking te garanderen is het maximum is ingesteld op 1000");
                     }
                 });
             }
@@ -4044,6 +4058,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             MapData.CleanDrawings();
         };
         vm.bufferFromDrawing = function () {
+            MapData.ExtendedType = null;
             MapData.CleanBuffer();
             var bufferInstance = $modal.open({
                 templateUrl: 'templates/search/bufferTemplate.html',
@@ -4072,12 +4087,18 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             vm.extendedType = newValue;
         });
         vm.addSelection = function () {
+            MapData.ActiveInteractieKnop = ActiveInteractieButton.SELECT;
+            MapData.DrawingType = DrawingOption.NIETS;
+            MapData.ShowDrawControls = true;
             if (vm.extendedType != "add") {
                 vm.extendedType = "add";
                 MapData.ExtendedType = "add";
             }
         };
         vm.removeSelection = function () {
+            MapData.ActiveInteractieKnop = ActiveInteractieButton.SELECT;
+            MapData.DrawingType = DrawingOption.NIETS;
+            MapData.ShowDrawControls = true;
             if (vm.extendedType != "remove") {
                 vm.extendedType = "remove";
                 MapData.ExtendedType = "remove";
@@ -4201,12 +4222,14 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         };
         vm.buffer = 1;
         vm.doordruk = function () {
+            MapData.ExtendedType = null;
             console.log(ResultsData.SelectedFeature);
             ResultsData.SelectedFeature.mapItem.toGeoJSON().features.forEach(function (feature) {
                 GeometryService.Doordruk(feature);
             });
         };
         vm.buffer = function () {
+            MapData.ExtendedType = null;
             MapData.CleanDrawings();
             MapData.CleanBuffer();
             MapData.SetDrawLayer(ResultsData.SelectedFeature.mapItem);
@@ -5138,7 +5161,7 @@ L.drawLocal = {
     "</button>\n" +
     "</div>\n" +
     "<div class=\"btn-group ll searchbtns\">\n" +
-    "<button type=button class=\"btn tooltip-margin-left\" ng-class=\"{active: mapctrl.ZoekenOpLocatie==true}\" ng-click=mapctrl.fnZoekenOpLocatie() tink-tooltip=\"... Zoeken op locatie\" tink-tooltip-align=bottom prevent-default-map>\n" +
+    "<button type=button class=\"btn tooltip-margin-left\" ng-class=\"{active: mapctrl.ZoekenOpLocatie==true}\" ng-click=mapctrl.fnZoekenOpLocatie() tink-tooltip=\"Zoeken naar locatie\" tink-tooltip-align=bottom prevent-default-map>\n" +
     "<svg class=\"icon icon-sik-location-search\"><use xlink:href=#icon-sik-location-search></use></svg>\n" +
     "</button>\n" +
     "<button type=button class=btn ng-class=\"{active: mapctrl.ZoekenOpLocatie==false}\" ng-click=mapctrl.ZoekenInLagen() tink-tooltip=\"Zoeken binnen lagen\" tink-tooltip-align=bottom prevent-default-map>\n" +
@@ -5333,7 +5356,7 @@ L.drawLocal = {
     "<i class=\"fa fa-chevron-right\"></i>\n" +
     "</button>\n" +
     "</div>\n" +
-    "<button class=\"btn-primary pull-right\" ng-disabled=\"srchslctdctrl.selectedResult.theme.Type != 'esri'\" ng-click=srchslctdctrl.toonFeatureOpKaart()>Tonen</button>\n" +
+    "<button class=\"btn-primary pull-right\" ng-hide=\"srchslctdctrl.selectedResult.theme.Type != 'esri'\" ng-click=srchslctdctrl.toonFeatureOpKaart()>Tonen</button>\n" +
     "</div>\n" +
     "<div class=\"col-xs-12 margin-top margin-bottom\">\n" +
     "<a class=pull-right ng-click=srchslctdctrl.close(srchslctdctrl.selectedResult)>Terug naar resultaten</a>\n" +

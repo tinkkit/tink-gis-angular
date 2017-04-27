@@ -66,12 +66,14 @@
             };
             vm.buffer = 1;
             vm.doordruk = function () {
+                MapData.ExtendedType = null;
                 console.log(ResultsData.SelectedFeature);
                 ResultsData.SelectedFeature.mapItem.toGeoJSON().features.forEach(feature => {
                     GeometryService.Doordruk(feature);
                 });
             };
             vm.buffer = function () {
+                MapData.ExtendedType = null;
                 MapData.CleanDrawings();
                 MapData.CleanBuffer();
                 MapData.SetDrawLayer(ResultsData.SelectedFeature.mapItem);
