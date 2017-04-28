@@ -1012,11 +1012,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         }, function (data) {
             vm.drawingType = data;
         }, true);
-        $scope.$watch(function () {
-            return MapData.ShowDrawControls;
-        }, function (data) {
-            vm.showDrawControls = data;
-        }, true);
+
         vm.SelectableLayers = function () {
             return MapData.VisibleLayers;
         };
@@ -1032,7 +1028,17 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         }, function (newval, oldval) {
             vm.selectedFindLayer = newval;
         });
-        vm.showMetenControls = false;
+        $scope.$watch(function () {
+            return MapData.ShowMetenControls;
+        }, function (data) {
+            vm.showMetenControls = data;
+        }, true);
+        vm.showMetenControls = MapData.ShowMetenControls;
+        $scope.$watch(function () {
+            return MapData.ShowDrawControls;
+        }, function (data) {
+            vm.showDrawControls = data;
+        }, true);
         vm.showDrawControls = MapData.ShowDrawControls;
         vm.zoekLoc = '';
         vm.addCursorAuto = function () {
@@ -1045,7 +1051,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             vm.activeInteractieKnop = ActiveInteractieButton.NIETS;
             MapData.DrawingType = DrawingOption.NIETS;
             MapData.ExtendedType = null;
-            vm.showMetenControls = false;
+            MapData.ShowMetenControls = false;
             MapData.ShowDrawControls = false;
         };
         vm.interactieButtonChanged = function (ActiveButton) {
@@ -1056,7 +1062,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 }
                 MapData.ActiveInteractieKnop = ActiveButton; // If we only could keep the vmactiveInteractieKnop in sync with the one from MapData
                 vm.activeInteractieKnop = ActiveButton;
-                vm.showMetenControls = false;
+                MapData.ShowMetenControls = false;
                 MapData.ShowDrawControls = false;
                 switch (ActiveButton) {
                     case ActiveInteractieButton.SELECT:
@@ -1066,7 +1072,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                         break;
                     case ActiveInteractieButton.METEN:
                         MapData.ExtendedType = null;
-                        vm.showMetenControls = true;
+                        MapData.ShowMetenControls = true;
                         MapData.DrawingType = DrawingOption.GEEN;
                         break;
                 }
@@ -2619,6 +2625,7 @@ L.control.typeahead = function (args) {
         _data.ActiveInteractieKnop = ActiveInteractieButton.NIETS;
         _data.DrawingType = DrawingOption.NIETS;
         _data.ShowDrawControls = false;
+        _data.ShowMetenControls = false;
         _data.LastBufferedLayer = null;
         _data.LastBufferedDistance = 50;
         _data.ExtendedType = null;
@@ -3224,6 +3231,7 @@ L.control.typeahead = function (args) {
             $rootScope.$applyAsync(function () {
                 MapData.DrawingType = DrawingOption.GEEN;
                 MapData.ShowDrawControls = false;
+                MapData.ShowMetenControls = false;
                 MapData.ActiveInteractieKnop = ActiveInteractieButton.GEEN;
             });
             MapData.IsDrawing = false;
@@ -4087,21 +4095,28 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             vm.extendedType = newValue;
         });
         vm.addSelection = function () {
-            MapData.ActiveInteractieKnop = ActiveInteractieButton.SELECT;
-            MapData.DrawingType = DrawingOption.NIETS;
-            MapData.ShowDrawControls = true;
             if (vm.extendedType != "add") {
+                MapData.ActiveInteractieKnop = ActiveInteractieButton.SELECT;
+                MapData.DrawingType = DrawingOption.NIETS;
+                MapData.ShowDrawControls = true;
+                MapData.ShowMetenControls = false;
                 vm.extendedType = "add";
                 MapData.ExtendedType = "add";
+            } else {
+                vm.extendedType = null;
+                MapData.ExtendedType = null;
             }
         };
         vm.removeSelection = function () {
-            MapData.ActiveInteractieKnop = ActiveInteractieButton.SELECT;
-            MapData.DrawingType = DrawingOption.NIETS;
-            MapData.ShowDrawControls = true;
             if (vm.extendedType != "remove") {
+                MapData.ActiveInteractieKnop = ActiveInteractieButton.SELECT;
+                MapData.DrawingType = DrawingOption.NIETS;
+                MapData.ShowMetenControls = false;
                 vm.extendedType = "remove";
                 MapData.ExtendedType = "remove";
+            } else {
+                vm.extendedType = null;
+                MapData.ExtendedType = null;
             }
         };
         vm.deleteFeature = function (feature) {
@@ -5156,7 +5171,7 @@ L.drawLocal = {
     "<button ng-click=\"mapctrl.drawingButtonChanged('afstand')\" ng-class=\"{active: mapctrl.drawingType=='afstand'}\" type=button tink-tooltip=\"Meten afstand\" tink-tooltip-align=bottom class=btn prevent-default-map>\n" +
     "<svg class=\"icon icon-sik-measure-line\"><use xlink:href=#icon-sik-measure-line></use></svg>\n" +
     "</button>\n" +
-    "<button ng-click=\"mapctrl.drawixngButtonChanged('oppervlakte')\" ng-class=\"{active: mapctrl.drawingType=='oppervlakte'}\" type=button tink-tooltip=\"Meten oppervlakte en omtrek\" tink-tooltip-align=bottom class=btn prevent-default-map>\n" +
+    "<button ng-click=\"mapctrl.drawingButtonChanged('oppervlakte')\" ng-class=\"{active: mapctrl.drawingType=='oppervlakte'}\" type=button tink-tooltip=\"Meten oppervlakte en omtrek\" tink-tooltip-align=bottom class=btn prevent-default-map>\n" +
     "<svg class=\"icon icon-sik-measure-shape\"><use xlink:href=#icon-sik-measure-shape></use></svg>\n" +
     "</button>\n" +
     "</div>\n" +
@@ -5523,7 +5538,7 @@ var TinkGis;
         _createClass(wmslayer, [{
             key: 'legendUrl',
             get: function get() {
-                return this.theme.CleanUrl + '?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&LAYER=' + this.id;
+                return this.theme.CleanUrl + '?Service=WMS&REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&LAYER=' + this.id;
             }
         }]);
 

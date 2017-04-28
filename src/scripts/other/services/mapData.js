@@ -36,6 +36,7 @@
         _data.ActiveInteractieKnop = ActiveInteractieButton.NIETS;
         _data.DrawingType = DrawingOption.NIETS;
         _data.ShowDrawControls = false;
+        _data.ShowMetenControls = false;
         _data.LastBufferedLayer = null;
         _data.LastBufferedDistance = 50;
         _data.ExtendedType = null;

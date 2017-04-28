@@ -67,21 +67,30 @@
                 vm.extendedType = newValue;
             });
             vm.addSelection = function () {
-                MapData.ActiveInteractieKnop = ActiveInteractieButton.SELECT;
-                MapData.DrawingType = DrawingOption.NIETS;
-                MapData.ShowDrawControls = true;
                 if (vm.extendedType != "add") {
+                    MapData.ActiveInteractieKnop = ActiveInteractieButton.SELECT;
+                    MapData.DrawingType = DrawingOption.NIETS;
+                    MapData.ShowDrawControls = true;
+                    MapData.ShowMetenControls = false;
                     vm.extendedType = "add";
                     MapData.ExtendedType = "add";
                 }
+                else {
+                    vm.extendedType = null;
+                    MapData.ExtendedType = null;
+                }
             };
             vm.removeSelection = function () {
-                MapData.ActiveInteractieKnop = ActiveInteractieButton.SELECT;
-                MapData.DrawingType = DrawingOption.NIETS;
-                MapData.ShowDrawControls = true;
                 if (vm.extendedType != "remove") {
+                    MapData.ActiveInteractieKnop = ActiveInteractieButton.SELECT;
+                    MapData.DrawingType = DrawingOption.NIETS;
+                    MapData.ShowMetenControls = false;
                     vm.extendedType = "remove";
                     MapData.ExtendedType = "remove";
+                }
+                else {
+                    vm.extendedType = null;
+                    MapData.ExtendedType = null;
                 }
             };
             vm.deleteFeature = function (feature) {

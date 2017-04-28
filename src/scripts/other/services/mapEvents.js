@@ -167,6 +167,7 @@
             $rootScope.$applyAsync(function () {
                 MapData.DrawingType = DrawingOption.GEEN;
                 MapData.ShowDrawControls = false;
+                MapData.ShowMetenControls = false
                 MapData.ActiveInteractieKnop = ActiveInteractieButton.GEEN;
             });
             MapData.IsDrawing = false;

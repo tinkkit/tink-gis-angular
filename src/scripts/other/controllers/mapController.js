@@ -23,9 +23,7 @@
         $scope.$watch(function () { return MapData.DrawingType; }, function (data) {
             vm.drawingType = data;
         }, true);
-        $scope.$watch(function () { return MapData.ShowDrawControls; }, function (data) {
-            vm.showDrawControls = data;
-        }, true);
+
         vm.SelectableLayers = function () {
             return MapData.VisibleLayers;
         };
@@ -37,7 +35,13 @@
         $scope.$watch(function () { return MapData.SelectedFindLayer; }, function (newval, oldval) {
             vm.selectedFindLayer = newval;
         });
-        vm.showMetenControls = false;
+        $scope.$watch(function () { return MapData.ShowMetenControls; }, function (data) {
+            vm.showMetenControls = data;
+        }, true);
+        vm.showMetenControls = MapData.ShowMetenControls;
+        $scope.$watch(function () { return MapData.ShowDrawControls; }, function (data) {
+            vm.showDrawControls = data;
+        }, true);
         vm.showDrawControls = MapData.ShowDrawControls;
         vm.zoekLoc = '';
         vm.addCursorAuto = function () {
@@ -50,7 +54,7 @@
             vm.activeInteractieKnop = ActiveInteractieButton.NIETS;
             MapData.DrawingType = DrawingOption.NIETS;
             MapData.ExtendedType = null;
-            vm.showMetenControls = false;
+            MapData.ShowMetenControls = false;
             MapData.ShowDrawControls = false;
 
         }
@@ -62,7 +66,7 @@
                 }
                 MapData.ActiveInteractieKnop = ActiveButton; // If we only could keep the vmactiveInteractieKnop in sync with the one from MapData
                 vm.activeInteractieKnop = ActiveButton;
-                vm.showMetenControls = false;
+                MapData.ShowMetenControls = false;
                 MapData.ShowDrawControls = false;
                 switch (ActiveButton) {
                     case ActiveInteractieButton.SELECT:
@@ -72,7 +76,7 @@
                         break;
                     case ActiveInteractieButton.METEN:
                         MapData.ExtendedType = null;
-                        vm.showMetenControls = true;
+                        MapData.ShowMetenControls = true;
                         MapData.DrawingType = DrawingOption.GEEN;
                         break;
                 }
