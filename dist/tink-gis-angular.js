@@ -2302,6 +2302,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             if (typeof data == 'string' && data.startsWith('{')) {
                 data = JSON.parse(data);
             }
+            if (data.startsWith('<?xml version="1.0" encoding="UTF-8"?>')) {
+                data = data.slice(38).trim();
+            }
             return data;
         };
         _service.ConvertWSG84ToLambert72 = function (coordinates) {
@@ -3270,6 +3273,36 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     }
     var mapService = function mapService($rootScope, MapData, map, ThemeCreater, $q, GISService, ResultsData, HelperService, PopupService) {
         var _mapService = {};
+
+        _mapService.getJsonFromXML = function (data) {
+            var json = null;
+            if (typeof data != "string") {
+                data = JXON.xmlToString(data); // only if not yet string
+            }
+            var returnjson = JXON.stringToJs(data);
+            if (returnjson.featureinforesponse) {
+                json = returnjson.featureinforesponse.fields;
+            }
+            return json;
+        };
+        _mapService.getJsonFromPlain = function (data) {
+            var json = null;
+            var splittedtext = data.trim().split("--------------------------------------------");
+            var contenttext = null;
+            if (splittedtext.length >= 2) {
+                contenttext = splittedtext[1];
+                var splittedcontent = contenttext.trim().split(/\n|\r/g);
+                if (splittedcontent.length > 0) {
+                    //more then 0 lines so lets make an object from the json
+                    json = {};
+                }
+                splittedcontent.forEach(function (line) {
+                    var splittedline = line.split("=");
+                    json[splittedline[0].trim()] = splittedline[1].trim();
+                });
+            }
+            return json;
+        };
         _mapService.Identify = function (event, tolerance) {
             MapData.CleanSearch();
             if (typeof tolerance === 'undefined') {
@@ -3299,20 +3332,23 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                                 if (lay.queryable == true) {
 
                                     ResultsData.RequestStarted++;
-                                    theme.MapData.getFeatureInfo(event.latlng, lay.name).success(function (data, status, xhr) {
+                                    theme.MapData.getFeatureInfo(event.latlng, lay.name, theme.GetFeatureInfoType).success(function (data, status, xhr) {
                                         if (data) {
                                             data = HelperService.UnwrapProxiedData(data);
                                         }
-                                        // data = HelperService.UnwrapProxiedData(data);
                                         ResultsData.RequestCompleted++;
-                                        console.log('minus');
-                                        // data = data.replace('<?xml version="1.0" encoding="UTF-8"?>', '').trim();
-                                        var xmlstring = JXON.xmlToString(data);
-                                        var returnjson = JXON.stringToJs(xmlstring);
                                         var processedjson = null;
-                                        if (returnjson.featureinforesponse) {
-                                            processedjson = returnjson.featureinforesponse.fields;
+                                        switch (theme.GetFeatureInfoType) {
+                                            case "text/xml":
+                                                processedjson = _mapService.getJsonFromXML(data);
+                                                break;
+                                            case "text/plain":
+                                                processedjson = _mapService.getJsonFromPlain(data);
+                                                break;
+                                            default:
+                                                break;
                                         }
+
                                         var returnitem = {
                                             type: 'FeatureCollection',
                                             features: []
@@ -4500,11 +4536,11 @@ L.TileLayer.BetterWMS = L.TileLayer.WMS.extend({
     //     map.off('click', this.getFeatureInfo, this);
     // },
 
-    getFeatureInfo: function getFeatureInfo(latlng, layers) {
+    getFeatureInfo: function getFeatureInfo(latlng, layers, requestype) {
         // Make an AJAX request to the server and hope for the best
         var HelperService = angular.element(document.body).injector().get('HelperService');
-        var url = this.getFeatureInfoUrl(latlng, layers);
-        // url = HelperService.CreateProxyUrl(url);
+        var url = this.getFeatureInfoUrl(latlng, layers, requestype);
+        url = HelperService.CreateProxyUrl(url);
 
         var prom = $.ajax({
             url: url,
@@ -4524,7 +4560,7 @@ L.TileLayer.BetterWMS = L.TileLayer.WMS.extend({
         return prom;
     },
 
-    getFeatureInfoUrl: function getFeatureInfoUrl(latlng, layers) {
+    getFeatureInfoUrl: function getFeatureInfoUrl(latlng, layers, requestype) {
         // Construct a GetFeatureInfo request URL given a point
         var point = this._map.latLngToContainerPoint(latlng, this._map.getZoom()),
             size = this._map.getSize(),
@@ -4542,7 +4578,7 @@ L.TileLayer.BetterWMS = L.TileLayer.WMS.extend({
             layers: layers,
             query_layers: layers,
             buffer: 100,
-            info_format: 'text/xml'
+            info_format: requestype
         };
 
         params[params.version === '1.3.0' ? 'i' : 'x'] = point.x;
@@ -5750,9 +5786,18 @@ var TinkGis;
             }
             lays.forEach(function (layer) {
                 if (layer.queryable == true) {
-                    layer.queryable = data.capability.request.getfeatureinfo.format.some(function (x) {
+                    if (data.capability.request.getfeatureinfo.format.some(function (x) {
                         return x == "text/xml";
-                    });
+                    })) {
+                        _this3.GetFeatureInfoType = "text/xml";
+                    } else if (data.capability.request.getfeatureinfo.format.some(function (x) {
+                        return x == "text/plain";
+                    })) {
+                        _this3.GetFeatureInfoType = "text/plain";
+                    }
+                    if (!_this3.GetFeatureInfoType) {
+                        layer.queryable = false;
+                    }
                 }
                 var lay = new TinkGis.wmslayer(layer, _this3);
                 _this3.Layers.push(lay);

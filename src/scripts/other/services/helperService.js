@@ -53,6 +53,9 @@
             if (typeof data == 'string' && data.startsWith('{')) {
                 data = JSON.parse(data);
             }
+            if (data.startsWith('<?xml version="1.0" encoding="UTF-8"?>')) {
+                data = data.slice(38).trim();
+            }
             return data;
         }
         _service.ConvertWSG84ToLambert72 = function (coordinates) {
@@ -182,7 +185,7 @@
                 }
                 getals.push(currgetal);
             }
-            var getals = getals.filter(x=>x.trim() != '');
+            var getals = getals.filter(x => x.trim() != '');
             if (aantalmet6size == 2 && getals.length == 2) {
                 returnobject.x = getals[0].replace(',', '.');
                 returnobject.y = getals[1].replace(',', '.');

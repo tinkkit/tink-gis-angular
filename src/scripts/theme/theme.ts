@@ -93,6 +93,7 @@ namespace TinkGis {
     export class wmstheme extends Theme {
         Version: string;
         VisibleLayerIds: Array<string>;
+        GetFeatureInfoType: string;
         // MapData: L.TileLayer.WMS;
         constructor(data, url) {
             super();
@@ -127,7 +128,14 @@ namespace TinkGis {
             }
             lays.forEach(layer => {
                 if (layer.queryable == true) { // if it is queryable we have to check or it is compatible with text/xml since that is the only we support atm
-                    layer.queryable = data.capability.request.getfeatureinfo.format.some(x => x == "text/xml");
+                    if (data.capability.request.getfeatureinfo.format.some(x => x == "text/xml")) {
+                        this.GetFeatureInfoType = "text/xml";
+                    } else if (data.capability.request.getfeatureinfo.format.some(x => x == "text/plain")) {
+                        this.GetFeatureInfoType = "text/plain";
+                    }
+                    if (!this.GetFeatureInfoType) {
+                        layer.queryable = false;
+                    }
                 }
                 let lay = new wmslayer(layer, this);
                 this.Layers.push(lay);

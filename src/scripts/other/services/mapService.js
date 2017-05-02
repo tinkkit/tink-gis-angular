@@ -8,6 +8,35 @@
     }
     var mapService = function ($rootScope, MapData, map, ThemeCreater, $q, GISService, ResultsData, HelperService, PopupService) {
         var _mapService = {};
+
+        _mapService.getJsonFromXML = function (data) {
+            var json = null;
+            if (typeof data != "string") {
+                data = JXON.xmlToString(data); // only if not yet string
+            }
+            var returnjson = JXON.stringToJs(data);
+            if (returnjson.featureinforesponse) {
+                json = returnjson.featureinforesponse.fields;
+            }
+            return json;
+        }
+        _mapService.getJsonFromPlain = function (data) {
+            var json = null;
+            var splittedtext = data.trim().split("--------------------------------------------");
+            var contenttext = null;
+            if (splittedtext.length >= 2) {
+                contenttext = splittedtext[1];
+                var splittedcontent = contenttext.trim().split(/\n|\r/g);
+                if (splittedcontent.length > 0) { //more then 0 lines so lets make an object from the json
+                    json = {};
+                }
+                splittedcontent.forEach(line => {
+                    var splittedline = line.split("=");
+                    json[splittedline[0].trim()] = splittedline[1].trim()
+                })
+            }
+            return json;
+        }
         _mapService.Identify = function (event, tolerance) {
             MapData.CleanSearch();
             if (typeof tolerance === 'undefined') { tolerance = 10; }
@@ -36,20 +65,23 @@
                                 if (lay.queryable == true) {
 
                                     ResultsData.RequestStarted++;
-                                    theme.MapData.getFeatureInfo(event.latlng, lay.name).success(function (data, status, xhr) {
+                                    theme.MapData.getFeatureInfo(event.latlng, lay.name, theme.GetFeatureInfoType).success(function (data, status, xhr) {
                                         if (data) {
                                             data = HelperService.UnwrapProxiedData(data);
                                         }
-                                        // data = HelperService.UnwrapProxiedData(data);
                                         ResultsData.RequestCompleted++;
-                                        console.log('minus');
-                                        // data = data.replace('<?xml version="1.0" encoding="UTF-8"?>', '').trim();
-                                        var xmlstring = JXON.xmlToString(data);
-                                        var returnjson = JXON.stringToJs(xmlstring);
                                         var processedjson = null;
-                                        if (returnjson.featureinforesponse) {
-                                            processedjson = returnjson.featureinforesponse.fields;
+                                        switch (theme.GetFeatureInfoType) {
+                                            case "text/xml":
+                                                processedjson = _mapService.getJsonFromXML(data);
+                                                break;
+                                            case "text/plain":
+                                                processedjson = _mapService.getJsonFromPlain(data);
+                                                break;
+                                            default:
+                                                break;
                                         }
+
                                         var returnitem = {
                                             type: 'FeatureCollection',
                                             features: []

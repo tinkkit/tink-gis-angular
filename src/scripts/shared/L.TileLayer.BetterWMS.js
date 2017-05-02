@@ -15,11 +15,11 @@ L.TileLayer.BetterWMS = L.TileLayer.WMS.extend({
     //     map.off('click', this.getFeatureInfo, this);
     // },
 
-    getFeatureInfo: function (latlng, layers) {
+    getFeatureInfo: function (latlng, layers,requestype) {
         // Make an AJAX request to the server and hope for the best
         var HelperService = angular.element(document.body).injector().get('HelperService');
-        var url = this.getFeatureInfoUrl(latlng, layers);
-        // url = HelperService.CreateProxyUrl(url);
+        var url = this.getFeatureInfoUrl(latlng, layers,requestype);
+        url = HelperService.CreateProxyUrl(url);
 
         var prom = $.ajax({
             url: url,
@@ -39,7 +39,7 @@ L.TileLayer.BetterWMS = L.TileLayer.WMS.extend({
         return prom;
     },
 
-    getFeatureInfoUrl: function (latlng, layers) {
+    getFeatureInfoUrl: function (latlng, layers, requestype) {
         // Construct a GetFeatureInfo request URL given a point
         var point = this._map.latLngToContainerPoint(latlng, this._map.getZoom()),
             size = this._map.getSize(),
@@ -58,7 +58,7 @@ L.TileLayer.BetterWMS = L.TileLayer.WMS.extend({
                 layers: layers,
                 query_layers: layers,
                 buffer: 100,
-                info_format: 'text/xml'
+                info_format: requestype
             };
 
         params[params.version === '1.3.0' ? 'i' : 'x'] = point.x;
