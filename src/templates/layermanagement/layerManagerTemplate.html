@@ -1,8 +1,7 @@
-
 <div class="layermanagerTemplate modal-header">
     <div class="row margin-bottom">
         <div class="col-xs-10">
-            <h4>Lagenbeheer</h4>
+            <h4>Zoeken in geodata</h4>
         </div>
         <div class="col-xs-2">
             <button class="close pull-right" type="button" data-ng-click="cancel()"></button>
@@ -13,7 +12,7 @@
     <div class="row margin-top margin-bottom">
         <div class="col-xs-12 col-sm-6">
             <form>
-              <input type="search" ng-model="searchTerm" ng-change="searchChanged()" ng-model-options="{debounce: 250}" placeholder="Geef een trefwoord in">
+                <input type="search" ng-model="searchTerm" ng-change="searchChanged()" ng-model-options="{debounce: 250}" placeholder="Geef een trefwoord in">
             </form>
         </div>
     </div>
@@ -22,8 +21,8 @@
             <ul class="nav-tabs">
                 <li role="presentation" ng-class="{'active': active=='solr'}"><a href="" ng-click="active='solr'">Stad <span ng-if="solrLoading==true" class="loader"></span><span ng-if="solrLoading==false && solrCount != null">({{solrCount}})</span></a></li>
                 <li role="presentation" ng-class="{'active': active=='geopunt'}"><a href="" ng-click="active='geopunt'">GeoPunt <span ng-if="geopuntLoading==true" class="loader"></span><span ng-if="geopuntLoading==false && geopuntCount != null">({{geopuntCount}})</span></a></li>
-                <li role="presentation" ng-class="{'active': active=='wmsurl'}"><a href="" ng-click="active='wmsurl'">URL ingeven</a></li>
-                <li role="presentation" ng-class="{'active': active=='beheer'}"><a href="" ng-click="active='beheer'">Beheer</a></li>
+                <li role="presentation" class="pull-right" ng-class="{'active': active=='beheer'}"><a href="" ng-click="active='beheer'">Lagenbeheer</a></li>
+                <li role="presentation" class="pull-right" ng-class="{'active': active=='wmsurl'}"><a href="" ng-click="active='wmsurl'">URL ingeven</a></li>
             </ul>
         </div>
     </div>

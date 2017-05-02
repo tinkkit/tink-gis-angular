@@ -355,15 +355,15 @@
                     dialogtext = "Selectie toevoegen?"
                 }
                 swal({
-                    title: 'Zeker?',
-                    text: dialogtext,
-                    // type: ,
+                    title: dialogtext,
+                    cancelButtonText: 'Ja',
+                    confirmButtonText: 'Nee',
                     showCancelButton: true,
-                    confirmButtonColor: '#DD6B55',
-                    confirmButtonText: 'Verder',
+                    confirmButtonColor: '#b9b9b9',
+                    customClass: 'leftsidemodal',
                     closeOnConfirm: true
                 }, function (isConfirm) {
-                    if (isConfirm) {
+                    if (!isConfirm) { // since we want left ja and right no...
                         if (_data.ExtendedType == "add") {
                             _data.TempExtendFeatures.forEach(x => {
                                 var item = x.setStyle(Style.DEFAULT);

@@ -122,7 +122,7 @@
         var locatieMapData = L.esri.dynamicMapLayer({
             maxZoom: 19,
             minZoom: 0,
-            url: 'https://geoint-a.antwerpen.be/arcgissql/rest/services/A_DA/Locaties/MapServer',
+            url: Gis.LocatieUrl,
             opacity: 1,
             layers: 0,
             continuousWorld: true,

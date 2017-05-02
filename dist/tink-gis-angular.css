@@ -1032,3 +1032,7 @@ button.disabled {
 
 body.stop-scrolling {
   height: 100vh; }
+
+.leftsidemodal {
+  left: 20%;
+  top: 20%; }

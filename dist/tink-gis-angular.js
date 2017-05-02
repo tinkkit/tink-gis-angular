@@ -107,6 +107,7 @@ var ActiveInteractieButton = {
 var Gis = {
     Arcgissql: '',
     BaseUrl: 'https://geoint.antwerpen.be/',
+    LocatieUrl: 'https://geoint-a.antwerpen.be/arcgissql/rest/services/A_DA/Locaties/MapServer',
     GeometryUrl: 'https://geoint.antwerpen.be/arcgissql/rest/services/Utilities/Geometry/GeometryServer/buffer'
 };
 Gis.Arcgissql = Gis.BaseUrl + 'arcgissql/rest/';
@@ -1479,10 +1480,8 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
 
         _service.QuerySOLRGIS = function (search) {
             var prom = $q.defer();
-            // select?q=school&wt=json&indent=true&facet=true&facet.field=parent&group=true&group.field=parent&group.limit=2
             var url = Solr.BaseUrl + 'giszoek/solr/search?q=*' + search + '*&wt=json&indent=true&facet=true&rows=999&facet.field=parent&group=true&group.field=parent&group.limit=5&solrtype=gis';
             $http.get(url).success(function (data, status, headers, config) {
-                // data = HelperService.UnwrapProxiedData(data);
                 prom.resolve(data);
             }).error(function (data, status, headers, config) {
                 prom.reject(null);
@@ -2924,15 +2923,16 @@ L.control.typeahead = function (args) {
                     dialogtext = "Selectie toevoegen?";
                 }
                 swal({
-                    title: 'Zeker?',
-                    text: dialogtext,
-                    // type: ,
+                    title: dialogtext,
+                    cancelButtonText: 'Ja',
+                    confirmButtonText: 'Nee',
                     showCancelButton: true,
-                    confirmButtonColor: '#DD6B55',
-                    confirmButtonText: 'Verder',
+                    confirmButtonColor: '#b9b9b9',
+                    customClass: 'leftsidemodal',
                     closeOnConfirm: true
                 }, function (isConfirm) {
-                    if (isConfirm) {
+                    if (!isConfirm) {
+                        // since we want left ja and right no...
                         if (_data.ExtendedType == "add") {
                             _data.TempExtendFeatures.forEach(function (x) {
                                 var item = x.setStyle(Style.DEFAULT);
@@ -3944,7 +3944,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         var locatieMapData = L.esri.dynamicMapLayer({
             maxZoom: 19,
             minZoom: 0,
-            url: 'https://geoint-a.antwerpen.be/arcgissql/rest/services/A_DA/Locaties/MapServer',
+            url: Gis.LocatieUrl,
             opacity: 1,
             layers: 0,
             continuousWorld: true,
@@ -4930,11 +4930,10 @@ L.drawLocal = {
 
 
   $templateCache.put('templates/layermanagement/layerManagerTemplate.html',
-    "\n" +
     "<div class=\"layermanagerTemplate modal-header\">\n" +
     "<div class=\"row margin-bottom\">\n" +
     "<div class=col-xs-10>\n" +
-    "<h4>Lagenbeheer</h4>\n" +
+    "<h4>Zoeken in geodata</h4>\n" +
     "</div>\n" +
     "<div class=col-xs-2>\n" +
     "<button class=\"close pull-right\" type=button data-ng-click=cancel()></button>\n" +
@@ -4954,16 +4953,15 @@ L.drawLocal = {
     "<ul class=nav-tabs>\n" +
     "<li role=presentation ng-class=\"{'active': active=='solr'}\"><a href=\"\" ng-click=\"active='solr'\">Stad <span ng-if=\"solrLoading==true\" class=loader></span><span ng-if=\"solrLoading==false && solrCount != null\">({{solrCount}})</span></a></li>\n" +
     "<li role=presentation ng-class=\"{'active': active=='geopunt'}\"><a href=\"\" ng-click=\"active='geopunt'\">GeoPunt <span ng-if=\"geopuntLoading==true\" class=loader></span><span ng-if=\"geopuntLoading==false && geopuntCount != null\">({{geopuntCount}})</span></a></li>\n" +
-    "<li role=presentation ng-class=\"{'active': active=='wmsurl'}\"><a href=\"\" ng-click=\"active='wmsurl'\">URL ingeven</a></li>\n" +
-    "<li role=presentation ng-class=\"{'active': active=='beheer'}\"><a href=\"\" ng-click=\"active='beheer'\">Beheer</a></li>\n" +
+    "<li role=presentation class=pull-right ng-class=\"{'active': active=='beheer'}\"><a href=\"\" ng-click=\"active='beheer'\">Lagenbeheer</a></li>\n" +
+    "<li role=presentation class=pull-right ng-class=\"{'active': active=='wmsurl'}\"><a href=\"\" ng-click=\"active='wmsurl'\">URL ingeven</a></li>\n" +
     "</ul>\n" +
     "</div>\n" +
     "</div>\n" +
     "<solr-gis ng-show=\"active=='solr'\"></solr-gis>\n" +
     "<geo-punt ng-show=\"active=='geopunt'\"></geo-punt>\n" +
     "<wms-url ng-show=\"active=='wmsurl'\"></wms-url>\n" +
-    "<layers-management ng-if=\"active=='beheer'\"></layers-management>\n" +
-    "</div>"
+    "<layers-management ng-if=\"active=='beheer'\"></layers-management></div>"
   );
 
 
@@ -5263,14 +5261,17 @@ L.drawLocal = {
 
   $templateCache.put('templates/other/themeTemplate.html',
     "<div>\n" +
+    "<div style=display:flex>\n" +
     "<input class=\"visible-box hidden-print\" type=checkbox id=chk{{thmctrl.theme.Naam}} ng-model=thmctrl.theme.Visible ng-change=layercheckboxchange(thmctrl.theme)>\n" +
-    "<label for=chk{{thmctrl.theme.Naam}}> {{thmctrl.theme.Naam}} <span class=\"label-info hidden-print\" ng-show=\"thmctrl.theme.Type=='esri'\">ArcGIS</span><span class=\"label-info hidden-print\" ng-hide=\"thmctrl.theme.Type=='esri'\">{{thmctrl.theme.Type}}</span></label>\n" +
-    "<button ng-hide=\"hidedelete == true\" class=\"trash hidden-print pull-right\" ng-click=thmctrl.deleteTheme()></button>\n" +
+    "<label for=chk{{thmctrl.theme.Naam}}> {{thmctrl.theme.Naam}} <span class=\"label-info hidden-print\" ng-show=\"thmctrl.theme.Type=='esri'\">ArcGIS</span><span class=\"label-info hidden-print\" ng-hide=\"thmctrl.theme.Type=='esri'\">{{thmctrl.theme.Type}}</span>\n" +
+    "</label>\n" +
+    "<button ng-hide=\"hidedelete == true\" style=\"flex-grow: 2\" class=\"trash hidden-print pull-right\" ng-click=thmctrl.deleteTheme()></button>\n" +
+    "</div>\n" +
     "<ul class=\"ul-level no-theme-layercontroller-checkbox\" ng-repeat=\"layer in thmctrl.theme.Layers | filter: { enabled: true }\">\n" +
     "<tink-layer layer=layer layercheckboxchange=layercheckboxchange(layer.theme)>\n" +
     "</tink-layer>\n" +
     "</ul>\n" +
-    "</div>\n"
+    "</div>"
   );
 
 

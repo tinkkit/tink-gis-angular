@@ -59,8 +59,6 @@
                     </div>
 
                     <form id="zoekbalken" class="form-force-inline ll zoekbalken">
-                        <!--<input id="locatiezoek" class="zoekbalk typeahead" type="text" ng-show="mapctrl.ZoekenOpLocatie == true" placeholder="Geef een X,Y / locatie of POI in."
-                            prevent-default-map />-->
                         <select ng-options="layer as layer.name for layer in mapctrl.SelectableLayers()" ng-model="mapctrl.selectedFindLayer" ng-show="mapctrl.SelectableLayers().length > 1" ng-change="mapctrl.findLayerChange()" prevent-default-map></select>
                         <input
                             type="search" ng-show="mapctrl.ZoekenOpLocatie == false" placeholder="Geef een zoekterm" prevent-default-map ng-keyup="$event.keyCode == 13 && mapctrl.zoekLaag(mapctrl.laagquery)" ng-model="mapctrl.laagquery" />
