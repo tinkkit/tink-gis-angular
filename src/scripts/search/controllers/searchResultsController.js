@@ -84,6 +84,7 @@
                 if (vm.extendedType != "remove") {
                     MapData.ActiveInteractieKnop = ActiveInteractieButton.SELECT;
                     MapData.DrawingType = DrawingOption.NIETS;
+                    MapData.ShowDrawControls = true;
                     MapData.ShowMetenControls = false;
                     vm.extendedType = "remove";
                     MapData.ExtendedType = "remove";

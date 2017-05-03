@@ -7,17 +7,17 @@
     <div class="flex-column flex-grow-1 margin-top" ng-if="!srchrsltsctrl.selectedResult && srchrsltsctrl.featureLayers.length > 0">
         <div class="row extra-padding">
             <div class="col-xs-12 margin-bottom text-right">
-                <button class="btn" tink-tooltip="Exporteer naar CSV" tink-tooltip-align="left" ng-if="srchrsltsctrl.exportToCSVButtonIsEnabled"
+                <button class="btn" tink-tooltip="Exporteer naar CSV" tink-tooltip-align="top" ng-if="srchrsltsctrl.exportToCSVButtonIsEnabled"
                     ng-click="srchrsltsctrl.exportToCSV()">
                     <svg class="icon icon-sik-file-csv"><use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-sik-file-csv"></use></svg>
                 </button>
-                <button class="btn" ng-class="{active: srchrsltsctrl.extendedType =='add'}" tink-tooltip="Selectie toevoegen" tink-tooltip-align="left" ng-click="srchrsltsctrl.addSelection()">
+                <button class="btn" ng-class="{active: srchrsltsctrl.extendedType =='add'}" tink-tooltip="Selectie toevoegen" tink-tooltip-align="top" ng-click="srchrsltsctrl.addSelection()">
                       <i class="fa fa-plus" aria-hidden="true"></i>
                 </button>
-                <button class="btn" ng-class="{active: srchrsltsctrl.extendedType=='remove'}" tink-tooltip="Selectie verwijderen" tink-tooltip-align="left" ng-click="srchrsltsctrl.removeSelection()">
+                <button class="btn" ng-class="{active: srchrsltsctrl.extendedType=='remove'}" tink-tooltip="Selectie verwijderen" tink-tooltip-align="top" ng-click="srchrsltsctrl.removeSelection()">
                       <i class="fa fa-minus" aria-hidden="true"></i>
                 </button>
-                <button class="btn-sm" ng-show="srchrsltsctrl.extraResultButtonIsEnabled" ng-click="srchrsltsctrl.extraResultButton()">{{srchrsltsctrl.resultButtonText}}</button>
+                <button class="btn-sm" ng-if="srchrsltsctrl.extraResultButtonIsEnabled" ng-click="srchrsltsctrl.extraResultButton()">{{srchrsltsctrl.resultButtonText}}</button>
             </div>
 
             <div class="col-xs-12">

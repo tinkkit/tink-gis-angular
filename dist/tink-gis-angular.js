@@ -4147,6 +4147,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             if (vm.extendedType != "remove") {
                 MapData.ActiveInteractieKnop = ActiveInteractieButton.SELECT;
                 MapData.DrawingType = DrawingOption.NIETS;
+                MapData.ShowDrawControls = true;
                 MapData.ShowMetenControls = false;
                 vm.extendedType = "remove";
                 MapData.ExtendedType = "remove";
@@ -5326,16 +5327,16 @@ L.drawLocal = {
     "<div class=\"flex-column flex-grow-1 margin-top\" ng-if=\"!srchrsltsctrl.selectedResult && srchrsltsctrl.featureLayers.length > 0\">\n" +
     "<div class=\"row extra-padding\">\n" +
     "<div class=\"col-xs-12 margin-bottom text-right\">\n" +
-    "<button class=btn tink-tooltip=\"Exporteer naar CSV\" tink-tooltip-align=left ng-if=srchrsltsctrl.exportToCSVButtonIsEnabled ng-click=srchrsltsctrl.exportToCSV()>\n" +
+    "<button class=btn tink-tooltip=\"Exporteer naar CSV\" tink-tooltip-align=top ng-if=srchrsltsctrl.exportToCSVButtonIsEnabled ng-click=srchrsltsctrl.exportToCSV()>\n" +
     "<svg class=\"icon icon-sik-file-csv\"><use xmlns:xlink=http://www.w3.org/1999/xlink xlink:href=#icon-sik-file-csv></use></svg>\n" +
     "</button>\n" +
-    "<button class=btn ng-class=\"{active: srchrsltsctrl.extendedType =='add'}\" tink-tooltip=\"Selectie toevoegen\" tink-tooltip-align=left ng-click=srchrsltsctrl.addSelection()>\n" +
+    "<button class=btn ng-class=\"{active: srchrsltsctrl.extendedType =='add'}\" tink-tooltip=\"Selectie toevoegen\" tink-tooltip-align=top ng-click=srchrsltsctrl.addSelection()>\n" +
     "<i class=\"fa fa-plus\" aria-hidden=true></i>\n" +
     "</button>\n" +
-    "<button class=btn ng-class=\"{active: srchrsltsctrl.extendedType=='remove'}\" tink-tooltip=\"Selectie verwijderen\" tink-tooltip-align=left ng-click=srchrsltsctrl.removeSelection()>\n" +
+    "<button class=btn ng-class=\"{active: srchrsltsctrl.extendedType=='remove'}\" tink-tooltip=\"Selectie verwijderen\" tink-tooltip-align=top ng-click=srchrsltsctrl.removeSelection()>\n" +
     "<i class=\"fa fa-minus\" aria-hidden=true></i>\n" +
     "</button>\n" +
-    "<button class=btn-sm ng-show=srchrsltsctrl.extraResultButtonIsEnabled ng-click=srchrsltsctrl.extraResultButton()>{{srchrsltsctrl.resultButtonText}}</button>\n" +
+    "<button class=btn-sm ng-if=srchrsltsctrl.extraResultButtonIsEnabled ng-click=srchrsltsctrl.extraResultButton()>{{srchrsltsctrl.resultButtonText}}</button>\n" +
     "</div>\n" +
     "<div class=col-xs-12>\n" +
     "<select ng-model=srchrsltsctrl.layerGroupFilter>\n" +
