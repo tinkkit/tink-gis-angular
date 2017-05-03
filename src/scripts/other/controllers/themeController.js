@@ -16,6 +16,7 @@
                     text: 'U staat op het punt om ' + vm.theme.Naam + ' te verwijderen.',
                     type: 'warning',
                     showCancelButton: true,
+                    cancelButtonText: "Annuleer",
                     confirmButtonColor: '#DD6B55',
                     confirmButtonText: 'Verwijder',
                     closeOnConfirm: true

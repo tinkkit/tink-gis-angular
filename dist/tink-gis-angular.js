@@ -768,7 +768,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             var startpos = arguments.length <= 1 || arguments[1] === undefined ? 1 : arguments[1];
             var recordsAPage = arguments.length <= 2 || arguments[2] === undefined ? 10 : arguments[2];
 
-            var url = 'https://metadata.geopunt.be/zoekdienst/srv/dut/csw?service=CSW&version=2.0.2&SortBy=title&request=GetRecords&namespace=xmlns%28csw=http://www.opengis.net/cat/csw%29&resultType=results&outputSchema=http://www.opengis.net/cat/csw/2.0.2&outputFormat=application/xml&startPosition=' + startpos + '&maxRecords=' + recordsAPage + '&typeNames=csw:Record&elementSetName=full&constraintLanguage=CQL_TEXT&constraint_language_version=1.1.0&constraint=AnyText+LIKE+%27%25' + searchterm + '%25%27AND%20Type%20=%20%27service%27%20AND%20Servicetype%20=%27view%27';
+            var url = 'https://metadata.geopunt.be/zoekdienst/srv/dut/csw?service=CSW&version=2.0.2&SortBy=title&request=GetRecords&namespace=xmlns%28csw=http://www.opengis.net/cat/csw%29&resultType=results&outputSchema=http://www.opengis.net/cat/csw/2.0.2&outputFormat=application/xml&startPosition=' + startpos + '&maxRecords=' + recordsAPage + '&typeNames=csw:Record&elementSetName=full&constraintLanguage=CQL_TEXT&constraint_language_version=1.1.0&constraint=AnyText+LIKE+%27%25' + searchterm + '%25%27AND%20Type%20=%20%27service%27%20AND%20Servicetype%20=%27view%27%20AND%20MetadataPointOfContact%20=%27AIV%27';
             // var url = 'https://metadata.geopunt.be/zoekdienst/srv/dut/q?fast=index&from=' + startpos + '&to=' + recordsAPage + '&any=*' + searchterm + '*&sortBy=title&sortOrder=reverse&hitsperpage=' + recordsAPage;
             var prom = $q.defer();
             var proxiedurl = helperService.CreateProxyUrl(url);
@@ -1282,6 +1282,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 text: 'U staat op het punt om ' + vm.theme.Naam + ' te verwijderen.',
                 type: 'warning',
                 showCancelButton: true,
+                cancelButtonText: "Annuleer",
                 confirmButtonColor: '#DD6B55',
                 confirmButtonText: 'Verwijder',
                 closeOnConfirm: true
@@ -4945,7 +4946,7 @@ L.drawLocal = {
     "<div class=\"row margin-top margin-bottom\">\n" +
     "<div class=\"col-xs-12 col-sm-6\">\n" +
     "<form>\n" +
-    "<input type=search ng-model=searchTerm ng-change=searchChanged() ng-model-options=\"{debounce: 250}\" placeholder=\"Geef een trefwoord in\">\n" +
+    "<input type=search ng-model=searchTerm ng-change=searchChanged() ng-model-options=\"{debounce: 350}\" placeholder=\"Geef een trefwoord in\">\n" +
     "</form>\n" +
     "</div>\n" +
     "</div>\n" +
