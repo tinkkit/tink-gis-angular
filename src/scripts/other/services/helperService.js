@@ -13,25 +13,26 @@
         // proj4.defs('EPSG:31370', '+proj=lcc +lat_1=51.16666723333333 +lat_2=49.8333339 +lat_0=90 +lon_0=4.367486666666666 +x_0=150000.013 +y_0=5400088.438 +ellps=intl +towgs84=106.869,-52.2978,103.724,-0.33657,0.456955,-1.84218,1 +units=m +no_defs');
         var getApiURL = function () {
             if (window.location.href.startsWith('https://stadinkaart-a.antwerpen.be/')) {
-                console.log('ACC');
                 return 'https://stadinkaart-a.antwerpen.be/digipolis.stadinkaart.api/'
             }
             else if (window.location.href.startsWith('https://stadinkaart-o.antwerpen.be/')) {
-                console.log('O');
                 return 'https://stadinkaart-o.antwerpen.be/digipolis.stadinkaart.api/'
             }
+            else if (window.location.href.startsWith('https://stadinkaart.antwerpen.be/')) {
+                return 'https://stadinkaart.antwerpen.be/digipolis.stadinkaart.api/'
+            }
             else {
-                console.log('LOC');
                 return 'https://localhost/digipolis.stadinkaart.api/'
             }
         }
         _service.getEnvironment = function () {
+            if (window.location.href.startsWith('https://stadinkaart.antwerpen.be/')) {
+                return 'P'
+            }
             if (window.location.href.startsWith('https://stadinkaart-a.antwerpen.be/')) {
-                console.log('ACC');
                 return 'A'
             }
             else if (window.location.href.startsWith('https://stadinkaart-o.antwerpen.be/')) {
-                console.log('O');
                 return 'O';
             }
             else if (window.location.href.startsWith('https://localhost/')) {
