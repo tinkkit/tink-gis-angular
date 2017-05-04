@@ -5377,10 +5377,10 @@ L.drawLocal = {
     "<div class=\"SEARCHSELECTED flex-column flex-grow-1 extra-padding\" ng-if=srchslctdctrl.selectedResult>\n" +
     "<div class=\"margin-top margin-bottom\">\n" +
     "<div class=\"col-xs-12 text-right\">\n" +
-    "<button class=btn tink-tooltip=Doordruk tink-tooltip-align=top ng-click=srchslctdctrl.doordruk()>\n" +
+    "<button class=btn tink-tooltip=Doordruk tink-tooltip-align=top ng-click=srchslctdctrl.doordruk() ng-hide=\"srchslctdctrl.selectedResult.theme.Type != 'esri'\">\n" +
     "<svg class=\"icon icon-sik-press-through\"><use xlink:href=#icon-sik-press-through></use></svg>\n" +
     "</button>\n" +
-    "<button class=btn tink-tooltip=Buffer tink-tooltip-align=top ng-click=srchslctdctrl.buffer() tink-tooltip=Buffer tink-tooltip-align=bottom>\n" +
+    "<button class=btn tink-tooltip=Buffer tink-tooltip-align=top ng-click=srchslctdctrl.buffer() ng-hide=\"srchslctdctrl.selectedResult.theme.Type != 'esri'\">\n" +
     "<svg class=\"icon icon-sik-buffer\"><use xlink:href=#icon-sik-buffer></use></svg>\n" +
     "</button>\n" +
     "<button class=btn tink-tooltip=\"Exporteer naar CSV\" tink-tooltip-align=top ng-if=srchslctdctrl.exportToCSVButtonIsEnabled ng-click=srchslctdctrl.exportToCSV()>\n" +

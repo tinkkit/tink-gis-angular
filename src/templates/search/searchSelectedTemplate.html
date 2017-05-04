@@ -2,10 +2,10 @@
 
     <div class="margin-top margin-bottom">
         <div class="col-xs-12 text-right">
-            <button class="btn" tink-tooltip="Doordruk" tink-tooltip-align="top" ng-click="srchslctdctrl.doordruk()">
+            <button class="btn" tink-tooltip="Doordruk" tink-tooltip-align="top" ng-click="srchslctdctrl.doordruk()" ng-hide="srchslctdctrl.selectedResult.theme.Type != 'esri'">
                 <svg class="icon icon-sik-press-through"><use xlink:href="#icon-sik-press-through"></use></svg>
             </button>
-            <button class="btn" tink-tooltip="Buffer" tink-tooltip-align="top" ng-click="srchslctdctrl.buffer()" tink-tooltip="Buffer" tink-tooltip-align="bottom">
+            <button class="btn" tink-tooltip="Buffer" tink-tooltip-align="top" ng-click="srchslctdctrl.buffer()" ng-hide="srchslctdctrl.selectedResult.theme.Type != 'esri'">
                 <svg class="icon icon-sik-buffer"><use xlink:href="#icon-sik-buffer"></use></svg>
             </button>
 
