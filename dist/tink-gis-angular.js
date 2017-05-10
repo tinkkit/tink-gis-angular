@@ -3755,12 +3755,16 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             }
             switch (theme.Type) {
                 case ThemeType.ESRI:
+                    var visLayerIds = theme.VisibleLayerIds;
+                    if (visLayerIds.length == 0) {
+                        visLayerIds.push(-1);
+                    }
                     theme.MapData = L.esri.dynamicMapLayer({
                         maxZoom: 19,
                         minZoom: 0,
                         url: theme.CleanUrl,
                         opacity: 1,
-                        layers: theme.VisibleLayerIds,
+                        layers: visLayerIds,
                         continuousWorld: true,
                         useCors: true
                     }).addTo(map);
