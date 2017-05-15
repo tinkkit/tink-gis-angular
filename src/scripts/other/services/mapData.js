@@ -374,11 +374,17 @@
                             });
                         } else if (_data.ExtendedType == "remove") {
                             featureArray.forEach(featureItem => {
-                                SearchService.DeleteFeature(featureItem)
+                                SearchService.DeleteFeature(featureItem);
+                                 var itemIndex = _data.VisibleFeatures.findIndex(x => x.toGeoJSON().features[0].id == featureItem.id && x.toGeoJSON().features[0].layerName == featureItem.layerName);
+                                 if(itemIndex > -1) {
+                                     _data.VisibleFeatures.splice(itemIndex, 1);
+                                 }
+
                             });
                             _data.TempExtendFeatures.forEach(x => {
                                 map.removeLayer(x);
                             });
+                          
                         }
                     }
                     else {
