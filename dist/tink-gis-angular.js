@@ -187,10 +187,18 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         }();
         $scope.$on("searchChanged", function (event, searchTerm) {
             $scope.searchTerm = searchTerm;
-            $scope.clearPreview();
-            $scope.searchIsUrl = false;
-            $scope.$parent.geopuntLoading = true;
-            $scope.QueryGeoPunt($scope.searchTerm, 1);
+            if ($scope.searchTerm.length > 2) {
+                $scope.clearPreview();
+                $scope.searchIsUrl = false;
+                $scope.$parent.geopuntLoading = true;
+                $scope.QueryGeoPunt($scope.searchTerm, 1);
+            } else {
+                $scope.availableThemes.length = 0;
+                $scope.numberofrecordsmatched = 0;
+                $scope.$parent.geopuntCount = null;
+                $scope.loading = false;
+                $scope.$parent.geopuntLoading = false;
+            }
         });
         $scope.QueryGeoPunt = function (searchTerm, page) {
             $scope.loading = true;
@@ -289,7 +297,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             $modalInstance.$dismiss('cancel is pressed'); // To close the controller with a dismiss message
         };
         $scope.searchChanged = function () {
-            if ($scope.searchTerm != null && $scope.searchTerm != '' && $scope.searchTerm.length > 2) {
+            if ($scope.searchTerm != null && $scope.searchTerm != '') {
                 $scope.$broadcast("searchChanged", $scope.searchTerm);
             }
         };
@@ -419,12 +427,17 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         }();
         $scope.$on("searchChanged", function (event, searchTerm) {
             $scope.searchTerm = searchTerm;
-            if ($scope.searchTerm != null && $scope.searchTerm != '' && $scope.searchTerm.length > 2) {
-                $scope.$parent.solrLoading = true;
-                $scope.QueryGISSOLR($scope.searchTerm, 1);
+            if ($scope.searchTerm.length > 2) {
+                if ($scope.searchTerm != null && $scope.searchTerm != '') {
+                    $scope.$parent.solrLoading = true;
+                    $scope.QueryGISSOLR($scope.searchTerm, 1);
+                }
             } else {
                 $scope.availableThemes.length = 0;
                 $scope.numberofrecordsmatched = 0;
+                $scope.$parent.solrCount = null;
+                $scope.loading = false;
+                $scope.$parent.solrLoading = false;
             }
         });
         $scope.QueryGISSOLR = function (searchterm, page) {
@@ -787,15 +800,16 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                     returnObject.results = [];
                     if (returnObject.numberofrecordsmatched != 0) {
                         // only foreach when there are items
-                        if (returnObject.numberofrecordsmatched == 1) {
-                            var processedTheme = procesTheme(getResults['csw:record']);
-                            returnObject.results.push(processedTheme);
+                        var themeArr = [];
+                        if (getResults['csw:record'].constructor === Array) {
+                            themeArr = getResults['csw:record'];
                         } else {
-                            getResults['csw:record'].forEach(function (record) {
-                                var processedTheme = procesTheme(record);
-                                returnObject.results.push(processedTheme);
-                            });
+                            themeArr.push(getResults['csw:record']);
                         }
+                        themeArr.forEach(function (record) {
+                            var processedTheme = procesTheme(record);
+                            returnObject.results.push(processedTheme);
+                        });
                     }
                     prom.resolve(returnObject);
                     // console.log(getResults['csw:record']);
@@ -2945,6 +2959,12 @@ L.control.typeahead = function (args) {
                         } else if (_data.ExtendedType == "remove") {
                             featureArray.forEach(function (featureItem) {
                                 SearchService.DeleteFeature(featureItem);
+                                var itemIndex = _data.VisibleFeatures.findIndex(function (x) {
+                                    return x.toGeoJSON().features[0].id == featureItem.id && x.toGeoJSON().features[0].layerName == featureItem.layerName;
+                                });
+                                if (itemIndex > -1) {
+                                    _data.VisibleFeatures.splice(itemIndex, 1);
+                                }
                             });
                             _data.TempExtendFeatures.forEach(function (x) {
                                 map.removeLayer(x);
@@ -5127,7 +5147,7 @@ L.drawLocal = {
     "<ul ng-show=\"showMultiLegend && lyrctrl.layer.legend.length>1\" ng-repeat=\"legend in lyrctrl.layer.legend\" ng-class=\"{'open': showMultiLegend}\">\n" +
     "<img class=layer-icon ng-src=\"{{legend.fullurl}} \"><span>{{legend.label}}</span>\n" +
     "</ul>\n" +
-    "<img class=normal-size ng-src={{lyrctrl.layer.legendUrl}} ng-show=showLayer2>\n" +
+    "<img class=normal-size ng-src={{lyrctrl.layer.legendUrl}} onerror=\"this.style.display='none'\" ng-show=showLayer2>\n" +
     "</div>\n" +
     "</li>\n" +
     "<ul class=li-item ng-if=\"lyrctrl.layer.theme.Type=='esri' && lyrctrl.layer.legend.length>1\" ng-show=showLayer>\n" +
