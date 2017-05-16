@@ -1275,6 +1275,18 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 }, 5000);
             }
         };
+        map.on('locationfound', function (e) {
+
+            MapEvents.ClearGPS();
+            var gpsicon = L.divIcon({ className: 'fa fa-crosshairs fa-2x blue', style: 'color: blue' });
+            gpsmarker = L.marker(e.latlng, { icon: gpsicon }).addTo(map);
+        });
+        map.on('locationerror', function (e) {
+            vm.gpstracking = false;
+            $interval.cancel(gpstracktimer);
+            MapEvents.ClearGPS();
+            PopupService.Warning("Unable to get location from browser");
+        });
     });
     theController.$inject = ['BaseLayersService', 'ExternService', 'MapService', 'MapData', 'map', 'MapEvents', 'DrawService', 'HelperService', 'GISService', 'PopupService', '$interval', 'UIService', 'tinkApi', 'FeatureService'];
 })();
@@ -3261,11 +3273,7 @@ L.control.typeahead = function (args) {
             MapData.IsDrawing = false;
         });
         var gpsmarker = null;
-        map.on('locationfound', function (e) {
-            _mapEvents.ClearGPS();
-            var gpsicon = L.divIcon({ className: 'fa fa-crosshairs fa-2x blue', style: 'color: blue' });
-            gpsmarker = L.marker(e.latlng, { icon: gpsicon }).addTo(map);
-        });
+
         _mapEvents.ClearGPS = function () {
             if (gpsmarker) {
                 gpsmarker.removeFrom(map);

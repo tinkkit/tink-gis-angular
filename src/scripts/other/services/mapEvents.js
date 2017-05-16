@@ -173,11 +173,7 @@
             MapData.IsDrawing = false;
         });
         var gpsmarker = null;
-        map.on('locationfound', function (e) {
-            _mapEvents.ClearGPS();
-            var gpsicon = L.divIcon({ className: 'fa fa-crosshairs fa-2x blue', style: 'color: blue' });
-            gpsmarker = L.marker(e.latlng, { icon: gpsicon }).addTo(map);
-        });
+    
         _mapEvents.ClearGPS = function () {
             if (gpsmarker) {
                 gpsmarker.removeFrom(map);

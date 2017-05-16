@@ -270,6 +270,18 @@
                 }, 5000);
             }
         }
+        map.on('locationfound', function (e) {
+
+            MapEvents.ClearGPS();
+            var gpsicon = L.divIcon({ className: 'fa fa-crosshairs fa-2x blue', style: 'color: blue' });
+            gpsmarker = L.marker(e.latlng, { icon: gpsicon }).addTo(map);
+        });
+        map.on('locationerror', function (e) {
+            vm.gpstracking = false;
+            $interval.cancel(gpstracktimer);
+            MapEvents.ClearGPS();
+            PopupService.Warning("Unable to get location from browser");
+        });
 
     });
     theController.$inject = ['BaseLayersService', 'ExternService', 'MapService', 'MapData', 'map', 'MapEvents', 'DrawService', 'HelperService', 'GISService', 'PopupService', '$interval', 'UIService', 'tinkApi', 'FeatureService'];
