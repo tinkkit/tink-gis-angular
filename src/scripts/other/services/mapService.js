@@ -135,16 +135,19 @@
             console.log(event);
             if (MapData.SelectedLayer.id === '') { // alle layers selected
                 MapData.Themes.filter(x => x.Type == ThemeType.ESRI).forEach(theme => { // dus doen we de qry op alle lagen.
-                    ResultsData.RequestStarted++;
-                    theme.MapData.identify().on(map).at(event.latlng).layers('visible: ' + theme.VisibleLayerIds).run(function (error, featureCollection) {
-                        ResultsData.RequestCompleted++;
-                        MapData.AddFeatures(featureCollection, theme);
-                        if (MapData.ExtendedType != null) {
-                            MapData.ConfirmExtendDialog(MapData.processedFeatureArray);
-                            MapData.processedFeatureArray = [];
-                        }
+                    if (theme.VisibleLayerIds.length !== 0 && theme.VisibleLayerIds[0] !== -1) {
+                        ResultsData.RequestStarted++;
+                        theme.MapData.identify().on(map).at(event.latlng).layers('visible: ' + theme.VisibleLayerIds).run(function (error, featureCollection) {
+                            ResultsData.RequestCompleted++;
+                            MapData.AddFeatures(featureCollection, theme);
+                            if (MapData.ExtendedType != null) {
+                                MapData.ConfirmExtendDialog(MapData.processedFeatureArray);
+                                MapData.processedFeatureArray = [];
+                            }
 
-                    });
+                        });
+                    }
+
                 });
             } else {
                 ResultsData.RequestStarted++;
