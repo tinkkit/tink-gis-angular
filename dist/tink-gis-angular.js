@@ -397,6 +397,9 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
     }
     module.controller('previewLayerController', ['$scope', function ($scope) {
+        if ($scope.theme.Added == false) {
+            $scope.theme.enabled = false;
+        }
         $scope.delTheme = function () {
             $scope.theme.AllLayers.forEach(function (lay) {
                 lay.enabled = false;
@@ -5750,7 +5753,7 @@ var TinkGis;
             _this2.Url = cleanurlSplitted[5] + '/' + cleanurlSplitted[6] + '/' + cleanurlSplitted[7] + '/' + cleanurlSplitted[8];
             _this2.Visible = true;
             _this2.Added = false;
-            _this2.enabled = false;
+            _this2.enabled = true;
             _this2.Type = ThemeType.ESRI;
             _this2.status = ThemeStatus.UNMODIFIED;
             _this2.MapData = {};
@@ -5797,7 +5800,7 @@ var TinkGis;
 
             _this3.Version = data['version'];
             _this3.name = _this3.Naam = data.service.title;
-            _this3.enabled = false;
+            _this3.enabled = true;
             _this3.Visible = true;
             _this3.CleanUrl = url;
             _this3.Added = false;

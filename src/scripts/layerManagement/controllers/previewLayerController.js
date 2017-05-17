@@ -8,6 +8,9 @@
     }
     module.controller('previewLayerController', ['$scope',
         function ($scope) {
+            if($scope.theme.Added == false) {
+                $scope.theme.enabled = false;
+            }
             $scope.delTheme = function () {
                 $scope.theme.AllLayers.forEach(lay => {
                     lay.enabled = false;
