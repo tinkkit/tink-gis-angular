@@ -63,7 +63,7 @@ namespace TinkGis {
             this.Url = cleanurlSplitted[5] + '/' + cleanurlSplitted[6] + '/' + cleanurlSplitted[7] + '/' + cleanurlSplitted[8];
             this.Visible = true;
             this.Added = false;
-            this.enabled = true;
+            this.enabled = false;
             this.Type = ThemeType.ESRI;
             this.status = ThemeStatus.UNMODIFIED;
             this.MapData = {};
@@ -101,7 +101,7 @@ namespace TinkGis {
             this.name = this.Naam = data.service.title;
             // this.Naam = data.service.title;
             // this.Title = returnjson.service.title;
-            this.enabled = true;
+            this.enabled = false;
             this.Visible = true;
             this.CleanUrl = url;
             this.Added = false;

@@ -77,7 +77,7 @@ namespace TinkGis {
             super();
             Object.assign(this, layerData);
             this.visible = true;
-            this.enabled = true;
+            this.enabled = false;
             this.displayed = true;
             this.theme = parenttheme;
             this.queryable = layerData.queryable;
@@ -103,7 +103,7 @@ namespace TinkGis {
             super();
             Object.assign(this, layerData);
             this.visible = layerData.defaultVisibility;
-            this.enabled = true;
+            this.enabled = false;
             this.title = layerData.name;
             this.theme = parenttheme;
             this.displayed = true;

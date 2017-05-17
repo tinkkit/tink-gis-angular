@@ -11,10 +11,9 @@
         </div>
     </div>
     <div class="text-align-right" ng-show="theme !== null">
-        <button class="btn-sm btn-primary" ng-if="theme.Added == false" ng-click="addorupdatefunc()">Toevoegen</button>
+        <button class="btn-sm btn-primary" ng-if="theme.Added == false" ng-disabled="!theme.enabled" ng-click="addorupdatefunc()">Toevoegen</button>
         <button class="btn-sm" ng-if="theme.Added != false" ng-click="addorupdatefunc()">Bijwerken</button>
         <button class="btn-sm" ng-if="theme.Added != false" ng-click="delTheme()">Verwijderen</button>
     </div>
-
 </div>
 

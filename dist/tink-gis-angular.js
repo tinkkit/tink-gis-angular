@@ -5060,7 +5060,7 @@ L.drawLocal = {
     "</div>\n" +
     "</div>\n" +
     "<div class=text-align-right ng-show=\"theme !== null\">\n" +
-    "<button class=\"btn-sm btn-primary\" ng-if=\"theme.Added == false\" ng-click=addorupdatefunc()>Toevoegen</button>\n" +
+    "<button class=\"btn-sm btn-primary\" ng-if=\"theme.Added == false\" ng-disabled=!theme.enabled ng-click=addorupdatefunc()>Toevoegen</button>\n" +
     "<button class=btn-sm ng-if=\"theme.Added != false\" ng-click=addorupdatefunc()>Bijwerken</button>\n" +
     "<button class=btn-sm ng-if=\"theme.Added != false\" ng-click=delTheme()>Verwijderen</button>\n" +
     "</div>\n" +
@@ -5600,7 +5600,7 @@ var TinkGis;
 
             Object.assign(_this2, layerData);
             _this2.visible = true;
-            _this2.enabled = true;
+            _this2.enabled = false;
             _this2.displayed = true;
             _this2.theme = parenttheme;
             _this2.queryable = layerData.queryable;
@@ -5639,7 +5639,7 @@ var TinkGis;
 
             Object.assign(_this3, layerData);
             _this3.visible = layerData.defaultVisibility;
-            _this3.enabled = true;
+            _this3.enabled = false;
             _this3.title = layerData.name;
             _this3.theme = parenttheme;
             _this3.displayed = true;
@@ -5750,7 +5750,7 @@ var TinkGis;
             _this2.Url = cleanurlSplitted[5] + '/' + cleanurlSplitted[6] + '/' + cleanurlSplitted[7] + '/' + cleanurlSplitted[8];
             _this2.Visible = true;
             _this2.Added = false;
-            _this2.enabled = true;
+            _this2.enabled = false;
             _this2.Type = ThemeType.ESRI;
             _this2.status = ThemeStatus.UNMODIFIED;
             _this2.MapData = {};
@@ -5797,7 +5797,7 @@ var TinkGis;
 
             _this3.Version = data['version'];
             _this3.name = _this3.Naam = data.service.title;
-            _this3.enabled = true;
+            _this3.enabled = false;
             _this3.Visible = true;
             _this3.CleanUrl = url;
             _this3.Added = false;
