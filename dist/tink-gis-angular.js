@@ -1288,7 +1288,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             vm.gpstracking = false;
             $interval.cancel(gpstracktimer);
             MapEvents.ClearGPS();
-            PopupService.Warning("Unable to get location from browser");
+            PopupService.Warning("Browser heeft geen toegang tot locatiegegevens");
         });
     });
     theController.$inject = ['BaseLayersService', 'ExternService', 'MapService', 'MapData', 'map', 'MapEvents', 'DrawService', 'HelperService', 'GISService', 'PopupService', '$interval', 'UIService', 'tinkApi', 'FeatureService'];
@@ -2071,7 +2071,7 @@ var esri2geo = {};
     }
     // module.$inject = ['MapData', 'map', 'GISService', 'ThemeCreater', 'WMSService', 'ThemeService', '$q','BaseLayersService'];
 
-    var externService = function externService(MapData, map, GISService, ThemeCreater, WMSService, ThemeService, $q, BaseLayersService, FeatureService, ResultsData) {
+    var externService = function externService(MapData, map, GISService, ThemeCreater, WMSService, ThemeService, $q, BaseLayersService, FeatureService, ResultsData, PopupService) {
         var _externService = {};
         _externService.GetAllThemes = function () {
             var legendItem = {};
@@ -2202,7 +2202,7 @@ var esri2geo = {};
                 ThemeService.AddAndUpdateThemes(orderedArray);
                 console.log('all loaded');
                 if (errorMessages.length > 0) {
-                    alert(errorMessages.join('\n'));
+                    PopupService.Warning("Fout bij import", errorMessages.join('\n'));
                 }
                 if (FeatureService.defaultLayerName) {
                     var defaultLayer = MapData.VisibleLayers.find(function (x) {

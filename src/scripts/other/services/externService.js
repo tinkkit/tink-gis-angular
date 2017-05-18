@@ -8,7 +8,7 @@
     }
     // module.$inject = ['MapData', 'map', 'GISService', 'ThemeCreater', 'WMSService', 'ThemeService', '$q','BaseLayersService'];
 
-    var externService = function (MapData, map, GISService, ThemeCreater, WMSService, ThemeService, $q, BaseLayersService, FeatureService, ResultsData) {
+    var externService = function (MapData, map, GISService, ThemeCreater, WMSService, ThemeService, $q, BaseLayersService, FeatureService, ResultsData, PopupService) {
         var _externService = {};
         _externService.GetAllThemes = function () {
             let legendItem = {};
@@ -130,7 +130,7 @@
                 ThemeService.AddAndUpdateThemes(orderedArray);
                 console.log('all loaded');
                 if (errorMessages.length > 0) {
-                    alert(errorMessages.join('\n'));
+                    PopupService.Warning("Fout bij import", errorMessages.join('\n'));
                 }
                 if (FeatureService.defaultLayerName) {
                     var defaultLayer = MapData.VisibleLayers.find(x => x.name == FeatureService.defaultLayerName);

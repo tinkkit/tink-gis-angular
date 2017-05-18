@@ -280,7 +280,7 @@
             vm.gpstracking = false;
             $interval.cancel(gpstracktimer);
             MapEvents.ClearGPS();
-            PopupService.Warning("Unable to get location from browser");
+            PopupService.Warning("Browser heeft geen toegang tot locatiegegevens");
         });
 
     });
