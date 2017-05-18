@@ -375,16 +375,16 @@
                         } else if (_data.ExtendedType == "remove") {
                             featureArray.forEach(featureItem => {
                                 SearchService.DeleteFeature(featureItem);
-                                 var itemIndex = _data.VisibleFeatures.findIndex(x => x.toGeoJSON().features[0].id == featureItem.id && x.toGeoJSON().features[0].layerName == featureItem.layerName);
-                                 if(itemIndex > -1) {
-                                     _data.VisibleFeatures.splice(itemIndex, 1);
-                                 }
+                                var itemIndex = _data.VisibleFeatures.findIndex(x => x.toGeoJSON().features[0].id == featureItem.id && x.toGeoJSON().features[0].layerName == featureItem.layerName);
+                                if (itemIndex > -1) {
+                                    _data.VisibleFeatures.splice(itemIndex, 1);
+                                }
 
                             });
                             _data.TempExtendFeatures.forEach(x => {
                                 map.removeLayer(x);
                             });
-                          
+
                         }
                     }
                     else {
@@ -446,45 +446,48 @@
                         }
                     });
                     _data.SetDisplayValue(featureItem, layer);
-                    if (buffereditem) {
-                        var bufferid = buffereditem.toGeoJSON().features[0].id;
-                        var bufferlayer = buffereditem.toGeoJSON().features[0].layer;
-                        if (bufferid && bufferid == featureItem.id && bufferlayer == featureItem.layer) {
-                            featureItem.mapItem = buffereditem;
-                        }
-                        else {
-                            var mapItem = L.geoJson(featureItem, { style: Style.DEFAULT }).addTo(map);
+
+                    var thestyle = Style.DEFAULT;
+                    if (_data.ExtendedType == "add") {
+                        thestyle = Style.ADD;
+                        var alreadyexists = _data.VisibleFeatures.some(x => x.toGeoJSON().features[0].id == featureItem.id && x.toGeoJSON().features[0].layerName == featureItem.layerName);
+                        if (!alreadyexists) {
+                            var mapItem = L.geoJson(featureItem, { style: thestyle }).addTo(map);
+                            _data.TempExtendFeatures.push(mapItem);
                             featureItem.mapItem = mapItem;
-                            _data.VisibleFeatures.push(mapItem);
+                            resultArray.push(featureItem);
                         }
-                        resultArray.push(featureItem);
+                    } else if (_data.ExtendedType == "remove") {
+                        thestyle = Style.REMOVE;
+                        var alreadyexists = _data.VisibleFeatures.some(x => x.toGeoJSON().features[0].id == featureItem.id && x.toGeoJSON().features[0].layerName == featureItem.layerName);
+                        if (alreadyexists) {
+                            var mapItem = L.geoJson(featureItem, { style: thestyle }).addTo(map);
+                            _data.TempExtendFeatures.push(mapItem);
+                            featureItem.mapItem = mapItem;
+                            resultArray.push(featureItem);
+                        }
                     } else {
-                        var thestyle = Style.DEFAULT;
-                        if (_data.ExtendedType == "add") {
-                            thestyle = Style.ADD;
-                            var alreadyexists = _data.VisibleFeatures.some(x => x.toGeoJSON().features[0].id == featureItem.id && x.toGeoJSON().features[0].layerName == featureItem.layerName);
-                            if (!alreadyexists) {
-                                var mapItem = L.geoJson(featureItem, { style: thestyle }).addTo(map);
-                                _data.TempExtendFeatures.push(mapItem);
-                                featureItem.mapItem = mapItem;
-                                resultArray.push(featureItem);
+
+                        if (buffereditem) {
+                            var bufferid = buffereditem.toGeoJSON().features[0].id;
+                            var bufferlayer = buffereditem.toGeoJSON().features[0].layer;
+                            if (bufferid && bufferid == featureItem.id && bufferlayer == featureItem.layer) {
+                                featureItem.mapItem = buffereditem;
                             }
-                        } else if (_data.ExtendedType == "remove") {
-                            thestyle = Style.REMOVE;
-                            var alreadyexists = _data.VisibleFeatures.some(x => x.toGeoJSON().features[0].id == featureItem.id && x.toGeoJSON().features[0].layerName == featureItem.layerName);
-                            if (alreadyexists) {
-                                var mapItem = L.geoJson(featureItem, { style: thestyle }).addTo(map);
-                                _data.TempExtendFeatures.push(mapItem);
+                            else {
+                                var mapItem = L.geoJson(featureItem, { style: Style.DEFAULT }).addTo(map);
                                 featureItem.mapItem = mapItem;
-                                resultArray.push(featureItem);
+                                _data.VisibleFeatures.push(mapItem);
                             }
                         } else {
                             var mapItem = L.geoJson(featureItem, { style: thestyle }).addTo(map);
                             _data.VisibleFeatures.push(mapItem);
                             featureItem.mapItem = mapItem;
-                            resultArray.push(featureItem);
                         }
+                        resultArray.push(featureItem);
+
                     }
+
                 }
                 else {
                     resultArray.push(featureItem);
