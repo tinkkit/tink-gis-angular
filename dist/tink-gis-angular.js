@@ -3647,10 +3647,10 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 options = {};
             }
             if (!options.timeOut) {
-                options.timeOut = 1500;
+                options.timeOut = 3000;
             }
             if (!options.extendedTimeOut) {
-                options.extendedTimeOut = 1500;
+                options.extendedTimeOut = 0;
             }
             if (callback) {
                 options.onclick = callback;
