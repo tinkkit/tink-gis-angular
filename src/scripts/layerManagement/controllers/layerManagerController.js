@@ -14,6 +14,7 @@
             $scope.solrCount = null;
             $scope.geopuntLoading = false;
             $scope.geopuntCount = null;
+            $scope.mobile = L.Browser.mobile;
             $scope.ok = function () {
                 $modalInstance.$close(); // return the themes.
             };

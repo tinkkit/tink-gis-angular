@@ -8,6 +8,8 @@
             vm.prevResult = null;
             vm.nextResult = null;
             vm.props = [];
+            vm.mobile = L.Browser.mobile;
+
             $scope.$watch(function () { return ResultsData.SelectedFeature; }, function (newVal, oldVal) {
                 if (oldVal && oldVal != newVal && oldVal.mapItem) { // there must be an oldval and it must not be the newval and it must have an mapitem (to dehighlight)
                     if (oldVal.mapItem.isBufferedItem) {

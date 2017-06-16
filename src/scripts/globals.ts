@@ -35,6 +35,7 @@ const DrawingOption = {
     VIERKANT: 'vierkant',
     POLYGON: 'polygon'
 };
+var Global = { Mobile : false }
 var ThemeType = {
     ESRI: 'esri',
     WMS: 'wms'

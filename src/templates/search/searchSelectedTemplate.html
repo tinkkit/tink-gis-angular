@@ -2,10 +2,10 @@
 
     <div class="margin-top margin-bottom">
         <div class="col-xs-12 text-right">
-            <button class="btn" tink-tooltip="Doordruk" tink-tooltip-align="top" ng-click="srchslctdctrl.doordruk()" ng-hide="srchslctdctrl.selectedResult.theme.Type != 'esri'">
+            <button class="btn" tink-tooltip="Doordruk" tink-tooltip-align="top" ng-click="srchslctdctrl.doordruk()" ng-hide="srchslctdctrl.selectedResult.theme.Type != 'esri' || mobile">
                 <svg class="icon icon-sik-press-through"><use xlink:href="#icon-sik-press-through"></use></svg>
             </button>
-            <button class="btn" tink-tooltip="Buffer" tink-tooltip-align="top" ng-click="srchslctdctrl.buffer()" ng-hide="srchslctdctrl.selectedResult.theme.Type != 'esri'">
+            <button class="btn" tink-tooltip="Buffer" tink-tooltip-align="top" ng-click="srchslctdctrl.buffer()" ng-hide="srchslctdctrl.selectedResult.theme.Type != 'esri' || mobile">
                 <svg class="icon icon-sik-buffer"><use xlink:href="#icon-sik-buffer"></use></svg>
             </button>
 
@@ -22,8 +22,8 @@
         <dl ng-repeat="prop in srchslctdctrl.props">
             <dt>{{ prop.key}}</dt>
             <div ng-if="prop.value.toLowerCase() != 'null'">
-                <a ng-if=" prop.value.indexOf( 'https://')==0 || prop.value.indexOf( 'http://')==0 " ng-href="{{prop.value}}" target="_blank">% Link</a>
-                <dd ng-if="prop.value.indexOf( 'https://') !=0 && prop.value.indexOf( 'http://') !=0 ">{{ prop.value }}</dd>
+                <a ng-if="prop.value.indexOf('https://')==0 || prop.value.indexOf( 'http://')==0 " ng-href="{{prop.value}}" target="_blank">% Link</a>
+                <dd ng-if="prop.value.indexOf('https://') !=0 && prop.value.indexOf( 'http://') !=0 ">{{ prop.value }}</dd>
             </div>
         </dl>
     </div>

@@ -14,6 +14,7 @@
             }
             TypeAheadService.init();
         }();
+        vm.mobile = L.Browser.mobile;
         vm.ZoekenOpLocatie = true;
         vm.activeInteractieKnop = MapData.ActiveInteractieKnop;
         $scope.$watch(function () { return MapData.ActiveInteractieKnop; }, function (data) {
@@ -255,6 +256,7 @@
         }
         vm.gpstracking = false;
         var gpstracktimer = null;
+        var gpsmarker = null;
         vm.zoomToGps = function () {
             vm.gpstracking = !vm.gpstracking;
 
@@ -271,7 +273,6 @@
             }
         }
         map.on('locationfound', function (e) {
-
             MapEvents.ClearGPS();
             var gpsicon = L.divIcon({ className: 'fa fa-crosshairs fa-2x blue', style: 'color: blue' });
             gpsmarker = L.marker(e.latlng, { icon: gpsicon }).addTo(map);

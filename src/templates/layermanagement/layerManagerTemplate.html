@@ -20,9 +20,9 @@
         <div class="col-xs-12">
             <ul class="nav-tabs">
                 <li role="presentation" ng-class="{'active': active=='solr'}"><a href="" ng-click="active='solr'">Stad <span ng-if="solrLoading==true" class="loader"></span><span ng-if="solrLoading==false && solrCount != null">({{solrCount}})</span></a></li>
-                <li role="presentation" ng-class="{'active': active=='geopunt'}"><a href="" ng-click="active='geopunt'">GeoPunt <span ng-if="geopuntLoading==true" class="loader"></span><span ng-if="geopuntLoading==false && geopuntCount != null">({{geopuntCount}})</span></a></li>
+                <li ng-show="!mobile" role="presentation" ng-class="{'active': active=='geopunt'}"><a href="" ng-click="active='geopunt'">GeoPunt <span ng-if="geopuntLoading==true" class="loader"></span><span ng-if="geopuntLoading==false && geopuntCount != null">({{geopuntCount}})</span></a></li>
                 <li role="presentation" class="pull-right" ng-class="{'active': active=='beheer'}"><a href="" ng-click="active='beheer'">Lagenbeheer</a></li>
-                <li role="presentation" class="pull-right" ng-class="{'active': active=='wmsurl'}"><a href="" ng-click="active='wmsurl'">URL ingeven</a></li>
+                <li ng-show="!mobile" role="presentation" class="pull-right" ng-class="{'active': active=='wmsurl'}"><a href="" ng-click="active='wmsurl'">URL ingeven</a></li>
             </ul>
         </div>
     </div>

@@ -123,6 +123,7 @@ var DrawingOption = {
     VIERKANT: 'vierkant',
     POLYGON: 'polygon'
 };
+var Global = { Mobile: false };
 var ThemeType = {
     ESRI: 'esri',
     WMS: 'wms'
@@ -290,6 +291,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         $scope.solrCount = null;
         $scope.geopuntLoading = false;
         $scope.geopuntCount = null;
+        $scope.mobile = L.Browser.mobile;
         $scope.ok = function () {
             $modalInstance.$close(); // return the themes.
         };
@@ -1017,6 +1019,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             }
             TypeAheadService.init();
         }();
+        vm.mobile = L.Browser.mobile;
         vm.ZoekenOpLocatie = true;
         vm.activeInteractieKnop = MapData.ActiveInteractieKnop;
         $scope.$watch(function () {
@@ -1264,6 +1267,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         };
         vm.gpstracking = false;
         var gpstracktimer = null;
+        var gpsmarker = null;
         vm.zoomToGps = function () {
             vm.gpstracking = !vm.gpstracking;
 
@@ -1279,7 +1283,6 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             }
         };
         map.on('locationfound', function (e) {
-
             MapEvents.ClearGPS();
             var gpsicon = L.divIcon({ className: 'fa fa-crosshairs fa-2x blue', style: 'color: blue' });
             gpsmarker = L.marker(e.latlng, { icon: gpsicon }).addTo(map);
@@ -4090,6 +4093,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         vm.EmptyResult = ResultsData.EmptyResult;
         vm.LoadingCompleted = true;
         vm.loadingPercentage = 100;
+        vm.mobile = L.Browser.mobile;
         var percentageupdater = $interval(function () {
             vm.loadingPercentage = ResultsData.GetRequestPercentage();
             vm.LoadingCompleted = vm.loadingPercentage >= 100;
@@ -4254,6 +4258,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         vm.prevResult = null;
         vm.nextResult = null;
         vm.props = [];
+        vm.mobile = L.Browser.mobile;
+
         $scope.$watch(function () {
             return ResultsData.SelectedFeature;
         }, function (newVal, oldVal) {
@@ -4992,9 +4998,9 @@ L.drawLocal = {
     "<div class=col-xs-12>\n" +
     "<ul class=nav-tabs>\n" +
     "<li role=presentation ng-class=\"{'active': active=='solr'}\"><a href=\"\" ng-click=\"active='solr'\">Stad <span ng-if=\"solrLoading==true\" class=loader></span><span ng-if=\"solrLoading==false && solrCount != null\">({{solrCount}})</span></a></li>\n" +
-    "<li role=presentation ng-class=\"{'active': active=='geopunt'}\"><a href=\"\" ng-click=\"active='geopunt'\">GeoPunt <span ng-if=\"geopuntLoading==true\" class=loader></span><span ng-if=\"geopuntLoading==false && geopuntCount != null\">({{geopuntCount}})</span></a></li>\n" +
+    "<li ng-show=!mobile role=presentation ng-class=\"{'active': active=='geopunt'}\"><a href=\"\" ng-click=\"active='geopunt'\">GeoPunt <span ng-if=\"geopuntLoading==true\" class=loader></span><span ng-if=\"geopuntLoading==false && geopuntCount != null\">({{geopuntCount}})</span></a></li>\n" +
     "<li role=presentation class=pull-right ng-class=\"{'active': active=='beheer'}\"><a href=\"\" ng-click=\"active='beheer'\">Lagenbeheer</a></li>\n" +
-    "<li role=presentation class=pull-right ng-class=\"{'active': active=='wmsurl'}\"><a href=\"\" ng-click=\"active='wmsurl'\">URL ingeven</a></li>\n" +
+    "<li ng-show=!mobile role=presentation class=pull-right ng-class=\"{'active': active=='wmsurl'}\"><a href=\"\" ng-click=\"active='wmsurl'\">URL ingeven</a></li>\n" +
     "</ul>\n" +
     "</div>\n" +
     "</div>\n" +
@@ -5219,12 +5225,12 @@ L.drawLocal = {
     "<div class=\"ll drawingbtns\" ng-show=mapctrl.showDrawControls>\n" +
     "<div class=btn-group>\n" +
     "<button ng-click=mapctrl.selectpunt() ng-class=\"{active: mapctrl.drawingType==''}\" type=button class=btn prevent-default-map tink-tooltip=\"Selecteer met een punt\" tink-tooltip-align=bottom><i class=\"fa fa-circle\" style=\"font-size: 0.75em\"></i></button>\n" +
-    "<button ng-click=\"mapctrl.drawingButtonChanged('lijn')\" ng-class=\"{active: mapctrl.drawingType=='lijn'}\" type=button class=btn prevent-default-map tink-tooltip=\"Selecteer met een lijn\" tink-tooltip-align=bottom><i class=\"fa fa-minus\"></i></button>\n" +
-    "<button ng-click=\"mapctrl.drawingButtonChanged('vierkant')\" ng-class=\"{active: mapctrl.drawingType=='vierkant'}\" type=button class=btn prevent-default-map tink-tooltip=\"Selecteer met een vierkant\" tink-tooltip-align=bottom><i class=\"fa fa-square-o\"></i></button>\n" +
+    "<button ng-hide=mobile ng-click=\"mapctrl.drawingButtonChanged('lijn')\" ng-class=\"{active: mapctrl.drawingType=='lijn'}\" type=button class=btn prevent-default-map tink-tooltip=\"Selecteer met een lijn\" tink-tooltip-align=bottom><i class=\"fa fa-minus\"></i></button>\n" +
+    "<button ng-hide=mobile ng-click=\"mapctrl.drawingButtonChanged('vierkant')\" ng-class=\"{active: mapctrl.drawingType=='vierkant'}\" type=button class=btn prevent-default-map tink-tooltip=\"Selecteer met een vierkant\" tink-tooltip-align=bottom><i class=\"fa fa-square-o\"></i></button>\n" +
     "<button ng-click=\"mapctrl.drawingButtonChanged('polygon')\" ng-class=\"{active: mapctrl.drawingType=='polygon'}\" type=button class=btn prevent-default-map tink-tooltip=\"Selecteer met een veelhoek\" tink-tooltip-align=bottom><i class=\"fa fa-star-o\"></i></button>\n" +
     "</div>\n" +
     "<div class=select>\n" +
-    "<select ng-options=\"layer as layer.name for layer in mapctrl.SelectableLayers()\" ng-model=mapctrl.selectedLayer ng-show=\"mapctrl.SelectableLayers().length > 1\" ng-change=mapctrl.layerChange() prevent-default-map></select>\n" +
+    "<select ng-options=\"layer as layer.name for layer in mapctrl.SelectableLayers()\" ng-model=mapctrl.selectedLayer ng-show=\"mapctrl.SelectableLayers().length > 1 && !mobile\" ng-change=mapctrl.layerChange() prevent-default-map></select>\n" +
     "</div>\n" +
     "</div>\n" +
     "<div class=\"btn-group btn-group-vertical ll interactiebtns\">\n" +
@@ -5415,10 +5421,10 @@ L.drawLocal = {
     "<div class=\"SEARCHSELECTED flex-column flex-grow-1 extra-padding\" ng-if=srchslctdctrl.selectedResult>\n" +
     "<div class=\"margin-top margin-bottom\">\n" +
     "<div class=\"col-xs-12 text-right\">\n" +
-    "<button class=btn tink-tooltip=Doordruk tink-tooltip-align=top ng-click=srchslctdctrl.doordruk() ng-hide=\"srchslctdctrl.selectedResult.theme.Type != 'esri'\">\n" +
+    "<button class=btn tink-tooltip=Doordruk tink-tooltip-align=top ng-click=srchslctdctrl.doordruk() ng-hide=\"srchslctdctrl.selectedResult.theme.Type != 'esri' || mobile\">\n" +
     "<svg class=\"icon icon-sik-press-through\"><use xlink:href=#icon-sik-press-through></use></svg>\n" +
     "</button>\n" +
-    "<button class=btn tink-tooltip=Buffer tink-tooltip-align=top ng-click=srchslctdctrl.buffer() ng-hide=\"srchslctdctrl.selectedResult.theme.Type != 'esri'\">\n" +
+    "<button class=btn tink-tooltip=Buffer tink-tooltip-align=top ng-click=srchslctdctrl.buffer() ng-hide=\"srchslctdctrl.selectedResult.theme.Type != 'esri' || mobile\">\n" +
     "<svg class=\"icon icon-sik-buffer\"><use xlink:href=#icon-sik-buffer></use></svg>\n" +
     "</button>\n" +
     "<button class=btn tink-tooltip=\"Exporteer naar CSV\" tink-tooltip-align=top ng-if=srchslctdctrl.exportToCSVButtonIsEnabled ng-click=srchslctdctrl.exportToCSV()>\n" +
@@ -5433,8 +5439,8 @@ L.drawLocal = {
     "<dl ng-repeat=\"prop in srchslctdctrl.props\">\n" +
     "<dt>{{ prop.key}}</dt>\n" +
     "<div ng-if=\"prop.value.toLowerCase() != 'null'\">\n" +
-    "<a ng-if=\" prop.value.indexOf( 'https://')==0 || prop.value.indexOf( 'http://')==0 \" ng-href={{prop.value}} target=_blank>% Link</a>\n" +
-    "<dd ng-if=\"prop.value.indexOf( 'https://') !=0 && prop.value.indexOf( 'http://') !=0 \">{{ prop.value }}</dd>\n" +
+    "<a ng-if=\"prop.value.indexOf('https://')==0 || prop.value.indexOf( 'http://')==0 \" ng-href={{prop.value}} target=_blank>% Link</a>\n" +
+    "<dd ng-if=\"prop.value.indexOf('https://') !=0 && prop.value.indexOf( 'http://') !=0 \">{{ prop.value }}</dd>\n" +
     "</div>\n" +
     "</dl>\n" +
     "</div>\n" +
@@ -5470,7 +5476,7 @@ L.drawLocal = {
     "<div class=\"row extra-padding margin-top\">\n" +
     "<div class=\"col-xs-12 text-right\">\n" +
     "<button ng-click=srchrsltsctrl.deleteDrawing() tink-tooltip=\"Verwijder de selectievorm\" tink-tooltip-align=right class=btn><i class=\"fa fa-trash\" aria-hidden=true></i></button>\n" +
-    "<button class=btn ng-click=srchrsltsctrl.bufferFromDrawing() tink-tooltip=\"Buffer rond selectievorm\" tink-tooltip-align=right>\n" +
+    "<button ng-hide=mobile class=btn ng-click=srchrsltsctrl.bufferFromDrawing() tink-tooltip=\"Buffer rond selectievorm\" tink-tooltip-align=right>\n" +
     "<svg class=\"icon icon-sik-buffer\"><use xlink:href=#icon-sik-buffer></use></svg>\n" +
     "</button>\n" +
     "<button class=\"btn btn-primary\" ng-click=srchrsltsctrl.zoom2Drawing()>Tonen</button>\n" +
@@ -5534,7 +5540,6 @@ var TinkGis;
             _this.Layers = [];
             _this.UpdateDisplayed = function (currentScale) {
                 if (_this.maxScale > 0 || _this.minScale > 0) {
-                    console.log('MinMaxandCurrentScale', _this.maxScale, _this.minScale, currentScale);
                     if (currentScale > _this.maxScale && currentScale < _this.minScale) {
                         _this.displayed = true;
                     } else {

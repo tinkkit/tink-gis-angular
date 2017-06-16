@@ -57,7 +57,7 @@ namespace TinkGis {
         };
         UpdateDisplayed = (currentScale) => {
             if (this.maxScale > 0 || this.minScale > 0) {
-                console.log('MinMaxandCurrentScale', this.maxScale, this.minScale, currentScale);
+                // console.log('MinMaxandCurrentScale', this.maxScale, this.minScale, currentScale);
                 if (currentScale > this.maxScale && currentScale < this.minScale) {
                     this.displayed = true;
                 }
