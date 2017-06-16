@@ -30,6 +30,7 @@
                     vm.drawLayer = null;
                 }
             });
+            vm.mobile = L.Browser.mobile;
             vm.zoom2Drawing = function () {
                 MapData.PanToItem(vm.drawLayer);
             };

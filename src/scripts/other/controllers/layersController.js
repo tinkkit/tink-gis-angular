@@ -11,6 +11,14 @@
                 MapData.SetZIndexes();
             }
         };
+        vm.asidetoggle = function () {
+            if (L.Browser.mobile) {
+                let html = $('html');
+                if (html.hasClass('nav-left-open')) {
+                    html.removeClass('nav-left-open');
+                }
+            }
+        }
         vm.deleteLayerButtonIsEnabled = FeatureService.deleteLayerButtonIsEnabled;
         $scope.$watch(function () { return FeatureService.deleteLayerButtonIsEnabled; }, function (newValue, oldValue) {
             vm.deleteLayerButtonIsEnabled = newValue

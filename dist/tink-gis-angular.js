@@ -964,6 +964,14 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 MapData.SetZIndexes();
             }
         };
+        vm.asidetoggle = function () {
+            if (L.Browser.mobile) {
+                var html = $('html');
+                if (html.hasClass('nav-left-open')) {
+                    html.removeClass('nav-left-open');
+                }
+            }
+        };
         vm.deleteLayerButtonIsEnabled = FeatureService.deleteLayerButtonIsEnabled;
         $scope.$watch(function () {
             return FeatureService.deleteLayerButtonIsEnabled;
@@ -4096,11 +4104,19 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         vm.EmptyResult = ResultsData.EmptyResult;
         vm.LoadingCompleted = true;
         vm.loadingPercentage = 100;
-        vm.mobile = L.Browser.mobile;
+
         var percentageupdater = $interval(function () {
             vm.loadingPercentage = ResultsData.GetRequestPercentage();
             vm.LoadingCompleted = vm.loadingPercentage >= 100;
         }, 333);
+        vm.asidetoggle = function () {
+            if (L.Browser.mobile) {
+                var html = $('html');
+                if (html.hasClass('nav-right-open')) {
+                    html.removeClass('nav-right-open');
+                }
+            }
+        };
     });
     theController.$inject = ['$scope', 'ResultsData', 'map', '$interval'];
 })();
@@ -4141,6 +4157,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 vm.drawLayer = null;
             }
         });
+        vm.mobile = L.Browser.mobile;
         vm.zoom2Drawing = function () {
             MapData.PanToItem(vm.drawLayer);
         };
@@ -5188,7 +5205,7 @@ L.drawLocal = {
     "<div class=nav-aside-section>\n" +
     "<p class=nav-aside-title>Lagenoverzicht</p>\n" +
     "</div>\n" +
-    "<button class=nav-right-toggle data-tink-sidenav-collapse=asideNavRight>\n" +
+    "<button ng-click=lyrsctrl.asidetoggle class=nav-right-toggle data-tink-sidenav-collapse=asideNavRight>\n" +
     "<a href=# title=\"Open menu\"><span class=sr-only>Open right menu</span></a>\n" +
     "</button>\n" +
     "<div class=\"flex-column flex-grow-1\">\n" +
@@ -5228,8 +5245,8 @@ L.drawLocal = {
     "<div class=\"ll drawingbtns\" ng-show=mapctrl.showDrawControls>\n" +
     "<div class=btn-group>\n" +
     "<button ng-click=mapctrl.selectpunt() ng-class=\"{active: mapctrl.drawingType==''}\" type=button class=btn prevent-default-map tink-tooltip=\"Selecteer met een punt\" tink-tooltip-align=bottom><i class=\"fa fa-circle\" style=\"font-size: 0.75em\"></i></button>\n" +
-    "<button ng-click=\"mapctrl.drawingButtonChanged('lijn')\" ng-class=\"{active: mapctrl.drawingType=='lijn'}\" type=button class=btn prevent-default-map tink-tooltip=\"Selecteer met een lijn\" tink-tooltip-align=bottom><i class=\"fa fa-minus\"></i></button>\n" +
-    "<button ng-hide=mapctrl.mobile ng-click=\"mapctrl.drawingButtonChanged('vierkant')\" ng-class=\"{active: mapctrl.drawingType=='vierkant'}\" type=button class=btn prevent-default-map tink-tooltip=\"Selecteer met een vierkant\" tink-tooltip-align=bottom><i class=\"fa fa-square-o\"></i></button>\n" +
+    "<button ng-hide=mapctrl.mobile ng-click=\"mapctrl.drawingButtonChanged('lijn')\" ng-class=\"{active: mapctrl.drawingType=='lijn'}\" type=button class=btn prevent-default-map tink-tooltip=\"Selecteer met een lijn\" tink-tooltip-align=bottom><i class=\"fa fa-minus\"></i></button>\n" +
+    "<button ng-click=\"mapctrl.drawingButtonChanged('vierkant')\" ng-class=\"{active: mapctrl.drawingType=='vierkant'}\" type=button class=btn prevent-default-map tink-tooltip=\"Selecteer met een vierkant\" tink-tooltip-align=bottom><i class=\"fa fa-square-o\"></i></button>\n" +
     "<button ng-click=\"mapctrl.drawingButtonChanged('polygon')\" ng-class=\"{active: mapctrl.drawingType=='polygon'}\" type=button class=btn prevent-default-map tink-tooltip=\"Selecteer met een veelhoek\" tink-tooltip-align=bottom><i class=\"fa fa-star-o\"></i></button>\n" +
     "</div>\n" +
     "<div class=select>\n" +
@@ -5304,7 +5321,7 @@ L.drawLocal = {
     "</div>\n" +
     "<div class=\"margin-print-content hidden-print\">\n" +
     "</div>\n" +
-    "</div>\n"
+    "</div>"
   );
 
 
@@ -5489,7 +5506,7 @@ L.drawLocal = {
     "<div class=nav-aside-section>\n" +
     "<p class=nav-aside-title>Resultaten</p>\n" +
     "</div>\n" +
-    "<button class=nav-left-toggle data-tink-sidenav-collapse=asideNavLeft>\n" +
+    "<button ng-click=srchctrl.asidetoggle class=nav-left-toggle data-tink-sidenav-collapse=asideNavLeft>\n" +
     "<a href=# title=\"Open menu\"><span class=sr-only>Open left menu</span></a>\n" +
     "</button>\n" +
     "<div class=\"flex-column flex-grow-1\" ng-show=srchctrl.LoadingCompleted>\n" +

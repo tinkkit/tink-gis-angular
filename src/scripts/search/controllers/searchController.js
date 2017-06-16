@@ -8,11 +8,19 @@
             vm.EmptyResult = ResultsData.EmptyResult;
             vm.LoadingCompleted = true;
             vm.loadingPercentage = 100;
-            vm.mobile = L.Browser.mobile;
+           
             var percentageupdater = $interval(function () {
                 vm.loadingPercentage = ResultsData.GetRequestPercentage();
                 vm.LoadingCompleted = vm.loadingPercentage >= 100;
             }, 333);
+            vm.asidetoggle = function () {
+                if (L.Browser.mobile) {
+                    let html = $('html');
+                    if (html.hasClass('nav-right-open')) {
+                        html.removeClass('nav-right-open');
+                    }
+                }
+            }
         });
     theController.$inject = ['$scope', 'ResultsData', 'map', '$interval'];
 })();

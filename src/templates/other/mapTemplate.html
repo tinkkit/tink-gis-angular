@@ -13,23 +13,32 @@
                 <div class="map-buttons-left">
                     <div class="ll drawingbtns" ng-show="mapctrl.showDrawControls">
                         <div class="btn-group ">
-                            <button ng-click="mapctrl.selectpunt()" ng-class="{active: mapctrl.drawingType==''}" type="button" class="btn" prevent-default-map tink-tooltip="Selecteer met een punt" tink-tooltip-align="bottom"><i class="fa fa-circle" style="font-size: 0.75em;"></i></button>
-                            <button ng-click="mapctrl.drawingButtonChanged('lijn')" ng-class="{active: mapctrl.drawingType=='lijn'}" type="button" class="btn" prevent-default-map tink-tooltip="Selecteer met een lijn" tink-tooltip-align="bottom"><i class="fa fa-minus"></i></button>
-                            <button ng-hide="mapctrl.mobile" ng-click="mapctrl.drawingButtonChanged('vierkant')" ng-class="{active: mapctrl.drawingType=='vierkant'}" type="button" class="btn" prevent-default-map tink-tooltip="Selecteer met een vierkant" tink-tooltip-align="bottom"><i class="fa fa-square-o"></i></button>
-                            <button ng-click="mapctrl.drawingButtonChanged('polygon')" ng-class="{active: mapctrl.drawingType=='polygon'}" type="button" class="btn" prevent-default-map tink-tooltip="Selecteer met een veelhoek" tink-tooltip-align="bottom"><i class="fa fa-star-o"></i></button>
+                            <button ng-click="mapctrl.selectpunt()" ng-class="{active: mapctrl.drawingType==''}" type="button" class="btn" prevent-default-map
+                                tink-tooltip="Selecteer met een punt" tink-tooltip-align="bottom"><i class="fa fa-circle" style="font-size: 0.75em;"></i></button>
+                            <button ng-hide="mapctrl.mobile" ng-click="mapctrl.drawingButtonChanged('lijn')" ng-class="{active: mapctrl.drawingType=='lijn'}"
+                                type="button" class="btn" prevent-default-map tink-tooltip="Selecteer met een lijn" tink-tooltip-align="bottom"><i class="fa fa-minus"></i></button>
+                            <button ng-click="mapctrl.drawingButtonChanged('vierkant')" ng-class="{active: mapctrl.drawingType=='vierkant'}" type="button"
+                                class="btn" prevent-default-map tink-tooltip="Selecteer met een vierkant" tink-tooltip-align="bottom"><i class="fa fa-square-o"></i></button>
+                            <button ng-click="mapctrl.drawingButtonChanged('polygon')" ng-class="{active: mapctrl.drawingType=='polygon'}" type="button"
+                                class="btn" prevent-default-map tink-tooltip="Selecteer met een veelhoek" tink-tooltip-align="bottom"><i class="fa fa-star-o"></i></button>
                         </div>
                         <div class="select">
-                            <select ng-options="layer as layer.name for layer in mapctrl.SelectableLayers()" ng-model="mapctrl.selectedLayer" ng-show="mapctrl.SelectableLayers().length > 1 && !mapctrl.mobile" ng-change="mapctrl.layerChange()" prevent-default-map></select>
+                            <select ng-options="layer as layer.name for layer in mapctrl.SelectableLayers()" ng-model="mapctrl.selectedLayer" ng-show="mapctrl.SelectableLayers().length > 1 && !mapctrl.mobile"
+                                ng-change="mapctrl.layerChange()" prevent-default-map></select>
                         </div>
                     </div>
 
                     <div class="btn-group btn-group-vertical ll interactiebtns">
-                        <button type="button" class="btn" ng-click="mapctrl.interactieButtonChanged('identify')" ng-class="{active: mapctrl.activeInteractieKnop=='identify'}" tink-tooltip="Identificeren" tink-tooltip-align="right" prevent-default-map><i class="fa fa-info"></i></button>
-                        <button type="button" class="btn" ng-click="mapctrl.interactieButtonChanged('select')" ng-class="{active: mapctrl.activeInteractieKnop=='select'}" tink-tooltip="Selecteren" tink-tooltip-align="right" prevent-default-map><i class="fa fa-mouse-pointer"></i></button>
-                        <button type="button" class="btn" ng-click="mapctrl.interactieButtonChanged('meten')" ng-class="{active: mapctrl.activeInteractieKnop=='meten'}" tink-tooltip="Meten" tink-tooltip-align="right" prevent-default-map>
+                        <button type="button" class="btn" ng-click="mapctrl.interactieButtonChanged('identify')" ng-class="{active: mapctrl.activeInteractieKnop=='identify'}"
+                            tink-tooltip="Identificeren" tink-tooltip-align="right" prevent-default-map><i class="fa fa-info"></i></button>
+                        <button type="button" class="btn" ng-click="mapctrl.interactieButtonChanged('select')" ng-class="{active: mapctrl.activeInteractieKnop=='select'}"
+                            tink-tooltip="Selecteren" tink-tooltip-align="right" prevent-default-map><i class="fa fa-mouse-pointer"></i></button>
+                        <button type="button" class="btn" ng-click="mapctrl.interactieButtonChanged('meten')" ng-class="{active: mapctrl.activeInteractieKnop=='meten'}"
+                            tink-tooltip="Meten" tink-tooltip-align="right" prevent-default-map>
                         <svg class="icon icon-sik-ruler"><use xlink:href="#icon-sik-ruler"></use></svg>
                         </button>
-                        <button type="button" class="btn" ng-click="mapctrl.interactieButtonChanged('watishier')" ng-class="{active: mapctrl.activeInteractieKnop=='watishier'}" tink-tooltip="Wat is hier" tink-tooltip-align="right" prevent-default-map>
+                        <button type="button" class="btn" ng-click="mapctrl.interactieButtonChanged('watishier')" ng-class="{active: mapctrl.activeInteractieKnop=='watishier'}"
+                            tink-tooltip="Wat is hier" tink-tooltip-align="right" prevent-default-map>
                         <i class="fa  fa-thumb-tack"></i>
                         </button>
                     </div>
@@ -40,28 +49,33 @@
                     </div>
 
                     <div class="btn-group ll metenbtns" ng-show="mapctrl.showMetenControls">
-                        <button ng-click="mapctrl.drawingButtonChanged('afstand')" ng-class="{active: mapctrl.drawingType=='afstand'}" type="button" tink-tooltip="Meten afstand" tink-tooltip-align="bottom" class="btn" prevent-default-map>
+                        <button ng-click="mapctrl.drawingButtonChanged('afstand')" ng-class="{active: mapctrl.drawingType=='afstand'}" type="button"
+                            tink-tooltip="Meten afstand" tink-tooltip-align="bottom" class="btn" prevent-default-map>
                         <svg class="icon icon-sik-measure-line"><use xlink:href="#icon-sik-measure-line"></use></svg>
                         </button>
-                        <button ng-click="mapctrl.drawingButtonChanged('oppervlakte')" ng-class="{active: mapctrl.drawingType=='oppervlakte'}" type="button" tink-tooltip="Meten oppervlakte en omtrek" tink-tooltip-align="bottom" class="btn" prevent-default-map>
+                        <button ng-click="mapctrl.drawingButtonChanged('oppervlakte')" ng-class="{active: mapctrl.drawingType=='oppervlakte'}" type="button"
+                            tink-tooltip="Meten oppervlakte en omtrek" tink-tooltip-align="bottom" class="btn" prevent-default-map>
                         <svg class="icon icon-sik-measure-shape"><use xlink:href="#icon-sik-measure-shape"></use></svg>
                         </button>
                     </div>
 
                     <div class="btn-group ll searchbtns">
-                        <button type="button" class="btn tooltip-margin-left" ng-class="{active: mapctrl.ZoekenOpLocatie==true}" ng-click="mapctrl.fnZoekenOpLocatie()" tink-tooltip="Zoeken naar locatie" tink-tooltip-align="bottom" prevent-default-map>
+                        <button type="button" class="btn tooltip-margin-left" ng-class="{active: mapctrl.ZoekenOpLocatie==true}" ng-click="mapctrl.fnZoekenOpLocatie()"
+                            tink-tooltip="Zoeken naar locatie" tink-tooltip-align="bottom" prevent-default-map>
                         <svg class="icon icon-sik-location-search"><use xlink:href="#icon-sik-location-search"></use></svg>
                         </button>
-                        <button type="button" class="btn" ng-class="{active: mapctrl.ZoekenOpLocatie==false}" ng-click="mapctrl.ZoekenInLagen()" tink-tooltip="Zoeken binnen lagen" tink-tooltip-align="bottom" prevent-default-map>
+                        <button type="button" class="btn" ng-class="{active: mapctrl.ZoekenOpLocatie==false}" ng-click="mapctrl.ZoekenInLagen()"
+                            tink-tooltip="Zoeken binnen lagen" tink-tooltip-align="bottom" prevent-default-map>
                         <svg class="icon icon-sik-layers-search"><use xlink:href="#icon-sik-layers-search"></use></svg>
 
                         </button>
                     </div>
 
                     <form id="zoekbalken" class="form-force-inline ll zoekbalken">
-                        <select ng-options="layer as layer.name for layer in mapctrl.SelectableLayers()" ng-model="mapctrl.selectedFindLayer" ng-show="mapctrl.SelectableLayers().length > 1" ng-change="mapctrl.findLayerChange()" prevent-default-map></select>
-                        <input
-                            type="search" ng-show="mapctrl.ZoekenOpLocatie == false" placeholder="Geef een zoekterm" prevent-default-map ng-keyup="$event.keyCode == 13 && mapctrl.zoekLaag(mapctrl.laagquery)" ng-model="mapctrl.laagquery" />
+                        <select ng-options="layer as layer.name for layer in mapctrl.SelectableLayers()" ng-model="mapctrl.selectedFindLayer" ng-show="mapctrl.SelectableLayers().length > 1"
+                            ng-change="mapctrl.findLayerChange()" prevent-default-map></select>
+                        <input type="search" ng-show="mapctrl.ZoekenOpLocatie == false" placeholder="Geef een zoekterm" prevent-default-map ng-keyup="$event.keyCode == 13 && mapctrl.zoekLaag(mapctrl.laagquery)"
+                            ng-model="mapctrl.laagquery" />
                     </form>
                 </div>
 
@@ -73,7 +87,8 @@
                         <button type="button" class="btn" ng-click="mapctrl.zoomOut()" tink-tooltip="Zoom uit" tink-tooltip-align="left" prevent-default-map>
                         <i class="fa fa-minus"></i>
                         </button>
-                        <button type="button" class="btn" ng-click="mapctrl.zoomToGps()" ng-class="{active: mapctrl.gpstracking==true}" tink-tooltip="Huidige locatie" tink-tooltip-align="left" prevent-default-map>
+                        <button type="button" class="btn" ng-click="mapctrl.zoomToGps()" ng-class="{active: mapctrl.gpstracking==true}" tink-tooltip="Huidige locatie"
+                            tink-tooltip-align="left" prevent-default-map>
                         <i class="fa fa-crosshairs"></i>
                         </button>
                         <!--<button type="button" class="btn" ng-click="mapctrl.fullExtent()" prevent-default-map><i class="fa fa-home"></i></button>-->
@@ -98,10 +113,12 @@
                 <img class="print-corner-image" src="https://www.antwerpen.be/assets/aOS/gfx/gui/a-logo.svg" alt="Antwerpen logo">
             </div>
             <div class="col-xs-8">
-                Voorbehoud: De kaart is een reproductie zonder juridische waarde. Zij bevat kaartmateriaal en info afkomstig van het stadsbestuur Antwerpen, IV, AAPD, Provinciebesturen en mogelijk nog andere organisaties.
+                Voorbehoud: De kaart is een reproductie zonder juridische waarde. Zij bevat kaartmateriaal en info afkomstig van het stadsbestuur
+                Antwerpen, IV, AAPD, Provinciebesturen en mogelijk nog andere organisaties.
             </div>
             <div class="col-xs-2">
-                <img class="print-corner-image pull-right" src="http://images.vectorhq.com/images/previews/111/north-arrow-orienteering-137692.png" alt="Noord pijl oriëntatielopen">
+                <img class="print-corner-image pull-right" src="http://images.vectorhq.com/images/previews/111/north-arrow-orienteering-137692.png"
+                    alt="Noord pijl oriëntatielopen">
             </div>
         </div>
     </div>
