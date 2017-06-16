@@ -21,22 +21,25 @@
             var init = function () {
                 $scope.searchTerm = '';
             }();
-            $scope.$on("searchChanged", function (event, searchTerm) {
-                $scope.searchTerm = searchTerm;
-                if ($scope.searchTerm.length > 2) {
-                    $scope.clearPreview();
-                    $scope.searchIsUrl = false;
-                    $scope.$parent.geopuntLoading = true;
-                    $scope.QueryGeoPunt($scope.searchTerm, 1);
-                }
-                else {
-                    $scope.availableThemes.length = 0;
-                    $scope.numberofrecordsmatched = 0;
-                    $scope.$parent.geopuntCount = null;
-                    $scope.loading = false;
-                    $scope.$parent.geopuntLoading = false;
-                }
-            });
+            if (!L.Browser.mobile) {
+                $scope.$on("searchChanged", function (event, searchTerm) {
+                    $scope.searchTerm = searchTerm;
+                    if ($scope.searchTerm.length > 2) {
+                        $scope.clearPreview();
+                        $scope.searchIsUrl = false;
+                        $scope.$parent.geopuntLoading = true;
+                        $scope.QueryGeoPunt($scope.searchTerm, 1);
+                    }
+                    else {
+                        $scope.availableThemes.length = 0;
+                        $scope.numberofrecordsmatched = 0;
+                        $scope.$parent.geopuntCount = null;
+                        $scope.loading = false;
+                        $scope.$parent.geopuntLoading = false;
+                    }
+                });
+            }
+
             $scope.QueryGeoPunt = function (searchTerm, page) {
                 $scope.loading = true;
                 $scope.clearPreview();

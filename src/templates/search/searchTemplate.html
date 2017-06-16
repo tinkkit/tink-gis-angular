@@ -9,7 +9,7 @@
             <div class="row extra-padding margin-top">
                 <div class="col-xs-12 text-right">
                    <button ng-click="srchrsltsctrl.deleteDrawing()" tink-tooltip="Verwijder de selectievorm" tink-tooltip-align="right" class="btn"><i class="fa fa-trash" aria-hidden="true"></i></button>
-                   <button ng-hide="mobile" class="btn" ng-click="srchrsltsctrl.bufferFromDrawing()" tink-tooltip="Buffer rond selectievorm" tink-tooltip-align="right">
+                   <button ng-hide="srchrsltsctrl.mobile" class="btn" ng-click="srchrsltsctrl.bufferFromDrawing()" tink-tooltip="Buffer rond selectievorm" tink-tooltip-align="right">
                        <svg class="icon icon-sik-buffer"><use xlink:href="#icon-sik-buffer"></use></svg>
                    </button>
                    <button class="btn btn-primary" ng-click="srchrsltsctrl.zoom2Drawing()">Tonen</button>
