@@ -54,7 +54,8 @@
             if (typeof data == 'string' && data.startsWith('{')) {
                 data = JSON.parse(data);
             }
-            if (data.startsWith('<?xml version="1.0" encoding="UTF-8"?>')) {
+            
+            if (typeof data == 'string' && data.startsWith('<?xml version="1.0" encoding="UTF-8"?>')) {
                 data = data.slice(38).trim();
             }
             return data;

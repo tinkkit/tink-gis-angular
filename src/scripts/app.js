@@ -114,4 +114,24 @@
             }
         }
     });
+    module.directive('autoFocus', function ($timeout) {
+        return {
+            restrict: 'AC',
+            link: function (_scope, _element) {
+                $timeout(function () {
+                    _element[0].focus();
+                }, 0);
+            }
+        };
+    });
+    // module.filter('strLimit', ['$filter', function ($filter) {
+
+    //     return function (input, limit) {
+    //         if (!input) return;
+    //         if (input.length <= limit) {
+    //             return input;
+    //         }
+    //         return $filter('limitTo')(input, limit) + '...';
+    //     };
+    // }]);
 })();

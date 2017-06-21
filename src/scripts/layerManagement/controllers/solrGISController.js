@@ -101,18 +101,20 @@
                                     theme.layersCount = itemMetData.doclist.numFound;
                                 }
                                 itemMetData.doclist.docs.forEach(item => {
-                                    var layer = theme.layers.find(x => x.id == item.key);
-                                    if (!layer) {
-                                        layer = {
-                                            naam: item.titel[0],
-                                            id: item.key,
-                                            isMatch: true,
-                                            featuresCount: 0,
-                                            features: []
-                                        };
-                                        theme.layers.push(layer);
-                                    } else {
-                                        layer.isMatch = true;
+                                    if (item.titel[0].includes(searchterm)) {
+                                        var layer = theme.layers.find(x => x.id == item.key);
+                                        if (!layer) {
+                                            layer = {
+                                                naam: item.titel[0],
+                                                id: item.key,
+                                                isMatch: true,
+                                                featuresCount: 0,
+                                                features: []
+                                            };
+                                            theme.layers.push(layer);
+                                        } else {
+                                            layer.isMatch = true;
+                                        }
                                     }
                                 });
                                 break;
@@ -135,10 +137,21 @@
             };
             $scope.selectedTheme = null;
             $scope.copySelectedTheme = null;
-            $scope.previewTheme = function (theme) {
+            $scope.previewTheme = function (theme, layername) {
                 var alreadyExistingTheme = MapData.Themes.find(x => { return x.CleanUrl === theme.CleanUrl });
                 if (alreadyExistingTheme) {
                     theme = alreadyExistingTheme;
+                }
+                if (layername) {
+                    var layer = theme.AllLayers.find(x => x.name == layername);
+                    if (layer) {
+                        theme.enabled = true;
+                        layer.enabled = true;
+                        layer.AllLayers.forEach(x => x.enabled = true);
+                        if (layer.parent) {
+                            layer.parent.enabled = true;
+                        }
+                    }
                 }
                 $scope.selectedTheme = theme;
                 $scope.copySelectedTheme = angular.copy(theme);
@@ -148,14 +161,14 @@
                 $scope.copySelectedTheme = null;
                 $scope.error = null;
             };
-            $scope.solrThemeChanged = function (theme) {
+            $scope.solrThemeChanged = function (theme, layername) {
                 $scope.clearPreview();
                 $scope.themeloading = true;
 
                 GISService.GetThemeData(theme.url).then(function (data, status, functie, getdata) {
                     if (!data.error) {
                         var convertedTheme = ThemeCreater.createARCGISThemeFromJson(data, theme);
-                        $scope.previewTheme(convertedTheme);
+                        $scope.previewTheme(convertedTheme, layername);
                     } else {
                         PopupService.ErrorFromHTTP(data.error, status, theme.url);
                         $scope.error = "Fout bij het laden van de mapservice.";
@@ -173,6 +186,7 @@
                 };
             };
             $scope.AddOrUpdateTheme = function () {
+                PopupService.Success("Data is bijgewerkt.");
                 LayerManagementService.AddOrUpdateTheme($scope.selectedTheme, $scope.copySelectedTheme);
                 $scope.clearPreview();
             };

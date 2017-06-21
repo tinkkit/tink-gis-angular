@@ -8,7 +8,8 @@
     }
     module.controller('previewLayerController', ['$scope',
         function ($scope) {
-            if($scope.theme.Added == false) {
+            console.log($scope.theme);
+            if($scope.theme.Added == false && !$scope.theme.AllLayers.some(x=>x.enabled)) {
                 $scope.theme.enabled = false;
             }
             $scope.delTheme = function () {

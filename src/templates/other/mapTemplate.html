@@ -17,8 +17,8 @@
                                 tink-tooltip="Selecteer met een punt" tink-tooltip-align="bottom"><i class="fa fa-circle" style="font-size: 0.75em;"></i></button>
                             <button ng-hide="mapctrl.mobile" ng-click="mapctrl.drawingButtonChanged('lijn')" ng-class="{active: mapctrl.drawingType=='lijn'}"
                                 type="button" class="btn" prevent-default-map tink-tooltip="Selecteer met een lijn" tink-tooltip-align="bottom"><i class="fa fa-minus"></i></button>
-                            <button ng-click="mapctrl.drawingButtonChanged('vierkant')" ng-class="{active: mapctrl.drawingType=='vierkant'}" type="button"
-                                class="btn" prevent-default-map tink-tooltip="Selecteer met een vierkant" tink-tooltip-align="bottom"><i class="fa fa-square-o"></i></button>
+                            <button ng-hide="mapctrl.mobile" ng-click="mapctrl.drawingButtonChanged('vierkant')" ng-class="{active: mapctrl.drawingType=='vierkant'}" type="button"
+                                class="btn" prevent-default-map tink-tooltip="Selecteer met een rechthoek" tink-tooltip-align="bottom"><i class="fa fa-square-o"></i></button>
                             <button ng-click="mapctrl.drawingButtonChanged('polygon')" ng-class="{active: mapctrl.drawingType=='polygon'}" type="button"
                                 class="btn" prevent-default-map tink-tooltip="Selecteer met een veelhoek" tink-tooltip-align="bottom"><i class="fa fa-star-o"></i></button>
                         </div>
@@ -72,7 +72,7 @@
                     </div>
 
                     <form id="zoekbalken" class="form-force-inline ll zoekbalken">
-                        <select ng-options="layer as layer.name for layer in mapctrl.SelectableLayers()" ng-model="mapctrl.selectedFindLayer" ng-show="mapctrl.SelectableLayers().length > 1"
+                        <select ng-options="layer as layer.name for layer in mapctrl.SelectableLayers()" ng-model="mapctrl.selectedFindLayer" ng-show="mapctrl.SelectableLayers().length > 1 && mapctrl.SelectableLayers()"
                             ng-change="mapctrl.findLayerChange()" prevent-default-map></select>
                         <input type="search" ng-show="mapctrl.ZoekenOpLocatie == false" placeholder="Geef een zoekterm" prevent-default-map ng-keyup="$event.keyCode == 13 && mapctrl.zoekLaag(mapctrl.laagquery)"
                             ng-model="mapctrl.laagquery" />

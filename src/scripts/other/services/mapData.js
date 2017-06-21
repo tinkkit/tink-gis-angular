@@ -10,7 +10,7 @@
         _data.TempExtendFeatures = [];
         _data.IsDrawing = false;
         _data.Themes = [];
-        _data.defaultlayer = { id: '', name: 'Alle Layers' };
+        _data.defaultlayer = { id: '', name: 'Alle lagen' };
         _data.VisibleLayers.unshift(_data.defaultlayer);
         _data.SelectedLayer = _data.defaultlayer;
         _data.DrawLayer = null;

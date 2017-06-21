@@ -61,19 +61,20 @@
         }
         vm.interactieButtonChanged = function (ActiveButton) {
             if (vm.activeInteractieKnop != ActiveButton) {
-                if (ActiveButton == "identify" || "watishier") {
-                    MapData.ExtendedType = null;
-                    vm.addCursorAuto();
-                }
                 MapData.ActiveInteractieKnop = ActiveButton; // If we only could keep the vmactiveInteractieKnop in sync with the one from MapData
                 vm.activeInteractieKnop = ActiveButton;
                 MapData.ShowMetenControls = false;
                 MapData.ShowDrawControls = false;
                 switch (ActiveButton) {
+                    case ActiveInteractieButton.IDENTIFY:
+                    case ActiveInteractieButton.WATISHIER:
+                        MapData.ExtendedType = null;
+                        vm.addCursorAuto();
+                        break;
                     case ActiveInteractieButton.SELECT:
                         MapData.ShowDrawControls = true;
                         MapData.DrawingType = DrawingOption.GEEN; // pff must be possible to be able to sync them...
-
+                        vm.selectpunt();
                         break;
                     case ActiveInteractieButton.METEN:
                         MapData.ExtendedType = null;

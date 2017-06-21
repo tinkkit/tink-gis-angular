@@ -37,7 +37,7 @@
 
         _service.QuerySOLRGIS = function (search) {
             var prom = $q.defer();
-            var url = Solr.BaseUrl + 'giszoek/solr/search?q=*' + search + '*&wt=json&indent=true&facet=true&rows=999&facet.field=parent&group=true&group.field=parent&group.limit=5&solrtype=gis';
+            var url = Solr.BaseUrl + 'giszoek/solr/search?q=*' + search + '*&wt=json&indent=true&facet=true&rows=999&facet.field=parent&group=true&group.field=parent&group.limit=999&solrtype=gis'; // &group.limit=5
             $http.get(url)
                 .success(function (data, status, headers, config) {
                     prom.resolve(data);
@@ -49,7 +49,7 @@
         };
         _service.QuerySOLRLocatie = function (search) {
             var prom = $q.defer();
-            var url = Solr.BaseUrl + 'giszoek/solr/search?q=*' + search + '*&wt=json&indent=true&rows=50&solrtype=gislocaties&dismax=true&bq=exactName:DISTRICT^20000.0&bq=layer:WEGENREGISTER_STRAATAS_XY^20000.0';
+            var url = Solr.BaseUrl + 'giszoek/solr/search?q=*' + search + '*&wt=json&indent=true&rows=50&solrtype=gislocaties&dismax=true&bq=exactName:DISTRICT^20000.0&bq=layer:straatnaam^20000.0';
             $http.get(url)
                 .success(function (data, status, headers, config) {
                     // data = HelperService.UnwrapProxiedData(data);

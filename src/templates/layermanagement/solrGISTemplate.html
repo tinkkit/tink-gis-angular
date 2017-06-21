@@ -3,23 +3,26 @@
         <div class="overflow-wrapper flex-grow-1 list-selectable margin-top margin-bottom border-right">
             <div ng-show="loading == false" ng-repeat="theme in availableThemes">
                 <dl ng-class="{active: isActive(theme)}">
-                    <a href="#" class="theme-layer" ng-click="solrThemeChanged(theme)">
-                        <dt>{{theme.name}}</dt>
 
-                        <dd ng-repeat="layer in theme.layers">
-                            <span class="">{{layer.naam}}
+                    <dt><a href="#" class="theme-layer" ng-click="solrThemeChanged(theme)">{{theme.name}}</a></dt>
+
+                    <dd ng-repeat="layer in theme.layers">
+                        <a href="#" class="theme-layer" ng-click="solrThemeChanged(theme, layer.naam)">
+                        <span class="">{{layer.naam}}
                             <span ng-show="layer.featuresCount > 0"> ({{layer.featuresCount}})</span>
-                            </span>
-                            <div class="featureinsolr">
-                                {{layer.features.join(', ')}}
-                            </div>
-                        </dd>
-                    </a>
+                        </span>
+                        <div class="featureinsolr">
+                            {{layer.features.join(', ')}}
+                        </div>
+                        </a>
+                    </dd>
+
                 </dl>
             </div>
         </div>
         <div ng-show="loading == false">
-            <tink-pagination ng-hide="numberofrecordsmatched <= 5" tink-current-page="currentPage" tink-change="pageChanged(page,perPage,next)" tink-total-items="numberofrecordsmatched" tink-items-per-page="recordsAPage"></tink-pagination>
+            <tink-pagination ng-hide="numberofrecordsmatched <= 5" tink-current-page="currentPage" tink-change="pageChanged(page,perPage,next)"
+                tink-total-items="numberofrecordsmatched" tink-items-per-page="recordsAPage"></tink-pagination>
         </div>
         <div ng-if="loading == true" class="loader">
 

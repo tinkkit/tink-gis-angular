@@ -275,6 +275,7 @@ button.btn.active {
       top: 7.5rem ; } }
 
 .kaarttypes {
+  z-index: 9999;
   left: 0.7142857143rem ;
   bottom: 0.7142857143rem ; }
   @media (min-width: 768px) {
@@ -799,6 +800,9 @@ html.nav-right-open .nav-right-toggle:before {
   height: 100%;
   width: 100%; }
 
+html.print .leaflet-control-scale-line {
+  margin-left: 0.0714285714rem  !important; }
+
 html.print .map-buttons-left,
 html.print .map-buttons-right,
 html.print .tink-layers,
@@ -848,9 +852,6 @@ html.print .print-content {
 
 html.print .print-map {
   height: 212mm; }
-
-html.print .print .leaflet-control-scale-line {
-  margin-left: 0.6428571429rem ; }
 
 html.print .print-menu {
   display: block; }

@@ -158,6 +158,7 @@ button.btn.active {
 }
 
 .kaarttypes {
+  z-index: 9999;
   left: rem($map-buttons-position-left-xs);
   bottom: rem(10);
 
@@ -927,7 +928,9 @@ html.nav-right-open {
 // when print menu is active
 
 html.print {
-
+    .leaflet-control-scale-line {
+      margin-left: rem(1) !important;
+    }
   .map-buttons-left,
   .map-buttons-right,
   .tink-layers,
@@ -1003,9 +1006,7 @@ html.print {
         height: 212mm;
     }
 
-    .leaflet-control-scale-line {
-      margin-left: rem(9);
-    }
+
   }
 
   .print-menu {

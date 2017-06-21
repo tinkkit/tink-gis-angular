@@ -39,7 +39,7 @@
         };
         _popupService.ErrorWithException = function (title, message, exception, options) {
             var callback = function () { _popupService.ExceptionFunc(exception) };
-            _popupService.popupGenerator('Error', title, message, callback, options)
+            _popupService.Error(title, message, callback, options)
         };
         _popupService.ErrorFromHttp = function (data, status, url) {
             _popupService.ErrorFromHTTP(data, status, url);
@@ -53,10 +53,10 @@
             var message = 'Fout met het navigeren naar url: ' + baseurl;
             var exception = { url: url, status: status, data: data };
             var callback = function () { _popupService.ExceptionFunc(exception) };
-            _popupService.popupGenerator('Error', title, message, callback)
+            _popupService.Error(title, message, callback);
         };
         _popupService.Error = function (title, message, callback, options) {
-            _popupService.popupGenerator('Error', title, message, callback, options)
+            _popupService.popupGenerator('Error', title, message + "\nKlik hier om te melden.", callback, options)
         };
         _popupService.Warning = function (title, message, callback, options) {
             _popupService.popupGenerator('Warning', title, message, callback, options)

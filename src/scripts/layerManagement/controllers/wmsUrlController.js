@@ -62,6 +62,7 @@
             };
 
             $scope.AddOrUpdateTheme = function () {
+                PopupService.Success("Data is bijgewerkt.");
                 LayerManagementService.AddOrUpdateTheme($scope.selectedTheme, $scope.copySelectedTheme);
                 $scope.clearPreview();
             };

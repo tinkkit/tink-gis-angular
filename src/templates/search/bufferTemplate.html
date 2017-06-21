@@ -14,7 +14,7 @@
             <div class="form-group">
               <label for="select">Selecteer de laag:</label>
               <div class="select">
-                <select ng-options="layer as layer.name for layer in SelectableLayers" ng-model="selectedLayer" prevent-default></select>
+                <select ng-options="layer as layer.name for layer in SelectableLayers" ng-keydown="$event.keyCode === 13 && ok()" ng-model="selectedLayer" prevent-default></select>
               </div>
             </div>
         </div>
@@ -24,7 +24,7 @@
         <div class="col-xs-12">
             <div class="form-group">
               <label for="input-number">Geef de bufferafstand (m):</label>
-              <input type="number" class="hide-spin-button" ng-model="buffer">
+              <input type="number"  ng-keydown="$event.keyCode === 13 && ok()" class="hide-spin-button" ng-model="buffer" auto-focus>
             </div>
         </div>
     </div>
