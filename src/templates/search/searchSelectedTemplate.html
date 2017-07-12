@@ -23,7 +23,7 @@
             <dt>{{ prop.key}}</dt>
             <div ng-if="prop.value.toLowerCase() != 'null'">
                 <a ng-if="prop.value.indexOf('https://')==0 || prop.value.indexOf( 'http://')==0 " ng-href="{{prop.value}}" target="_blank">% Link</a>
-                <dd ng-if="prop.value.indexOf('https://') !=0 && prop.value.indexOf( 'http://') !=0 ">{{ prop.value }}</dd>
+                <dd class="" ng-if="prop.value.indexOf('https://') !=0 && prop.value.indexOf( 'http://') !=0 "><pre>{{ prop.value }}</pre></dd>
             </div>
         </dl>
     </div>

@@ -75,7 +75,9 @@
                             }
                             if (MapData.DrawingType === DrawingOption.NIETS) {
                                 MapService.Select(event);
-                                MapData.SetDrawPoint(event.latlng);
+                                if(MapData.ExtendedType === null) {
+                                    MapData.SetDrawPoint(event.latlng);
+                                }
                                 UIService.OpenLeftSide();
                                 _mapEvents.removeCursorAuto();
                                 $rootScope.$applyAsync(function () {
@@ -83,7 +85,7 @@
                                     MapData.ShowDrawControls = false;
                                     MapData.ActiveInteractieKnop = ActiveInteractieButton.GEEN;
                                 });
-                            } // else wait for a drawing finished
+                            }
                             break;
                         case ActiveInteractieButton.WATISHIER:
                             MapData.CleanWatIsHier();

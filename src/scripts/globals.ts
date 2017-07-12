@@ -19,6 +19,7 @@ var ActiveInteractieButton = {
 var Gis = {
     Arcgissql: '',
     BaseUrl: 'https://geoint.antwerpen.be/',
+    PublicBaseUrl: 'https://geodata.antwerpen.be/',
     LocatieUrl: 'https://geoint-a.antwerpen.be/arcgissql/rest/services/A_DA/Locaties/MapServer',
     GeometryUrl: 'https://geoint.antwerpen.be/arcgissql/rest/services/Utilities/Geometry/GeometryServer/buffer'
 }

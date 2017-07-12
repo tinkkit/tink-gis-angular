@@ -62,7 +62,7 @@
         };
         var completeUrl = function (url) {
             var baseurl = Gis.BaseUrl + 'arcgissql/rest/';
-            if (!url.contains('arcgissql/rest/')) {
+            if (!url.contains('arcgissql/rest/') && !url.contains('arcgis/rest/')) {
                 url = baseurl + url;
             }
             return url
@@ -71,7 +71,11 @@
             var prom = $q.defer();
 
             var url = completeUrl(mapserver) + '?f=pjson';
-            $http.get(url)
+            var opts = {};
+            if(url.toLowerCase().includes("p_sik")){
+                opts.withCredentials= true;
+            }
+            $http.get(url, opts)
                 .success(function (data, status, headers, config) {
                     // data = HelperService.UnwrapProxiedData(data);
                     prom.resolve(data);
@@ -112,7 +116,7 @@
         };
         _service.GetAditionalLayerInfo = function (theme) {
 
-            var promLegend = _service.GetLegendData(theme.CleanUrl);
+            var promLegend = _service.GetLegendData(theme.cleanUrl);
             promLegend.then(function (data) {
                 theme.AllLayers.forEach(layer => {
                     var layerid = layer.id;
@@ -123,12 +127,11 @@
                         layer.legend.forEach(legenditem => {
 
                             legenditem.fullurl = "data:" + legenditem.contentType + ";base64," + legenditem.imageData;
-                            // legenditem.fullurl = theme.CleanUrl + '/' + layerInfo.layerId + '/images/' + legenditem.url;
                         });
                     }
                 });
             });
-            var promLayerData = _service.GetThemeLayerData(theme.CleanUrl);
+            var promLayerData = _service.GetThemeLayerData(theme.cleanUrl);
             promLayerData.then(function (data) {
                 theme.AllLayers.forEach(layer => {
                     var layerid = layer.id;

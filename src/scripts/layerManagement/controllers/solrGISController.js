@@ -35,6 +35,23 @@
                     $scope.$parent.solrLoading = false;
                 }
             });
+            var generateUrl = function (themeName, type) {
+                var url = "";
+                switch (type.toLowerCase()) {
+                    case "p_sik":
+                        url = Gis.BaseUrl + 'arcgis/rest/services/P_Sik/' + themeName + '/MapServer';
+                        break;
+                    case "p_stad":
+                        url = Gis.BaseUrl + 'arcgissql/rest/services/P_Stad/' + themeName + '/MapServer';
+                        break;
+                    case "p_publiek":
+                        url = Gis.PublicBaseUrl + 'arcgissql/rest/services/P_Publiek/' + themeName + '/MapServer';
+                        break;
+                    default:
+                        throw error("invalid type: " + type + ". p_sik p_stad p_publiek only valid now.");
+                }
+                return url;
+            }
             $scope.QueryGISSOLR = function (searchterm, page) {
                 $scope.loading = true;
 
@@ -87,14 +104,17 @@
                                 break;
                             case "Layer":
                                 var themeName = itemMetData.groupValue.split('/')[1];
+                                var type = itemMetData.groupValue.split('/')[0];
+                                var url = generateUrl(themeName, type);
+
                                 var theme = themes.find(x => x.name == themeName)
                                 if (!theme) {
                                     theme = {
                                         layers: [],
                                         layersCount: itemMetData.doclist.numFound,
                                         name: themeName,
-                                        cleanUrl: Gis.BaseUrl + 'arcgissql/rest/services/P_Stad/' + themeName + '/MapServer',
-                                        url: 'services/P_Stad/' + themeName + '/MapServer'
+                                        cleanUrl: url,
+                                        url: 'services/' + type +'/' + themeName + '/MapServer'
                                     }
                                     themes.push(theme);
                                 } else {
@@ -138,7 +158,7 @@
             $scope.selectedTheme = null;
             $scope.copySelectedTheme = null;
             $scope.previewTheme = function (theme, layername) {
-                var alreadyExistingTheme = MapData.Themes.find(x => { return x.CleanUrl === theme.CleanUrl });
+                var alreadyExistingTheme = MapData.Themes.find(x => { return x.cleanUrl === theme.cleanUrl });
                 if (alreadyExistingTheme) {
                     theme = alreadyExistingTheme;
                 }
@@ -165,12 +185,12 @@
                 $scope.clearPreview();
                 $scope.themeloading = true;
 
-                GISService.GetThemeData(theme.url).then(function (data, status, functie, getdata) {
+                GISService.GetThemeData(theme.cleanUrl).then(function (data, status, functie, getdata) {
                     if (!data.error) {
                         var convertedTheme = ThemeCreater.createARCGISThemeFromJson(data, theme);
                         $scope.previewTheme(convertedTheme, layername);
                     } else {
-                        PopupService.ErrorFromHTTP(data.error, status, theme.url);
+                        PopupService.ErrorFromHTTP(data.error, status, theme.cleanUrl);
                         $scope.error = "Fout bij het laden van de mapservice.";
                     }
                     $scope.themeloading = false;

@@ -20,7 +20,7 @@
             console.log("RestVisLayers");
             var curSelectedLayer = _data.SelectedLayer || _data.defaultlayer;
             _data.VisibleLayers.length = 0;
-            _data.Themes.forEach(x => {
+            _data.Themes.filter(x=>x.Type === ThemeType.ESRI).forEach(x => {
                 _data.VisibleLayers = _data.VisibleLayers.concat(x.VisibleLayers);
             });
             _data.VisibleLayers = _data.VisibleLayers.sort(x => x.title);

@@ -26,7 +26,7 @@
             $scope.previewTheme = function (theme) {
                 console.log('themeChanged');
                 console.log(theme);
-                var alreadyExistingTheme = MapData.Themes.find(x => { return x.CleanUrl === theme.CleanUrl });
+                var alreadyExistingTheme = MapData.Themes.find(x => { return x.cleanUrl === theme.cleanUrl });
                 if (alreadyExistingTheme) {
                     theme = alreadyExistingTheme;
                 }

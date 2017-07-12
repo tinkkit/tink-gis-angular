@@ -6,7 +6,6 @@
     } catch (e) {
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'tink.modal']); //'leaflet-directive'
     }
-    // module.$inject = ['MapData', 'map', 'GISService', 'ThemeCreater', 'WMSService', 'ThemeService', '$q','BaseLayersService'];
 
     var popupService = function () {
         var _popupService = {};

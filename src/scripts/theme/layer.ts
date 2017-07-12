@@ -84,7 +84,7 @@ namespace TinkGis {
             this.id = this.name; //names are the ids of the layer in wms
         }
         get legendUrl(): string {
-            return this.theme.CleanUrl + '?Service=WMS&REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&LAYER=' + this.id;
+            return this.theme.cleanUrl + '?Service=WMS&REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&LAYER=' + this.id;
         };
     }
     export class argislegend {

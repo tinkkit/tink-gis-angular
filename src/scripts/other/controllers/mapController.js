@@ -7,7 +7,7 @@
         var init = function () {
             console.log('Tink-Gis-Angular component init!!!!!!!!!');
             if (window.location.href.startsWith('http://localhost:9000/')) {
-                var externproj = JSON.parse('{"naam":"Velo en fietspad!!","extent":{"_northEast":{"lat":"51.2336102032025","lng":"4.41993402409611"},"_southWest":{"lat":"51.1802290498612","lng":"4.38998297870121"}},"guid":"bfc88ea3-8581-4204-bdbc-b5f54f46050d","extentString":"51.2336102032025,4.41993402409611,51.1802290498612,4.38998297870121","isKaart":true,"uniqId":3,"creatorId":6,"creator":null,"createDate":"2016-08-22T10:55:15.525994","updaterId":6,"updater":null,"lastUpdated":"2016-08-22T10:55:15.525994","themes":[{"cleanUrl":"services/P_Stad/Mobiliteit/MapServer","naam":"Mobiliteit","type":"esri","visible":true,"layers":[{"id":"9","name":"fietspad","visible":true},{"id":"6","name":"velo","visible":true},{"id":"0","name":"Fiets en voetganger","visible":true}]}],"isReadOnly":false}');
+                var externproj = JSON.parse('{"naam":"Velo en fietspad!!","extent":{"_northEast":{"lat":"51.2336102032025","lng":"4.41993402409611"},"_southWest":{"lat":"51.1802290498612","lng":"4.38998297870121"}},"guid":"bfc88ea3-8581-4204-bdbc-b5f54f46050d","extentString":"51.2336102032025,4.41993402409611,51.1802290498612,4.38998297870121","isKaart":true,"uniqId":3,"creatorId":6,"creator":null,"createDate":"2016-08-22T10:55:15.525994","updaterId":6,"updater":null,"lastUpdated":"2016-08-22T10:55:15.525994","themes":[{"cleanUrl":"services/P_Stad/Mobiliteit/MapServer","naam":"Mobiliqsdfteit","type":"esri","visible":true,"layers":[{"id":"9","name":"fietspad","visible":true},{"id":"6","name":"velo","visible":true},{"id":"0","name":"Fiets en voetganger","visible":true}]}],"isReadOnly":false}');
                 ExternService.Import(externproj);
 
                 PopupService.Success("Dev autoload", 'Velo en fietspad loaded because you are in DEV.', function () { alert('onclicktestje'); })
@@ -125,7 +125,7 @@
                 }
             }
 
-            MapData.DrawingType = drawOption; // pff must be possible to be able to sync them...
+            MapData.DrawingType = drawOption;
             vm.drawingType = drawOption;
             DrawService.StartDraw(drawOption);
 
@@ -135,7 +135,7 @@
 
 
         vm.selectpunt = function () {
-            MapData.DrawingType = DrawingOption.NIETS; // pff must be possible to be able to sync them...
+            MapData.DrawingType = DrawingOption.NIETS;
             vm.drawingType = DrawingOption.NIETS;
             if (MapData.ExtendedType == null) { // else we don t have to clean the map!
                 MapData.CleanMap();

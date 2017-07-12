@@ -7,10 +7,6 @@
         module = angular.module('tink.gis', ['tink.navigation', 'tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter', 'tink.pagination', 'tink.tooltip', 'ngAnimate']); //'leaflet-directive'
     }
 
-
-
-
-
     JXON.config({
         attrPrefix: '',              // default: '@'
         autoDate: false              // default: true

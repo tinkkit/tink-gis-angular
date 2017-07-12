@@ -26,7 +26,7 @@
             };
             var createWMS = function (url) {
                 $scope.clearPreview();
-                var wms = MapData.Themes.find(x => x.CleanUrl == url);
+                var wms = MapData.Themes.find(x => x.cleanUrl == url);
                 if (wms == undefined) {
                     var getwms = WMSService.GetThemeData(url);
                     $scope.themeloading = true;

@@ -32,11 +32,14 @@
             var exportObject = {};
             var arr = MapData.Themes.map(theme => {
                 let returnitem = {};
+                if(!theme.Naam) {
+                    theme.Naam = "no_title_found"
+                }
                 returnitem.Naam = theme.Naam;
                 if (theme.Type == ThemeType.ESRI) {
                     returnitem.cleanUrl = theme.Url;
                 } else {
-                    returnitem.cleanUrl = theme.CleanUrl || theme.Url;
+                    returnitem.cleanUrl = theme.cleanUrl || theme.Url;
                 }
 
                 returnitem.type = theme.Type;
@@ -97,7 +100,7 @@
                 var orderedArray = [];
                 var errorMessages = [];
                 project.themes.forEach(theme => {
-                    var realTheme = themesArray.find(x => x.CleanUrl == theme.cleanUrl);
+                    var realTheme = themesArray.find(x => x.cleanUrl == theme.cleanUrl);
                     realTheme.Visible = theme.visible;
                     console.log(theme, ' vs real theme: ', realTheme);
                     if (realTheme.AllLayers.length == theme.layers.length) {
@@ -122,7 +125,7 @@
                     });
                 });
                 project.themes.forEach(theme => { // lets order them, since we get themesArray filled by async calls, the order can be wrong, thats why we make an ordered array
-                    var realTheme = themesArray.find(x => x.CleanUrl == theme.cleanUrl);
+                    var realTheme = themesArray.find(x => x.cleanUrl == theme.cleanUrl);
                     orderedArray.unshift(realTheme);
                     realTheme.status = ThemeStatus.NEW; // and make sure they are new, ready to be added.
 

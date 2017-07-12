@@ -73,7 +73,7 @@ var TinkGis;
             this.id = this.name;
         }
         get legendUrl() {
-            return this.theme.CleanUrl + '?Service=WMS&REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&LAYER=' + this.id;
+            return this.theme.cleanUrl + '?Service=WMS&REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&LAYER=' + this.id;
         }
         ;
     }

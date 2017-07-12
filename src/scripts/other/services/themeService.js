@@ -7,7 +7,7 @@
             console.log('Themes batch for add and updates...');
             console.log(themesBatch);
             themesBatch.forEach(theme => {
-                var existingTheme = MapData.Themes.find(x => { return x.CleanUrl == theme.CleanUrl });
+                var existingTheme = MapData.Themes.find(x => { return x.cleanUrl == theme.cleanUrl });
                 console.log('addorupdate or del theme, ', theme, theme.status);
                 switch (theme.status) {
                     case ThemeStatus.NEW:
@@ -89,7 +89,7 @@
                     theme.MapData = L.esri.dynamicMapLayer({
                         maxZoom: 19,
                         minZoom: 0,
-                        url: theme.CleanUrl,
+                        url: theme.cleanUrl,
                         opacity: 1,
                         layers: visLayerIds,
                         continuousWorld: true,
@@ -106,7 +106,7 @@
 
                     break;
                 case ThemeType.WMS:
-                    theme.MapData = L.tileLayer.betterWms(theme.CleanUrl, {
+                    theme.MapData = L.tileLayer.betterWms(theme.cleanUrl, {
                         maxZoom: 19,
                         minZoom: 0,
                         format: 'image/png',

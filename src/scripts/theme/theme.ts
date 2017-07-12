@@ -4,7 +4,7 @@ namespace TinkGis {
         Naam: string;
         name: string;
         Description: string;
-        CleanUrl: string;
+        cleanUrl: string;
         Url: string;
 
         Visible: boolean;
@@ -58,7 +58,7 @@ namespace TinkGis {
             let rawlayers: any[] = rawdata.layers;
             this.name = this.Naam = rawdata.documentInfo.Title;
             this.Description = rawdata.documentInfo.Subject;
-            this.CleanUrl = themeData.cleanUrl;
+            this.cleanUrl = themeData.cleanUrl;
             let cleanurlSplitted = themeData.cleanUrl.split('/');
             this.Url = cleanurlSplitted[5] + '/' + cleanurlSplitted[6] + '/' + cleanurlSplitted[7] + '/' + cleanurlSplitted[8];
             this.Visible = true;
@@ -103,7 +103,7 @@ namespace TinkGis {
             // this.Title = returnjson.service.title;
             this.enabled = true;
             this.Visible = true;
-            this.CleanUrl = url;
+            this.cleanUrl = url;
             this.Added = false;
             this.status = ThemeStatus.NEW;
             this.Description = data.service.abstract;

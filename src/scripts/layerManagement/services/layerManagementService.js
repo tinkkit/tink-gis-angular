@@ -26,7 +26,7 @@
                     noneChecked = false;
                 }
             }
-            var alreadyAdded = MapData.Themes.find(x => { return x.CleanUrl === selectedTheme.CleanUrl }) != undefined;
+            var alreadyAdded = MapData.Themes.find(x => { return x.cleanUrl === selectedTheme.cleanUrl }) != undefined;
             if (alreadyAdded) {
                 if (hasAChange) {
                     selectedTheme.status = ThemeStatus.UPDATED;
