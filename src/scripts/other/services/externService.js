@@ -106,34 +106,39 @@
                 var errorMessages = [];
                 project.themes.forEach(theme => {
                     var realTheme = themesArray.find(x => x.cleanUrl == theme.cleanUrl);
-                    realTheme.Visible = theme.visible;
-                    console.log(theme, ' vs real theme: ', realTheme);
-                    if (realTheme.AllLayers.length == theme.layers.length) {
-                        realTheme.Added = true; //all are added 
-                    }
-                    else {
-                        realTheme.Added = null; // some are added, never false because else we woudn't save it.
-                    }
-                    realTheme.AllLayers.forEach(layer => {
-                        layer.enabled = false;  // lets disable all layers first
-                    });
-                    //lets check what we need to enable and set visiblity of, and also check what we don't find
-                    theme.layers.forEach(layer => {
-                        var realLayer = realTheme.AllLayers.find(x => x.title == layer.name);
-                        if (realLayer) {
-                            realLayer.visible = layer.visible; // aha so there was a layer, lets save this
-                            realLayer.enabled = true;
+                    if (realTheme) {
+                        console.log(theme, ' vs real theme: ', realTheme);
+                        realTheme.Visible = theme.visible;
+
+                        if (realTheme.AllLayers.length == theme.layers.length) {
+                            realTheme.Added = true; //all are added 
                         }
                         else {
-                            errorMessages.push('"' + layer.name + '" not found in mapserver: ' + realTheme.Naam + '.');
+                            realTheme.Added = null; // some are added, never false because else we woudn't save it.
                         }
-                    });
+                        realTheme.AllLayers.forEach(layer => {
+                            layer.enabled = false;  // lets disable all layers first
+                        });
+                        //lets check what we need to enable and set visiblity of, and also check what we don't find
+                        theme.layers.forEach(layer => {
+                            var realLayer = realTheme.AllLayers.find(x => x.title == layer.name);
+                            if (realLayer) {
+                                realLayer.visible = layer.visible; // aha so there was a layer, lets save this
+                                realLayer.enabled = true;
+                            }
+                            else {
+                                errorMessages.push('"' + layer.name + '" not found in mapserver: ' + realTheme.Naam + '.');
+                            }
+                        });
+                    }
+
                 });
                 project.themes.forEach(theme => { // lets order them, since we get themesArray filled by async calls, the order can be wrong, thats why we make an ordered array
                     var realTheme = themesArray.find(x => x.cleanUrl == theme.cleanUrl);
-                    orderedArray.unshift(realTheme);
-                    realTheme.status = ThemeStatus.NEW; // and make sure they are new, ready to be added.
-
+                    if (realTheme) {
+                        orderedArray.unshift(realTheme);
+                        realTheme.status = ThemeStatus.NEW; // and make sure they are new, ready to be added.
+                    }
                 });
                 ThemeService.AddAndUpdateThemes(orderedArray);
                 console.log('all loaded');
