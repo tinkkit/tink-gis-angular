@@ -2849,7 +2849,7 @@ var esri2geo = {};
                             var arcgistheme = ThemeCreater.createARCGISThemeFromJson(data, theme);
                             themesArray.push(arcgistheme);
                         } else {
-                            PopupService.ErrorFromHTTP(data.error, data.error.code, theme.cleanUrl);
+                            PopupService.ErrorWithException("Fout bij laden van mapservice", "Kan mapservice met volgende url niet laden: " + theme.cleanUrl, data.error);
                         }
                     });
                 } else {
