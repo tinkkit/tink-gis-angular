@@ -2872,36 +2872,41 @@ var esri2geo = {};
                     var realTheme = themesArray.find(function (x) {
                         return x.cleanUrl == theme.cleanUrl;
                     });
-                    realTheme.Visible = theme.visible;
-                    console.log(theme, ' vs real theme: ', realTheme);
-                    if (realTheme.AllLayers.length == theme.layers.length) {
-                        realTheme.Added = true; //all are added 
-                    } else {
-                        realTheme.Added = null; // some are added, never false because else we woudn't save it.
-                    }
-                    realTheme.AllLayers.forEach(function (layer) {
-                        layer.enabled = false; // lets disable all layers first
-                    });
-                    //lets check what we need to enable and set visiblity of, and also check what we don't find
-                    theme.layers.forEach(function (layer) {
-                        var realLayer = realTheme.AllLayers.find(function (x) {
-                            return x.title == layer.name;
-                        });
-                        if (realLayer) {
-                            realLayer.visible = layer.visible; // aha so there was a layer, lets save this
-                            realLayer.enabled = true;
+                    if (realTheme) {
+                        console.log(theme, ' vs real theme: ', realTheme);
+                        realTheme.Visible = theme.visible;
+
+                        if (realTheme.AllLayers.length == theme.layers.length) {
+                            realTheme.Added = true; //all are added 
                         } else {
-                            errorMessages.push('"' + layer.name + '" not found in mapserver: ' + realTheme.Naam + '.');
+                            realTheme.Added = null; // some are added, never false because else we woudn't save it.
                         }
-                    });
+                        realTheme.AllLayers.forEach(function (layer) {
+                            layer.enabled = false; // lets disable all layers first
+                        });
+                        //lets check what we need to enable and set visiblity of, and also check what we don't find
+                        theme.layers.forEach(function (layer) {
+                            var realLayer = realTheme.AllLayers.find(function (x) {
+                                return x.title == layer.name;
+                            });
+                            if (realLayer) {
+                                realLayer.visible = layer.visible; // aha so there was a layer, lets save this
+                                realLayer.enabled = true;
+                            } else {
+                                errorMessages.push('"' + layer.name + '" not found in mapserver: ' + realTheme.Naam + '.');
+                            }
+                        });
+                    }
                 });
                 project.themes.forEach(function (theme) {
                     // lets order them, since we get themesArray filled by async calls, the order can be wrong, thats why we make an ordered array
                     var realTheme = themesArray.find(function (x) {
                         return x.cleanUrl == theme.cleanUrl;
                     });
-                    orderedArray.unshift(realTheme);
-                    realTheme.status = ThemeStatus.NEW; // and make sure they are new, ready to be added.
+                    if (realTheme) {
+                        orderedArray.unshift(realTheme);
+                        realTheme.status = ThemeStatus.NEW; // and make sure they are new, ready to be added.
+                    }
                 });
                 ThemeService.AddAndUpdateThemes(orderedArray);
                 console.log('all loaded');
@@ -5939,7 +5944,7 @@ L.drawLocal = {
     "<div class=\"ll drawingbtns\" ng-show=mapctrl.showDrawControls>\n" +
     "<div class=btn-group>\n" +
     "<button ng-click=mapctrl.selectpunt() ng-class=\"{active: mapctrl.drawingType==''}\" type=button class=btn prevent-default-map tink-tooltip=\"Selecteer met een punt\" tink-tooltip-align=bottom><i class=\"fa fa-circle\" style=\"font-size: 0.75em\"></i></button>\n" +
-    "<button ng-hide=mapctrl.mobile ng-click=\"mapctrl.drawingButtonChanged('lijn')\" ng-class=\"{active: mapctrl.drawingType=='lijn'}\" type=button class=btn prevent-default-map tink-tooltip=\"Selecteer met een lijn\" tink-tooltip-align=bottom><i class=\"fa fa-minus\"></i></button>\n" +
+    "<button ng-click=\"mapctrl.drawingButtonChanged('lijn')\" ng-class=\"{active: mapctrl.drawingType=='lijn'}\" type=button class=btn prevent-default-map tink-tooltip=\"Selecteer met een lijn\" tink-tooltip-align=bottom><i class=\"fa fa-minus\"></i></button>\n" +
     "<button ng-hide=mapctrl.mobile ng-click=\"mapctrl.drawingButtonChanged('vierkant')\" ng-class=\"{active: mapctrl.drawingType=='vierkant'}\" type=button class=btn prevent-default-map tink-tooltip=\"Selecteer met een rechthoek\" tink-tooltip-align=bottom><i class=\"fa fa-square-o\"></i></button>\n" +
     "<button ng-click=\"mapctrl.drawingButtonChanged('polygon')\" ng-class=\"{active: mapctrl.drawingType=='polygon'}\" type=button class=btn prevent-default-map tink-tooltip=\"Selecteer met een veelhoek\" tink-tooltip-align=bottom><i class=\"fa fa-star-o\"></i></button>\n" +
     "</div>\n" +
@@ -5948,12 +5953,12 @@ L.drawLocal = {
     "</div>\n" +
     "</div>\n" +
     "<div class=\"btn-group btn-group-vertical ll interactiebtns\">\n" +
-    "<button type=button class=btn ng-click=\"mapctrl.interactieButtonChanged('identify')\" ng-class=\"{active: mapctrl.activeInteractieKnop=='identify'}\" tink-tooltip=Identificeren tink-tooltip-align=right prevent-default-map><i class=\"fa fa-info\"></i></button>\n" +
-    "<button type=button class=btn ng-click=\"mapctrl.interactieButtonChanged('select')\" ng-class=\"{active: mapctrl.activeInteractieKnop=='select'}\" tink-tooltip=Selecteren tink-tooltip-align=right prevent-default-map><i class=\"fa fa-mouse-pointer\"></i></button>\n" +
-    "<button type=button class=btn ng-click=\"mapctrl.interactieButtonChanged('meten')\" ng-class=\"{active: mapctrl.activeInteractieKnop=='meten'}\" tink-tooltip=Meten tink-tooltip-align=right prevent-default-map>\n" +
+    "<button type=button class=btn ng-click=\"mapctrl.interactieButtonChanged('identify')\" ng-class=\"{active: mapctrl.activeInteractieKnop=='identify'}\" tink-tooltip=Identificeren tink-tooltip-align=bottom prevent-default-map><i class=\"fa fa-info\"></i></button>\n" +
+    "<button type=button class=btn ng-click=\"mapctrl.interactieButtonChanged('select')\" ng-class=\"{active: mapctrl.activeInteractieKnop=='select'}\" tink-tooltip=Selecteren tink-tooltip-align=bottom prevent-default-map><i class=\"fa fa-mouse-pointer\"></i></button>\n" +
+    "<button type=button class=btn ng-click=\"mapctrl.interactieButtonChanged('meten')\" ng-class=\"{active: mapctrl.activeInteractieKnop=='meten'}\" tink-tooltip=Meten tink-tooltip-align=bottom prevent-default-map>\n" +
     "<svg class=\"icon icon-sik-ruler\"><use xlink:href=#icon-sik-ruler></use></svg>\n" +
     "</button>\n" +
-    "<button type=button class=btn ng-click=\"mapctrl.interactieButtonChanged('watishier')\" ng-class=\"{active: mapctrl.activeInteractieKnop=='watishier'}\" tink-tooltip=\"Wat is hier\" tink-tooltip-align=right prevent-default-map>\n" +
+    "<button type=button class=btn ng-click=\"mapctrl.interactieButtonChanged('watishier')\" ng-class=\"{active: mapctrl.activeInteractieKnop=='watishier'}\" tink-tooltip=\"Wat is hier\" tink-tooltip-align=bottom prevent-default-map>\n" +
     "<i class=\"fa fa-thumb-tack\"></i>\n" +
     "</button>\n" +
     "</div>\n" +
