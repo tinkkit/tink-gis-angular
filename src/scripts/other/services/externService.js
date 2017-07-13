@@ -32,7 +32,7 @@
             var exportObject = {};
             var arr = MapData.Themes.map(theme => {
                 let returnitem = {};
-                if(!theme.Naam) {
+                if (!theme.Naam) {
                     theme.Naam = "no_title_found"
                 }
                 returnitem.Naam = theme.Naam;
@@ -79,8 +79,13 @@
                     let prom = GISService.GetThemeData(theme.cleanUrl);
                     promises.push(prom);
                     prom.then(function (data) {
-                        let arcgistheme = ThemeCreater.createARCGISThemeFromJson(data, theme);
-                        themesArray.push(arcgistheme);
+                        if (!data.error) {
+                            let arcgistheme = ThemeCreater.createARCGISThemeFromJson(data, theme);
+                            themesArray.push(arcgistheme);
+                        } else {
+                            PopupService.ErrorFromHTTP(data.error, data.error.code, theme.cleanUrl);
+                        }
+
                     });
                 } else {
                     // wms

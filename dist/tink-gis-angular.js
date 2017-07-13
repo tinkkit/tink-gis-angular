@@ -2845,8 +2845,12 @@ var esri2geo = {};
                     var prom = GISService.GetThemeData(theme.cleanUrl);
                     promises.push(prom);
                     prom.then(function (data) {
-                        var arcgistheme = ThemeCreater.createARCGISThemeFromJson(data, theme);
-                        themesArray.push(arcgistheme);
+                        if (!data.error) {
+                            var arcgistheme = ThemeCreater.createARCGISThemeFromJson(data, theme);
+                            themesArray.push(arcgistheme);
+                        } else {
+                            PopupService.ErrorFromHTTP(data.error, data.error.code, theme.cleanUrl);
+                        }
                     });
                 } else {
                     // wms
