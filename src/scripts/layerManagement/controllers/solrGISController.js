@@ -96,7 +96,7 @@
                                 } else {
                                     layer.featuresCount = itemMetData.doclist.numFound;
                                 }
-                                itemMetData.doclist.docs.forEach(item => {
+                                itemMetData.doclist.docs.slice(0,5).forEach(item => {
                                     var feature = item.titel.join(' ');
                                     // id: item.id
                                     layer.features.push(feature);

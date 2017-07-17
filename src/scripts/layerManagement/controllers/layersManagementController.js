@@ -6,8 +6,8 @@
     } catch (e) {
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
     }
-    module.controller('layersManagementController', ['$scope', 'MapData', 'ThemeService', 'LayerManagementService',
-        function ($scope, MapData, ThemeService, LayerManagementService) {
+    module.controller('layersManagementController', ['$scope', 'MapData', 'ThemeService', 'LayerManagementService','PopupService',
+        function ($scope, MapData, ThemeService, LayerManagementService, PopupService) {
             $scope.pagingCount = null;
             $scope.numberofrecordsmatched = 0;
             $scope.availableThemes = MapData.Themes;

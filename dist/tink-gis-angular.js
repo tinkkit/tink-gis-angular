@@ -953,7 +953,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
     } catch (e) {
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
     }
-    module.controller('layersManagementController', ['$scope', 'MapData', 'ThemeService', 'LayerManagementService', function ($scope, MapData, ThemeService, LayerManagementService) {
+    module.controller('layersManagementController', ['$scope', 'MapData', 'ThemeService', 'LayerManagementService', 'PopupService', function ($scope, MapData, ThemeService, LayerManagementService, PopupService) {
         $scope.pagingCount = null;
         $scope.numberofrecordsmatched = 0;
         $scope.availableThemes = MapData.Themes;
@@ -1153,7 +1153,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                             } else {
                                 layer.featuresCount = itemMetData.doclist.numFound;
                             }
-                            itemMetData.doclist.docs.forEach(function (item) {
+                            itemMetData.doclist.docs.slice(0, 5).forEach(function (item) {
                                 var feature = item.titel.join(' ');
                                 // id: item.id
                                 layer.features.push(feature);
