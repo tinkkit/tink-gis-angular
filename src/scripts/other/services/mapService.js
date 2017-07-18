@@ -1,15 +1,15 @@
 'use strict';
-(function () {
+(function() {
     var module;
     try {
         module = angular.module('tink.gis');
     } catch (e) {
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'tink.modal']); //'leaflet-directive'
     }
-    var mapService = function ($rootScope, MapData, map, ThemeCreater, $q, GISService, ResultsData, HelperService, PopupService) {
+    var mapService = function($rootScope, MapData, map, ThemeCreater, $q, GISService, ResultsData, HelperService, PopupService) {
         var _mapService = {};
 
-        _mapService.getJsonFromXML = function (data) {
+        _mapService.getJsonFromXML = function(data) {
             var json = null;
             if (typeof data != "string") {
                 data = JXON.xmlToString(data); // only if not yet string
@@ -20,7 +20,7 @@
             }
             return json;
         }
-        _mapService.getJsonFromPlain = function (data) {
+        _mapService.getJsonFromPlain = function(data) {
             var json = null;
             var splittedtext = data.trim().split("--------------------------------------------");
             var contenttext = null;
@@ -37,10 +37,10 @@
             }
             return json;
         }
-        _mapService.Identify = function (event, tolerance) {
+        _mapService.Identify = function(event, tolerance) {
             MapData.CleanSearch();
             if (typeof tolerance === 'undefined') { tolerance = 10; }
-            _.each(MapData.Themes, function (theme) {
+            _.each(MapData.Themes, function(theme) {
                 // theme.RecalculateVisibleLayerIds();
                 var identifOnThisTheme = true;
                 // if (theme.VisibleLayerIds.length === 1 && theme.VisibleLayerIds[0] === -1) {
@@ -52,7 +52,7 @@
                         case ThemeType.ESRI:
                             var layersVoorIdentify = 'visible: ' + theme.VisibleLayerIds;
                             ResultsData.RequestStarted++;
-                            theme.MapData.identify().on(map).at(event.latlng).layers(layersVoorIdentify).tolerance(tolerance).run(function (error, featureCollection) {
+                            theme.MapData.identify().on(map).at(event.latlng).layers(layersVoorIdentify).tolerance(tolerance).run(function(error, featureCollection) {
                                 ResultsData.RequestCompleted++;
                                 MapData.AddFeatures(featureCollection, theme);
 
@@ -65,7 +65,7 @@
                                 if (lay.queryable == true) {
 
                                     ResultsData.RequestStarted++;
-                                    theme.MapData.getFeatureInfo(event.latlng, lay.name, theme.GetFeatureInfoType).success(function (data, status, xhr) {
+                                    theme.MapData.getFeatureInfo(event.latlng, lay.name, theme.GetFeatureInfoType).success(function(data, status, xhr) {
                                         if (data) {
                                             data = HelperService.UnwrapProxiedData(data);
                                         }
@@ -111,7 +111,7 @@
                                             // we must still apply for the loading to get updated
                                             $rootScope.$applyAsync();
                                         }
-                                    }).error(function (exception) {
+                                    }).error(function(exception) {
                                         ResultsData.RequestCompleted++;
 
                                     });
@@ -129,29 +129,63 @@
 
             });
         };
+        _mapService.IdentifyProm = function(theme, latlng, layerids) {
 
-        _mapService.Select = function (event) {
+            var promise = new Promise(
+                function(resolve, reject) {
+                    ResultsData.RequestStarted++;
+                    theme.MapData.identify()
+                        .on(map)
+                        .layers('visible: ' + layerids)
+                        .at(latlng)
+                        .run(function(error, featureCollection, response) {
+                            ResultsData.RequestCompleted++;
+                            resolve({ error, featureCollection, response });
+                        });
+                });
+            return promise;
+        };
+        _mapService.Select = function(event) {
             // MapData.CleanSearch();
             console.log(event);
             if (MapData.SelectedLayer.id === '') { // alle layers selected
+                var allproms = [];
                 MapData.Themes.filter(x => x.Type == ThemeType.ESRI).forEach(theme => { // dus doen we de qry op alle lagen.
                     if (theme.VisibleLayerIds.length !== 0 && theme.VisibleLayerIds[0] !== -1) {
-                        ResultsData.RequestStarted++;
-                        theme.MapData.identify().on(map).at(event.latlng).layers('visible: ' + theme.VisibleLayerIds).run(function (error, featureCollection) {
-                            ResultsData.RequestCompleted++;
-                            MapData.AddFeatures(featureCollection, theme);
-                            if (MapData.ExtendedType != null) {
-                                MapData.ConfirmExtendDialog(MapData.processedFeatureArray);
-                                MapData.processedFeatureArray = [];
-                            }
-
+                        // ResultsData.RequestStarted++;
+                        var prom = _mapService.IdentifyProm(theme, event.latlng, theme.VisibleLayerIds);
+                        allproms.push(prom); -
+                        prom.then(function(arg) {
+                            MapData.AddFeatures(arg.featureCollection, theme);
+                            // if (MapData.ExtendedType != null) {
+                            //     MapData.ConfirmExtendDialog(MapData.processedFeatureArray);
+                            //     MapData.processedFeatureArray = [];
+                            // }
                         });
+                        // theme.MapData.identify().on(map).at(event.latlng).layers('visible: ' + theme.VisibleLayerIds).run(function(error, featureCollection) {
+                        //     ResultsData.RequestCompleted++;
+                        //     MapData.AddFeatures(featureCollection, theme);
+                        //     if (MapData.ExtendedType != null) {
+                        //         MapData.ConfirmExtendDialog(MapData.processedFeatureArray);
+                        //         MapData.processedFeatureArray = [];
+                        //     }
+
+                        // });
                     }
 
                 });
+
+                if (MapData.ExtendedType != null) {
+                    Promise.all(allproms).then(function AcceptHandler(results) {
+                        MapData.ConfirmExtendDialog(MapData.processedFeatureArray);
+                        MapData.processedFeatureArray = [];
+
+                    });
+                }
+
             } else {
                 ResultsData.RequestStarted++;
-                MapData.SelectedLayer.theme.MapData.identify().on(map).at(event.latlng).layers('visible: ' + MapData.SelectedLayer.id).run(function (error, featureCollection) {
+                MapData.SelectedLayer.theme.MapData.identify().on(map).at(event.latlng).layers('visible: ' + MapData.SelectedLayer.id).run(function(error, featureCollection) {
                     ResultsData.RequestCompleted++;
                     MapData.AddFeatures(featureCollection, MapData.SelectedLayer.theme);
                     if (MapData.ExtendedType != null) {
@@ -162,36 +196,36 @@
             }
 
         };
-        _mapService.LayerQuery = function (theme, layerid, geometry, oncomplete) {
+        _mapService.LayerQuery = function(theme, layerid, geometry) {
 
             var promise = new Promise(
-                function (resolve, reject) {
+                function(resolve, reject) {
                     ResultsData.RequestStarted++;
                     theme.MapData.query()
                         .layer(layerid)
                         .intersects(geometry)
-                        .run(function (error, featureCollection, response) {
+                        .run(function(error, featureCollection, response) {
                             ResultsData.RequestCompleted++;
                             resolve({ error, featureCollection, response });
                         });
                 });
             return promise;
         };
-        _mapService.LayerQueryCount = function (theme, layerid, geometry) {
+        _mapService.LayerQueryCount = function(theme, layerid, geometry) {
             var promise = new Promise(
-                function (resolve, reject) {
+                function(resolve, reject) {
                     ResultsData.RequestStarted++;
                     theme.MapData.query()
                         .layer(layerid)
                         .intersects(geometry)
-                        .count(function (error, count, response) {
+                        .count(function(error, count, response) {
                             ResultsData.RequestCompleted++;
                             resolve({ error, count, response });
                         });
                 });
             return promise;
         };
-        _mapService.Query = function (box, layer) {
+        _mapService.Query = function(box, layer) {
             if (!layer) {
                 layer = MapData.SelectedLayer;
             }
@@ -202,7 +236,7 @@
                     if (theme.Type === ThemeType.ESRI) {
                         theme.VisibleLayers.forEach(lay => {
                             var layerCountProm = _mapService.LayerQueryCount(theme, lay.id, box);
-                            layerCountProm.then(function (arg) {
+                            layerCountProm.then(function(arg) {
                                 featureCount += arg.count;
                             });
                             allcountproms.push(layerCountProm);
@@ -218,7 +252,7 @@
                                 theme.VisibleLayers.forEach(lay => {
                                     var prom = _mapService.LayerQuery(theme, lay.id, box);
                                     allproms.push(prom);
-                                    prom.then(function (arg) {
+                                    prom.then(function(arg) {
                                         MapData.AddFeatures(arg.featureCollection, theme, lay.id);
                                     });
 
@@ -233,8 +267,7 @@
                             });
                         }
 
-                    }
-                    else {
+                    } else {
                         PopupService.Warning("U selecteerde " + featureCount + " resultaten.", "Om een vlotte werking te garanderen is het maximum is ingesteld op 1000")
                     }
                 });
@@ -242,27 +275,26 @@
 
             } else {
                 var prom = _mapService.LayerQueryCount(layer.theme, layer.id, box);
-                prom.then(function (arg) {
+                prom.then(function(arg) {
                     if (arg.count <= 1000) {
                         var prom = _mapService.LayerQuery(layer.theme, layer.id, box);
-                        prom.then(function (arg) {
+                        prom.then(function(arg) {
                             MapData.AddFeatures(arg.featureCollection, layer.theme, layer.id);
                             if (MapData.ExtendedType != null) {
                                 MapData.ConfirmExtendDialog(MapData.processedFeatureArray);
                                 MapData.processedFeatureArray = [];
                             }
                         });
-                    }
-                    else {
+                    } else {
                         PopupService.Warning("U selecteerde " + arg.count + " resultaten.", "Om een vlotte werking te garanderen is het maximum is ingesteld op 1000")
                     }
                 });
 
             }
         };
-        _mapService.WatIsHier = function (event) {
+        _mapService.WatIsHier = function(event) {
             var prom = GISService.ReverseGeocode(event);
-            prom.success(function (data, status, headers, config) {
+            prom.success(function(data, status, headers, config) {
                 MapData.CleanWatIsHier();
                 if (!data.error) {
                     var converted = HelperService.ConvertLambert72ToWSG84(data.location);
@@ -271,7 +303,7 @@
                 } else {
                     MapData.CreateOrigineleMarker(event.latlng, false);
                 }
-            }).error(function (data, status, headers, config) {
+            }).error(function(data, status, headers, config) {
                 console.log(data, status, headers, config);
             });
         };
@@ -280,7 +312,7 @@
         //CAPAKEY
         //11810K1905/00B002
         //.FindAdvanced("Lro_Stad", "percelen", "CAPAKEY", "11810K1905/00B002");
-        _mapService.FindAdvanced = function (themeName, layerName, field, parameter) {
+        _mapService.FindAdvanced = function(themeName, layerName, field, parameter) {
             var prom = $q.defer();
             var theme = MapData.Themes.find(x => x.Naam == themeName);
             if (!theme) {
@@ -295,7 +327,7 @@
                 .fields(field)
                 .layers(layer.id)
                 .text(parameter)
-                .run(function (error, featureCollection, response) {
+                .run(function(error, featureCollection, response) {
                     if (error) {
                         prom.reject(error);
                     } else {
@@ -306,7 +338,7 @@
                 });
             return prom.promise;
         }
-        _mapService.Find = function (query) {
+        _mapService.Find = function(query) {
             MapData.CleanSearch();
             if (MapData.SelectedFindLayer && MapData.SelectedFindLayer.id === '') { // alle layers selected
                 MapData.Themes.forEach(theme => { // dus doen we de qry op alle lagen.
@@ -317,7 +349,7 @@
                                 .fields(lay.displayField)
                                 .layers(lay.id)
                                 .text(query)
-                                .run(function (error, featureCollection, response) {
+                                .run(function(error, featureCollection, response) {
                                     ResultsData.RequestCompleted++;
                                     MapData.AddFeatures(featureCollection, theme, lay.id);
                                 });
@@ -330,7 +362,7 @@
                     .fields(MapData.SelectedFindLayer.displayField)
                     .layers(MapData.SelectedFindLayer.id)
                     .text(query)
-                    .run(function (error, featureCollection, response) {
+                    .run(function(error, featureCollection, response) {
                         ResultsData.RequestCompleted++;
                         MapData.AddFeatures(featureCollection, MapData.SelectedFindLayer.theme, MapData.SelectedFindLayer.id);
                     });

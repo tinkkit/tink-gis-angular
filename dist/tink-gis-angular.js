@@ -1464,9 +1464,9 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
     var service = function service($http, map, MapData, $rootScope, $q, helperService, PopupService) {
         var _service = {};
         _service.getMetaData = function () {
-            var searchterm = arguments.length <= 0 || arguments[0] === undefined ? 'water' : arguments[0];
-            var startpos = arguments.length <= 1 || arguments[1] === undefined ? 1 : arguments[1];
-            var recordsAPage = arguments.length <= 2 || arguments[2] === undefined ? 10 : arguments[2];
+            var searchterm = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'water';
+            var startpos = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
+            var recordsAPage = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 10;
 
             var url = 'https://metadata.geopunt.be/zoekdienst/srv/dut/csw?service=CSW&version=2.0.2&SortBy=title&request=GetRecords&namespace=xmlns%28csw=http://www.opengis.net/cat/csw%29&resultType=results&outputSchema=http://www.opengis.net/cat/csw/2.0.2&outputFormat=application/xml&startPosition=' + startpos + '&maxRecords=' + recordsAPage + '&typeNames=csw:Record&elementSetName=full&constraintLanguage=CQL_TEXT&constraint_language_version=1.1.0&constraint=AnyText+LIKE+%27%25' + searchterm + '%25%27AND%20Type%20=%20%27service%27%20AND%20Servicetype%20=%27view%27%20AND%20MetadataPointOfContact%20=%27AIV%27';
             // var url = 'https://metadata.geopunt.be/zoekdienst/srv/dut/q?fast=index&from=' + startpos + '&to=' + recordsAPage + '&any=*' + searchterm + '*&sortBy=title&sortOrder=reverse&hitsperpage=' + recordsAPage;
@@ -2492,8 +2492,8 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         _baseLayersService.basemap1Naam = "Geen";
 
         _baseLayersService.setBaseMap = function (id, naam, url) {
-            var maxZoom = arguments.length <= 3 || arguments[3] === undefined ? 19 : arguments[3];
-            var minZoom = arguments.length <= 4 || arguments[4] === undefined ? 0 : arguments[4];
+            var maxZoom = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 19;
+            var minZoom = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 0;
 
             var layer = L.esri.tiledMapLayer({ url: url, maxZoom: maxZoom, minZoom: minZoom, continuousWorld: true });
             if (id == 1) {
@@ -2990,7 +2990,7 @@ var esri2geo = {};
 })();
 ;'use strict';
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 (function () {
     var module;
@@ -4009,7 +4009,7 @@ L.control.typeahead = function (args) {
 })();
 ;'use strict';
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 (function () {
     var module;
@@ -4139,28 +4139,55 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 }
             });
         };
+        _mapService.IdentifyProm = function (theme, latlng, layerids) {
 
+            var promise = new Promise(function (resolve, reject) {
+                ResultsData.RequestStarted++;
+                theme.MapData.identify().on(map).layers('visible: ' + layerids).at(latlng).run(function (error, featureCollection, response) {
+                    ResultsData.RequestCompleted++;
+                    resolve({ error: error, featureCollection: featureCollection, response: response });
+                });
+            });
+            return promise;
+        };
         _mapService.Select = function (event) {
             // MapData.CleanSearch();
             console.log(event);
             if (MapData.SelectedLayer.id === '') {
                 // alle layers selected
+                var allproms = [];
                 MapData.Themes.filter(function (x) {
                     return x.Type == ThemeType.ESRI;
                 }).forEach(function (theme) {
                     // dus doen we de qry op alle lagen.
                     if (theme.VisibleLayerIds.length !== 0 && theme.VisibleLayerIds[0] !== -1) {
-                        ResultsData.RequestStarted++;
-                        theme.MapData.identify().on(map).at(event.latlng).layers('visible: ' + theme.VisibleLayerIds).run(function (error, featureCollection) {
-                            ResultsData.RequestCompleted++;
-                            MapData.AddFeatures(featureCollection, theme);
-                            if (MapData.ExtendedType != null) {
-                                MapData.ConfirmExtendDialog(MapData.processedFeatureArray);
-                                MapData.processedFeatureArray = [];
-                            }
+                        // ResultsData.RequestStarted++;
+                        var prom = _mapService.IdentifyProm(theme, event.latlng, theme.VisibleLayerIds);
+                        allproms.push(prom);-prom.then(function (arg) {
+                            MapData.AddFeatures(arg.featureCollection, theme);
+                            // if (MapData.ExtendedType != null) {
+                            //     MapData.ConfirmExtendDialog(MapData.processedFeatureArray);
+                            //     MapData.processedFeatureArray = [];
+                            // }
                         });
+                        // theme.MapData.identify().on(map).at(event.latlng).layers('visible: ' + theme.VisibleLayerIds).run(function(error, featureCollection) {
+                        //     ResultsData.RequestCompleted++;
+                        //     MapData.AddFeatures(featureCollection, theme);
+                        //     if (MapData.ExtendedType != null) {
+                        //         MapData.ConfirmExtendDialog(MapData.processedFeatureArray);
+                        //         MapData.processedFeatureArray = [];
+                        //     }
+
+                        // });
                     }
                 });
+
+                if (MapData.ExtendedType != null) {
+                    Promise.all(allproms).then(function AcceptHandler(results) {
+                        MapData.ConfirmExtendDialog(MapData.processedFeatureArray);
+                        MapData.processedFeatureArray = [];
+                    });
+                }
             } else {
                 ResultsData.RequestStarted++;
                 MapData.SelectedLayer.theme.MapData.identify().on(map).at(event.latlng).layers('visible: ' + MapData.SelectedLayer.id).run(function (error, featureCollection) {
@@ -4173,7 +4200,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 });
             }
         };
-        _mapService.LayerQuery = function (theme, layerid, geometry, oncomplete) {
+        _mapService.LayerQuery = function (theme, layerid, geometry) {
 
             var promise = new Promise(function (resolve, reject) {
                 ResultsData.RequestStarted++;
