@@ -3,8 +3,11 @@
         <div class="overflow-wrapper flex-grow-1 list-selectable margin-top margin-bottom border-right">
             <div ng-show="loading == false" ng-repeat="theme in availableThemes">
                 <dl ng-class="{active: isActive(theme)}">
-
-                    <dt><a href="#" class="theme-layer" ng-click="solrThemeChanged(theme)">{{theme.name}}</a></dt>
+                    <dt>
+                        <a href="#" class="theme-layer" ng-click="solrThemeChanged(theme)">
+                        {{theme.name}} <i ng-if="theme.cleanUrl.toLowerCase().includes('p_sik')" class="fa fa-key" aria-hidden="true" tink-tooltip="Secured mapservice" tink-tooltip-align="right"></i>
+                    </a>
+                </dt>
 
                     <dd ng-repeat="layer in theme.layers">
                         <a href="#" class="theme-layer" ng-click="solrThemeChanged(theme, layer.naam)">

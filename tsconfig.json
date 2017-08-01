@@ -2,6 +2,11 @@
     "compilerOptions": {
         "target": "es6",
         "module": "es6",
-        "inlineSourceMap": true
-    }
+        "inlineSourceMap": true,
+        "skipLibCheck": true
+    },
+    "skipLibCheck": true,
+    "exclude": [
+        "node_modules"
+    ]
 }

@@ -120,14 +120,21 @@
             }
         };
     });
-    // module.filter('strLimit', ['$filter', function ($filter) {
 
-    //     return function (input, limit) {
-    //         if (!input) return;
-    //         if (input.length <= limit) {
-    //             return input;
-    //         }
-    //         return $filter('limitTo')(input, limit) + '...';
-    //     };
-    // }]);
+    var origOpen = XMLHttpRequest.prototype.open;
+    XMLHttpRequest.prototype.open = function (method, url) {
+        if (url.toLowerCase().includes("p_sik")) {
+            this.withCredentials = true;
+            // debugger;
+        }
+        origOpen.apply(this, arguments);
+    }
+    // XMLHttpRequest.prototype.setRequestHeader = function (header, value) {
+    //     console.log(header + ": " + value);
+    //     // origOpen.setRequestHeader(header, value);
+    // };
+
+
+
+
 })();

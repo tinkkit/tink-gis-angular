@@ -121,7 +121,7 @@
                                     theme.layersCount = itemMetData.doclist.numFound;
                                 }
                                 itemMetData.doclist.docs.forEach(item => {
-                                    if (item.titel[0].includes(searchterm)) {
+                                    if (item.titel[0].toLowerCase().includes(searchterm.toLowerCase())) {
                                         var layer = theme.layers.find(x => x.id == item.key);
                                         if (!layer) {
                                             layer = {

@@ -34,8 +34,8 @@ module.exports = function (grunt) {
         yeoman: appConfig,
         ts: {
             default: {
-                src: ['typings/index.d.ts', '<%= yeoman.app %>/scripts/**/*.ts'],
-                reference: 'typings/index.d.ts',
+                // src: ['typings/index.d.ts', '<%= yeoman.app %>/scripts/**/*.ts'],
+                // reference: 'typings/index.d.ts',
                 // tsconfig: 'tsconfig.json',
                 options: {
                     target: 'es6',
@@ -360,7 +360,7 @@ module.exports = function (grunt) {
             ],
             dist: [
                 'sass',
-                'svgmin'
+                // 'svgmin'
             ]
         },
         svgmin: {
@@ -453,7 +453,7 @@ module.exports = function (grunt) {
         'clean',
         'ts',
         'babel',
-        'karma:build',
+        // 'karma:build',
         'ngtemplates',
         'replace',
         // // 'copy:dist',

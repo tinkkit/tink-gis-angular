@@ -93,10 +93,17 @@
                         opacity: 1,
                         layers: visLayerIds,
                         continuousWorld: true,
-                        useCors: true
+                        useCors: false,
+                        f: 'image'
                     }).addTo(map);
 
-
+                    theme.MapData.on('authenticationrequired', function (e) {
+                        debugger;
+                        serverAuth(function (error, response) {
+                            debugger;
+                            e.authenticate(response.token);
+                        });
+                    });
                     theme.MapData.on('load', function (e) {
                         if (theme.MapData._currentImage) {
                             theme.MapData._currentImage._image.style.zIndex = theme.MapData.ZIndex;

@@ -67,15 +67,21 @@
             }
             return url
         }
+        var generateOptionsBasedOnUrl = function (url, opts) {
+            if (!opts) {
+                opts = {};
+            }
+            if (url.toLowerCase().includes("p_sik")) {
+                opts.withCredentials = true;
+            }
+            return opts;
+        }
         _service.GetThemeData = function (mapserver) {
             var prom = $q.defer();
 
             var url = completeUrl(mapserver) + '?f=pjson';
-            var opts = {};
-            if(url.toLowerCase().includes("p_sik")){
-                opts.withCredentials= true;
-            }
-            $http.get(url, opts)
+
+            $http.get(url, generateOptionsBasedOnUrl(url))
                 .success(function (data, status, headers, config) {
                     // data = HelperService.UnwrapProxiedData(data);
                     prom.resolve(data);
@@ -89,7 +95,7 @@
             var prom = $q.defer();
 
             var url = completeUrl(cleanurl) + '/layers?f=pjson';
-            $http.get(url)
+            $http.get(url, generateOptionsBasedOnUrl(url))
                 .success(function (data, status, headers, config) {
                     // data = HelperService.UnwrapProxiedData(data);
                     prom.resolve(data);
@@ -104,7 +110,7 @@
             var prom = $q.defer();
 
             var url = completeUrl(cleanurl) + '/legend?f=pjson';
-            $http.get(url)
+            $http.get(url, generateOptionsBasedOnUrl(url))
                 .success(function (data, status, headers, config) {
                     // data = HelperService.UnwrapProxiedData(data);
                     prom.resolve(data);
