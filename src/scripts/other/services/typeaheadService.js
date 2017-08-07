@@ -1,7 +1,7 @@
 'use strict';
 (function () {
     var module = angular.module('tink.gis');
-    var typeAheadService = function (map, GISService, MapData, HelperService) {
+    var typeAheadService = function (map, GISService, MapData, GisHelperService) {
         var _typeAheadService = {};
         _typeAheadService.init = function () {
 
@@ -74,7 +74,7 @@
                                 x: suggestion.x,
                                 y: suggestion.y
                             };
-                            var xyWGS84 = HelperService.ConvertLambert72ToWSG84(cors);
+                            var xyWGS84 = GisHelperService.ConvertLambert72ToWSG84(cors);
                             setViewAndPutDot(xyWGS84);
                         }
                         else {
@@ -91,13 +91,13 @@
         }
         var zoekXY = function (search) {
             search = search.trim();
-            var WGS84Check = HelperService.getWGS84CordsFromString(search);
+            var WGS84Check = GisHelperService.getWGS84CordsFromString(search);
             if (WGS84Check.hasCordinates) {
                 setViewAndPutDot(WGS84Check);
             } else {
-                var lambertCheck = HelperService.getLambartCordsFromString(search);
+                var lambertCheck = GisHelperService.getLambartCordsFromString(search);
                 if (lambertCheck.hasCordinates) {
-                    var xyWGS84 = HelperService.ConvertLambert72ToWSG84({ x: lambertCheck.x, y: lambertCheck.y });
+                    var xyWGS84 = GisHelperService.ConvertLambert72ToWSG84({ x: lambertCheck.x, y: lambertCheck.y });
                     setViewAndPutDot(xyWGS84);
                 } else {
                     console.log('NIET GEVONDEN');

@@ -6,7 +6,7 @@
     } catch (e) {
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'tink.modal']); //'leaflet-directive'
     }
-    var mapService = function($rootScope, MapData, map, ThemeCreater, $q, GISService, ResultsData, HelperService, PopupService) {
+    var mapService = function($rootScope, MapData, map, ThemeCreater, $q, GISService, ResultsData, GisHelperService, PopupService) {
         var _mapService = {};
 
         _mapService.getJsonFromXML = function(data) {
@@ -67,7 +67,7 @@
                                     ResultsData.RequestStarted++;
                                     theme.MapData.getFeatureInfo(event.latlng, lay.name, theme.GetFeatureInfoType).success(function(data, status, xhr) {
                                         if (data) {
-                                            data = HelperService.UnwrapProxiedData(data);
+                                            data = GisHelperService.UnwrapProxiedData(data);
                                         }
                                         ResultsData.RequestCompleted++;
                                         var processedjson = null;
@@ -297,7 +297,7 @@
             prom.success(function(data, status, headers, config) {
                 MapData.CleanWatIsHier();
                 if (!data.error) {
-                    var converted = HelperService.ConvertLambert72ToWSG84(data.location);
+                    var converted = GisHelperService.ConvertLambert72ToWSG84(data.location);
                     MapData.CreateDot(converted);
                     MapData.CreateOrigineleMarker(event.latlng, true, data.address.Street + ' (' + data.address.Postal + ')');
                 } else {
@@ -372,6 +372,6 @@
 
         return _mapService;
     };
-    module.$inject = ['$rootScope', 'MapData', 'map', 'ThemeCreater', '$q', 'GISService', 'ResultsData', 'HelperService', 'PopupService'];
+    module.$inject = ['$rootScope', 'MapData', 'map', 'ThemeCreater', '$q', 'GISService', 'ResultsData', 'GisHelperService', 'PopupService'];
     module.factory('MapService', mapService);
 })();

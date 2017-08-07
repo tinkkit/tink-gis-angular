@@ -17,15 +17,15 @@ L.TileLayer.BetterWMS = L.TileLayer.WMS.extend({
 
     getFeatureInfo: function (latlng, layers,requestype) {
         // Make an AJAX request to the server and hope for the best
-        var HelperService = angular.element(document.body).injector().get('HelperService');
+        var GisHelperService = angular.element(document.body).injector().get('GisHelperService');
         var url = this.getFeatureInfoUrl(latlng, layers,requestype);
-        url = HelperService.CreateProxyUrl(url);
+        url = GisHelperService.CreateProxyUrl(url);
 
         var prom = $.ajax({
             url: url,
             transformResponse: function (data) {
                 if (data) {
-                    // data = HelperService.UnwrapProxiedData(data);
+                    // data = GisHelperService.UnwrapProxiedData(data);
                 }
                 return data;
             },

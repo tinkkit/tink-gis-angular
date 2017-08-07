@@ -1,7 +1,7 @@
 'use strict';
 (function () {
     var module = angular.module('tink.gis');
-    var mapData = function (map, $rootScope, HelperService, ResultsData, $compile, FeatureService, SearchService) {
+    var mapData = function (map, $rootScope, GisHelperService, ResultsData, $compile, FeatureService, SearchService) {
         var _data = {};
 
         _data.VisibleLayers = [];
@@ -186,7 +186,7 @@
                 });
                 WatIsHierOriginalMarker = L.marker([latlng.lat, latlng.lng], { icon: notFoundMarker }).addTo(map);
             }
-            var convertedxy = HelperService.ConvertWSG84ToLambert72(latlng);
+            var convertedxy = GisHelperService.ConvertWSG84ToLambert72(latlng);
             var html = "";
             var minwidth = 0;
             if (straatNaam) {

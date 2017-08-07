@@ -203,5 +203,5 @@
         return _service;
     };
     // module.$inject = ['$http', 'map'];
-    module.factory('HelperService', service);
+    module.factory('GisHelperService', service);
 })();

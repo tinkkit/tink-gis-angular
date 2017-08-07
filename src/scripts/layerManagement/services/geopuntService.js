@@ -70,5 +70,5 @@
         }
         return _service;
     };
-    module.factory('GeopuntService', ['$http', 'map', 'MapData', '$rootScope', '$q', 'HelperService', 'PopupService', service]);
+    module.factory('GeopuntService', ['$http', 'map', 'MapData', '$rootScope', '$q', 'GisHelperService', 'PopupService', service]);
 })();

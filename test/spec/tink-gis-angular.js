@@ -32,9 +32,9 @@ describe('tink-gis', function () {
       coordinates.lng = 4.4;
 
 
-      it('returns 1', inject(function (HelperService) {
+      it('returns 1', inject(function (GisHelperService) {
 
-        var result = HelperService.ConvertWSG84ToLambert72(coordinates);
+        var result = GisHelperService.ConvertWSG84ToLambert72(coordinates);
         console.log(result);
         expect(result.x).toBe(152193.35735187418)
         expect(result.y).toBe(187753.56831674278)

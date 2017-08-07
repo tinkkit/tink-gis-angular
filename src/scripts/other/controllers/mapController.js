@@ -1,7 +1,7 @@
 'use strict';
 (function (module) {
     module = angular.module('tink.gis');
-    var theController = module.controller('mapController', function ($scope, ExternService, BaseLayersService, MapService, MapData, map, MapEvents, DrawService, HelperService, GISService, PopupService, $interval, TypeAheadService, UIService, tinkApi, FeatureService) {
+    var theController = module.controller('mapController', function ($scope, ExternService, BaseLayersService, MapService, MapData, map, MapEvents, DrawService, GisHelperService, GISService, PopupService, $interval, TypeAheadService, UIService, tinkApi, FeatureService) {
         //We need to include MapEvents, even tho we don t call it just to make sure it gets loaded!
         var vm = this;
         var init = function () {
@@ -100,13 +100,13 @@
         //ng-keyup="$event.keyCode == 13 && mapctrl.zoekLocatie(mapctrl.zoekLoc)"
         vm.zoekXY = function (search) {
             search = search.trim();
-            var WGS84Check = HelperService.getWGS84CordsFromString(search);
+            var WGS84Check = GisHelperService.getWGS84CordsFromString(search);
             if (WGS84Check.hasCordinates) {
                 setViewAndPutDot(WGS84Check);
             } else {
-                var lambertCheck = HelperService.getLambartCordsFromString(search);
+                var lambertCheck = GisHelperService.getLambartCordsFromString(search);
                 if (lambertCheck.hasCordinates) {
-                    var xyWGS84 = HelperService.ConvertLambert72ToWSG84({ x: lambertCheck.x, y: lambertCheck.y });
+                    var xyWGS84 = GisHelperService.ConvertLambert72ToWSG84({ x: lambertCheck.x, y: lambertCheck.y });
                     setViewAndPutDot(xyWGS84);
                 } else {
                     console.log('NIET GEVONDEN');
@@ -286,5 +286,5 @@
         });
 
     });
-    theController.$inject = ['BaseLayersService', 'ExternService', 'MapService', 'MapData', 'map', 'MapEvents', 'DrawService', 'HelperService', 'GISService', 'PopupService', '$interval', 'UIService', 'tinkApi', 'FeatureService'];
+    theController.$inject = ['BaseLayersService', 'ExternService', 'MapService', 'MapData', 'map', 'MapEvents', 'DrawService', 'GisHelperService', 'GISService', 'PopupService', '$interval', 'UIService', 'tinkApi', 'FeatureService'];
 })();

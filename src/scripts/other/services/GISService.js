@@ -2,10 +2,10 @@
 'use strict';
 (function () {
     var module = angular.module('tink.gis');
-    var service = function ($http, HelperService, $q, PopupService) {
+    var service = function ($http, GisHelperService, $q, PopupService) {
         var _service = {};
         _service.ReverseGeocode = function (event) {
-            var lambert72Cords = HelperService.ConvertWSG84ToLambert72(event.latlng);
+            var lambert72Cords = GisHelperService.ConvertWSG84ToLambert72(event.latlng);
             var loc = lambert72Cords.x + ',' + lambert72Cords.y;
             var urlloc = encodeURIComponent(loc);
             var url = Gis.BaseUrl + 'arcgissql/rest/services/COMLOC_CRAB_NAVTEQ/GeocodeServer/reverseGeocode?location=' + urlloc + '&distance=50&outSR=&f=json';
@@ -25,7 +25,7 @@
                 '(HUISNR%20like%20%27' + huisnummer + '%27%20or%20Huisnr%20like%20%27' + huisnummer + '%5Ba-z%5D%27or%20Huisnr%20like%20%27' + huisnummer + '%5B_%5D%25%27)%20and%20APPTNR%20%3D%20%27%27%20and%20busnr%20%3D%20%27%27' +
                 '&text=&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=*&returnGeometry=true&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&f=pjson')
                 .success(function (data, status, headers, config) {
-                    // data = HelperService.UnwrapProxiedData(data);
+                    // data = GisHelperService.UnwrapProxiedData(data);
                     prom.resolve(data);
                 }).error(function (data, status, headers, config) {
                     prom.reject(null);
@@ -52,7 +52,7 @@
             var url = Solr.BaseUrl + 'giszoek/solr/search?q=*' + search + '*&wt=json&indent=true&rows=50&solrtype=gislocaties&dismax=true&bq=exactName:DISTRICT^20000.0&bq=layer:straatnaam^20000.0';
             $http.get(url)
                 .success(function (data, status, headers, config) {
-                    // data = HelperService.UnwrapProxiedData(data);
+                    // data = GisHelperService.UnwrapProxiedData(data);
                     prom.resolve(data);
                 }).error(function (data, status, headers, config) {
                     prom.reject(null);
@@ -83,7 +83,7 @@
 
             $http.get(url, generateOptionsBasedOnUrl(url))
                 .success(function (data, status, headers, config) {
-                    // data = HelperService.UnwrapProxiedData(data);
+                    // data = GisHelperService.UnwrapProxiedData(data);
                     prom.resolve(data);
                 }).error(function (data, status, headers, config) {
                     prom.reject(null);
@@ -97,7 +97,7 @@
             var url = completeUrl(cleanurl) + '/layers?f=pjson';
             $http.get(url, generateOptionsBasedOnUrl(url))
                 .success(function (data, status, headers, config) {
-                    // data = HelperService.UnwrapProxiedData(data);
+                    // data = GisHelperService.UnwrapProxiedData(data);
                     prom.resolve(data);
                 }).error(function (data, status, headers, config) {
                     prom.reject(null);
@@ -112,7 +112,7 @@
             var url = completeUrl(cleanurl) + '/legend?f=pjson';
             $http.get(url, generateOptionsBasedOnUrl(url))
                 .success(function (data, status, headers, config) {
-                    // data = HelperService.UnwrapProxiedData(data);
+                    // data = GisHelperService.UnwrapProxiedData(data);
                     prom.resolve(data);
                 }).error(function (data, status, headers, config) {
                     prom.reject(null);
@@ -149,6 +149,6 @@
         };
         return _service;
     };
-    module.$inject = ['$http', 'HelperService', '$q', 'PopupService'];
+    module.$inject = ['$http', 'GisHelperService', '$q', 'PopupService'];
     module.factory('GISService', service);
 })();
