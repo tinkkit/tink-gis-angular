@@ -2234,6 +2234,9 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             if (!url.contains('arcgissql/rest/') && !url.contains('arcgis/rest/')) {
                 url = baseurl + url;
             }
+            if (url.toLowerCase().contains("p_sik") && url.toLowerCase().contains("/arcgissql/")) {
+                url = url.replace("/arcgissql/", "/arcgis/");
+            }
             return url;
         };
         var generateOptionsBasedOnUrl = function generateOptionsBasedOnUrl(url, opts) {
