@@ -1,5 +1,5 @@
 'use strict';
-(function () {
+(function() {
     var module;
     try {
         module = angular.module('tink.gis');
@@ -8,15 +8,15 @@
     }
     // module.$inject = ['MapData', 'map', 'GISService', 'ThemeCreater', 'WMSService', 'ThemeService', '$q','BaseLayersService'];
 
-    var externService = function (MapData, map, GISService, ThemeCreater, WMSService, ThemeService, $q, BaseLayersService, FeatureService, ResultsData, PopupService) {
+    var externService = function(MapData, map, GISService, ThemeCreater, WMSService, ThemeService, $q, BaseLayersService, FeatureService, ResultsData, PopupService) {
         var _externService = {};
-        _externService.GetAllThemes = function () {
+        _externService.GetAllThemes = function() {
             let legendItem = {};
             legendItem.EsriThemes = MapData.Themes.filter(x => x.Type == ThemeType.ESRI);
             legendItem.WmsThemes = MapData.Themes.filter(x => x.Type == ThemeType.WMS);
             return legendItem;
         };
-        _externService.SetPrintPreview = function () {
+        _externService.SetPrintPreview = function() {
             var cent = map.getCenter();
             var html = $('html');
             if (!html.hasClass('print')) {
@@ -28,7 +28,7 @@
             map.invalidateSize(false);
             map.setView(cent);
         };
-        _externService.Export = function () {
+        _externService.Export = function() {
             var exportObject = {};
             var arr = MapData.Themes.map(theme => {
                 let returnitem = {};
@@ -65,7 +65,7 @@
             return exportObject;
         };
 
-        _externService.Import = function (project) {
+        _externService.Import = function(project) {
             console.log(project);
             _externService.setExtent(project.extent);
             let themesArray = [];
@@ -78,30 +78,37 @@
                     }
                     let prom = GISService.GetThemeData(theme.cleanUrl);
                     promises.push(prom);
-                    prom.then(function (data) {
-                        if (!data.error) {
-                            let arcgistheme = ThemeCreater.createARCGISThemeFromJson(data, theme);
-                            themesArray.push(arcgistheme);
+                    prom.then(function(data) {
+                        if (data) {
+                            if (!data.error) {
+                                let arcgistheme = ThemeCreater.createARCGISThemeFromJson(data, theme);
+                                themesArray.push(arcgistheme);
+                            } else {
+                                PopupService.ErrorWithException("Fout bij laden van mapservice", "Kan mapservice met volgende url niet laden: " + theme.cleanUrl, data.error);
+                            }
                         } else {
-                            PopupService.ErrorWithException("Fout bij laden van mapservice", "Kan mapservice met volgende url niet laden: " + theme.cleanUrl, data.error);
+                            PopupService.Error("Geen rechten voor mapservice met url: " + theme.cleanUrl);
                         }
-
                     });
                 } else {
                     // wms
                     let prom = WMSService.GetThemeData(theme.cleanUrl);
                     promises.push(prom);
-                    prom.success(function (data, status, headers, config) {
+                    prom.success(function(data, status, headers, config) {
                         let wmstheme = ThemeCreater.createWMSThemeFromJSON(data, theme.cleanUrl);
                         themesArray.push(wmstheme);
-                    }).error(function (data, status, headers, config) {
+                    }).error(function(data, status, headers, config) {
                         console.log('error!!!!!!!', data, status, headers, config);
 
                     });
                 }
             });
+
+
+
             var allpromises = $q.all(promises);
-            allpromises.then(function () {
+
+            allpromises.then(function() {
                 var orderedArray = [];
                 var errorMessages = [];
                 project.themes.forEach(theme => {
@@ -112,12 +119,11 @@
 
                         if (realTheme.AllLayers.length == theme.layers.length) {
                             realTheme.Added = true; //all are added 
-                        }
-                        else {
+                        } else {
                             realTheme.Added = null; // some are added, never false because else we woudn't save it.
                         }
                         realTheme.AllLayers.forEach(layer => {
-                            layer.enabled = false;  // lets disable all layers first
+                            layer.enabled = false; // lets disable all layers first
                         });
                         //lets check what we need to enable and set visiblity of, and also check what we don't find
                         theme.layers.forEach(layer => {
@@ -125,8 +131,7 @@
                             if (realLayer) {
                                 realLayer.visible = layer.visible; // aha so there was a layer, lets save this
                                 realLayer.enabled = true;
-                            }
-                            else {
+                            } else {
                                 errorMessages.push('"' + layer.name + '" not found in mapserver: ' + realTheme.Naam + '.');
                             }
                         });
@@ -159,10 +164,13 @@
             return allpromises;
 
         };
-        _externService.setExtent = function (extent) {
-            map.fitBounds([[extent._northEast.lat, extent._northEast.lng], [extent._southWest.lat, extent._southWest.lng]]);
+        _externService.setExtent = function(extent) {
+            map.fitBounds([
+                [extent._northEast.lat, extent._northEast.lng],
+                [extent._southWest.lat, extent._southWest.lng]
+            ]);
         };
-        _externService.setExtendFromResults = function () {
+        _externService.setExtendFromResults = function() {
             if (ResultsData.JsonFeatures && ResultsData.JsonFeatures.length > 0) {
                 var featuregrp = L.featureGroup();
                 ResultsData.JsonFeatures.forEach(feature => {
@@ -174,11 +182,11 @@
         };
 
 
-        _externService.CleanMapAndThemes = function () {
+        _externService.CleanMapAndThemes = function() {
             MapData.CleanMap();
             ThemeService.CleanThemes();
         };
-        _externService.LoadConfig = function (config) {
+        _externService.LoadConfig = function(config) {
             Gis.GeometryUrl = config.Gis.GeometryUrl;
             Gis.BaseUrl = config.Gis.BaseUrl;
             Style.Default = config.Style.Default;

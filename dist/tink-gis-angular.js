@@ -2257,8 +2257,12 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 // data = GisHelperService.UnwrapProxiedData(data);
                 prom.resolve(data);
             }).error(function (data, status, headers, config) {
-                prom.reject(null);
-                PopupService.ErrorFromHttp(data, status, url);
+                if (url.toLocaleLowerCase().contains("p_sik")) {
+                    prom.resolve(null);
+                } else {
+                    prom.reject(null);
+                    PopupService.ErrorFromHttp(data, status, url);
+                }
             });
             return prom.promise;
         };
@@ -2858,11 +2862,15 @@ var esri2geo = {};
                     var prom = GISService.GetThemeData(theme.cleanUrl);
                     promises.push(prom);
                     prom.then(function (data) {
-                        if (!data.error) {
-                            var arcgistheme = ThemeCreater.createARCGISThemeFromJson(data, theme);
-                            themesArray.push(arcgistheme);
+                        if (data) {
+                            if (!data.error) {
+                                var arcgistheme = ThemeCreater.createARCGISThemeFromJson(data, theme);
+                                themesArray.push(arcgistheme);
+                            } else {
+                                PopupService.ErrorWithException("Fout bij laden van mapservice", "Kan mapservice met volgende url niet laden: " + theme.cleanUrl, data.error);
+                            }
                         } else {
-                            PopupService.ErrorWithException("Fout bij laden van mapservice", "Kan mapservice met volgende url niet laden: " + theme.cleanUrl, data.error);
+                            PopupService.Error("Geen rechten voor mapservice met url: " + theme.cleanUrl);
                         }
                     });
                 } else {
@@ -2877,7 +2885,9 @@ var esri2geo = {};
                     });
                 }
             });
+
             var allpromises = $q.all(promises);
+
             allpromises.then(function () {
                 var orderedArray = [];
                 var errorMessages = [];

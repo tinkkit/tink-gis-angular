@@ -89,8 +89,12 @@
                     // data = GisHelperService.UnwrapProxiedData(data);
                     prom.resolve(data);
                 }).error(function(data, status, headers, config) {
-                    prom.reject(null);
-                    PopupService.ErrorFromHttp(data, status, url);
+                    if (url.toLocaleLowerCase().contains("p_sik")) {
+                        prom.resolve(null);
+                    } else {
+                        prom.reject(null);
+                        PopupService.ErrorFromHttp(data, status, url);
+                    }
                 });
             return prom.promise;
         };
