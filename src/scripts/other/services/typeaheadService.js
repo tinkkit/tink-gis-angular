@@ -89,6 +89,7 @@
                 }
             ).addTo(map);
         }
+     
         var zoekXY = function (search) {
             search = search.trim();
             var WGS84Check = GisHelperService.getWGS84CordsFromString(search);

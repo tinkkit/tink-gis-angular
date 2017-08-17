@@ -2174,327 +2174,6 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         };
     });
 })();
-;//http://proj4js.org/
-'use strict';
-
-(function () {
-    var module = angular.module('tink.gis');
-    var service = function service($http, GisHelperService, $q, PopupService) {
-        var _service = {};
-        _service.ReverseGeocode = function (event) {
-            var lambert72Cords = GisHelperService.ConvertWSG84ToLambert72(event.latlng);
-            var loc = lambert72Cords.x + ',' + lambert72Cords.y;
-            var urlloc = encodeURIComponent(loc);
-            var url = Gis.BaseUrl + 'arcgissql/rest/services/COMLOC_CRAB_NAVTEQ/GeocodeServer/reverseGeocode?location=' + urlloc + '&distance=50&outSR=&f=json';
-            var prom = $http.get(url);
-            prom.success(function (data, status, headers, config) {
-                // nothing we just give back the prom do the stuff not here!
-            }).error(function (data, status, headers, config) {
-                PopupService.ErrorFromHttp(data, status, url);
-            });
-            return prom;
-        };
-        _service.QueryCrab = function (straatnaam, huisnummer) {
-            var prom = $q.defer();
-            $http.get('https://geoint.antwerpen.be/arcgissql/rest/services/P_Stad/CRAB_adresposities/MapServer/0/query?' + 'where=GEMEENTE%3D%27Antwerpen%27%20and%20STRAATNM%20%3D%27' + straatnaam + '%27%20and%20' + '(HUISNR%20like%20%27' + huisnummer + '%27%20or%20Huisnr%20like%20%27' + huisnummer + '%5Ba-z%5D%27or%20Huisnr%20like%20%27' + huisnummer + '%5B_%5D%25%27)%20and%20APPTNR%20%3D%20%27%27%20and%20busnr%20%3D%20%27%27' + '&text=&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=*&returnGeometry=true&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&f=pjson').success(function (data, status, headers, config) {
-                // data = GisHelperService.UnwrapProxiedData(data);
-                prom.resolve(data);
-            }).error(function (data, status, headers, config) {
-                prom.reject(null);
-                PopupService.ErrorFromHttp(data, status, url);
-            });
-            return prom.promise;
-        };
-
-        _service.QuerySOLRGIS = function (search) {
-            var prom = $q.defer();
-            var url = Solr.BaseUrl + 'giszoek/solr/search?q=*' + search + '*&wt=json&indent=true&facet=true&rows=999&facet.field=parent&group=true&group.field=parent&group.limit=999&solrtype=gis'; // &group.limit=5
-            $http.get(url).success(function (data, status, headers, config) {
-                prom.resolve(data);
-            }).error(function (data, status, headers, config) {
-                prom.reject(null);
-                PopupService.ErrorFromHttp(data, status, url);
-            });
-            return prom.promise;
-        };
-        _service.QuerySOLRLocatie = function (search) {
-            var prom = $q.defer();
-            var url = Solr.BaseUrl + 'giszoek/solr/search?q=*' + search + '*&wt=json&indent=true&rows=50&solrtype=gislocaties&dismax=true&bq=exactName:DISTRICT^20000.0&bq=layer:straatnaam^20000.0';
-            $http.get(url).success(function (data, status, headers, config) {
-                // data = GisHelperService.UnwrapProxiedData(data);
-                prom.resolve(data);
-            }).error(function (data, status, headers, config) {
-                prom.reject(null);
-                PopupService.ErrorFromHttp(data, status, url);
-            });
-            return prom.promise;
-        };
-        var completeUrl = function completeUrl(url) {
-            var baseurl = Gis.BaseUrl + 'arcgissql/rest/';
-            if (!url.contains('arcgissql/rest/') && !url.contains('arcgis/rest/')) {
-                url = baseurl + url;
-            }
-            if (url.toLowerCase().contains("p_sik") && url.toLowerCase().contains("/arcgissql/")) {
-                url = url.replace("/arcgissql/", "/arcgis/");
-            }
-            return url;
-        };
-        var generateOptionsBasedOnUrl = function generateOptionsBasedOnUrl(url, opts) {
-            if (!opts) {
-                opts = {};
-            }
-            if (url.toLowerCase().includes("p_sik")) {
-                opts.withCredentials = true;
-            }
-            return opts;
-        };
-        _service.GetThemeData = function (mapserver) {
-            var prom = $q.defer();
-
-            var url = completeUrl(mapserver) + '?f=pjson';
-
-            $http.get(url, generateOptionsBasedOnUrl(url)).success(function (data, status, headers, config) {
-                // data = GisHelperService.UnwrapProxiedData(data);
-                prom.resolve(data);
-            }).error(function (data, status, headers, config) {
-                if (url.toLocaleLowerCase().contains("p_sik")) {
-                    prom.resolve(null);
-                } else {
-                    prom.reject(null);
-                    PopupService.ErrorFromHttp(data, status, url);
-                }
-            });
-            return prom.promise;
-        };
-        _service.GetThemeLayerData = function (cleanurl) {
-            var prom = $q.defer();
-
-            var url = completeUrl(cleanurl) + '/layers?f=pjson';
-            $http.get(url, generateOptionsBasedOnUrl(url)).success(function (data, status, headers, config) {
-                // data = GisHelperService.UnwrapProxiedData(data);
-                prom.resolve(data);
-            }).error(function (data, status, headers, config) {
-                prom.reject(null);
-                PopupService.ErrorFromHttp(data, status, url);
-            });
-            return prom.promise;
-        };
-        _service.GetLegendData = function (cleanurl) {
-            var prom = $q.defer();
-
-            var url = completeUrl(cleanurl) + '/legend?f=pjson';
-            $http.get(url, generateOptionsBasedOnUrl(url)).success(function (data, status, headers, config) {
-                // data = GisHelperService.UnwrapProxiedData(data);
-                prom.resolve(data);
-            }).error(function (data, status, headers, config) {
-                prom.reject(null);
-                PopupService.ErrorFromHttp(data, status, url);
-            });
-            return prom.promise;
-        };
-        _service.GetAditionalLayerInfo = function (theme) {
-
-            var promLegend = _service.GetLegendData(theme.cleanUrl);
-            promLegend.then(function (data) {
-                theme.AllLayers.forEach(function (layer) {
-                    var layerid = layer.id;
-                    var layerInfo = data.layers.find(function (x) {
-                        return x.layerId == layerid;
-                    });
-                    layer.legend = [];
-                    if (layerInfo) {
-                        layer.legend = layerInfo.legend;
-                        layer.legend.forEach(function (legenditem) {
-
-                            legenditem.fullurl = "data:" + legenditem.contentType + ";base64," + legenditem.imageData;
-                        });
-                    }
-                });
-            });
-            var promLayerData = _service.GetThemeLayerData(theme.cleanUrl);
-            promLayerData.then(function (data) {
-                theme.AllLayers.forEach(function (layer) {
-                    var layerid = layer.id;
-                    var layerInfo = data.layers.find(function (x) {
-                        return x.id == layerid;
-                    });
-                    layer.displayField = layerInfo.displayField;
-                    layer.fields = layerInfo.fields;
-                });
-            });
-        };
-        return _service;
-    };
-    module.$inject = ['$http', 'GisHelperService', '$q', 'PopupService'];
-    module.factory('GISService', service);
-})();
-;'use strict';
-
-(function () {
-    var module = angular.module('tink.gis');
-    var service = function service($http, MapService, MapData) {
-        var _service = {};
-
-        _service.Buffer = function (loc, distance, selectedlayer) {
-            var geo = getGeo(loc.geometry);
-            delete geo.geometry.spatialReference;
-            geo.geometries = geo.geometry;
-            delete geo.geometry;
-            var sergeo = serialize(geo);
-            var url = Gis.GeometryUrl;
-            if (loc.mapItem) {
-                loc.mapItem.isBufferedItem = true;
-            }
-            var body = 'inSR=4326&outSR=4326&bufferSR=31370&distances=' + distance * 100 + '&unit=109006&unionResults=true&geodesic=false&geometries=%7B' + sergeo + '%7D&f=json';
-            var prom = $http({
-                method: 'POST',
-                url: url,
-                data: body,
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8;'
-                }
-            });
-            prom.success(function (response) {
-                MapData.CleanSearch();
-                var buffer = MapData.CreateBuffer(response);
-                MapService.Query(buffer, selectedlayer);
-                MapData.SetStyle(loc.mapItem, Style.COREBUFFER, L.AwesomeMarkers.icon({ icon: 'fa-circle-o', markerColor: 'lightgreen' }));
-                return prom;
-            });
-        };
-        _service.Doordruk = function (location) {
-            MapData.CleanSearch();
-
-            MapData.CleanMap();
-            console.log(location);
-            MapService.Query(location);
-        };
-        var getGeo = function getGeo(geometry) {
-            var geoconverted = {};
-            // geoconverted.inSr = 4326;
-
-            // convert bounds to extent and finish
-            if (geometry instanceof L.LatLngBounds) {
-                // set geometry + geometryType
-                geoconverted.geometry = L.esri.Util.boundsToExtent(geometry);
-                geoconverted.geometryType = 'esriGeometryEnvelope';
-                return geoconverted;
-            }
-
-            // convert L.Marker > L.LatLng
-            if (geometry.getLatLng) {
-                geometry = geometry.getLatLng();
-            }
-
-            // convert L.LatLng to a geojson point and continue;
-            if (geometry instanceof L.LatLng) {
-                geometry = {
-                    type: 'Point',
-                    coordinates: [geometry.lng, geometry.lat]
-                };
-            }
-
-            // handle L.GeoJSON, pull out the first geometry
-            if (geometry instanceof L.GeoJSON) {
-                // reassign geometry to the GeoJSON value  (we are assuming that only one feature is present)
-                geometry = geometry.getLayers()[0].feature.geometry;
-                geoconverted.geometry = L.esri.Util.geojsonToArcGIS(geometry);
-                geoconverted.geometryType = L.esri.Util.geojsonTypeToArcGIS(geometry.type);
-            }
-
-            // Handle L.Polyline and L.Polygon
-            if (geometry.toGeoJSON) {
-                geometry = geometry.toGeoJSON();
-            }
-
-            // handle GeoJSON feature by pulling out the geometry
-            if (geometry.type === 'Feature') {
-                // get the geometry of the geojson feature
-                geometry = geometry.geometry;
-            } else {
-                geoconverted.geometry = L.esri.Util.geojsonToArcGIS(geometry);
-                geoconverted.geometryType = L.esri.Util.geojsonTypeToArcGIS(geometry.type);
-            }
-
-            // confirm that our GeoJSON is a point, line or polygon
-            // if (geometry.type === 'Point' || geometry.type === 'LineString' || geometry.type === 'Polygon' || geometry.type === 'MultiLineString') {
-
-            return geoconverted;
-            // }
-
-            // warn the user if we havn't found an appropriate object
-
-            // return geoconverted;
-        };
-        var serialize = function serialize(params) {
-            var data = '';
-            for (var key in params) {
-                if (params.hasOwnProperty(key)) {
-                    var param = params[key];
-                    var type = Object.prototype.toString.call(param);
-                    var value;
-                    if (data.length) {
-                        data += ',';
-                    }
-                    if (type === '[object Array]') {
-                        value = Object.prototype.toString.call(param[0]) === '[object Object]' ? JSON.stringify(param) : param.join(',');
-                    } else if (type === '[object Object]') {
-                        value = JSON.stringify(param);
-                    } else if (type === '[object Date]') {
-                        value = param.valueOf();
-                    } else {
-                        value = '"' + param + '"';
-                    }
-                    if (key == 'geometries') {
-                        data += encodeURIComponent('"' + key + '"') + ':' + encodeURIComponent('[' + value + ']');
-                    } else {
-                        data += encodeURIComponent('"' + key + '"') + ':' + encodeURIComponent(value);
-                    }
-                }
-            }
-
-            return data;
-        };
-        return _service;
-    };
-    module.$inject = ['$http', 'MapService', 'MapData'];
-    module.factory('GeometryService', service);
-})();
-;//http://proj4js.org/
-'use strict';
-
-(function () {
-    var module = angular.module('tink.gis');
-    var service = function service($http, GisHelperService, $q, PopupService) {
-        var _service = {};
-        _service.GetThemeData = function (url) {
-            var fullurl = url + '?request=GetCapabilities&service=WMS';
-            var proxiedurl = GisHelperService.CreateProxyUrl(fullurl);
-            var prom = $http({
-                method: 'GET',
-                url: proxiedurl,
-                timeout: 10000,
-                transformResponse: function transformResponse(data) {
-                    if (data) {
-                        data = GisHelperService.UnwrapProxiedData(data);
-                        if (data.listOfHttpError) {} else {
-                            data = JXON.stringToJs(data).wms_capabilities;
-                        }
-                    }
-                    return data;
-                }
-            }).success(function (data, status, headers, config) {
-                // console.dir(data);  // XML document object
-            }).error(function (data, status, headers, config) {
-                PopupService.ErrorFromHttp(data, status, fullurl);
-            });
-            return prom;
-        };
-        return _service;
-    };
-    module.$inject = ['$http', 'GisHelperService', '$q', 'PopupService'];
-    module.factory('WMSService', service);
-})();
 ;'use strict';
 
 (function () {
@@ -2858,6 +2537,9 @@ var esri2geo = {};
                 if (theme.type == ThemeType.ESRI) {
                     if (!theme.cleanUrl.startsWith(Gis.Arcgissql)) {
                         theme.cleanUrl = Gis.Arcgissql + theme.cleanUrl;
+                        if (theme.cleanUrl.toLowerCase().contains("p_sik") && theme.cleanUrl.toLowerCase().contains("/arcgissql/")) {
+                            theme.cleanUrl = theme.cleanUrl.replace("/arcgissql/", "/arcgis/");
+                        }
                     }
                     var prom = GISService.GetThemeData(theme.cleanUrl);
                     promises.push(prom);
@@ -2870,7 +2552,7 @@ var esri2geo = {};
                                 PopupService.ErrorWithException("Fout bij laden van mapservice", "Kan mapservice met volgende url niet laden: " + theme.cleanUrl, data.error);
                             }
                         } else {
-                            PopupService.Error("Geen rechten voor mapservice met url: " + theme.cleanUrl);
+                            PopupService.Error("Geen rechten voor de mapservice: " + theme.Naam);
                         }
                     });
                 } else {
@@ -3013,7 +2695,293 @@ var esri2geo = {};
 })();
 ;'use strict';
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+(function () {
+    var module = angular.module('tink.gis');
+    var service = function service($http, MapService, MapData) {
+        var _service = {};
+
+        _service.Buffer = function (loc, distance, selectedlayer) {
+            var geo = getGeo(loc.geometry);
+            delete geo.geometry.spatialReference;
+            geo.geometries = geo.geometry;
+            delete geo.geometry;
+            var sergeo = serialize(geo);
+            var url = Gis.GeometryUrl;
+            if (loc.mapItem) {
+                loc.mapItem.isBufferedItem = true;
+            }
+            var body = 'inSR=4326&outSR=4326&bufferSR=31370&distances=' + distance * 100 + '&unit=109006&unionResults=true&geodesic=false&geometries=%7B' + sergeo + '%7D&f=json';
+            var prom = $http({
+                method: 'POST',
+                url: url,
+                data: body,
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8;'
+                }
+            });
+            prom.success(function (response) {
+                MapData.CleanSearch();
+                var buffer = MapData.CreateBuffer(response);
+                MapService.Query(buffer, selectedlayer);
+                MapData.SetStyle(loc.mapItem, Style.COREBUFFER, L.AwesomeMarkers.icon({ icon: 'fa-circle-o', markerColor: 'lightgreen' }));
+                return prom;
+            });
+        };
+        _service.Doordruk = function (location) {
+            MapData.CleanSearch();
+
+            MapData.CleanMap();
+            console.log(location);
+            MapService.Query(location);
+        };
+        var getGeo = function getGeo(geometry) {
+            var geoconverted = {};
+            // geoconverted.inSr = 4326;
+
+            // convert bounds to extent and finish
+            if (geometry instanceof L.LatLngBounds) {
+                // set geometry + geometryType
+                geoconverted.geometry = L.esri.Util.boundsToExtent(geometry);
+                geoconverted.geometryType = 'esriGeometryEnvelope';
+                return geoconverted;
+            }
+
+            // convert L.Marker > L.LatLng
+            if (geometry.getLatLng) {
+                geometry = geometry.getLatLng();
+            }
+
+            // convert L.LatLng to a geojson point and continue;
+            if (geometry instanceof L.LatLng) {
+                geometry = {
+                    type: 'Point',
+                    coordinates: [geometry.lng, geometry.lat]
+                };
+            }
+
+            // handle L.GeoJSON, pull out the first geometry
+            if (geometry instanceof L.GeoJSON) {
+                // reassign geometry to the GeoJSON value  (we are assuming that only one feature is present)
+                geometry = geometry.getLayers()[0].feature.geometry;
+                geoconverted.geometry = L.esri.Util.geojsonToArcGIS(geometry);
+                geoconverted.geometryType = L.esri.Util.geojsonTypeToArcGIS(geometry.type);
+            }
+
+            // Handle L.Polyline and L.Polygon
+            if (geometry.toGeoJSON) {
+                geometry = geometry.toGeoJSON();
+            }
+
+            // handle GeoJSON feature by pulling out the geometry
+            if (geometry.type === 'Feature') {
+                // get the geometry of the geojson feature
+                geometry = geometry.geometry;
+            } else {
+                geoconverted.geometry = L.esri.Util.geojsonToArcGIS(geometry);
+                geoconverted.geometryType = L.esri.Util.geojsonTypeToArcGIS(geometry.type);
+            }
+
+            // confirm that our GeoJSON is a point, line or polygon
+            // if (geometry.type === 'Point' || geometry.type === 'LineString' || geometry.type === 'Polygon' || geometry.type === 'MultiLineString') {
+
+            return geoconverted;
+            // }
+
+            // warn the user if we havn't found an appropriate object
+
+            // return geoconverted;
+        };
+        var serialize = function serialize(params) {
+            var data = '';
+            for (var key in params) {
+                if (params.hasOwnProperty(key)) {
+                    var param = params[key];
+                    var type = Object.prototype.toString.call(param);
+                    var value;
+                    if (data.length) {
+                        data += ',';
+                    }
+                    if (type === '[object Array]') {
+                        value = Object.prototype.toString.call(param[0]) === '[object Object]' ? JSON.stringify(param) : param.join(',');
+                    } else if (type === '[object Object]') {
+                        value = JSON.stringify(param);
+                    } else if (type === '[object Date]') {
+                        value = param.valueOf();
+                    } else {
+                        value = '"' + param + '"';
+                    }
+                    if (key == 'geometries') {
+                        data += encodeURIComponent('"' + key + '"') + ':' + encodeURIComponent('[' + value + ']');
+                    } else {
+                        data += encodeURIComponent('"' + key + '"') + ':' + encodeURIComponent(value);
+                    }
+                }
+            }
+
+            return data;
+        };
+        return _service;
+    };
+    module.$inject = ['$http', 'MapService', 'MapData'];
+    module.factory('GeometryService', service);
+})();
+;//http://proj4js.org/
+'use strict';
+
+(function () {
+    var module = angular.module('tink.gis');
+    var service = function service($http, GisHelperService, $q, PopupService) {
+        var _service = {};
+        _service.ReverseGeocode = function (event) {
+            var lambert72Cords = GisHelperService.ConvertWSG84ToLambert72(event.latlng);
+            var loc = lambert72Cords.x + ',' + lambert72Cords.y;
+            var urlloc = encodeURIComponent(loc);
+            var url = Gis.BaseUrl + 'arcgissql/rest/services/COMLOC_CRAB_NAVTEQ/GeocodeServer/reverseGeocode?location=' + urlloc + '&distance=50&outSR=&f=json';
+            var prom = $http.get(url);
+            prom.success(function (data, status, headers, config) {
+                // nothing we just give back the prom do the stuff not here!
+            }).error(function (data, status, headers, config) {
+                PopupService.ErrorFromHttp(data, status, url);
+            });
+            return prom;
+        };
+        _service.QueryCrab = function (straatnaam, huisnummer) {
+            var prom = $q.defer();
+            $http.get('https://geoint.antwerpen.be/arcgissql/rest/services/P_Stad/CRAB_adresposities/MapServer/0/query?' + 'where=GEMEENTE%3D%27Antwerpen%27%20and%20STRAATNM%20%3D%27' + straatnaam + '%27%20and%20' + '(HUISNR%20like%20%27' + huisnummer + '%27%20or%20Huisnr%20like%20%27' + huisnummer + '%5Ba-z%5D%27or%20Huisnr%20like%20%27' + huisnummer + '%5B_%5D%25%27)%20and%20APPTNR%20%3D%20%27%27%20and%20busnr%20%3D%20%27%27' + '&text=&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=*&returnGeometry=true&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&f=pjson').success(function (data, status, headers, config) {
+                // data = GisHelperService.UnwrapProxiedData(data);
+                prom.resolve(data);
+            }).error(function (data, status, headers, config) {
+                prom.reject(null);
+                PopupService.ErrorFromHttp(data, status, url);
+            });
+            return prom.promise;
+        };
+
+        _service.QuerySOLRGIS = function (search) {
+            var prom = $q.defer();
+            var url = Solr.BaseUrl + 'giszoek/solr/search?q=*' + search + '*&wt=json&indent=true&facet=true&rows=999&facet.field=parent&group=true&group.field=parent&group.limit=999&solrtype=gis'; // &group.limit=5
+            $http.get(url).success(function (data, status, headers, config) {
+                prom.resolve(data);
+            }).error(function (data, status, headers, config) {
+                prom.reject(null);
+                PopupService.ErrorFromHttp(data, status, url);
+            });
+            return prom.promise;
+        };
+        _service.QuerySOLRLocatie = function (search) {
+            var prom = $q.defer();
+            var url = Solr.BaseUrl + 'giszoek/solr/search?q=*' + search + '*&wt=json&indent=true&rows=50&solrtype=gislocaties&dismax=true&bq=exactName:DISTRICT^20000.0&bq=layer:straatnaam^20000.0';
+            $http.get(url).success(function (data, status, headers, config) {
+                // data = GisHelperService.UnwrapProxiedData(data);
+                prom.resolve(data);
+            }).error(function (data, status, headers, config) {
+                prom.reject(null);
+                PopupService.ErrorFromHttp(data, status, url);
+            });
+            return prom.promise;
+        };
+        var completeUrl = function completeUrl(url) {
+            var baseurl = Gis.BaseUrl + 'arcgissql/rest/';
+            if (!url.contains('arcgissql/rest/') && !url.contains('arcgis/rest/')) {
+                url = baseurl + url;
+            }
+            if (url.toLowerCase().contains("p_sik") && url.toLowerCase().contains("/arcgissql/")) {
+                url = url.replace("/arcgissql/", "/arcgis/");
+            }
+            return url;
+        };
+        var generateOptionsBasedOnUrl = function generateOptionsBasedOnUrl(url, opts) {
+            if (!opts) {
+                opts = {};
+            }
+            if (url.toLowerCase().includes("p_sik")) {
+                opts.withCredentials = true;
+            }
+            return opts;
+        };
+        _service.GetThemeData = function (mapserver) {
+            var prom = $q.defer();
+
+            var url = completeUrl(mapserver) + '?f=pjson';
+
+            $http.get(url, generateOptionsBasedOnUrl(url)).success(function (data, status, headers, config) {
+                // data = GisHelperService.UnwrapProxiedData(data);
+                prom.resolve(data);
+            }).error(function (data, status, headers, config) {
+                if (url.toLocaleLowerCase().contains("p_sik")) {
+                    prom.resolve(null);
+                } else {
+                    prom.reject(null);
+                    PopupService.ErrorFromHttp(data, status, url);
+                }
+            });
+            return prom.promise;
+        };
+        _service.GetThemeLayerData = function (cleanurl) {
+            var prom = $q.defer();
+
+            var url = completeUrl(cleanurl) + '/layers?f=pjson';
+            $http.get(url, generateOptionsBasedOnUrl(url)).success(function (data, status, headers, config) {
+                // data = GisHelperService.UnwrapProxiedData(data);
+                prom.resolve(data);
+            }).error(function (data, status, headers, config) {
+                prom.reject(null);
+                PopupService.ErrorFromHttp(data, status, url);
+            });
+            return prom.promise;
+        };
+        _service.GetLegendData = function (cleanurl) {
+            var prom = $q.defer();
+
+            var url = completeUrl(cleanurl) + '/legend?f=pjson';
+            $http.get(url, generateOptionsBasedOnUrl(url)).success(function (data, status, headers, config) {
+                // data = GisHelperService.UnwrapProxiedData(data);
+                prom.resolve(data);
+            }).error(function (data, status, headers, config) {
+                prom.reject(null);
+                PopupService.ErrorFromHttp(data, status, url);
+            });
+            return prom.promise;
+        };
+        _service.GetAditionalLayerInfo = function (theme) {
+
+            var promLegend = _service.GetLegendData(theme.cleanUrl);
+            promLegend.then(function (data) {
+                theme.AllLayers.forEach(function (layer) {
+                    var layerid = layer.id;
+                    var layerInfo = data.layers.find(function (x) {
+                        return x.layerId == layerid;
+                    });
+                    layer.legend = [];
+                    if (layerInfo) {
+                        layer.legend = layerInfo.legend;
+                        layer.legend.forEach(function (legenditem) {
+
+                            legenditem.fullurl = "data:" + legenditem.contentType + ";base64," + legenditem.imageData;
+                        });
+                    }
+                });
+            });
+            var promLayerData = _service.GetThemeLayerData(theme.cleanUrl);
+            promLayerData.then(function (data) {
+                theme.AllLayers.forEach(function (layer) {
+                    var layerid = layer.id;
+                    var layerInfo = data.layers.find(function (x) {
+                        return x.id == layerid;
+                    });
+                    layer.displayField = layerInfo.displayField;
+                    layer.fields = layerInfo.fields;
+                });
+            });
+        };
+        return _service;
+    };
+    module.$inject = ['$http', 'GisHelperService', '$q', 'PopupService'];
+    module.factory('GISService', service);
+})();
+;'use strict';
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
 (function () {
     var module;
@@ -3304,6 +3272,16 @@ L.Control.Typeahead = L.Control.extend({
   },
   onRemove: function onRemove(map) {},
   keyup: function keyup(e) {
+    console.log('typeahead input!!');
+
+    if (e.keyCode == 13) {
+      console.log('typeahead input!!');
+
+      var selectedValue = $('input.typeahead').data().ttView.dropdownView.getFirstSuggestion();
+      $("#value_id").val(selectedValue);
+      $('form').submit();
+      return true;
+    }
     if (e.keyCode === 38 || e.keyCode === 40) {
       // do nothing
     } else {}
@@ -4032,7 +4010,7 @@ L.control.typeahead = function (args) {
 })();
 ;'use strict';
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
 (function () {
     var module;
@@ -4726,6 +4704,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
             }).addTo(map);
         };
+
         var zoekXY = function zoekXY(search) {
             search = search.trim();
             var WGS84Check = GisHelperService.getWGS84CordsFromString(search);
@@ -4826,6 +4805,41 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         return _service;
     };
     module.factory('UIService', service);
+})();
+;//http://proj4js.org/
+'use strict';
+
+(function () {
+    var module = angular.module('tink.gis');
+    var service = function service($http, GisHelperService, $q, PopupService) {
+        var _service = {};
+        _service.GetThemeData = function (url) {
+            var fullurl = url + '?request=GetCapabilities&service=WMS';
+            var proxiedurl = GisHelperService.CreateProxyUrl(fullurl);
+            var prom = $http({
+                method: 'GET',
+                url: proxiedurl,
+                timeout: 10000,
+                transformResponse: function transformResponse(data) {
+                    if (data) {
+                        data = GisHelperService.UnwrapProxiedData(data);
+                        if (data.listOfHttpError) {} else {
+                            data = JXON.stringToJs(data).wms_capabilities;
+                        }
+                    }
+                    return data;
+                }
+            }).success(function (data, status, headers, config) {
+                // console.dir(data);  // XML document object
+            }).error(function (data, status, headers, config) {
+                PopupService.ErrorFromHttp(data, status, fullurl);
+            });
+            return prom;
+        };
+        return _service;
+    };
+    module.$inject = ['$http', 'GisHelperService', '$q', 'PopupService'];
+    module.factory('WMSService', service);
 })();
 ;'use strict';
 
@@ -5354,6 +5368,76 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     };
     module.factory("SearchService", service);
 })();
+;// (function() {
+//
+//     'use strict';
+//
+//     var componentName = "ErrorHandler";
+//     var theComponent = function(appService) {
+//
+//         function _handle(errorResponse) {
+//
+//             // ToDo : vervang onderstaande door eigen error handling, indien gewenst
+//
+//             var message = "fout bij call naar " + errorResponse.config.url + " (" + errorResponse.config.method + ") - " + errorResponse.status + " ";
+//             if (errorResponse.data) {
+//                 if (errorResponse.data.message)
+//                     message += errorResponse.data.message;
+//                 else
+//                     message += errorResponse.statusText;
+//             } else {
+//                 message += errorResponse.statusText;
+//             }
+//             appService.logger.error(message);
+//         }
+//
+//         function _getErrorMessage(errorResponse, defaultMessage) {
+//             defaultMessage = defaultMessage || "unknown error";
+//             if (errorResponse.data) {
+//                 if (errorResponse.data.listOfHttpError) {
+//                     if (errorResponse.data.listOfHttpError.message) {
+//                         return errorResponse.data.listOfHttpError.message;
+//                     } else {
+//                         if (errorResponse.statusText)
+//                             return errorResponse.statusText;
+//                         else
+//                             return defaultMessage;
+//                     }
+//                 } else {
+//                     if (errorResponse.data.message) {
+//                         return errorResponse.data.message;
+//                     } else {
+//                         if (errorResponse.statusText)
+//                             return errorResponse.statusText;
+//                         else
+//                             return defaultMessage;
+//                     }
+//                 }
+//             } else {
+//                 if (errorResponse.statusText)
+//                     return errorResponse.statusText;
+//                 else
+//                     return defaultMessage;
+//             }
+//         }
+//
+//         /* +++++ public interface +++++ */
+//
+//         appService.logger.creation(componentName);
+//
+//         return {
+//             handle: _handle,
+//             getErrorMessage: _getErrorMessage,
+//         };
+//
+//     };
+//
+//     theComponent.$inject = ['AppService'];
+//
+//     angular.module('tink.gis').factory(componentName, theComponent);
+//
+// })();
+"use strict";
 ;'use strict';
 
 L.TileLayer.BetterWMS = L.TileLayer.WMS.extend({
@@ -5428,76 +5512,6 @@ L.TileLayer.BetterWMS = L.TileLayer.WMS.extend({
 L.tileLayer.betterWms = function (url, options) {
     return new L.TileLayer.BetterWMS(url, options);
 };
-;// (function() {
-//
-//     'use strict';
-//
-//     var componentName = "ErrorHandler";
-//     var theComponent = function(appService) {
-//
-//         function _handle(errorResponse) {
-//
-//             // ToDo : vervang onderstaande door eigen error handling, indien gewenst
-//
-//             var message = "fout bij call naar " + errorResponse.config.url + " (" + errorResponse.config.method + ") - " + errorResponse.status + " ";
-//             if (errorResponse.data) {
-//                 if (errorResponse.data.message)
-//                     message += errorResponse.data.message;
-//                 else
-//                     message += errorResponse.statusText;
-//             } else {
-//                 message += errorResponse.statusText;
-//             }
-//             appService.logger.error(message);
-//         }
-//
-//         function _getErrorMessage(errorResponse, defaultMessage) {
-//             defaultMessage = defaultMessage || "unknown error";
-//             if (errorResponse.data) {
-//                 if (errorResponse.data.listOfHttpError) {
-//                     if (errorResponse.data.listOfHttpError.message) {
-//                         return errorResponse.data.listOfHttpError.message;
-//                     } else {
-//                         if (errorResponse.statusText)
-//                             return errorResponse.statusText;
-//                         else
-//                             return defaultMessage;
-//                     }
-//                 } else {
-//                     if (errorResponse.data.message) {
-//                         return errorResponse.data.message;
-//                     } else {
-//                         if (errorResponse.statusText)
-//                             return errorResponse.statusText;
-//                         else
-//                             return defaultMessage;
-//                     }
-//                 }
-//             } else {
-//                 if (errorResponse.statusText)
-//                     return errorResponse.statusText;
-//                 else
-//                     return defaultMessage;
-//             }
-//         }
-//
-//         /* +++++ public interface +++++ */
-//
-//         appService.logger.creation(componentName);
-//
-//         return {
-//             handle: _handle,
-//             getErrorMessage: _getErrorMessage,
-//         };
-//
-//     };
-//
-//     theComponent.$inject = ['AppService'];
-//
-//     angular.module('tink.gis').factory(componentName, theComponent);
-//
-// })();
-"use strict";
 ;'use strict';
 
 L.drawVersion = '0.3.0-dev';
@@ -5932,6 +5946,35 @@ L.drawLocal = {
   );
 
 
+  $templateCache.put('templates/other/layersTemplate.html',
+    "<div data-tink-nav-aside=\"\" id=rightaside data-auto-select=true data-toggle-id=asideNavRight class=\"nav-aside nav-right\">\n" +
+    "<aside class=\"flex-column flex-grow-1\">\n" +
+    "<div class=nav-aside-section>\n" +
+    "<p class=nav-aside-title>Lagenoverzicht</p>\n" +
+    "</div>\n" +
+    "<button ng-click=lyrsctrl.asidetoggle class=nav-right-toggle data-tink-sidenav-collapse=asideNavRight>\n" +
+    "<a href=# title=\"Open menu\"><span class=sr-only>Open right menu</span></a>\n" +
+    "</button>\n" +
+    "<div class=\"flex-column flex-grow-1\">\n" +
+    "<div class=layer-management ng-if=lyrsctrl.layerManagementButtonIsEnabled>\n" +
+    "<div class=\"col-xs-12 margin-top margin-bottom\">\n" +
+    "<button class=\"btn btn-primary btn-layermanagement center-block\" ng-click=lyrsctrl.Lagenbeheer()>Lagenbeheer</button>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "<div class=\"overflow-wrapper flex-grow-1 extra-padding\">\n" +
+    "<ul class=ul-level id=sortableThemes ui-sortable=lyrsctrl.sortableOptions ng-model=lyrsctrl.themes>\n" +
+    "<li class=li-item ng-repeat=\"theme in lyrsctrl.themes\">\n" +
+    "<tink-theme theme=theme layercheckboxchange=lyrsctrl.updatethemevisibility(theme) hidedelete=!lyrsctrl.deleteLayerButtonIsEnabled>\n" +
+    "</tink-theme>\n" +
+    "</li>\n" +
+    "</ul>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "</aside>\n" +
+    "</div>\n"
+  );
+
+
   $templateCache.put('templates/other/layerTemplate.html',
     "<div ng-class=\"{'hidden-print': lyrctrl.layer.IsEnabledAndVisible == false}\">\n" +
     "<div ng-if=lyrctrl.layer.hasLayers>\n" +
@@ -5970,35 +6013,6 @@ L.drawLocal = {
     "</li>\n" +
     "</ul>\n" +
     "</div>"
-  );
-
-
-  $templateCache.put('templates/other/layersTemplate.html',
-    "<div data-tink-nav-aside=\"\" id=rightaside data-auto-select=true data-toggle-id=asideNavRight class=\"nav-aside nav-right\">\n" +
-    "<aside class=\"flex-column flex-grow-1\">\n" +
-    "<div class=nav-aside-section>\n" +
-    "<p class=nav-aside-title>Lagenoverzicht</p>\n" +
-    "</div>\n" +
-    "<button ng-click=lyrsctrl.asidetoggle class=nav-right-toggle data-tink-sidenav-collapse=asideNavRight>\n" +
-    "<a href=# title=\"Open menu\"><span class=sr-only>Open right menu</span></a>\n" +
-    "</button>\n" +
-    "<div class=\"flex-column flex-grow-1\">\n" +
-    "<div class=layer-management ng-if=lyrsctrl.layerManagementButtonIsEnabled>\n" +
-    "<div class=\"col-xs-12 margin-top margin-bottom\">\n" +
-    "<button class=\"btn btn-primary btn-layermanagement center-block\" ng-click=lyrsctrl.Lagenbeheer()>Lagenbeheer</button>\n" +
-    "</div>\n" +
-    "</div>\n" +
-    "<div class=\"overflow-wrapper flex-grow-1 extra-padding\">\n" +
-    "<ul class=ul-level id=sortableThemes ui-sortable=lyrsctrl.sortableOptions ng-model=lyrsctrl.themes>\n" +
-    "<li class=li-item ng-repeat=\"theme in lyrsctrl.themes\">\n" +
-    "<tink-theme theme=theme layercheckboxchange=lyrsctrl.updatethemevisibility(theme) hidedelete=!lyrsctrl.deleteLayerButtonIsEnabled>\n" +
-    "</tink-theme>\n" +
-    "</li>\n" +
-    "</ul>\n" +
-    "</div>\n" +
-    "</div>\n" +
-    "</aside>\n" +
-    "</div>\n"
   );
 
 

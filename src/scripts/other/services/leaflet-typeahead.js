@@ -8,10 +8,10 @@ L.Control.Typeahead = L.Control.extend({
     // constructor
 
     this.arguments = [];
-    for(var i = 0; i < args.length-1; i++)
+    for (var i = 0; i < args.length - 1; i++)
       this.arguments.push(args[i]);
     //console.log(this.arguments);
-    L.Util.setOptions(this, args[args.length-1]);
+    L.Util.setOptions(this, args[args.length - 1]);
   },
   onAdd: function (map) {
     var that = this;
@@ -26,35 +26,45 @@ L.Control.Typeahead = L.Control.extend({
     this.typeahead.type = 'text';
     this.typeahead.id = "okzor"
     this.typeahead.placeholder = this.options.placeholder;
-    $(this.typeahead).typeahead.apply($(this.typeahead),this.arguments);
+    $(this.typeahead).typeahead.apply($(this.typeahead), this.arguments);
     ["typeahead:active", "typeahead:idle", "typeahead:open", "typeahead:close",
-     "typeahead:change", "typeahead:render", "typeahead:select",
-     "typeahead:autocomplete", "typeahead:cursorchange",
-     "typeahead:asyncrequest", "typeahead:asynccancel",
-     "typeahead:asyncreceive"].forEach(function(method){
-       if(that.options[method]){
-         $(that.typeahead).bind(method, that.options[method]);
-       }
-    });
+      "typeahead:change", "typeahead:render", "typeahead:select",
+      "typeahead:autocomplete", "typeahead:cursorchange",
+      "typeahead:asyncrequest", "typeahead:asynccancel",
+      "typeahead:asyncreceive"].forEach(function (method) {
+        if (that.options[method]) {
+          $(that.typeahead).bind(method, that.options[method]);
+        }
+      });
     L.DomEvent.disableClickPropagation(container);
     return container;
   },
   onRemove: function (map) {
   },
-  keyup: function(e) {
+  keyup: function (e) {
+    console.log('typeahead input!!');
+
+    if (e.keyCode == 13) {
+      console.log('typeahead input!!');
+
+      var selectedValue = $('input.typeahead').data().ttView.dropdownView.getFirstSuggestion();
+      $("#value_id").val(selectedValue);
+      $('form').submit();
+      return true;
+    }
     if (e.keyCode === 38 || e.keyCode === 40) {
       // do nothing
     } else {
     }
   },
-  itemSelected: function(e) {
+  itemSelected: function (e) {
     L.DomEvent.preventDefault(e);
   },
-  submit: function(e) {
+  submit: function (e) {
     L.DomEvent.preventDefault(e);
   }
 });
 
-L.control.typeahead = function(args) {
+L.control.typeahead = function (args) {
   return new L.Control.Typeahead(arguments);
 }
