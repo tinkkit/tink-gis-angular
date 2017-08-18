@@ -47,7 +47,7 @@
             };
 
             $scope.AddOrUpdateTheme = function () {
-                PopupService.Success("Data is bijgewerkt.");
+                PopupService.Success("Data is bijgewerkt.", null, null, {  timeOut: 1000 });
                 LayerManagementService.AddOrUpdateTheme($scope.selectedTheme, $scope.copySelectedTheme);
                 $scope.clearPreview();
 
