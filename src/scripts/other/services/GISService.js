@@ -61,13 +61,13 @@
             return prom.promise;
         };
         var completeUrl = function(url) {
-            var baseurl = Gis.BaseUrl + 'arcgissql/rest/';
-            if (!url.contains('arcgissql/rest/') && !url.contains('arcgis/rest/')) {
-                url = baseurl + url;
-            }
-            if (url.toLowerCase().contains("p_sik") && url.toLowerCase().contains("/arcgissql/")) {
-                url = url.replace("/arcgissql/", "/arcgis/");
-            }
+            // var baseurl = Gis.BaseUrl + 'arcgissql/rest/';
+            // if (!url.contains('arcgissql/rest/') && !url.contains('arcgis/rest/')) {
+            //     url = baseurl + url;
+            // }
+            // if (url.toLowerCase().contains("p_sik") && url.toLowerCase().contains("/arcgissql/")) {
+            //     url = url.replace("/arcgissql/", "/arcgis/");
+            // }
             return url
         }
         var generateOptionsBasedOnUrl = function(url, opts) {

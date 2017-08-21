@@ -69,17 +69,19 @@
                     itemsMetData.forEach(itemMetData => {
                         switch (itemMetData.doclist.docs[0].type) {
                             case "Feature":
-                                var themeName = itemMetData.groupValue.split('/').slice(1, 2).join('/');
-                                var layerId = itemMetData.groupValue.split('/')[2];
+                                var afterservicespart = itemMetData.groupValue.split('/services/')[1].split('/'); //  ["P_Stad", "ATLAS", "14"]
+                                var url = itemMetData.groupValue.split('/').splice(0,itemMetData.groupValue.split('/').length - 1).join('/') + '/Mapserver' // url without id
+                                var themeName = afterservicespart[1];
+                                var layerId = afterservicespart[2];
                                 var layerName = itemMetData.doclist.docs[0].parentname;
-                                var theme = themes.find(x => x.name == themeName)
+                                var theme = themes.find(x => x.name == themeName);
                                 if (!theme) {
                                     var theme = {
                                         layers: [],
                                         layersCount: 0,
                                         name: themeName,
-                                        cleanUrl: Gis.BaseUrl + 'arcgissql/rest/services/P_Stad/' + themeName + '/MapServer',
-                                        url: 'services/P_Stad/' + themeName + '/MapServer'
+                                        cleanUrl: url,  // Gis.BaseUrl + 'arcgissql/rest/services/P_Stad/' + themeName + '/MapServer',
+                                        url: url// 'services/P_Stad/' + themeName + '/MapServer'
                                     }
                                     themes.push(theme);
                                 }
@@ -103,9 +105,10 @@
                                 });
                                 break;
                             case "Layer":
-                                var themeName = itemMetData.groupValue.split('/')[1];
+                                var afterservicespart = itemMetData.groupValue.split('/services/')[1].split('/');
+                                var themeName = afterservicespart[1];
                                 var type = itemMetData.groupValue.split('/')[0];
-                                var url = generateUrl(themeName, type);
+                                var url = itemMetData.groupValue + '/Mapserver'; //generateUrl(themeName, type);
 
                                 var theme = themes.find(x => x.name == themeName)
                                 if (!theme) {
@@ -114,7 +117,7 @@
                                         layersCount: itemMetData.doclist.numFound,
                                         name: themeName,
                                         cleanUrl: url,
-                                        url: 'services/' + type +'/' + themeName + '/MapServer'
+                                        url: url //'services/' + type +'/' + themeName + '/MapServer'
                                     }
                                     themes.push(theme);
                                 } else {

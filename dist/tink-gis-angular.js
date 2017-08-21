@@ -912,7 +912,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         };
 
         $scope.AddOrUpdateTheme = function () {
-            PopupService.Success("Data is bijgewerkt.");
+            PopupService.Success("Data is bijgewerkt.", null, null, { timeOut: 1000 });
             LayerManagementService.AddOrUpdateTheme($scope.selectedTheme, $scope.copySelectedTheme);
             $scope.clearPreview();
         };
@@ -997,7 +997,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         };
 
         $scope.AddOrUpdateTheme = function () {
-            PopupService.Success("Data is bijgewerkt.");
+            PopupService.Success("Data is bijgewerkt.", null, null, { timeOut: 1000 });
             LayerManagementService.AddOrUpdateTheme($scope.selectedTheme, $scope.copySelectedTheme);
             $scope.clearPreview();
         };
@@ -1126,8 +1126,10 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 itemsMetData.forEach(function (itemMetData) {
                     switch (itemMetData.doclist.docs[0].type) {
                         case "Feature":
-                            var themeName = itemMetData.groupValue.split('/').slice(1, 2).join('/');
-                            var layerId = itemMetData.groupValue.split('/')[2];
+                            var afterservicespart = itemMetData.groupValue.split('/services/')[1].split('/'); //  ["P_Stad", "ATLAS", "14"]
+                            var url = itemMetData.groupValue.split('/').splice(0, itemMetData.groupValue.split('/').length - 1).join('/') + '/Mapserver'; // url without id
+                            var themeName = afterservicespart[1];
+                            var layerId = afterservicespart[2];
                             var layerName = itemMetData.doclist.docs[0].parentname;
                             var theme = themes.find(function (x) {
                                 return x.name == themeName;
@@ -1137,8 +1139,8 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                                     layers: [],
                                     layersCount: 0,
                                     name: themeName,
-                                    cleanUrl: Gis.BaseUrl + 'arcgissql/rest/services/P_Stad/' + themeName + '/MapServer',
-                                    url: 'services/P_Stad/' + themeName + '/MapServer'
+                                    cleanUrl: url, // Gis.BaseUrl + 'arcgissql/rest/services/P_Stad/' + themeName + '/MapServer',
+                                    url: url // 'services/P_Stad/' + themeName + '/MapServer'
                                 };
                                 themes.push(theme);
                             }
@@ -1164,9 +1166,10 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                             });
                             break;
                         case "Layer":
-                            var themeName = itemMetData.groupValue.split('/')[1];
+                            var afterservicespart = itemMetData.groupValue.split('/services/')[1].split('/');
+                            var themeName = afterservicespart[1];
                             var type = itemMetData.groupValue.split('/')[0];
-                            var url = generateUrl(themeName, type);
+                            var url = itemMetData.groupValue + '/Mapserver'; //generateUrl(themeName, type);
 
                             var theme = themes.find(function (x) {
                                 return x.name == themeName;
@@ -1177,7 +1180,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                                     layersCount: itemMetData.doclist.numFound,
                                     name: themeName,
                                     cleanUrl: url,
-                                    url: 'services/' + type + '/' + themeName + '/MapServer'
+                                    url: url //'services/' + type +'/' + themeName + '/MapServer'
                                 };
                                 themes.push(theme);
                             } else {
@@ -1276,7 +1279,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             };
         };
         $scope.AddOrUpdateTheme = function () {
-            PopupService.Success("Data is bijgewerkt.");
+            PopupService.Success("Data is bijgewerkt.", null, null, { timeOut: 1000 });
             LayerManagementService.AddOrUpdateTheme($scope.selectedTheme, $scope.copySelectedTheme);
             $scope.clearPreview();
         };
@@ -1351,7 +1354,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         };
 
         $scope.AddOrUpdateTheme = function () {
-            PopupService.Success("Data is bijgewerkt.");
+            PopupService.Success("Data is bijgewerkt.", null, null, { timeOut: 1000 });
             LayerManagementService.AddOrUpdateTheme($scope.selectedTheme, $scope.copySelectedTheme);
             $scope.clearPreview();
         };
@@ -2496,11 +2499,11 @@ var esri2geo = {};
                     theme.Naam = "no_title_found";
                 }
                 returnitem.Naam = theme.Naam;
-                if (theme.Type == ThemeType.ESRI) {
-                    returnitem.cleanUrl = theme.Url;
-                } else {
-                    returnitem.cleanUrl = theme.cleanUrl || theme.Url;
-                }
+                // if (theme.Type == ThemeType.ESRI) {
+                //     returnitem.cleanUrl = theme.Url;
+                // } else {
+                returnitem.cleanUrl = theme.cleanUrl || theme.Url;
+                // }
 
                 returnitem.type = theme.Type;
                 returnitem.visible = theme.Visible;
@@ -2535,12 +2538,12 @@ var esri2geo = {};
 
             project.themes.forEach(function (theme) {
                 if (theme.type == ThemeType.ESRI) {
-                    if (!theme.cleanUrl.startsWith(Gis.Arcgissql)) {
-                        theme.cleanUrl = Gis.Arcgissql + theme.cleanUrl;
-                        if (theme.cleanUrl.toLowerCase().contains("p_sik") && theme.cleanUrl.toLowerCase().contains("/arcgissql/")) {
-                            theme.cleanUrl = theme.cleanUrl.replace("/arcgissql/", "/arcgis/");
-                        }
-                    }
+                    // if (!theme.cleanUrl.startsWith(Gis.Arcgissql)) {
+                    //     theme.cleanUrl = Gis.Arcgissql + theme.cleanUrl;
+                    //     if (theme.cleanUrl.toLowerCase().contains("p_sik") && theme.cleanUrl.toLowerCase().contains("/arcgissql/")) {
+                    //         theme.cleanUrl = theme.cleanUrl.replace("/arcgissql/", "/arcgis/");
+                    //     }
+                    // }
                     var prom = GISService.GetThemeData(theme.cleanUrl);
                     promises.push(prom);
                     prom.then(function (data) {
@@ -2881,13 +2884,13 @@ var esri2geo = {};
             return prom.promise;
         };
         var completeUrl = function completeUrl(url) {
-            var baseurl = Gis.BaseUrl + 'arcgissql/rest/';
-            if (!url.contains('arcgissql/rest/') && !url.contains('arcgis/rest/')) {
-                url = baseurl + url;
-            }
-            if (url.toLowerCase().contains("p_sik") && url.toLowerCase().contains("/arcgissql/")) {
-                url = url.replace("/arcgissql/", "/arcgis/");
-            }
+            // var baseurl = Gis.BaseUrl + 'arcgissql/rest/';
+            // if (!url.contains('arcgissql/rest/') && !url.contains('arcgis/rest/')) {
+            //     url = baseurl + url;
+            // }
+            // if (url.toLowerCase().contains("p_sik") && url.toLowerCase().contains("/arcgissql/")) {
+            //     url = url.replace("/arcgissql/", "/arcgis/");
+            // }
             return url;
         };
         var generateOptionsBasedOnUrl = function generateOptionsBasedOnUrl(url, opts) {

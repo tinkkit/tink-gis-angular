@@ -36,11 +36,11 @@
                     theme.Naam = "no_title_found"
                 }
                 returnitem.Naam = theme.Naam;
-                if (theme.Type == ThemeType.ESRI) {
-                    returnitem.cleanUrl = theme.Url;
-                } else {
+                // if (theme.Type == ThemeType.ESRI) {
+                //     returnitem.cleanUrl = theme.Url;
+                // } else {
                     returnitem.cleanUrl = theme.cleanUrl || theme.Url;
-                }
+                // }
 
                 returnitem.type = theme.Type;
                 returnitem.visible = theme.Visible;
@@ -73,12 +73,12 @@
 
             project.themes.forEach(theme => {
                 if (theme.type == ThemeType.ESRI) {
-                    if (!theme.cleanUrl.startsWith(Gis.Arcgissql)) {
-                        theme.cleanUrl = Gis.Arcgissql + theme.cleanUrl;
-                        if (theme.cleanUrl.toLowerCase().contains("p_sik") && theme.cleanUrl.toLowerCase().contains("/arcgissql/")) {
-                            theme.cleanUrl = theme.cleanUrl.replace("/arcgissql/", "/arcgis/");
-                        }
-                    }
+                    // if (!theme.cleanUrl.startsWith(Gis.Arcgissql)) {
+                    //     theme.cleanUrl = Gis.Arcgissql + theme.cleanUrl;
+                    //     if (theme.cleanUrl.toLowerCase().contains("p_sik") && theme.cleanUrl.toLowerCase().contains("/arcgissql/")) {
+                    //         theme.cleanUrl = theme.cleanUrl.replace("/arcgissql/", "/arcgis/");
+                    //     }
+                    // }
                     let prom = GISService.GetThemeData(theme.cleanUrl);
                     promises.push(prom);
                     prom.then(function(data) {
