@@ -59,8 +59,8 @@ namespace TinkGis {
             this.name = this.Naam = rawdata.documentInfo.Title;
             this.Description = rawdata.documentInfo.Subject;
             this.cleanUrl = themeData.cleanUrl;
-            let cleanurlSplitted = themeData.cleanUrl.split('/');
-            this.Url = cleanurlSplitted[5] + '/' + cleanurlSplitted[6] + '/' + cleanurlSplitted[7] + '/' + cleanurlSplitted[8];
+            // let cleanurlSplitted = themeData.cleanUrl.split('/');
+            this.Url = themeData.cleanUrl; // cleanurlSplitted[5] + '/' + cleanurlSplitted[6] + '/' + cleanurlSplitted[7] + '/' + cleanurlSplitted[8];
             this.Visible = true;
             this.Added = false;
             this.enabled = true;
