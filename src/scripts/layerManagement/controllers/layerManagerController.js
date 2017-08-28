@@ -21,6 +21,11 @@
             $scope.cancel = function () {
                 $modalInstance.$dismiss('cancel is pressed'); // To close the controller with a dismiss message
             };
+            $scope.enterPressed = function () {
+                if($scope.searchTerm == '') {
+                    $scope.$broadcast("searchChanged", '*');
+                };
+            };
             $scope.searchChanged = function () {
                 if ($scope.searchTerm != null && $scope.searchTerm != '') {
                     $scope.$broadcast("searchChanged", $scope.searchTerm);

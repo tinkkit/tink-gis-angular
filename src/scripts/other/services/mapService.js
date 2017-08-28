@@ -39,7 +39,7 @@
         }
         _mapService.Identify = function(event, tolerance) {
             MapData.CleanSearch();
-            if (typeof tolerance === 'undefined') { tolerance = 10; }
+            if (typeof tolerance === 'undefined') { tolerance = 3; }
             _.each(MapData.Themes, function(theme) {
                 // theme.RecalculateVisibleLayerIds();
                 var identifOnThisTheme = true;
@@ -50,7 +50,11 @@
                 if (identifOnThisTheme) {
                     switch (theme.Type) {
                         case ThemeType.ESRI:
-                            var layersVoorIdentify = 'visible: ' + theme.VisibleLayerIds;
+                            var visanddisplayedlayers = theme.VisibleAndDisplayedLayerIds;
+                            var layersVoorIdentify = 'all:' + visanddisplayedlayers;
+                            if(visanddisplayedlayers.length == 0) {
+                                layersVoorIdentify = 'visible:-1';
+                            }
                             ResultsData.RequestStarted++;
                             theme.MapData.identify().on(map).at(event.latlng).layers(layersVoorIdentify).tolerance(tolerance).run(function(error, featureCollection) {
                                 ResultsData.RequestCompleted++;

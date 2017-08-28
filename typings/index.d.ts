@@ -9,4 +9,6 @@
 /// <reference path="../src/scripts/theme/layer.ts" />
 /// <reference path="../src/scripts/theme/theme.ts" />
 /// <reference path="../src/scripts/theme/themeCreater.ts" />
+/// <reference path="../bower_components/moment/moment.d.ts" />
+/// <reference path="custom/JXON.d.ts" />
 //grunt-end

@@ -1,12 +1,10 @@
 L.Control.Typeahead = L.Control.extend({
   options: {
-    // topright, topleft, bottomleft, bottomright
     position: 'topleft'
-    // placeholder: 'Geef een X,Y / locatie of POI in.' // is not being used because it's also mentioned in mapController.js
   },
   initialize: function (args) {
     // constructor
-
+    console.log('init');
     this.arguments = [];
     for (var i = 0; i < args.length - 1; i++)
       this.arguments.push(args[i]);
@@ -14,6 +12,7 @@ L.Control.Typeahead = L.Control.extend({
     L.Util.setOptions(this, args[args.length - 1]);
   },
   onAdd: function (map) {
+    console.log('onadd');
     var that = this;
     // happens after added to map
     //top: -65px; left: 40px
@@ -28,7 +27,7 @@ L.Control.Typeahead = L.Control.extend({
     this.typeahead.placeholder = this.options.placeholder;
     $(this.typeahead).typeahead.apply($(this.typeahead), this.arguments);
     ["typeahead:active", "typeahead:idle", "typeahead:open", "typeahead:close",
-      "typeahead:change", "typeahead:render", "typeahead:select",
+      "typeahead:change", "typeahead:render", "typeahead:select", 'keyup',
       "typeahead:autocomplete", "typeahead:cursorchange",
       "typeahead:asyncrequest", "typeahead:asynccancel",
       "typeahead:asyncreceive"].forEach(function (method) {
@@ -42,15 +41,16 @@ L.Control.Typeahead = L.Control.extend({
   onRemove: function (map) {
   },
   keyup: function (e) {
-    console.log('typeahead input!!');
+    console.log('typeahead KEYUP!!', e);
 
     if (e.keyCode == 13) {
-      console.log('typeahead input!!');
+      $(".tt-suggestion:first-child", this).trigger('click');
+      // console.log('typeahead input!!');
 
-      var selectedValue = $('input.typeahead').data().ttView.dropdownView.getFirstSuggestion();
-      $("#value_id").val(selectedValue);
-      $('form').submit();
-      return true;
+      // var selectedValue = $('input.typeahead').data().ttView.dropdownView.getFirstSuggestion();
+      // $("#value_id").val(selectedValue);
+      // $('form').submit();
+      // return true;
     }
     if (e.keyCode === 38 || e.keyCode === 40) {
       // do nothing
@@ -58,9 +58,12 @@ L.Control.Typeahead = L.Control.extend({
     }
   },
   itemSelected: function (e) {
+    console.log('item selcted');
     L.DomEvent.preventDefault(e);
   },
   submit: function (e) {
+    console.log('submit');
+    
     L.DomEvent.preventDefault(e);
   }
 });

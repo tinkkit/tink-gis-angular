@@ -44,6 +44,8 @@
                 ]
             });
         var map = L.map('map', {
+            minZoom: 0,
+            maxZoom: 20,
             crs: crsLambert,
             zoomControl: false,
             drawControl: false,

@@ -24,35 +24,42 @@ namespace TinkGis {
                 return allLay;
             }
             return []; // if the theme is not visible then give 0 layers back
-        };
+        }
+        get VisibleAndDisplayedLayerIds(): Array<number> {
+            if (this.Visible) {
+                var allLay: Array<number> = this.AllLayers.filter(x => x.ShouldBeVisible && x.displayed).map(x => x.id);
+                return allLay;
+            }
+            return []; // if the theme is not visible then give 0 layers back
+        }
         get EnabledLayers(): Array<Layer> {
             if (this.Visible) {
                 var allLay: Array<Layer> = this.AllLayers.filter(x => x.enabled);
                 return allLay;
             }
             return []; // if the theme is not visible then give 0 layers back
-        };
+        }
         get VisibleLayerIds(): Array<any> {
             return this.VisibleLayers.map(x => x.id);
-        };
+        }
         get AllLayers(): Array<Layer> {
             var allLay: Array<Layer> = this.Layers;
             this.Layers.forEach(lay => {
                 allLay = allLay.concat(lay.AllLayers);
             });
             return allLay;
-        };
-
+        }
         UpdateDisplayed = (currentScale) => {
-            this.AllLayers.forEach(layer => {
-                layer.UpdateDisplayed(currentScale);
+            this.EnabledLayers.forEach(layer => {
+                console.log("updating displayed status for layer: ", layer);
+                layer.UpdateDisplayed(currentScale); 
             });
         }
         abstract UpdateMap(mapobject?: L.Map): void;
     }
     export class ArcGIStheme extends Theme {
         VisibleLayerIds: Array<number>;
-        // SuffixUrl: string;
+        // suffixUrl: string;
         constructor(rawdata: any, themeData: any) {
             super();
             let rawlayers: any[] = rawdata.layers;
@@ -78,7 +85,7 @@ namespace TinkGis {
                     parentlayer.Layers.push(argislay);
                 }
 
-            })
+            });
         }
 
         UpdateMap() {
@@ -94,10 +101,10 @@ namespace TinkGis {
         Version: string;
         VisibleLayerIds: Array<string>;
         GetFeatureInfoType: string;
-        // MapData: L.TileLayer.WMS;
+        // mapData: L.TileLayer.WMS;
         constructor(data, url) {
             super();
-            this.Version = data['version'];
+            this.Version = data.version;
             this.name = this.Naam = data.service.title;
             // this.Naam = data.service.title;
             // this.Title = returnjson.service.title;
@@ -118,19 +125,19 @@ namespace TinkGis {
             var lays = [];
             if (layers) {
                 if (layers.length == undefined) { // array, it has a length
-                    lays.push(layers)
+                    lays.push(layers);
                 }
                 else {
                     lays = layers;
                 }
             } else {
-                lays.push(data.capability.layer)
+                lays.push(data.capability.layer);
             }
             lays.forEach(layer => {
-                if (layer.queryable == true) { // if it is queryable we have to check or it is compatible with text/xml since that is the only we support atm
-                    if (data.capability.request.getfeatureinfo.format.some(x => x == "text/xml")) {
+                if (layer.queryable === true) { // if it is queryable we have to check or it is compatible with text/xml since that is the only we support atm
+                    if (data.capability.request.getfeatureinfo.format.some(x => x === "text/xml")) {
                         this.GetFeatureInfoType = "text/xml";
-                    } else if (data.capability.request.getfeatureinfo.format.some(x => x == "text/plain")) {
+                    } else if (data.capability.request.getfeatureinfo.format.some(x => x === "text/plain")) {
                         this.GetFeatureInfoType = "text/plain";
                     }
                     if (!this.GetFeatureInfoType) {
@@ -147,7 +154,7 @@ namespace TinkGis {
                 if (!map.hasLayer(this.MapData)) {
                     map.addLayer(this.MapData);
                 }
-                this.MapData.options.layers = this.MapData.wmsParams.layers = this.VisibleLayerIds.join(',');
+                this.MapData.options.layers = this.MapData.wmsParams.layers = this.VisibleLayerIds.join(",");
                 this.MapData.redraw();
             }
             else {

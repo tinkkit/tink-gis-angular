@@ -54,18 +54,17 @@ namespace TinkGis {
                 allLay = allLay.concat(lay.AllLayers);
             });
             return allLay;
-        };
+        }
         UpdateDisplayed = (currentScale) => {
             if (this.maxScale > 0 || this.minScale > 0) {
                 // console.log('MinMaxandCurrentScale', this.maxScale, this.minScale, currentScale);
-                if (currentScale > this.maxScale && currentScale < this.minScale) {
+                if (currentScale >= this.maxScale && currentScale <= this.minScale) {
                     this.displayed = true;
-                }
-                else {
+                } else {
                     this.displayed = false;
                 }
             }
-        };
+        }
         public toString = (): string => {
 
             return `Lay: (id: ${this.name})`;
