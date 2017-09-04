@@ -56,7 +56,7 @@
                                 layersVoorIdentify = 'visible:-1';
                             }
                             ResultsData.RequestStarted++;
-                            theme.MapData.identify({useCors: false}).on(map).at(event.latlng).layers(layersVoorIdentify).tolerance(tolerance).run(function(error, featureCollection) {
+                            theme.MapData.identify().on(map).at(event.latlng).layers(layersVoorIdentify).tolerance(tolerance).run(function(error, featureCollection) {
                                 ResultsData.RequestCompleted++;
                                 MapData.AddFeatures(featureCollection, theme);
 
@@ -138,7 +138,7 @@
             var promise = new Promise(
                 function(resolve, reject) {
                     ResultsData.RequestStarted++;
-                    theme.MapData.identify({useCors: false})
+                    theme.MapData.identify()
                         .on(map)
                         .layers('visible: ' + layerids)
                         .at(latlng)
@@ -174,7 +174,7 @@
 
             } else {
                 ResultsData.RequestStarted++;
-                MapData.SelectedLayer.theme.MapData.identify({useCors: false}).on(map).at(event.latlng).layers('visible: ' + MapData.SelectedLayer.id).run(function(error, featureCollection) {
+                MapData.SelectedLayer.theme.MapData.identify().on(map).at(event.latlng).layers('visible: ' + MapData.SelectedLayer.id).run(function(error, featureCollection) {
                     ResultsData.RequestCompleted++;
                     MapData.AddFeatures(featureCollection, MapData.SelectedLayer.theme);
                     if (MapData.ExtendedType != null) {
@@ -190,7 +190,7 @@
             var promise = new Promise(
                 function(resolve, reject) {
                     ResultsData.RequestStarted++;
-                    theme.MapData.query({useCors: false})
+                    theme.MapData.query()
                         .layer(layerid)
                         .intersects(geometry)
                         .run(function(error, featureCollection, response) {
@@ -204,7 +204,7 @@
             var promise = new Promise(
                 function(resolve, reject) {
                     ResultsData.RequestStarted++;
-                    theme.MapData.query({useCors: false})
+                    theme.MapData.query()
                         .layer(layerid)
                         .intersects(geometry)
                         .count(function(error, count, response) {

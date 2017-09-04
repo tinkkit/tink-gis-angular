@@ -112,7 +112,7 @@
             }
         };
         var QueryForTempFeatures = function (layerid, where) {
-            locatieMapData.query({useCors: false})
+            locatieMapData.query()
                 .layer(layerid)
                 .where(where)
                 .run(function (error, featureCollection, response) {
