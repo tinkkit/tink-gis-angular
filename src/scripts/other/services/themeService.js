@@ -93,7 +93,7 @@
                         opacity: 1,
                         layers: visLayerIds,
                         continuousWorld: true,
-                        useCors: false,
+                        useCors: true,
                         f: 'image'
                     }).addTo(map);
 
