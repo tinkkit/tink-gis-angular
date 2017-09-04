@@ -56,7 +56,7 @@
                                 layersVoorIdentify = 'visible:-1';
                             }
                             ResultsData.RequestStarted++;
-                            theme.MapData.identify().on(map).at(event.latlng).layers(layersVoorIdentify).tolerance(tolerance).run(function(error, featureCollection) {
+                            theme.MapData.identify({useCors: false}).on(map).at(event.latlng).layers(layersVoorIdentify).tolerance(tolerance).run(function(error, featureCollection) {
                                 ResultsData.RequestCompleted++;
                                 MapData.AddFeatures(featureCollection, theme);
 
@@ -138,7 +138,7 @@
             var promise = new Promise(
                 function(resolve, reject) {
                     ResultsData.RequestStarted++;
-                    theme.MapData.identify()
+                    theme.MapData.identify({useCors: false})
                         .on(map)
                         .layers('visible: ' + layerids)
                         .at(latlng)
@@ -161,24 +161,9 @@
                         allproms.push(prom); -
                         prom.then(function(arg) {
                             MapData.AddFeatures(arg.featureCollection, theme);
-                            // if (MapData.ExtendedType != null) {
-                            //     MapData.ConfirmExtendDialog(MapData.processedFeatureArray);
-                            //     MapData.processedFeatureArray = [];
-                            // }
                         });
-                        // theme.MapData.identify().on(map).at(event.latlng).layers('visible: ' + theme.VisibleLayerIds).run(function(error, featureCollection) {
-                        //     ResultsData.RequestCompleted++;
-                        //     MapData.AddFeatures(featureCollection, theme);
-                        //     if (MapData.ExtendedType != null) {
-                        //         MapData.ConfirmExtendDialog(MapData.processedFeatureArray);
-                        //         MapData.processedFeatureArray = [];
-                        //     }
-
-                        // });
                     }
-
                 });
-
                 if (MapData.ExtendedType != null) {
                     Promise.all(allproms).then(function AcceptHandler(results) {
                         MapData.ConfirmExtendDialog(MapData.processedFeatureArray);
@@ -189,7 +174,7 @@
 
             } else {
                 ResultsData.RequestStarted++;
-                MapData.SelectedLayer.theme.MapData.identify().on(map).at(event.latlng).layers('visible: ' + MapData.SelectedLayer.id).run(function(error, featureCollection) {
+                MapData.SelectedLayer.theme.MapData.identify({useCors: false}).on(map).at(event.latlng).layers('visible: ' + MapData.SelectedLayer.id).run(function(error, featureCollection) {
                     ResultsData.RequestCompleted++;
                     MapData.AddFeatures(featureCollection, MapData.SelectedLayer.theme);
                     if (MapData.ExtendedType != null) {
@@ -205,7 +190,7 @@
             var promise = new Promise(
                 function(resolve, reject) {
                     ResultsData.RequestStarted++;
-                    theme.MapData.query()
+                    theme.MapData.query({useCors: false})
                         .layer(layerid)
                         .intersects(geometry)
                         .run(function(error, featureCollection, response) {
@@ -219,7 +204,7 @@
             var promise = new Promise(
                 function(resolve, reject) {
                     ResultsData.RequestStarted++;
-                    theme.MapData.query()
+                    theme.MapData.query({useCors: false})
                         .layer(layerid)
                         .intersects(geometry)
                         .count(function(error, count, response) {

@@ -112,7 +112,7 @@
             }
         };
         var QueryForTempFeatures = function (layerid, where) {
-            locatieMapData.query()
+            locatieMapData.query({useCors: false})
                 .layer(layerid)
                 .where(where)
                 .run(function (error, featureCollection, response) {
@@ -133,7 +133,7 @@
             opacity: 1,
             layers: 0,
             continuousWorld: true,
-            useCors: true
+            useCors: false
         });
         var isCharDigit = function (n) {
             return n != ' ' && n > -1;
