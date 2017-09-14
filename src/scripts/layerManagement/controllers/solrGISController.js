@@ -28,11 +28,19 @@
                     }
                 }
                 else {
-                    $scope.availableThemes.length = 0;
-                    $scope.numberofrecordsmatched = 0;
-                    $scope.$parent.solrCount = null;
-                    $scope.loading = false;
-                    $scope.$parent.solrLoading = false;
+                    if($scope.searchTerm == '*'){ 
+                        $scope.searchTerm = 'rest services';
+                        $scope.$parent.solrLoading = true;
+                        $scope.QueryGISSOLR('rest services', 1);
+                     
+                    } else {
+                        $scope.availableThemes.length = 0;
+                        $scope.numberofrecordsmatched = 0;
+                        $scope.$parent.solrCount = null;
+                        $scope.loading = false;
+                        $scope.$parent.solrLoading = false;
+                    }
+            
                 }
             });
             var generateUrl = function (themeName, type) {

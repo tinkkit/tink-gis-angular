@@ -41,7 +41,7 @@
         };
 
 
-        map.on('zoomend', function (event) {
+        map.on('zoom', function (event) {
             console.log('Zoomend!!!');
             MapData.UpdateDisplayed();
             MapData.Apply();
@@ -59,7 +59,7 @@
                         case ActiveInteractieButton.IDENTIFY:
                             MapData.CleanMap();
                             MapData.LastIdentifyBounds = map.getBounds();
-                            MapService.Identify(event, 10);
+                            MapService.Identify(event, 3);
                             UIService.OpenLeftSide();
                             $rootScope.$applyAsync(function () {
                                 MapData.ActiveInteractieKnop = ActiveInteractieButton.GEEN;

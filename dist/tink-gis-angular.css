@@ -1041,3 +1041,7 @@ body.stop-scrolling {
 .propertyvalue {
   white-space: pre;
   /* or pre-wrap if you want wrapping to still work. */ }
+
+.tooltip {
+  white-space: normal;
+  text-align: center; }

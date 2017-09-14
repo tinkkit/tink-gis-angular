@@ -22,6 +22,8 @@
             resolutions: [66.1459656252646, 52.91677250021167, 39.687579375158755, 26.458386250105836, 13.229193125052918, 6.614596562526459, 5.291677250021167, 3.9687579375158752, 3.3072982812632294, 2.6458386250105836, 1.9843789687579376, 1.3229193125052918, 0.6614596562526459, 0.5291677250021167, 0.39687579375158755, 0.33072982812632296, 0.26458386250105836, 0.19843789687579377, 0.13229193125052918, 0.06614596562526459, 0.026458386250105836]
         });
         var map = L.map('map', {
+            minZoom: 0,
+            maxZoom: 20,
             crs: crsLambert,
             zoomControl: false,
             drawControl: false,
@@ -941,6 +943,11 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         $scope.cancel = function () {
             $modalInstance.$dismiss('cancel is pressed'); // To close the controller with a dismiss message
         };
+        $scope.enterPressed = function () {
+            if ($scope.searchTerm == '') {
+                $scope.$broadcast("searchChanged", '*');
+            };
+        };
         $scope.searchChanged = function () {
             if ($scope.searchTerm != null && $scope.searchTerm != '') {
                 $scope.$broadcast("searchChanged", $scope.searchTerm);
@@ -1085,11 +1092,17 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                     $scope.QueryGISSOLR($scope.searchTerm, 1);
                 }
             } else {
-                $scope.availableThemes.length = 0;
-                $scope.numberofrecordsmatched = 0;
-                $scope.$parent.solrCount = null;
-                $scope.loading = false;
-                $scope.$parent.solrLoading = false;
+                if ($scope.searchTerm == '*') {
+                    $scope.searchTerm = 'rest services';
+                    $scope.$parent.solrLoading = true;
+                    $scope.QueryGISSOLR('rest services', 1);
+                } else {
+                    $scope.availableThemes.length = 0;
+                    $scope.numberofrecordsmatched = 0;
+                    $scope.$parent.solrCount = null;
+                    $scope.loading = false;
+                    $scope.$parent.solrLoading = false;
+                }
             }
         });
         var generateUrl = function generateUrl(themeName, type) {
@@ -1707,7 +1720,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         var init = function () {
             console.log('Tink-Gis-Angular component init!!!!!!!!!');
             if (window.location.href.startsWith('http://localhost:9000/')) {
-                var externproj = JSON.parse('{"naam":"Velo en fietspad!!","extent":{"_northEast":{"lat":"51.2336102032025","lng":"4.41993402409611"},"_southWest":{"lat":"51.1802290498612","lng":"4.38998297870121"}},"guid":"bfc88ea3-8581-4204-bdbc-b5f54f46050d","extentString":"51.2336102032025,4.41993402409611,51.1802290498612,4.38998297870121","isKaart":true,"uniqId":3,"creatorId":6,"creator":null,"createDate":"2016-08-22T10:55:15.525994","updaterId":6,"updater":null,"lastUpdated":"2016-08-22T10:55:15.525994","themes":[{"cleanUrl":"services/P_Stad/Mobiliteit/MapServer","naam":"Mobiliqsdfteit","type":"esri","visible":true,"layers":[{"id":"9","name":"fietspad","visible":true},{"id":"6","name":"velo","visible":true},{"id":"0","name":"Fiets en voetganger","visible":true}]}],"isReadOnly":false}');
+                var externproj = JSON.parse('{"themes":[{"Naam":"Planon","cleanUrl":"https://geoint.antwerpen.be/arcgissql/rest/services/P_Planon/planon/MapServer","type":"esri","visible":true,"layers":[{"visible":true,"name":"PLANON_DOSSIER","id":1},{"visible":true,"name":"perceel","id":4}]},{"Naam":"Patrimonium","cleanUrl":"https://geoint.antwerpen.be/arcgis/rest/services/P_Sik/Patrimonium/MapServer","type":"esri","visible":true,"layers":[{"visible":true,"name":"KAVIA","id":17}]}],"extent":{"_southWest":{"lat":51.20536146014249,"lng":4.409578736245564},"_northEast":{"lat":51.206417795952646,"lng":4.411724381984817}},"isKaart":true}');
                 ExternService.Import(externproj);
 
                 PopupService.Success("Dev autoload", 'Velo en fietspad loaded because you are in DEV.', function () {
@@ -3273,13 +3286,11 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 L.Control.Typeahead = L.Control.extend({
   options: {
-    // topright, topleft, bottomleft, bottomright
     position: 'topleft'
-    // placeholder: 'Geef een X,Y / locatie of POI in.' // is not being used because it's also mentioned in mapController.js
   },
   initialize: function initialize(args) {
     // constructor
-
+    console.log('init');
     this.arguments = [];
     for (var i = 0; i < args.length - 1; i++) {
       this.arguments.push(args[i]);
@@ -3287,6 +3298,7 @@ L.Control.Typeahead = L.Control.extend({
     L.Util.setOptions(this, args[args.length - 1]);
   },
   onAdd: function onAdd(map) {
+    console.log('onadd');
     var that = this;
     // happens after added to map
     //top: -65px; left: 40px
@@ -3300,7 +3312,7 @@ L.Control.Typeahead = L.Control.extend({
     this.typeahead.id = "okzor";
     this.typeahead.placeholder = this.options.placeholder;
     $(this.typeahead).typeahead.apply($(this.typeahead), this.arguments);
-    ["typeahead:active", "typeahead:idle", "typeahead:open", "typeahead:close", "typeahead:change", "typeahead:render", "typeahead:select", "typeahead:autocomplete", "typeahead:cursorchange", "typeahead:asyncrequest", "typeahead:asynccancel", "typeahead:asyncreceive"].forEach(function (method) {
+    ["typeahead:active", "typeahead:idle", "typeahead:open", "typeahead:close", "typeahead:change", "typeahead:render", "typeahead:select", 'keyup', "typeahead:autocomplete", "typeahead:cursorchange", "typeahead:asyncrequest", "typeahead:asynccancel", "typeahead:asyncreceive"].forEach(function (method) {
       if (that.options[method]) {
         $(that.typeahead).bind(method, that.options[method]);
       }
@@ -3310,24 +3322,28 @@ L.Control.Typeahead = L.Control.extend({
   },
   onRemove: function onRemove(map) {},
   keyup: function keyup(e) {
-    console.log('typeahead input!!');
+    console.log('typeahead KEYUP!!', e);
 
     if (e.keyCode == 13) {
-      console.log('typeahead input!!');
+      $(".tt-suggestion:first-child", this).trigger('click');
+      // console.log('typeahead input!!');
 
-      var selectedValue = $('input.typeahead').data().ttView.dropdownView.getFirstSuggestion();
-      $("#value_id").val(selectedValue);
-      $('form').submit();
-      return true;
+      // var selectedValue = $('input.typeahead').data().ttView.dropdownView.getFirstSuggestion();
+      // $("#value_id").val(selectedValue);
+      // $('form').submit();
+      // return true;
     }
     if (e.keyCode === 38 || e.keyCode === 40) {
       // do nothing
     } else {}
   },
   itemSelected: function itemSelected(e) {
+    console.log('item selcted');
     L.DomEvent.preventDefault(e);
   },
   submit: function submit(e) {
+    console.log('submit');
+
     L.DomEvent.preventDefault(e);
   }
 });
@@ -3901,7 +3917,7 @@ L.control.typeahead = function (args) {
             return totalDistance.toFixed(2);
         };
 
-        map.on('zoomend', function (event) {
+        map.on('zoom', function (event) {
             console.log('Zoomend!!!');
             MapData.UpdateDisplayed();
             MapData.Apply();
@@ -3919,7 +3935,7 @@ L.control.typeahead = function (args) {
                         case ActiveInteractieButton.IDENTIFY:
                             MapData.CleanMap();
                             MapData.LastIdentifyBounds = map.getBounds();
-                            MapService.Identify(event, 10);
+                            MapService.Identify(event, 3);
                             UIService.OpenLeftSide();
                             $rootScope.$applyAsync(function () {
                                 MapData.ActiveInteractieKnop = ActiveInteractieButton.GEEN;
@@ -4092,7 +4108,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         _mapService.Identify = function (event, tolerance) {
             MapData.CleanSearch();
             if (typeof tolerance === 'undefined') {
-                tolerance = 10;
+                tolerance = 3;
             }
             _.each(MapData.Themes, function (theme) {
                 // theme.RecalculateVisibleLayerIds();
@@ -4104,7 +4120,11 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 if (identifOnThisTheme) {
                     switch (theme.Type) {
                         case ThemeType.ESRI:
-                            var layersVoorIdentify = 'visible: ' + theme.VisibleLayerIds;
+                            var visanddisplayedlayers = theme.VisibleAndDisplayedLayerIds;
+                            var layersVoorIdentify = 'all:' + visanddisplayedlayers;
+                            if (visanddisplayedlayers.length == 0) {
+                                layersVoorIdentify = 'visible:-1';
+                            }
                             ResultsData.RequestStarted++;
                             theme.MapData.identify().on(map).at(event.latlng).layers(layersVoorIdentify).tolerance(tolerance).run(function (error, featureCollection) {
                                 ResultsData.RequestCompleted++;
@@ -4204,23 +4224,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                         var prom = _mapService.IdentifyProm(theme, event.latlng, theme.VisibleLayerIds);
                         allproms.push(prom);-prom.then(function (arg) {
                             MapData.AddFeatures(arg.featureCollection, theme);
-                            // if (MapData.ExtendedType != null) {
-                            //     MapData.ConfirmExtendDialog(MapData.processedFeatureArray);
-                            //     MapData.processedFeatureArray = [];
-                            // }
                         });
-                        // theme.MapData.identify().on(map).at(event.latlng).layers('visible: ' + theme.VisibleLayerIds).run(function(error, featureCollection) {
-                        //     ResultsData.RequestCompleted++;
-                        //     MapData.AddFeatures(featureCollection, theme);
-                        //     if (MapData.ExtendedType != null) {
-                        //         MapData.ConfirmExtendDialog(MapData.processedFeatureArray);
-                        //         MapData.processedFeatureArray = [];
-                        //     }
-
-                        // });
                     }
                 });
-
                 if (MapData.ExtendedType != null) {
                     Promise.all(allproms).then(function AcceptHandler(results) {
                         MapData.ConfirmExtendDialog(MapData.processedFeatureArray);
@@ -4243,7 +4249,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
             var promise = new Promise(function (resolve, reject) {
                 ResultsData.RequestStarted++;
-                theme.MapData.query().layer(layerid).intersects(geometry).run(function (error, featureCollection, response) {
+                theme.MapDataWithCors.query().layer(layerid).intersects(geometry).run(function (error, featureCollection, response) {
                     ResultsData.RequestCompleted++;
                     resolve({ error: error, featureCollection: featureCollection, response: response });
                 });
@@ -4253,7 +4259,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         _mapService.LayerQueryCount = function (theme, layerid, geometry) {
             var promise = new Promise(function (resolve, reject) {
                 ResultsData.RequestStarted++;
-                theme.MapData.query().layer(layerid).intersects(geometry).count(function (error, count, response) {
+                theme.MapDataWithCors.query().layer(layerid).intersects(geometry).count(function (error, count, response) {
                     ResultsData.RequestCompleted++;
                     resolve({ error: error, count: count, response: response });
                 });
@@ -4579,10 +4585,19 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                         opacity: 1,
                         layers: visLayerIds,
                         continuousWorld: true,
-                        useCors: true,
+                        useCors: false,
                         f: 'image'
                     }).addTo(map);
-
+                    theme.MapDataWithCors = L.esri.dynamicMapLayer({
+                        maxZoom: 19,
+                        minZoom: 0,
+                        url: theme.cleanUrl,
+                        opacity: 1,
+                        layers: visLayerIds,
+                        continuousWorld: true,
+                        useCors: true,
+                        f: 'image'
+                    });
                     theme.MapData.on('authenticationrequired', function (e) {
                         debugger;
                         serverAuth(function (error, response) {
@@ -4741,6 +4756,12 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 }
 
             }).addTo(map);
+            $('.typeahead').on('keyup', function (e) {
+                if (e.which == 13) {
+                    var firstsug = $(".tt-suggestion:first-child");
+                    firstsug.trigger('click');
+                }
+            });
         };
 
         var zoekXY = function zoekXY(search) {
@@ -4775,7 +4796,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             opacity: 1,
             layers: 0,
             continuousWorld: true,
-            useCors: true
+            useCors: false
         });
         var isCharDigit = function isCharDigit(n) {
             return n != ' ' && n > -1;
@@ -5797,7 +5818,7 @@ L.drawLocal = {
     "<div class=\"row margin-top margin-bottom\">\n" +
     "<div class=\"col-xs-12 col-sm-6\">\n" +
     "<form>\n" +
-    "<input auto-focus type=search ng-model=searchTerm ng-change=searchChanged() ng-model-options=\"{debounce: 350}\" minlength=3 placeholder=\"Geef een trefwoord in (minimum 3 tekens)\">\n" +
+    "<input auto-focus type=search ng-keydown=\"$event.keyCode === 13 && enterPressed()\" ng-model=searchTerm ng-change=searchChanged() ng-model-options=\"{debounce: 350}\" placeholder=\"Geef een trefwoord in (minimum 3 tekens)\">\n" +
     "</form>\n" +
     "</div>\n" +
     "</div>\n" +
@@ -5955,7 +5976,7 @@ L.drawLocal = {
     "<li class=\"li-item toc-item-without-icon can-open\" ng-class=\"{'open': showLayer}\">\n" +
     "<div>\n" +
     "<input class=\"visible-box hidden-print\" type=checkbox id={{lyrctrl.layer.name}}{{lyrctrl.layer.id}}{{lyrctrl.layer.theme.Naam}} ng-model=lyrctrl.layer.visible ng-change=layercheckboxchange(lyrctrl.layer.theme)>\n" +
-    "<label for={{lyrctrl.layer.name}}{{lyrctrl.layer.id}}{{lyrctrl.layer.theme.Naam}}>{{lyrctrl.layer.name}}</label>\n" +
+    "<label title={{lyrctrl.layer.name}} for={{lyrctrl.layer.name}}{{lyrctrl.layer.id}}{{lyrctrl.layer.theme.Naam}}>{{lyrctrl.layer.name}}</label>\n" +
     "</div>\n" +
     "<div>\n" +
     "<span class=show-layer ng-click=\"showLayer = !showLayer\"></span>\n" +
@@ -5970,7 +5991,7 @@ L.drawLocal = {
     "<img class=layer-icon ng-if=\"lyrctrl.layer.theme.Type=='esri' && lyrctrl.layer.legend.length===1\" class=layer-icon ng-src=\"{{lyrctrl.layer.legend[0].fullurl}} \">\n" +
     "<div class=can-open ng-class=\"{'open': showLayer2 || showMultiLegend}\">\n" +
     "<input class=\"visible-box hidden-print\" type=checkbox ng-model=lyrctrl.layer.visible ng-change=layercheckboxchange(lyrctrl.layer.theme) id={{lyrctrl.layer.name}}{{lyrctrl.layer.id}}{{lyrctrl.layer.theme.Naam}}>\n" +
-    "<label ng-class=\"{ 'greytext': lyrctrl.layer.displayed==false} \" for={{lyrctrl.layer.name}}{{lyrctrl.layer.id}}{{lyrctrl.layer.theme.Naam}}> {{lyrctrl.layer.title}}\n" +
+    "<label ng-class=\"{ 'greytext': lyrctrl.layer.displayed==false} \" for={{lyrctrl.layer.name}}{{lyrctrl.layer.id}}{{lyrctrl.layer.theme.Naam}} title={{lyrctrl.layer.title}}>{{lyrctrl.layer.title}}\n" +
     "<span class=\"hidden-print greytext\" ng-show=\"lyrctrl.layer.theme.Type=='wms' && lyrctrl.layer.queryable\"> <i class=\"fa fa-info\"></i></span>\n" +
     "</label>\n" +
     "<span style=color:#76b9f4 class=show-layer ng-show=\"lyrctrl.layer.theme.Type=='wms'\" ng-click=\"showLayer2 = !showLayer2\"></span>\n" +
@@ -5983,7 +6004,7 @@ L.drawLocal = {
     "</li>\n" +
     "<ul class=li-item ng-if=\"lyrctrl.layer.theme.Type=='esri' && lyrctrl.layer.legend.length>1\" ng-show=showLayer>\n" +
     "<li ng-repeat=\"legend in lyrctrl.layer.legend\">\n" +
-    "<img style=\"width:20px; height:20px\" ng-src=\"{{legend.fullurl}} \"><span>{{legend.label}}</span>\n" +
+    "<img style=\"width:20px; height:20px\" ng-src=\"{{legend.fullurl}} \"><span title={{legend.label}}>{{legend.label}}</span>\n" +
     "</li>\n" +
     "</ul>\n" +
     "</div>"
@@ -6373,15 +6394,21 @@ var TinkGis;
         _inherits(Layer, _LayerJSON);
 
         function Layer() {
+            var _ref;
+
             _classCallCheck(this, Layer);
 
-            var _this = _possibleConstructorReturn(this, (Layer.__proto__ || Object.getPrototypeOf(Layer)).apply(this, arguments));
+            for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+                args[_key] = arguments[_key];
+            }
+
+            var _this = _possibleConstructorReturn(this, (_ref = Layer.__proto__ || Object.getPrototypeOf(Layer)).call.apply(_ref, [this].concat(args)));
 
             _this.parent = null;
             _this.Layers = [];
             _this.UpdateDisplayed = function (currentScale) {
                 if (_this.maxScale > 0 || _this.minScale > 0) {
-                    if (currentScale > _this.maxScale && currentScale < _this.minScale) {
+                    if (currentScale >= _this.maxScale && currentScale <= _this.minScale) {
                         _this.displayed = true;
                     } else {
                         _this.displayed = false;
@@ -6511,7 +6538,7 @@ var TinkGis;
 
     TinkGis.arcgislayer = arcgislayer;
 })(TinkGis || (TinkGis = {}));
-;'use strict';
+;"use strict";
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -6533,14 +6560,15 @@ var TinkGis;
 
             this.Layers = [];
             this.UpdateDisplayed = function (currentScale) {
-                _this.AllLayers.forEach(function (layer) {
+                _this.EnabledLayers.forEach(function (layer) {
+                    console.log("updating displayed status for layer: ", layer);
                     layer.UpdateDisplayed(currentScale);
                 });
             };
         }
 
         _createClass(Theme, [{
-            key: 'VisibleLayers',
+            key: "VisibleLayers",
             get: function get() {
                 if (this.Visible) {
                     var allLay = this.AllLayers.filter(function (x) {
@@ -6551,7 +6579,20 @@ var TinkGis;
                 return [];
             }
         }, {
-            key: 'EnabledLayers',
+            key: "VisibleAndDisplayedLayerIds",
+            get: function get() {
+                if (this.Visible) {
+                    var allLay = this.AllLayers.filter(function (x) {
+                        return x.ShouldBeVisible && x.displayed;
+                    }).map(function (x) {
+                        return x.id;
+                    });
+                    return allLay;
+                }
+                return [];
+            }
+        }, {
+            key: "EnabledLayers",
             get: function get() {
                 if (this.Visible) {
                     var allLay = this.AllLayers.filter(function (x) {
@@ -6562,14 +6603,14 @@ var TinkGis;
                 return [];
             }
         }, {
-            key: 'VisibleLayerIds',
+            key: "VisibleLayerIds",
             get: function get() {
                 return this.VisibleLayers.map(function (x) {
                     return x.id;
                 });
             }
         }, {
-            key: 'AllLayers',
+            key: "AllLayers",
             get: function get() {
                 var allLay = this.Layers;
                 this.Layers.forEach(function (lay) {
@@ -6596,8 +6637,7 @@ var TinkGis;
             _this2.name = _this2.Naam = rawdata.documentInfo.Title;
             _this2.Description = rawdata.documentInfo.Subject;
             _this2.cleanUrl = themeData.cleanUrl;
-            var cleanurlSplitted = themeData.cleanUrl.split('/');
-            _this2.Url = cleanurlSplitted[5] + '/' + cleanurlSplitted[6] + '/' + cleanurlSplitted[7] + '/' + cleanurlSplitted[8];
+            _this2.Url = themeData.cleanUrl;
             _this2.Visible = true;
             _this2.Added = false;
             _this2.enabled = true;
@@ -6622,7 +6662,7 @@ var TinkGis;
         }
 
         _createClass(ArcGIStheme, [{
-            key: 'UpdateMap',
+            key: "UpdateMap",
             value: function UpdateMap() {
                 if (this.VisibleLayerIds.length !== 0) {
                     this.MapData.setLayers(this.VisibleLayerIds);
@@ -6645,7 +6685,7 @@ var TinkGis;
 
             var _this3 = _possibleConstructorReturn(this, (wmstheme.__proto__ || Object.getPrototypeOf(wmstheme)).call(this));
 
-            _this3.Version = data['version'];
+            _this3.Version = data.version;
             _this3.name = _this3.Naam = data.service.title;
             _this3.enabled = true;
             _this3.Visible = true;
@@ -6672,13 +6712,13 @@ var TinkGis;
                 lays.push(data.capability.layer);
             }
             lays.forEach(function (layer) {
-                if (layer.queryable == true) {
+                if (layer.queryable === true) {
                     if (data.capability.request.getfeatureinfo.format.some(function (x) {
-                        return x == "text/xml";
+                        return x === "text/xml";
                     })) {
                         _this3.GetFeatureInfoType = "text/xml";
                     } else if (data.capability.request.getfeatureinfo.format.some(function (x) {
-                        return x == "text/plain";
+                        return x === "text/plain";
                     })) {
                         _this3.GetFeatureInfoType = "text/plain";
                     }
@@ -6693,13 +6733,13 @@ var TinkGis;
         }
 
         _createClass(wmstheme, [{
-            key: 'UpdateMap',
+            key: "UpdateMap",
             value: function UpdateMap(map) {
                 if (this.VisibleLayerIds.length !== 0) {
                     if (!map.hasLayer(this.MapData)) {
                         map.addLayer(this.MapData);
                     }
-                    this.MapData.options.layers = this.MapData.wmsParams.layers = this.VisibleLayerIds.join(',');
+                    this.MapData.options.layers = this.MapData.wmsParams.layers = this.VisibleLayerIds.join(",");
                     this.MapData.redraw();
                 } else {
                     if (map.hasLayer(this.MapData)) {

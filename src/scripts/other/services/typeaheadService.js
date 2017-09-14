@@ -88,6 +88,12 @@
 
                 }
             ).addTo(map);
+            $('.typeahead').on('keyup', function(e) {
+                if(e.which == 13) {
+                   var firstsug =  $(".tt-suggestion:first-child");
+                   firstsug.trigger('click');
+                }
+            });
         }
      
         var zoekXY = function (search) {
@@ -127,7 +133,7 @@
             opacity: 1,
             layers: 0,
             continuousWorld: true,
-            useCors: true
+            useCors: false
         });
         var isCharDigit = function (n) {
             return n != ' ' && n > -1;

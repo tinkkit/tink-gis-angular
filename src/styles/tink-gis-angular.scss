@@ -156,7 +156,6 @@ button.btn.active {
     top: rem(105);
   }
 }
-
 .kaarttypes {
   z-index: 9999;
   left: rem($map-buttons-position-left-xs);
@@ -1296,4 +1295,8 @@ button.disabled {
 }
 .propertyvalue{
     white-space:pre; /* or pre-wrap if you want wrapping to still work. */
+}
+.tooltip {
+  white-space: normal;
+  text-align: center;
 }

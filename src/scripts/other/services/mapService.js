@@ -39,7 +39,7 @@
         }
         _mapService.Identify = function(event, tolerance) {
             MapData.CleanSearch();
-            if (typeof tolerance === 'undefined') { tolerance = 10; }
+            if (typeof tolerance === 'undefined') { tolerance = 3; }
             _.each(MapData.Themes, function(theme) {
                 // theme.RecalculateVisibleLayerIds();
                 var identifOnThisTheme = true;
@@ -50,7 +50,11 @@
                 if (identifOnThisTheme) {
                     switch (theme.Type) {
                         case ThemeType.ESRI:
-                            var layersVoorIdentify = 'visible: ' + theme.VisibleLayerIds;
+                            var visanddisplayedlayers = theme.VisibleAndDisplayedLayerIds;
+                            var layersVoorIdentify = 'all:' + visanddisplayedlayers;
+                            if(visanddisplayedlayers.length == 0) {
+                                layersVoorIdentify = 'visible:-1';
+                            }
                             ResultsData.RequestStarted++;
                             theme.MapData.identify().on(map).at(event.latlng).layers(layersVoorIdentify).tolerance(tolerance).run(function(error, featureCollection) {
                                 ResultsData.RequestCompleted++;
@@ -157,24 +161,9 @@
                         allproms.push(prom); -
                         prom.then(function(arg) {
                             MapData.AddFeatures(arg.featureCollection, theme);
-                            // if (MapData.ExtendedType != null) {
-                            //     MapData.ConfirmExtendDialog(MapData.processedFeatureArray);
-                            //     MapData.processedFeatureArray = [];
-                            // }
                         });
-                        // theme.MapData.identify().on(map).at(event.latlng).layers('visible: ' + theme.VisibleLayerIds).run(function(error, featureCollection) {
-                        //     ResultsData.RequestCompleted++;
-                        //     MapData.AddFeatures(featureCollection, theme);
-                        //     if (MapData.ExtendedType != null) {
-                        //         MapData.ConfirmExtendDialog(MapData.processedFeatureArray);
-                        //         MapData.processedFeatureArray = [];
-                        //     }
-
-                        // });
                     }
-
                 });
-
                 if (MapData.ExtendedType != null) {
                     Promise.all(allproms).then(function AcceptHandler(results) {
                         MapData.ConfirmExtendDialog(MapData.processedFeatureArray);
@@ -201,7 +190,7 @@
             var promise = new Promise(
                 function(resolve, reject) {
                     ResultsData.RequestStarted++;
-                    theme.MapData.query()
+                    theme.MapDataWithCors.query()
                         .layer(layerid)
                         .intersects(geometry)
                         .run(function(error, featureCollection, response) {
@@ -215,7 +204,7 @@
             var promise = new Promise(
                 function(resolve, reject) {
                     ResultsData.RequestStarted++;
-                    theme.MapData.query()
+                    theme.MapDataWithCors.query()
                         .layer(layerid)
                         .intersects(geometry)
                         .count(function(error, count, response) {
