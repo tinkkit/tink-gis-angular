@@ -33,7 +33,7 @@
             var arr = MapData.Themes.map(theme => {
                 let returnitem = {};
                 if (!theme.Naam) {
-                    theme.Naam = "no_title_found"
+                    theme.Naam = "no_title_found";
                 }
                 returnitem.Naam = theme.Naam;
                 // if (theme.Type == ThemeType.ESRI) {
@@ -41,7 +41,7 @@
                 // } else {
                     returnitem.cleanUrl = theme.cleanUrl || theme.Url;
                 // }
-
+                
                 returnitem.type = theme.Type;
                 returnitem.visible = theme.Visible;
                 returnitem.layers = theme.AllLayers.filter(x => { return x.enabled == true; }).map(layer => {

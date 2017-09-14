@@ -7,7 +7,7 @@
         var init = function () {
             console.log('Tink-Gis-Angular component init!!!!!!!!!');
             if (window.location.href.startsWith('http://localhost:9000/')) {
-                var externproj = JSON.parse('{"themes":[{"Naam":"Mobiliteit","cleanUrl":"https://geoint.antwerpen.be/arcgissql/rest/services/P_Stad/Mobiliteit/Mapserver","type":"esri","visible":true,"layers":[{"visible":true,"name":"Fiets en voetganger","id":0},{"visible":true,"name":"rijrichting fiets","id":10}]},{"Naam":"BASISDATA","cleanUrl":"https://geoint.antwerpen.be/arcgissql/rest/services/P_Stad/basisdata/Mapserver","type":"esri","visible":true,"layers":[{"visible":true,"name":"perceel","id":21}]}],"extent":{"_southWest":{"lat":51.19465934289606,"lng":4.410163452221989},"_northEast":{"lat":51.204926387301114,"lng":4.4261865130315}},"isKaart":true}');
+                var externproj = JSON.parse('{"themes":[{"Naam":"Planon","cleanUrl":"https://geoint.antwerpen.be/arcgissql/rest/services/P_Planon/planon/MapServer","type":"esri","visible":true,"layers":[{"visible":true,"name":"PLANON_DOSSIER","id":1},{"visible":true,"name":"perceel","id":4}]},{"Naam":"Patrimonium","cleanUrl":"https://geoint.antwerpen.be/arcgis/rest/services/P_Sik/Patrimonium/MapServer","type":"esri","visible":true,"layers":[{"visible":true,"name":"KAVIA","id":17}]}],"extent":{"_southWest":{"lat":51.20536146014249,"lng":4.409578736245564},"_northEast":{"lat":51.206417795952646,"lng":4.411724381984817}},"isKaart":true}');
                 ExternService.Import(externproj);
 
                 PopupService.Success("Dev autoload", 'Velo en fietspad loaded because you are in DEV.', function () { alert('onclicktestje'); })
