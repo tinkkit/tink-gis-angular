@@ -93,7 +93,7 @@
                         opacity: 1,
                         layers: visLayerIds,
                         continuousWorld: true,
-                        useCors: true,
+                        useCors: false,
                         f: 'image'
                     }).addTo(map);
                     theme.MapDataWithCors = L.esri.dynamicMapLayer({
