@@ -1720,7 +1720,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         var init = function () {
             console.log('Tink-Gis-Angular component init!!!!!!!!!');
             if (window.location.href.startsWith('http://localhost:9000/')) {
-                var externproj = JSON.parse('{"themes":[{"Naam":"Mobiliteit","cleanUrl":"https://geoint.antwerpen.be/arcgissql/rest/services/P_Stad/Mobiliteit/Mapserver","type":"esri","visible":true,"layers":[{"visible":true,"name":"Fiets en voetganger","id":0},{"visible":true,"name":"rijrichting fiets","id":10}]},{"Naam":"BASISDATA","cleanUrl":"https://geoint.antwerpen.be/arcgissql/rest/services/P_Stad/basisdata/Mapserver","type":"esri","visible":true,"layers":[{"visible":true,"name":"perceel","id":21}]}],"extent":{"_southWest":{"lat":51.19465934289606,"lng":4.410163452221989},"_northEast":{"lat":51.204926387301114,"lng":4.4261865130315}},"isKaart":true}');
+                var externproj = JSON.parse('{"themes":[{"Naam":"Planon","cleanUrl":"https://geoint.antwerpen.be/arcgissql/rest/services/P_Planon/planon/MapServer","type":"esri","visible":true,"layers":[{"visible":true,"name":"PLANON_DOSSIER","id":1},{"visible":true,"name":"perceel","id":4}]},{"Naam":"Patrimonium","cleanUrl":"https://geoint.antwerpen.be/arcgis/rest/services/P_Sik/Patrimonium/MapServer","type":"esri","visible":true,"layers":[{"visible":true,"name":"KAVIA","id":17}]}],"extent":{"_southWest":{"lat":51.20536146014249,"lng":4.409578736245564},"_northEast":{"lat":51.206417795952646,"lng":4.411724381984817}},"isKaart":true}');
                 ExternService.Import(externproj);
 
                 PopupService.Success("Dev autoload", 'Velo en fietspad loaded because you are in DEV.', function () {
@@ -4249,7 +4249,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
             var promise = new Promise(function (resolve, reject) {
                 ResultsData.RequestStarted++;
-                theme.MapData.query().layer(layerid).intersects(geometry).run(function (error, featureCollection, response) {
+                theme.MapDataWithCors.query().layer(layerid).intersects(geometry).run(function (error, featureCollection, response) {
                     ResultsData.RequestCompleted++;
                     resolve({ error: error, featureCollection: featureCollection, response: response });
                 });
@@ -4259,7 +4259,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         _mapService.LayerQueryCount = function (theme, layerid, geometry) {
             var promise = new Promise(function (resolve, reject) {
                 ResultsData.RequestStarted++;
-                theme.MapData.query().layer(layerid).intersects(geometry).count(function (error, count, response) {
+                theme.MapDataWithCors.query().layer(layerid).intersects(geometry).count(function (error, count, response) {
                     ResultsData.RequestCompleted++;
                     resolve({ error: error, count: count, response: response });
                 });
@@ -4585,10 +4585,19 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                         opacity: 1,
                         layers: visLayerIds,
                         continuousWorld: true,
-                        useCors: true,
+                        useCors: false,
                         f: 'image'
                     }).addTo(map);
-
+                    theme.MapDataWithCors = L.esri.dynamicMapLayer({
+                        maxZoom: 19,
+                        minZoom: 0,
+                        url: theme.cleanUrl,
+                        opacity: 1,
+                        layers: visLayerIds,
+                        continuousWorld: true,
+                        useCors: true,
+                        f: 'image'
+                    });
                     theme.MapData.on('authenticationrequired', function (e) {
                         debugger;
                         serverAuth(function (error, response) {
@@ -5967,7 +5976,7 @@ L.drawLocal = {
     "<li class=\"li-item toc-item-without-icon can-open\" ng-class=\"{'open': showLayer}\">\n" +
     "<div>\n" +
     "<input class=\"visible-box hidden-print\" type=checkbox id={{lyrctrl.layer.name}}{{lyrctrl.layer.id}}{{lyrctrl.layer.theme.Naam}} ng-model=lyrctrl.layer.visible ng-change=layercheckboxchange(lyrctrl.layer.theme)>\n" +
-    "<label for={{lyrctrl.layer.name}}{{lyrctrl.layer.id}}{{lyrctrl.layer.theme.Naam}}>{{lyrctrl.layer.name}}</label>\n" +
+    "<label title={{lyrctrl.layer.name}} for={{lyrctrl.layer.name}}{{lyrctrl.layer.id}}{{lyrctrl.layer.theme.Naam}}>{{lyrctrl.layer.name}}</label>\n" +
     "</div>\n" +
     "<div>\n" +
     "<span class=show-layer ng-click=\"showLayer = !showLayer\"></span>\n" +
@@ -5982,7 +5991,7 @@ L.drawLocal = {
     "<img class=layer-icon ng-if=\"lyrctrl.layer.theme.Type=='esri' && lyrctrl.layer.legend.length===1\" class=layer-icon ng-src=\"{{lyrctrl.layer.legend[0].fullurl}} \">\n" +
     "<div class=can-open ng-class=\"{'open': showLayer2 || showMultiLegend}\">\n" +
     "<input class=\"visible-box hidden-print\" type=checkbox ng-model=lyrctrl.layer.visible ng-change=layercheckboxchange(lyrctrl.layer.theme) id={{lyrctrl.layer.name}}{{lyrctrl.layer.id}}{{lyrctrl.layer.theme.Naam}}>\n" +
-    "<label ng-class=\"{ 'greytext': lyrctrl.layer.displayed==false} \" for={{lyrctrl.layer.name}}{{lyrctrl.layer.id}}{{lyrctrl.layer.theme.Naam}}> {{lyrctrl.layer.title}}\n" +
+    "<label ng-class=\"{ 'greytext': lyrctrl.layer.displayed==false} \" for={{lyrctrl.layer.name}}{{lyrctrl.layer.id}}{{lyrctrl.layer.theme.Naam}} title={{lyrctrl.layer.title}}>{{lyrctrl.layer.title}}\n" +
     "<span class=\"hidden-print greytext\" ng-show=\"lyrctrl.layer.theme.Type=='wms' && lyrctrl.layer.queryable\"> <i class=\"fa fa-info\"></i></span>\n" +
     "</label>\n" +
     "<span style=color:#76b9f4 class=show-layer ng-show=\"lyrctrl.layer.theme.Type=='wms'\" ng-click=\"showLayer2 = !showLayer2\"></span>\n" +
@@ -5995,7 +6004,7 @@ L.drawLocal = {
     "</li>\n" +
     "<ul class=li-item ng-if=\"lyrctrl.layer.theme.Type=='esri' && lyrctrl.layer.legend.length>1\" ng-show=showLayer>\n" +
     "<li ng-repeat=\"legend in lyrctrl.layer.legend\">\n" +
-    "<img style=\"width:20px; height:20px\" ng-src=\"{{legend.fullurl}} \"><span>{{legend.label}}</span>\n" +
+    "<img style=\"width:20px; height:20px\" ng-src=\"{{legend.fullurl}} \"><span title={{legend.label}}>{{legend.label}}</span>\n" +
     "</li>\n" +
     "</ul>\n" +
     "</div>"

@@ -190,7 +190,7 @@
             var promise = new Promise(
                 function(resolve, reject) {
                     ResultsData.RequestStarted++;
-                    theme.MapData.query()
+                    theme.MapDataWithCors.query()
                         .layer(layerid)
                         .intersects(geometry)
                         .run(function(error, featureCollection, response) {
@@ -204,7 +204,7 @@
             var promise = new Promise(
                 function(resolve, reject) {
                     ResultsData.RequestStarted++;
-                    theme.MapData.query()
+                    theme.MapDataWithCors.query()
                         .layer(layerid)
                         .intersects(geometry)
                         .count(function(error, count, response) {

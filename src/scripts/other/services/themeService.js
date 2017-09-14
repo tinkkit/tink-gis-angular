@@ -96,6 +96,16 @@
                         useCors: false,
                         f: 'image'
                     }).addTo(map);
+                    theme.MapDataWithCors = L.esri.dynamicMapLayer({
+                        maxZoom: 19,
+                        minZoom: 0,
+                        url: theme.cleanUrl,
+                        opacity: 1,
+                        layers: visLayerIds,
+                        continuousWorld: true,
+                        useCors: true,
+                        f: 'image'
+                    });
                     theme.MapData.on('authenticationrequired', function (e) {
                         debugger;
                         serverAuth(function (error, response) {
