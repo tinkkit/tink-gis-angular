@@ -1,7 +1,7 @@
 'use strict';
 (function () {
     var module = angular.module('tink.gis');
-    var mapData = function (map, $rootScope, GisHelperService, ResultsData, $compile, FeatureService, SearchService) {
+    var mapData = function (map, $rootScope, GisHelperService, ResultsData, $compile, FeatureService, SearchService, $timeout) {
         var _data = {};
 
         _data.VisibleLayers = [];
@@ -20,7 +20,7 @@
             console.log("RestVisLayers");
             var curSelectedLayer = _data.SelectedLayer || _data.defaultlayer;
             _data.VisibleLayers.length = 0;
-            _data.Themes.filter(x=>x.Type === ThemeType.ESRI).forEach(x => {
+            _data.Themes.filter(x => x.Type === ThemeType.ESRI).forEach(x => {
                 _data.VisibleLayers = _data.VisibleLayers.concat(x.VisibleLayers);
             });
             _data.VisibleLayers = _data.VisibleLayers.sort(x => x.title);
@@ -419,6 +419,16 @@
                 featureItem.displayValue = 'LEEG'
             }
         }
+        _data.SetFieldsData = function(featureItem, layer) {
+            layer.fields.forEach(field => {
+                if (field.type == 'esriFieldTypeDate') {
+                    var date = new Date(featureItem.properties[field.name]);
+                    var date_string = (date.getDate() + 1) + '/' + (date.getMonth() + 1) + '/' + date.getFullYear(); // "2013-9-23"
+                    featureItem.properties[field.name] = date_string;
+                }
+            });
+            _data.SetDisplayValue(featureItem, layer);
+        }
         _data.GetResultsData = function (features, theme, layerId) {
             var buffereditem = _data.VisibleFeatures.find(x => x.isBufferedItem);
             var resultArray = [];
@@ -438,15 +448,14 @@
                 featureItem.theme = theme;
                 featureItem.layerName = layer.name;
                 if (theme.Type === ThemeType.ESRI) {
-                    layer.fields.forEach(field => {
-                        if (field.type == 'esriFieldTypeDate') {
-                            var date = new Date(featureItem.properties[field.name]);
-                            var date_string = (date.getDate() + 1) + '/' + (date.getMonth() + 1) + '/' + date.getFullYear(); // "2013-9-23"
-                            featureItem.properties[field.name] = date_string;
+                    var checkforitem = function () {
+                        if (!layer.fields) {
+                            $timeout(checkforitem, 100);
+                        } else {
+                            _data.SetFieldsData(featureItem, layer);
                         }
-                    });
-                    _data.SetDisplayValue(featureItem, layer);
-
+                    }
+                    checkforitem();
                     var thestyle = Style.DEFAULT;
                     if (_data.ExtendedType == "add") {
                         thestyle = Style.ADD;

@@ -3384,7 +3384,7 @@ L.control.typeahead = function (args) {
 
 (function () {
     var module = angular.module('tink.gis');
-    var mapData = function mapData(map, $rootScope, GisHelperService, ResultsData, $compile, FeatureService, SearchService) {
+    var mapData = function mapData(map, $rootScope, GisHelperService, ResultsData, $compile, FeatureService, SearchService, $timeout) {
         var _data = {};
 
         _data.VisibleLayers = [];
@@ -3784,6 +3784,16 @@ L.control.typeahead = function (args) {
                 featureItem.displayValue = 'LEEG';
             }
         };
+        _data.SetFieldsData = function (featureItem, layer) {
+            layer.fields.forEach(function (field) {
+                if (field.type == 'esriFieldTypeDate') {
+                    var date = new Date(featureItem.properties[field.name]);
+                    var date_string = date.getDate() + 1 + '/' + (date.getMonth() + 1) + '/' + date.getFullYear(); // "2013-9-23"
+                    featureItem.properties[field.name] = date_string;
+                }
+            });
+            _data.SetDisplayValue(featureItem, layer);
+        };
         _data.GetResultsData = function (features, theme, layerId) {
             var buffereditem = _data.VisibleFeatures.find(function (x) {
                 return x.isBufferedItem;
@@ -3808,15 +3818,14 @@ L.control.typeahead = function (args) {
                 featureItem.theme = theme;
                 featureItem.layerName = layer.name;
                 if (theme.Type === ThemeType.ESRI) {
-                    layer.fields.forEach(function (field) {
-                        if (field.type == 'esriFieldTypeDate') {
-                            var date = new Date(featureItem.properties[field.name]);
-                            var date_string = date.getDate() + 1 + '/' + (date.getMonth() + 1) + '/' + date.getFullYear(); // "2013-9-23"
-                            featureItem.properties[field.name] = date_string;
+                    var checkforitem = function checkforitem() {
+                        if (!layer.fields) {
+                            $timeout(checkforitem, 100);
+                        } else {
+                            _data.SetFieldsData(featureItem, layer);
                         }
-                    });
-                    _data.SetDisplayValue(featureItem, layer);
-
+                    };
+                    checkforitem();
                     var thestyle = Style.DEFAULT;
                     if (_data.ExtendedType == "add") {
                         thestyle = Style.ADD;
