@@ -2872,12 +2872,6 @@ var esri2geo = {};
 
             project.themes.forEach(function (theme) {
                 if (theme.type == ThemeType.ESRI) {
-                    // if (!theme.cleanUrl.startsWith(Gis.Arcgissql)) {
-                    //     theme.cleanUrl = Gis.Arcgissql + theme.cleanUrl;
-                    //     if (theme.cleanUrl.toLowerCase().contains("p_sik") && theme.cleanUrl.toLowerCase().contains("/arcgissql/")) {
-                    //         theme.cleanUrl = theme.cleanUrl.replace("/arcgissql/", "/arcgis/");
-                    //     }
-                    // }
                     var prom = GISService.GetThemeData(theme.cleanUrl);
                     promises.push(prom);
                     prom.then(function (data) {
@@ -2889,7 +2883,7 @@ var esri2geo = {};
                                 PopupService.ErrorWithException("Fout bij laden van mapservice", "Kan mapservice met volgende url niet laden: " + theme.cleanUrl, data.error);
                             }
                         } else {
-                            PopupService.Error("Geen rechten voor de mapservice: " + theme.Naam);
+                            PopupService.Warning("Geen rechten voor de mapservice: " + theme.Naam);
                         }
                     });
                 } else {
