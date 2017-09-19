@@ -1,5 +1,5 @@
 'use strict';
-(function () {
+(function() {
     var module;
     try {
         module = angular.module('tink.gis');
@@ -8,16 +8,16 @@
     }
 
     JXON.config({
-        attrPrefix: '',              // default: '@'
-        autoDate: false              // default: true
+        attrPrefix: '', // default: '@'
+        autoDate: false // default: true
     });
-    var init = function () {
+    var init = function() {
         L.AwesomeMarkers.Icon.prototype.options.prefix = 'fa';
         // L.Browser.touch = false; // no touch support!
     }();
-    var mapObject = function () {
-        var crsLambert = new L.Proj.CRS('EPSG:31370', '+proj=lcc +lat_1=51.16666723333334 +lat_2=49.83333389999999 +lat_0=90 +lon_0=4.367486666666666 +x_0=150000.013 +y_0=5400088.438'
-            + ' +ellps=intl +towgs84=-99.1,53.3,-112.5,0.419,-0.83,1.885,-1.0 +units=m +no_defs', {
+    var mapObject = function() {
+        var crsLambert = new L.Proj.CRS('EPSG:31370', '+proj=lcc +lat_1=51.16666723333334 +lat_2=49.83333389999999 +lat_0=90 +lon_0=4.367486666666666 +x_0=150000.013 +y_0=5400088.438' +
+            ' +ellps=intl +towgs84=-99.1,53.3,-112.5,0.419,-0.83,1.885,-1.0 +units=m +no_defs', {
                 origin: [-35872700, 41422700],
                 resolutions: [
                     66.1459656252646,
@@ -63,19 +63,19 @@
         map.featureGroup = L.featureGroup().addTo(map);
         map.extendFeatureGroup = L.featureGroup().addTo(map);
 
-        map.on('draw:created', function (event) {
+        map.on('draw:created', function(event) {
             // var layer = event.layer;
             // map.featureGroup.addLayer(layer);
         });
-        map.on('draw:drawstart', function (event) {
+        map.on('draw:drawstart', function(event) {
             console.log("draw started");
             //console.log(drawnItems);
             //map.clearDrawings();
         });
-        map.addToDrawings = function (layer) {
+        map.addToDrawings = function(layer) {
             map.featureGroup.addLayer(layer);
         };
-        map.clearDrawings = function () {
+        map.clearDrawings = function() {
             map.featureGroup.clearLayers();
             map.extendFeatureGroup.clearLayers();
         }
@@ -83,40 +83,40 @@
         return map;
     }
     module.factory('map', mapObject);
-    module.directive('preventDefaultMap', function (map) {
+    module.directive('preventDefaultMap', function(map) {
         return {
-            link: function (scope, element, attrs) {
+            link: function(scope, element, attrs) {
                 L.DomEvent.disableClickPropagation(element.get(0));
-                element.on('dblclick', function (event) {
+                element.on('dblclick', function(event) {
                     event.stopPropagation();
                 });
-                element.on('mousemove', function (event) {
+                element.on('mousemove', function(event) {
                     event.stopPropagation();
                 });
             }
         }
     });
-    module.directive('preventDefault', function (map) {
+    module.directive('preventDefault', function(map) {
         return {
-            link: function (scope, element, attrs) {
-                element.on('click', function (event) {
+            link: function(scope, element, attrs) {
+                element.on('click', function(event) {
                     event.preventDefault();
                     event.stopPropagation();
                 });
-                element.on('dblclick', function (event) {
+                element.on('dblclick', function(event) {
                     event.stopPropagation();
                 });
-                element.on('mousemove', function (event) {
+                element.on('mousemove', function(event) {
                     event.stopPropagation();
                 });
             }
         }
     });
-    module.directive('autoFocus', function ($timeout) {
+    module.directive('autoFocus', function($timeout) {
         return {
             restrict: 'AC',
-            link: function (_scope, _element) {
-                $timeout(function () {
+            link: function(_scope, _element) {
+                $timeout(function() {
                     _element[0].focus();
                 }, 0);
             }
@@ -124,17 +124,17 @@
     });
 
     var origOpen = XMLHttpRequest.prototype.open;
-    XMLHttpRequest.prototype.open = function (method, url) {
-        if (url.toLowerCase().includes("p_sik")) {
-            this.withCredentials = true;
-            // debugger;
+    XMLHttpRequest.prototype.open = function(method, url) {
+            if (url.toLowerCase().includes("p_sik")) {
+                this.withCredentials = true;
+                // debugger;
+            }
+            origOpen.apply(this, arguments);
         }
-        origOpen.apply(this, arguments);
-    }
-    // XMLHttpRequest.prototype.setRequestHeader = function (header, value) {
-    //     console.log(header + ": " + value);
-    //     // origOpen.setRequestHeader(header, value);
-    // };
+        // XMLHttpRequest.prototype.setRequestHeader = function (header, value) {
+        //     console.log(header + ": " + value);
+        //     // origOpen.setRequestHeader(header, value);
+        // };
 
 
 

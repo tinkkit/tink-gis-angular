@@ -1,16 +1,16 @@
 'use strict';
-(function () {
+(function() {
     try {
         var module = angular.module('tink.gis');
     } catch (e) {
         var module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi']); //'leaflet-directive'
     }
-    var baseLayersService = function (map) {
+    var baseLayersService = function(map) {
         var _baseLayersService = {};
         _baseLayersService.basemap2Naam = "Geen";
         _baseLayersService.basemap1Naam = "Geen";
 
-        _baseLayersService.setBaseMap = function (id, naam, url, maxZoom = 19, minZoom = 0) {
+        _baseLayersService.setBaseMap = function(id, naam, url, maxZoom = 20, minZoom = 0) {
             var layer = L.esri.tiledMapLayer({ url: url, maxZoom: maxZoom, minZoom: minZoom, continuousWorld: true });
             if (id == 1) {
                 if (_baseLayersService.basemap1) {
