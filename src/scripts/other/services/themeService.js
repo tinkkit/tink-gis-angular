@@ -1,9 +1,9 @@
 'use strict';
-(function () {
+(function() {
     var module = angular.module('tink.gis');
-    var service = function (map, ThemeCreater, MapData, GISService) {
+    var service = function(map, ThemeCreater, MapData, GISService) {
         var _service = {};
-        _service.AddAndUpdateThemes = function (themesBatch) {
+        _service.AddAndUpdateThemes = function(themesBatch) {
             console.log('Themes batch for add and updates...');
             console.log(themesBatch);
             themesBatch.forEach(theme => {
@@ -41,11 +41,11 @@
 
             MapData.SetZIndexes();
         };
-        _service.UpdateThemeVisibleLayers = function (theme) {
+        _service.UpdateThemeVisibleLayers = function(theme) {
             MapData.ResetVisibleLayers();
             theme.UpdateMap(map);
         };
-        _service.UpdateTheme = function (updatedTheme, existingTheme) {
+        _service.UpdateTheme = function(updatedTheme, existingTheme) {
             //lets update the existingTheme
             for (var x = 0; x < updatedTheme.AllLayers.length; x++) {
                 var updatedLayer = updatedTheme.AllLayers[x];
@@ -60,8 +60,7 @@
                     if (existingTheme.VisibleLayers.indexOf(existingLayer) == -1) {
                         existingTheme.VisibleLayers.push(existingLayer);
                     }
-                }
-                else {
+                } else {
                     //Anders halen we hem ook moest hij bij VisLayers aanwezig zijn er van af!
                     if (existingTheme.Type == ThemeType.ESRI && MapData.VisibleLayers.indexOf(existingLayer) != -1) {
                         MapData.VisibleLayers.splice(MapData.VisibleLayers.indexOf(existingLayer), 1);
@@ -75,7 +74,7 @@
             }
             // existingTheme.RecalculateVisibleLayerIds();
         };
-        _service.AddNewTheme = function (theme) {
+        _service.AddNewTheme = function(theme) {
             MapData.Themes.unshift(theme);
             if (theme.Type == ThemeType.ESRI) {
                 MapData.VisibleLayers = MapData.VisibleLayers.concat(theme.VisibleLayers)
@@ -87,7 +86,7 @@
                         visLayerIds.push(-1);
                     }
                     theme.MapData = L.esri.dynamicMapLayer({
-                        maxZoom: 19,
+                        maxZoom: 20,
                         minZoom: 0,
                         url: theme.cleanUrl,
                         opacity: 1,
@@ -97,7 +96,7 @@
                         f: 'image'
                     }).addTo(map);
                     theme.MapDataWithCors = L.esri.dynamicMapLayer({
-                        maxZoom: 19,
+                        maxZoom: 20,
                         minZoom: 0,
                         url: theme.cleanUrl,
                         opacity: 1,
@@ -106,14 +105,14 @@
                         useCors: true,
                         f: 'image'
                     });
-                    theme.MapData.on('authenticationrequired', function (e) {
+                    theme.MapData.on('authenticationrequired', function(e) {
                         debugger;
-                        serverAuth(function (error, response) {
+                        serverAuth(function(error, response) {
                             debugger;
                             e.authenticate(response.token);
                         });
                     });
-                    theme.MapData.on('load', function (e) {
+                    theme.MapData.on('load', function(e) {
                         if (theme.MapData._currentImage) {
                             theme.MapData._currentImage._image.style.zIndex = theme.MapData.ZIndex;
                             console.log('Zindex on ' + theme.Naam + ' set to ' + theme.MapData.ZIndex);
@@ -123,7 +122,7 @@
                     break;
                 case ThemeType.WMS:
                     theme.MapData = L.tileLayer.betterWms(theme.cleanUrl, {
-                        maxZoom: 19,
+                        maxZoom: 20,
                         minZoom: 0,
                         format: 'image/png',
                         layers: theme.VisibleLayerIds.join(','),
@@ -132,7 +131,7 @@
                         useCors: true
                     }).addTo(map);
 
-                    theme.MapData.on('load', function (e) {
+                    theme.MapData.on('load', function(e) {
                         console.log('LOAD VAN ' + theme.Naam);
                         console.log(theme.MapData);
                         if (theme.MapData._container.childNodes) {
@@ -149,14 +148,14 @@
                     break;
             }
         };
-        _service.CleanThemes = function () {
+        _service.CleanThemes = function() {
             while (MapData.Themes.length != 0) {
                 console.log('DELETING THIS THEME', MapData.Themes[0]);
                 _service.DeleteTheme(MapData.Themes[0]);
             }
         };
 
-        _service.DeleteTheme = function (theme) {
+        _service.DeleteTheme = function(theme) {
             map.removeLayer(theme.MapData); // this one works with ESRI And leaflet
             var themeIndex = MapData.Themes.indexOf(theme);
             if (themeIndex > -1) {

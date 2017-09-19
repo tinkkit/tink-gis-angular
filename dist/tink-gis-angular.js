@@ -2525,7 +2525,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         _baseLayersService.basemap1Naam = "Geen";
 
         _baseLayersService.setBaseMap = function (id, naam, url) {
-            var maxZoom = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 19;
+            var maxZoom = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 20;
             var minZoom = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 0;
 
             var layer = L.esri.tiledMapLayer({ url: url, maxZoom: maxZoom, minZoom: minZoom, continuousWorld: true });
@@ -3026,7 +3026,7 @@ var esri2geo = {};
 })();
 ;'use strict';
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 (function () {
     var module;
@@ -4067,7 +4067,7 @@ L.control.typeahead = function (args) {
 })();
 ;'use strict';
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 (function () {
     var module;
@@ -4582,7 +4582,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                         visLayerIds.push(-1);
                     }
                     theme.MapData = L.esri.dynamicMapLayer({
-                        maxZoom: 19,
+                        maxZoom: 20,
                         minZoom: 0,
                         url: theme.cleanUrl,
                         opacity: 1,
@@ -4592,7 +4592,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                         f: 'image'
                     }).addTo(map);
                     theme.MapDataWithCors = L.esri.dynamicMapLayer({
-                        maxZoom: 19,
+                        maxZoom: 20,
                         minZoom: 0,
                         url: theme.cleanUrl,
                         opacity: 1,
@@ -4618,7 +4618,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                     break;
                 case ThemeType.WMS:
                     theme.MapData = L.tileLayer.betterWms(theme.cleanUrl, {
-                        maxZoom: 19,
+                        maxZoom: 20,
                         minZoom: 0,
                         format: 'image/png',
                         layers: theme.VisibleLayerIds.join(','),
@@ -4793,7 +4793,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             });
         };
         var locatieMapData = L.esri.dynamicMapLayer({
-            maxZoom: 19,
+            maxZoom: 20,
             minZoom: 0,
             url: Gis.LocatieUrl,
             opacity: 1,
