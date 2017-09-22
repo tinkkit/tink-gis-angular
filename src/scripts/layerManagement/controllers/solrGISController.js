@@ -29,9 +29,9 @@
                 }
                 else {
                     if($scope.searchTerm == '*'){ 
-                        $scope.searchTerm = 'rest services';
+                        $scope.searchTerm = 'rest/services';
                         $scope.$parent.solrLoading = true;
-                        $scope.QueryGISSOLR('rest services', 1);
+                        $scope.QueryGISSOLR('rest/services', 1);
                      
                     } else {
                         $scope.availableThemes.length = 0;

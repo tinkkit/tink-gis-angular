@@ -36,7 +36,7 @@
 
             MapData.CleanMap();
             console.log(location);
-            MapService.Query(location);
+            MapService.Query(location, {id: ''});
         };
         var getGeo = function (geometry) {
             var geoconverted = {};

@@ -1093,9 +1093,9 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 }
             } else {
                 if ($scope.searchTerm == '*') {
-                    $scope.searchTerm = 'rest services';
+                    $scope.searchTerm = 'rest/services';
                     $scope.$parent.solrLoading = true;
-                    $scope.QueryGISSOLR('rest services', 1);
+                    $scope.QueryGISSOLR('rest/services', 1);
                 } else {
                     $scope.availableThemes.length = 0;
                     $scope.numberofrecordsmatched = 0;
@@ -2383,7 +2383,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
 
             MapData.CleanMap();
             console.log(location);
-            MapService.Query(location);
+            MapService.Query(location, { id: '' });
         };
         var getGeo = function getGeo(geometry) {
             var geoconverted = {};
