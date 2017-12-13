@@ -1093,9 +1093,9 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 }
             } else {
                 if ($scope.searchTerm == '*') {
-                    $scope.searchTerm = 'rest/services';
+                    $scope.searchTerm = 'arcgis';
                     $scope.$parent.solrLoading = true;
-                    $scope.QueryGISSOLR('rest/services', 1);
+                    $scope.QueryGISSOLR('arcgis', 1);
                 } else {
                     $scope.availableThemes.length = 0;
                     $scope.numberofrecordsmatched = 0;
@@ -3092,7 +3092,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         _service.ConvertLambert72ToWSG84 = function (coordinates) {
             var x = coordinates.lng || coordinates.x || coordinates[0];
             var y = coordinates.lat || coordinates.y || coordinates[1];
-            var result = proj4('EPSG:31370', 'WGS84', [x, y]);
+            var result = proj4('EPSG:31370', 'WGS84', [parseFloat(x), parseFloat(y)]);
             return {
                 y: result[0],
                 x: result[1]
@@ -4269,6 +4269,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             });
             return promise;
         };
+        _mapService.MaxFeatures = 5000;
         _mapService.Query = function (box, layer) {
             if (!layer) {
                 layer = MapData.SelectedLayer;
@@ -4291,7 +4292,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 });
                 Promise.all(allcountproms).then(function AcceptHandler(results) {
                     console.log(results, featureCount);
-                    if (featureCount <= 1000) {
+                    if (featureCount <= _mapService.MaxFeatures) {
                         var allproms = [];
                         MapData.Themes.forEach(function (theme) {
                             // dus doen we de qry op alle lagen.
@@ -4312,13 +4313,13 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                             });
                         }
                     } else {
-                        PopupService.Warning("U selecteerde " + featureCount + " resultaten.", "Om een vlotte werking te garanderen is het maximum is ingesteld op 1000");
+                        PopupService.Warning("U selecteerde " + featureCount + " resultaten.", "Om een vlotte werking te garanderen is het maximum is ingesteld op " + _mapService.MaxFeatures);
                     }
                 });
             } else {
                 var prom = _mapService.LayerQueryCount(layer.theme, layer.id, box);
                 prom.then(function (arg) {
-                    if (arg.count <= 1000) {
+                    if (arg.count <= _mapService.MaxFeatures) {
                         var prom = _mapService.LayerQuery(layer.theme, layer.id, box);
                         prom.then(function (arg) {
                             MapData.AddFeatures(arg.featureCollection, layer.theme, layer.id);
@@ -4328,7 +4329,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                             }
                         });
                     } else {
-                        PopupService.Warning("U selecteerde " + arg.count + " resultaten.", "Om een vlotte werking te garanderen is het maximum is ingesteld op 1000");
+                        PopupService.Warning("U selecteerde " + arg.count + " resultaten.", "Om een vlotte werking te garanderen is het maximum is ingesteld op " + _mapService.MaxFeatures);
                     }
                 });
             }
@@ -4462,10 +4463,15 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 // if no status code is given, it is most likely in the body of data
                 status = data.code;
             }
+
             var title = 'HTTP error (' + status + ')';
             var baseurl = url.split('/').slice(0, 3).join('/');
             var message = 'Fout met het navigeren naar url: ' + baseurl;
             var exception = { url: url, status: status, data: data };
+            if (status == 403) {
+                title = "Onvoldoende rechten";
+                message = "U heeft geen rechten om volgende url te raadplegen: " + url;
+            }
             var callback = function callback() {
                 _popupService.ExceptionFunc(exception);
             };
