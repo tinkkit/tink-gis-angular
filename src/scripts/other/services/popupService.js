@@ -47,10 +47,15 @@
             if (!status) { // if no status code is given, it is most likely in the body of data
                 status = data.code;
             }
+          
             var title = 'HTTP error (' + status + ')';
             var baseurl = url.split('/').slice(0, 3).join('/')
             var message = 'Fout met het navigeren naar url: ' + baseurl;
             var exception = { url: url, status: status, data: data };
+            if(status == 403) {
+                title = "Onvoldoende rechten"
+                message = "U heeft geen rechten om volgende url te raadplegen: " + url;
+            }
             var callback = function () { _popupService.ExceptionFunc(exception) };
             _popupService.Error(title, message, callback);
         };

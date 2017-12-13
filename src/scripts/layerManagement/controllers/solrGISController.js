@@ -29,9 +29,9 @@
                 }
                 else {
                     if($scope.searchTerm == '*'){ 
-                        $scope.searchTerm = 'rest/services';
+                        $scope.searchTerm = 'arcgis';
                         $scope.$parent.solrLoading = true;
-                        $scope.QueryGISSOLR('rest/services', 1);
+                        $scope.QueryGISSOLR('arcgis', 1);
                      
                     } else {
                         $scope.availableThemes.length = 0;

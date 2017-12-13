@@ -70,7 +70,7 @@
         _service.ConvertLambert72ToWSG84 = function (coordinates) {
             var x = (coordinates.lng || coordinates.x || coordinates[0]);
             var y = (coordinates.lat || coordinates.y || coordinates[1]);
-            var result = proj4('EPSG:31370', 'WGS84', [x, y]);
+            var result = proj4('EPSG:31370', 'WGS84', [parseFloat(x), parseFloat(y)]);
             return {
                 y: result[0],
                 x: result[1]

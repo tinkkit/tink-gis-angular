@@ -214,6 +214,7 @@
                 });
             return promise;
         };
+        _mapService.MaxFeatures = 5000;
         _mapService.Query = function(box, layer) {
             if (!layer) {
                 layer = MapData.SelectedLayer;
@@ -234,7 +235,7 @@
                 });
                 Promise.all(allcountproms).then(function AcceptHandler(results) {
                     console.log(results, featureCount);
-                    if (featureCount <= 1000) {
+                    if (featureCount <= _mapService.MaxFeatures) {
                         var allproms = [];
                         MapData.Themes.forEach(theme => { // dus doen we de qry op alle lagen.
                             if (theme.Type === ThemeType.ESRI) {
@@ -257,7 +258,7 @@
                         }
 
                     } else {
-                        PopupService.Warning("U selecteerde " + featureCount + " resultaten.", "Om een vlotte werking te garanderen is het maximum is ingesteld op 1000")
+                        PopupService.Warning("U selecteerde " + featureCount + " resultaten.", "Om een vlotte werking te garanderen is het maximum is ingesteld op " + _mapService.MaxFeatures);
                     }
                 });
 
@@ -265,7 +266,7 @@
             } else {
                 var prom = _mapService.LayerQueryCount(layer.theme, layer.id, box);
                 prom.then(function(arg) {
-                    if (arg.count <= 1000) {
+                    if (arg.count <= _mapService.MaxFeatures) {
                         var prom = _mapService.LayerQuery(layer.theme, layer.id, box);
                         prom.then(function(arg) {
                             MapData.AddFeatures(arg.featureCollection, layer.theme, layer.id);
@@ -275,7 +276,7 @@
                             }
                         });
                     } else {
-                        PopupService.Warning("U selecteerde " + arg.count + " resultaten.", "Om een vlotte werking te garanderen is het maximum is ingesteld op 1000")
+                        PopupService.Warning("U selecteerde " + arg.count + " resultaten.", "Om een vlotte werking te garanderen is het maximum is ingesteld op " + _mapService.MaxFeatures);
                     }
                 });
 
