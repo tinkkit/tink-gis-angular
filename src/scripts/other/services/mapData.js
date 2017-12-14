@@ -421,9 +421,12 @@
         }
         _data.SetFieldsData = function(featureItem, layer) {
             layer.fields.forEach(field => {
-                if (field.type == 'esriFieldTypeDate') {
+                if(featureItem.properties[field.name] == null) {
+                    featureItem.properties[field.name] = "";
+                }
+                if (field.type == 'esriFieldTypeDate' && typeof featureItem.properties[field.name] == 'number') {
                     var date = new Date(featureItem.properties[field.name]);
-                    var date_string = (date.getDate() + 1) + '/' + (date.getMonth() + 1) + '/' + date.getFullYear(); // "2013-9-23"
+                    var date_string = (date.getDate()) + '/' + (date.getMonth() + 1) + '/' + date.getFullYear(); // "2013-9-23"
                     featureItem.properties[field.name] = date_string;
                 }
             });

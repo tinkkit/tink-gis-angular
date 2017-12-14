@@ -49,15 +49,27 @@
             }
           
             var title = 'HTTP error (' + status + ')';
-            var baseurl = url.split('/').slice(0, 3).join('/')
+            var baseurl = url.split('/').slice(0, 3).join('/');
             var message = 'Fout met het navigeren naar url: ' + baseurl;
             var exception = { url: url, status: status, data: data };
+            var callback = function () { _popupService.ExceptionFunc(exception) };
+            
             if(status == 403) {
                 title = "Onvoldoende rechten"
-                message = "U heeft geen rechten om volgende url te raadplegen: " + url;
+                if(url.includes("service")) {
+                    
+                }
+                message = "U hebt geen rechten om het thema " + url + " te raadplegen";
+                callback = function () { 
+                    var win = window.open('https://um.antwerpen.be/main.aspx', '_blank');
+                    win.focus();
+                 };
+                _popupService.popupGenerator('Warning', title, message, callback);
             }
-            var callback = function () { _popupService.ExceptionFunc(exception) };
-            _popupService.Error(title, message, callback);
+            else
+            {
+                _popupService.Error(title, message, callback);
+            }
         };
         _popupService.Error = function (title, message, callback, options) {
             _popupService.popupGenerator('Error', title, message + "\nKlik hier om te melden.", callback, options)

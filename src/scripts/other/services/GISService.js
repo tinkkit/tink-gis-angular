@@ -83,12 +83,14 @@
             var prom = $q.defer();
 
             var url = completeUrl(mapserver) + '?f=pjson';
-
+            console.log("ZZZZZ");
+            
             $http.get(url, generateOptionsBasedOnUrl(url))
                 .success(function(data, status, headers, config) {
                     // data = GisHelperService.UnwrapProxiedData(data);
                     prom.resolve(data);
                 }).error(function(data, status, headers, config) {
+                    console.log("ZZZZZ");
                     if (url.toLocaleLowerCase().contains("p_sik")) {
                         prom.resolve(null);
                     } else {
@@ -138,7 +140,6 @@
                     if (layerInfo) {
                         layer.legend = layerInfo.legend;
                         layer.legend.forEach(legenditem => {
-
                             legenditem.fullurl = "data:" + legenditem.contentType + ";base64," + legenditem.imageData;
                         });
                     }

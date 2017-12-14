@@ -197,13 +197,22 @@
                 $scope.themeloading = true;
 
                 GISService.GetThemeData(theme.cleanUrl).then(function (data, status, functie, getdata) {
-                    if (!data.error) {
-                        var convertedTheme = ThemeCreater.createARCGISThemeFromJson(data, theme);
-                        $scope.previewTheme(convertedTheme, layername);
+                    if(data) {
+                        if (!data.error) {
+                            var convertedTheme = ThemeCreater.createARCGISThemeFromJson(data, theme);
+                            $scope.previewTheme(convertedTheme, layername);
+                        } else {
+                            PopupService.ErrorFromHTTP(data.error, status, theme.cleanUrl);
+                            $scope.error = "Fout bij het laden van de mapservice.";
+                        }
                     } else {
-                        PopupService.ErrorFromHTTP(data.error, status, theme.cleanUrl);
-                        $scope.error = "Fout bij het laden van de mapservice.";
+                        var callback = function () { 
+                            var win = window.open('https://um.antwerpen.be/main.aspx', '_blank');
+                            win.focus();
+                         };
+                        PopupService.Warning("U hebt geen rechten om het thema " + theme.name  + " te raadplegen.", "Klik hier om toegang aan te vragen.", callback);
                     }
+              
                     $scope.themeloading = false;
 
                 }, function (data, status, functie, getdata) {

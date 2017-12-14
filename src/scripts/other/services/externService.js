@@ -84,7 +84,11 @@
                                 PopupService.ErrorWithException("Fout bij laden van mapservice", "Kan mapservice met volgende url niet laden: " + theme.cleanUrl, data.error);
                             }
                         } else {
-                            PopupService.Warning("Geen rechten voor de mapservice: " + theme.Naam);
+                            var callback = function () { 
+                                var win = window.open('https://um.antwerpen.be/main.aspx', '_blank');
+                                win.focus();
+                             };
+                            PopupService.Warning("U hebt geen rechten om het thema " + theme.Naam  + " te raadplegen.", "Klik hier om toegang aan te vragen.", callback);
                         }
                     });
                 } else {

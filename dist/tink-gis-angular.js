@@ -1273,13 +1273,22 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             $scope.themeloading = true;
 
             GISService.GetThemeData(theme.cleanUrl).then(function (data, status, functie, getdata) {
-                if (!data.error) {
-                    var convertedTheme = ThemeCreater.createARCGISThemeFromJson(data, theme);
-                    $scope.previewTheme(convertedTheme, layername);
+                if (data) {
+                    if (!data.error) {
+                        var convertedTheme = ThemeCreater.createARCGISThemeFromJson(data, theme);
+                        $scope.previewTheme(convertedTheme, layername);
+                    } else {
+                        PopupService.ErrorFromHTTP(data.error, status, theme.cleanUrl);
+                        $scope.error = "Fout bij het laden van de mapservice.";
+                    }
                 } else {
-                    PopupService.ErrorFromHTTP(data.error, status, theme.cleanUrl);
-                    $scope.error = "Fout bij het laden van de mapservice.";
+                    var callback = function callback() {
+                        var win = window.open('https://um.antwerpen.be/main.aspx', '_blank');
+                        win.focus();
+                    };
+                    PopupService.Warning("U hebt geen rechten om het thema " + theme.name + " te raadplegen.", "Klik hier om toegang aan te vragen.", callback);
                 }
+
                 $scope.themeloading = false;
             }, function (data, status, functie, getdata) {
                 $scope.error = "Fout bij het laden van de mapservice.";
@@ -2268,11 +2277,13 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             var prom = $q.defer();
 
             var url = completeUrl(mapserver) + '?f=pjson';
+            console.log("ZZZZZ");
 
             $http.get(url, generateOptionsBasedOnUrl(url)).success(function (data, status, headers, config) {
                 // data = GisHelperService.UnwrapProxiedData(data);
                 prom.resolve(data);
             }).error(function (data, status, headers, config) {
+                console.log("ZZZZZ");
                 if (url.toLocaleLowerCase().contains("p_sik")) {
                     prom.resolve(null);
                 } else {
@@ -2321,7 +2332,6 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                     if (layerInfo) {
                         layer.legend = layerInfo.legend;
                         layer.legend.forEach(function (legenditem) {
-
                             legenditem.fullurl = "data:" + legenditem.contentType + ";base64," + legenditem.imageData;
                         });
                     }
@@ -2883,7 +2893,11 @@ var esri2geo = {};
                                 PopupService.ErrorWithException("Fout bij laden van mapservice", "Kan mapservice met volgende url niet laden: " + theme.cleanUrl, data.error);
                             }
                         } else {
-                            PopupService.Warning("Geen rechten voor de mapservice: " + theme.Naam);
+                            var callback = function callback() {
+                                var win = window.open('https://um.antwerpen.be/main.aspx', '_blank');
+                                win.focus();
+                            };
+                            PopupService.Warning("U hebt geen rechten om het thema " + theme.Naam + " te raadplegen.", "Klik hier om toegang aan te vragen.", callback);
                         }
                     });
                 } else {
@@ -3780,9 +3794,12 @@ L.control.typeahead = function (args) {
         };
         _data.SetFieldsData = function (featureItem, layer) {
             layer.fields.forEach(function (field) {
-                if (field.type == 'esriFieldTypeDate') {
+                if (featureItem.properties[field.name] == null) {
+                    featureItem.properties[field.name] = "";
+                }
+                if (field.type == 'esriFieldTypeDate' && typeof featureItem.properties[field.name] == 'number') {
                     var date = new Date(featureItem.properties[field.name]);
-                    var date_string = date.getDate() + 1 + '/' + (date.getMonth() + 1) + '/' + date.getFullYear(); // "2013-9-23"
+                    var date_string = date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear(); // "2013-9-23"
                     featureItem.properties[field.name] = date_string;
                 }
             });
@@ -4468,14 +4485,22 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             var baseurl = url.split('/').slice(0, 3).join('/');
             var message = 'Fout met het navigeren naar url: ' + baseurl;
             var exception = { url: url, status: status, data: data };
-            if (status == 403) {
-                title = "Onvoldoende rechten";
-                message = "U heeft geen rechten om volgende url te raadplegen: " + url;
-            }
             var callback = function callback() {
                 _popupService.ExceptionFunc(exception);
             };
-            _popupService.Error(title, message, callback);
+
+            if (status == 403) {
+                title = "Onvoldoende rechten";
+                if (url.includes("service")) {}
+                message = "U hebt geen rechten om het thema " + url + " te raadplegen";
+                callback = function callback() {
+                    var win = window.open('https://um.antwerpen.be/main.aspx', '_blank');
+                    win.focus();
+                };
+                _popupService.popupGenerator('Warning', title, message, callback);
+            } else {
+                _popupService.Error(title, message, callback);
+            }
         };
         _popupService.Error = function (title, message, callback, options) {
             _popupService.popupGenerator('Error', title, message + "\nKlik hier om te melden.", callback, options);
