@@ -86,7 +86,7 @@
 
             }).addTo(map);
             $('.typeahead').on('keyup', function(e) {
-                if (e.which == 13) {
+                if (e.which == 13 && $('.tt-suggestion').length == 1) {
                     var firstsug = $(".tt-suggestion:first-child");
                     firstsug.trigger('click');
                 }
