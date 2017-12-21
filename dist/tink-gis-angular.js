@@ -4095,7 +4095,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     }
     var mapService = function mapService($rootScope, MapData, map, ThemeCreater, $q, GISService, ResultsData, GisHelperService, PopupService) {
         var _mapService = {};
-
+        _mapService.MaxFeatures = 1000;
         _mapService.getJsonFromXML = function (data) {
             var json = null;
             if (typeof data != "string") {
@@ -4286,7 +4286,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             });
             return promise;
         };
-        _mapService.MaxFeatures = 5000;
         _mapService.Query = function (box, layer) {
             if (!layer) {
                 layer = MapData.SelectedLayer;

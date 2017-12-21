@@ -8,7 +8,7 @@
     }
     var mapService = function($rootScope, MapData, map, ThemeCreater, $q, GISService, ResultsData, GisHelperService, PopupService) {
         var _mapService = {};
-
+        _mapService.MaxFeatures = 1000;
         _mapService.getJsonFromXML = function(data) {
             var json = null;
             if (typeof data != "string") {
@@ -214,7 +214,6 @@
                 });
             return promise;
         };
-        _mapService.MaxFeatures = 5000;
         _mapService.Query = function(box, layer) {
             if (!layer) {
                 layer = MapData.SelectedLayer;
