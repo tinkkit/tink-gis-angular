@@ -4496,7 +4496,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                     var win = window.open('https://um.antwerpen.be/main.aspx', '_blank');
                     win.focus();
                 };
-                _popupService.popupGenerator('Warning', title, message, callback);
+                var options = {};
+                options.timeOut = 10000;
+                _popupService.popupGenerator('Warning', title, message, callback, options);
             } else {
                 _popupService.Error(title, message, callback);
             }

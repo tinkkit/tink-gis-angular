@@ -64,7 +64,9 @@
                     var win = window.open('https://um.antwerpen.be/main.aspx', '_blank');
                     win.focus();
                  };
-                _popupService.popupGenerator('Warning', title, message, callback);
+                 var options = {};
+                 options.timeOut = 10000;
+                _popupService.popupGenerator('Warning', title, message, callback, options);
             }
             else
             {
