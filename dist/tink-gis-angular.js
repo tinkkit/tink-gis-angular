@@ -1286,7 +1286,9 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                         var win = window.open('https://um.antwerpen.be/main.aspx', '_blank');
                         win.focus();
                     };
-                    PopupService.Warning("U hebt geen rechten om het thema " + theme.name + " te raadplegen.", "Klik hier om toegang aan te vragen.", callback);
+                    var options = {};
+                    options.timeOut = 10000;
+                    PopupService.Warning("U hebt geen rechten om het thema " + theme.name + " te raadplegen.", "Klik hier om toegang aan te vragen.", callback, options);
                 }
 
                 $scope.themeloading = false;
@@ -2897,7 +2899,9 @@ var esri2geo = {};
                                 var win = window.open('https://um.antwerpen.be/main.aspx', '_blank');
                                 win.focus();
                             };
-                            PopupService.Warning("U hebt geen rechten om het thema " + theme.Naam + " te raadplegen.", "Klik hier om toegang aan te vragen.", callback);
+                            var options = {};
+                            options.timeOut = 10000;
+                            PopupService.Warning("U hebt geen rechten om het thema " + theme.Naam + " te raadplegen.", "Klik hier om toegang aan te vragen.", callback, options);
                         }
                     });
                 } else {
@@ -4488,20 +4492,24 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 _popupService.ExceptionFunc(exception);
             };
 
-            if (status == 403) {
-                title = "Onvoldoende rechten";
-                if (url.includes("service")) {}
-                message = "U hebt geen rechten om het thema " + url + " te raadplegen";
-                callback = function callback() {
-                    var win = window.open('https://um.antwerpen.be/main.aspx', '_blank');
-                    win.focus();
-                };
-                var options = {};
-                options.timeOut = 10000;
-                _popupService.popupGenerator('Warning', title, message, callback, options);
-            } else {
-                _popupService.Error(title, message, callback);
-            }
+            // if(status == 403) {
+            //     title = "Onvoldoende rechten"
+            //     if(url.includes("service")) {
+
+            //     }
+            //     message = "U hebt geen rechten om het thema " + url + " te raadplegen";
+            //     callback = function () { 
+            //         var win = window.open('https://um.antwerpen.be/main.aspx', '_blank');
+            //         win.focus();
+            //      };
+            //      var options = {};
+            //      options.timeOut = 10000;
+            //     _popupService.popupGenerator('Warning', title, message, callback, options);
+            // }
+            // else
+            // {
+            _popupService.Error(title, message, callback);
+            // }
         };
         _popupService.Error = function (title, message, callback, options) {
             _popupService.popupGenerator('Error', title, message + "\nKlik hier om te melden.", callback, options);

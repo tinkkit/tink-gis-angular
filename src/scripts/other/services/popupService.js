@@ -54,24 +54,24 @@
             var exception = { url: url, status: status, data: data };
             var callback = function () { _popupService.ExceptionFunc(exception) };
             
-            if(status == 403) {
-                title = "Onvoldoende rechten"
-                if(url.includes("service")) {
+            // if(status == 403) {
+            //     title = "Onvoldoende rechten"
+            //     if(url.includes("service")) {
                     
-                }
-                message = "U hebt geen rechten om het thema " + url + " te raadplegen";
-                callback = function () { 
-                    var win = window.open('https://um.antwerpen.be/main.aspx', '_blank');
-                    win.focus();
-                 };
-                 var options = {};
-                 options.timeOut = 10000;
-                _popupService.popupGenerator('Warning', title, message, callback, options);
-            }
-            else
-            {
+            //     }
+            //     message = "U hebt geen rechten om het thema " + url + " te raadplegen";
+            //     callback = function () { 
+            //         var win = window.open('https://um.antwerpen.be/main.aspx', '_blank');
+            //         win.focus();
+            //      };
+            //      var options = {};
+            //      options.timeOut = 10000;
+            //     _popupService.popupGenerator('Warning', title, message, callback, options);
+            // }
+            // else
+            // {
                 _popupService.Error(title, message, callback);
-            }
+            // }
         };
         _popupService.Error = function (title, message, callback, options) {
             _popupService.popupGenerator('Error', title, message + "\nKlik hier om te melden.", callback, options)

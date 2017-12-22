@@ -210,7 +210,9 @@
                             var win = window.open('https://um.antwerpen.be/main.aspx', '_blank');
                             win.focus();
                          };
-                        PopupService.Warning("U hebt geen rechten om het thema " + theme.name  + " te raadplegen.", "Klik hier om toegang aan te vragen.", callback);
+                         var options = {};
+                         options.timeOut = 10000;
+                        PopupService.Warning("U hebt geen rechten om het thema " + theme.name  + " te raadplegen.", "Klik hier om toegang aan te vragen.", callback, options);
                     }
               
                     $scope.themeloading = false;
