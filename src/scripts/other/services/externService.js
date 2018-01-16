@@ -41,7 +41,7 @@
                 // } else {
                     returnitem.cleanUrl = theme.cleanUrl || theme.Url;
                 // }
-                
+                returnitem.opacity = theme.Opacity
                 returnitem.type = theme.Type;
                 returnitem.visible = theme.Visible;
                 returnitem.layers = theme.AllLayers.filter(x => { return x.enabled == true; }).map(layer => {

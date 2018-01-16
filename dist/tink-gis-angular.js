@@ -5,7 +5,7 @@
     try {
         module = angular.module('tink.gis');
     } catch (e) {
-        module = angular.module('tink.gis', ['tink.navigation', 'tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter', 'tink.pagination', 'tink.tooltip', 'ngAnimate']); //'leaflet-directive'
+        module = angular.module('tink.gis', ['tink.navigation', 'tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter', 'tink.pagination', 'tink.tooltip', 'ngAnimate', 'rzModule']); //'leaflet-directive'
     }
 
     JXON.config({
@@ -2046,6 +2046,19 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             });
             console.log(vm.theme);
         };
+        vm.transpSlider = {
+            value: vm.theme.Opacity * 100,
+            options: {
+                hideLimitLabels: true,
+                hidePointerLabels: true,
+                floor: 0,
+                ceil: 100,
+                onEnd: function onEnd() {
+                    console.log(vm.transpSlider.value / 100);
+                    vm.theme.SetOpacity(vm.transpSlider.value / 100);
+                }
+            }
+        };
     }]);
 })();
 ;// 'use strict';
@@ -2850,7 +2863,7 @@ var esri2geo = {};
                 // } else {
                 returnitem.cleanUrl = theme.cleanUrl || theme.Url;
                 // }
-
+                returnitem.opacity = theme.Opacity;
                 returnitem.type = theme.Type;
                 returnitem.visible = theme.Visible;
                 returnitem.layers = theme.AllLayers.filter(function (x) {
@@ -4621,16 +4634,20 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                     if (visLayerIds.length == 0) {
                         visLayerIds.push(-1);
                     }
+                    if (theme.Opacity === null || theme.Opacity === undefined) {
+                        theme.Opacity = 1;
+                    }
                     theme.MapData = L.esri.dynamicMapLayer({
                         maxZoom: 20,
                         minZoom: 0,
                         url: theme.cleanUrl,
-                        opacity: 1,
+                        opacity: theme.Opacity,
                         layers: visLayerIds,
                         continuousWorld: true,
                         useCors: false,
                         f: 'image'
                     }).addTo(map);
+                    // theme.SetOpacity(theme.Opacity);
                     theme.MapDataWithCors = L.esri.dynamicMapLayer({
                         maxZoom: 20,
                         minZoom: 0,
@@ -6220,9 +6237,14 @@ L.drawLocal = {
     "<div>\n" +
     "<div style=display:flex>\n" +
     "<input class=\"visible-box hidden-print\" type=checkbox id=chk{{thmctrl.theme.Naam}} ng-model=thmctrl.theme.Visible ng-change=layercheckboxchange(thmctrl.theme)>\n" +
-    "<label for=chk{{thmctrl.theme.Naam}} title={{thmctrl.theme.Naam}}> {{thmctrl.theme.Naam}} <span class=\"label-info hidden-print\" ng-show=\"thmctrl.theme.Type=='esri'\">ArcGIS</span><span class=\"label-info hidden-print\" ng-hide=\"thmctrl.theme.Type=='esri'\">{{thmctrl.theme.Type}}</span>\n" +
+    "<label for=chk{{thmctrl.theme.Naam}} title={{thmctrl.theme.Naam}}> {{thmctrl.theme.Naam}}\n" +
+    "<span class=\"label-info hidden-print\" ng-show=\"thmctrl.theme.Type=='esri'\">ArcGIS</span>\n" +
+    "<span class=\"label-info hidden-print\" ng-hide=\"thmctrl.theme.Type=='esri'\">{{thmctrl.theme.Type}}</span>\n" +
     "</label>\n" +
     "<button ng-hide=\"hidedelete == true\" style=\"flex-grow: 2\" class=\"trash hidden-print pull-right\" ng-click=thmctrl.deleteTheme()></button>\n" +
+    "</div>\n" +
+    "<div style=display:flex ng-show=\"thmctrl.theme.Type=='esri'\">\n" +
+    "<rzslider rz-slider-model=thmctrl.transpSlider.value rz-slider-options=thmctrl.transpSlider.options></rzslider>\n" +
     "</div>\n" +
     "<ul class=\"ul-level no-theme-layercontroller-checkbox\" ng-repeat=\"layer in thmctrl.theme.Layers | filter: { enabled: true }\">\n" +
     "<tink-layer layer=layer layercheckboxchange=layercheckboxchange(layer.theme)>\n" +
@@ -6680,6 +6702,7 @@ var TinkGis;
             _this2.name = _this2.Naam = rawdata.documentInfo.Title;
             _this2.Description = rawdata.documentInfo.Subject;
             _this2.cleanUrl = themeData.cleanUrl;
+            _this2.Opacity = themeData.opacity;
             _this2.Url = themeData.cleanUrl;
             _this2.Visible = true;
             _this2.Added = false;
@@ -6695,7 +6718,7 @@ var TinkGis;
                     _this2.Layers.push(argislay);
                 } else {
                     var parentlayer = convertedLayers.find(function (x) {
-                        return x.id == argislay.parentLayerId;
+                        return x.id === argislay.parentLayerId;
                     });
                     argislay.parent = parentlayer;
                     parentlayer.Layers.push(argislay);
@@ -6712,6 +6735,12 @@ var TinkGis;
                 } else {
                     this.MapData.setLayers([-1]);
                 }
+            }
+        }, {
+            key: "SetOpacity",
+            value: function SetOpacity(opacity) {
+                this.Opacity = opacity;
+                this.MapData.setOpacity(opacity);
             }
         }]);
 
@@ -6746,7 +6775,7 @@ var TinkGis;
             }
             var lays = [];
             if (layers) {
-                if (layers.length == undefined) {
+                if (layers.length === undefined) {
                     lays.push(layers);
                 } else {
                     lays = layers;

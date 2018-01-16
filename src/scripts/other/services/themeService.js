@@ -85,16 +85,20 @@
                     if (visLayerIds.length == 0) {
                         visLayerIds.push(-1);
                     }
+                    if(theme.Opacity === null || theme.Opacity === undefined) {
+                        theme.Opacity = 1;
+                    }
                     theme.MapData = L.esri.dynamicMapLayer({
                         maxZoom: 20,
                         minZoom: 0,
                         url: theme.cleanUrl,
-                        opacity: 1,
+                        opacity: theme.Opacity,
                         layers: visLayerIds,
                         continuousWorld: true,
                         useCors: false,
                         f: 'image'
                     }).addTo(map);
+                    // theme.SetOpacity(theme.Opacity);
                     theme.MapDataWithCors = L.esri.dynamicMapLayer({
                         maxZoom: 20,
                         minZoom: 0,

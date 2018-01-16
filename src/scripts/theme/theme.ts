@@ -3,6 +3,7 @@ namespace TinkGis {
     export abstract class Theme {
         Naam: string;
         name: string;
+        Opacity:number;
         Description: string;
         cleanUrl: string;
         Url: string;
@@ -49,10 +50,11 @@ namespace TinkGis {
             });
             return allLay;
         }
+
         UpdateDisplayed = (currentScale) => {
             this.EnabledLayers.forEach(layer => {
                 console.log("updating displayed status for layer: ", layer);
-                layer.UpdateDisplayed(currentScale); 
+                layer.UpdateDisplayed(currentScale);
             });
         }
         abstract UpdateMap(mapobject?: L.Map): void;
@@ -66,8 +68,8 @@ namespace TinkGis {
             this.name = this.Naam = rawdata.documentInfo.Title;
             this.Description = rawdata.documentInfo.Subject;
             this.cleanUrl = themeData.cleanUrl;
-            // let cleanurlSplitted = themeData.cleanUrl.split('/');
-            this.Url = themeData.cleanUrl; // cleanurlSplitted[5] + '/' + cleanurlSplitted[6] + '/' + cleanurlSplitted[7] + '/' + cleanurlSplitted[8];
+            this.Opacity = themeData.opacity;
+            this.Url = themeData.cleanUrl;
             this.Visible = true;
             this.Added = false;
             this.enabled = true;
@@ -80,7 +82,7 @@ namespace TinkGis {
                     this.Layers.push(argislay);
                 }
                 else {
-                    var parentlayer = convertedLayers.find(x => x.id == argislay.parentLayerId);
+                    var parentlayer = convertedLayers.find(x => x.id === argislay.parentLayerId);
                     argislay.parent = parentlayer;
                     parentlayer.Layers.push(argislay);
                 }
@@ -88,14 +90,17 @@ namespace TinkGis {
             });
         }
 
-        UpdateMap() {
+        UpdateMap():void {
             if (this.VisibleLayerIds.length !== 0) {
                 this.MapData.setLayers(this.VisibleLayerIds);
-            }
-            else {
+            }            else {
                 this.MapData.setLayers([-1]);
             }
-        };
+        }
+        SetOpacity(opacity: number): void {
+            this.Opacity = opacity;
+            this.MapData.setOpacity(opacity);
+        }
     }
     export class wmstheme extends Theme {
         Version: string;
@@ -124,7 +129,7 @@ namespace TinkGis {
             }
             var lays = [];
             if (layers) {
-                if (layers.length == undefined) { // array, it has a length
+                if (layers.length === undefined) { // array, it has a length
                     lays.push(layers);
                 }
                 else {

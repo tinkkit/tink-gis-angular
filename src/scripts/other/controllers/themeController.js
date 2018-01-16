@@ -27,5 +27,18 @@
                 });
                 console.log(vm.theme);
             }
+            vm.transpSlider = {
+                value: vm.theme.Opacity * 100,
+                options: {
+                    hideLimitLabels: true,
+                    hidePointerLabels: true,
+                    floor: 0,
+                    ceil: 100,
+                    onEnd: function () {
+                        console.log(vm.transpSlider.value /100);
+                        vm.theme.SetOpacity(vm.transpSlider.value / 100);
+                    }
+                }
+            }
         }]);
 })();
