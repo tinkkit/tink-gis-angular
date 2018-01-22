@@ -191,6 +191,9 @@
         vm.print = function () {
             window.print();
         }
+        vm.Export = function () {
+            map.downloadExport(downloadOptions)
+        }
         vm.printStyle = 'portrait';
         var cssPagedMedia = (function () {
             var style = document.createElement('style');
