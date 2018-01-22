@@ -30,11 +30,11 @@ L.Draw.Rectangle = L.Draw.Rectangle.extend({
         _service.StartDraw = function (DrawingOptie) {
             var options = {
                 metric: true,
-                showArea: false,
+                showArea: true,
                 shapeOptions: {
                     stroke: true,
                     color: '#22528b',
-                    weight: 4,
+                    weight: 2,
                     opacity: 0.6,
                     // fill: true,
                     fillColor: null, //same as color by default
