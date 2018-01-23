@@ -121,6 +121,790 @@
 })();
 ;'use strict';
 
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
+(function (L, undefined) {
+  L.Map.addInitHook(function () {
+    this.whenReady(function () {
+      L.Map.mergeOptions({
+        preferCanvas: true
+      });
+      if (!('exportError' in this)) {
+        this.exportError = {
+          wrongBeginSelector: 'Селектор JQuery не имеет начальной скобки (',
+          wrongEndSelector: 'Селектор JQuery не заканчивается скобкой )',
+          jqueryNotAvailable: 'В опциях используется JQuery селектор, но JQuery не подключен.Подключите JQuery или используйте DOM-селекторы .class, #id или DOM-элементы',
+          popupWindowBlocked: 'Окно печати было заблокировано браузером. Пожалуйста разрешите всплывающие окна на этой странице',
+          emptyFilename: 'При выгрузке карты в виде файла не указано его имя'
+        };
+      }
+
+      this.supportedCanvasMimeTypes = function () {
+        if ('_supportedCanvasMimeTypes' in this) {
+          return this._supportedCanvasMimeTypes;
+        }
+
+        var mimeTypes = {
+          PNG: 'image/png',
+          JPEG: 'image/jpeg',
+          JPG: 'image/jpg',
+          GIF: 'image/gif',
+          BMP: 'image/bmp',
+          TIFF: 'image/tiff',
+          XICON: 'image/x-icon',
+          SVG: 'image/svg+xml',
+          WEBP: 'image/webp'
+        };
+
+        var canvas = document.createElement('canvas');
+        canvas.style.display = 'none';
+        canvas = document.body.appendChild(canvas);
+        var ctx = canvas.getContext('2d');
+        ctx.fillStyle = 'red';
+        ctx.fillRect(0, 0, 1, 1);
+        this._supportedCanvasMimeTypes = {};
+
+        for (var type in mimeTypes) {
+          var mimeType = mimeTypes[type];
+          var data = canvas.toDataURL(mimeType);
+          var actualType = data.replace(/^data:([^;]*).*/, '$1');
+          if (mimeType === actualType) {
+            this._supportedCanvasMimeTypes[type] = mimeType;
+          }
+        }
+
+        document.body.removeChild(canvas);
+
+        return this._supportedCanvasMimeTypes;
+      };
+
+      this.export = function (options) {
+        var caption = {};
+        var exclude = [];
+        var format = 'image/png';
+        options = options || {
+          caption: {},
+          exclude: []
+        };
+
+        if ('caption' in options) {
+          caption = options['caption'];
+          if ('position' in caption) {
+            var position = caption.position;
+            if (!Array.isArray(position)) {
+              position = [0, 0];
+            }
+
+            if (position.length != 2) {
+              if (position.length === 0) {
+                position[0] = 0;
+              }
+
+              if (position.length === 1) {
+                position[1] = 0;
+              }
+            }
+            if (typeof position[0] !== 'number') {
+              if (typeof position[0] === 'string') {
+                position[0] = parseInt(position[0]);
+                if (isNaN(position[0])) {
+                  position[0] = 0;
+                }
+              }
+            }
+            if (typeof position[1] !== 'number') {
+              if (typeof position[1] === 'string') {
+                position[1] = parseInt(position[1]);
+                if (isNaN(position[1])) {
+                  position[1] = 0;
+                }
+              }
+            }
+
+            caption.position = position;
+          }
+        }
+
+        if ('exclude' in options && Array.isArray(options['exclude'])) {
+          exclude = options['exclude'];
+        }
+
+        if ('format' in options) {
+          format = options['format'];
+        }
+
+        var afterRender = options.afterRender;
+        if (typeof afterRender !== 'function') {
+          afterRender = function afterRender(result) {
+            return result;
+          };
+        }
+
+        var afterExport = options.afterExport;
+        if (typeof afterExport !== 'function') {
+          afterExport = function afterExport(result) {
+            return result;
+          };
+        }
+
+        var container = options.container || this._container;
+
+        var hide = [];
+        for (var i = 0; i < exclude.length; i++) {
+          var selector = exclude[i];
+          switch (typeof selector === 'undefined' ? 'undefined' : _typeof(selector)) {
+            // DOM element.
+            case 'object':
+              if ('tagName' in selector) {
+                hide.push(selector);
+              }
+              break;
+            // Selector
+            case 'string':
+              var type = selector.substr(0, 1);
+              switch (type) {
+                // Class selector.
+                case '.':
+                  var elements = container.getElementsByClassName(selector.substr(1));
+                  for (var j = 0; j < elements.length; j++) {
+                    hide.push(elements.item(j));
+                  }
+                  break;
+
+                // Id selector.
+                case '#':
+                  var element = container.getElementById(selector.substr(1));
+                  if (element) {
+                    hide.push(element);
+                  }
+                  break;
+
+                // JQuery.
+                case '$':
+                  var jQuerySelector = selector.trim().substr(1);
+                  if (jQuerySelector.substr(0, 1) !== '(') {
+                    throw new Error(this.exportError.wrongBeginSelector);
+                  }
+                  jQuerySelector = jQuerySelector.substr(1);
+                  if (jQuerySelector.substr(-1) !== ')') {
+                    throw new Error(this.exportError.wrongEndSelector);
+                  }
+                  jQuerySelector = jQuerySelector.substr(0, jQuerySelector.length - 1);
+                  if (typeof jQuery !== 'undefined') {
+                    var elements = $(jQuerySelector, container);
+                    for (var j = 0; j < elements.length; j++) {
+                      hide.push(elements[i]);
+                    }
+                  } else {
+                    throw new Error(this.exportError.jqueryNotAvailable);
+                  }
+              }
+          }
+        }
+
+        // Hide excluded elements.
+        for (var i = 0; i < hide.length; i++) {
+          hide[i].setAttribute('data-html2canvas-ignore', 'true');
+        }
+
+        var _this = this;
+
+        return html2canvas(container, {
+          useCORS: true
+        }).then(afterRender).then(function (canvas) {
+          // Show excluded elements.
+          for (var i = 0; i < hide.length; i++) {
+            hide[i].removeAttribute('data-html2canvas-ignore');
+          }
+
+          if ('text' in caption && caption.text) {
+            var x, y;
+            if ('position' in caption) {
+              x = caption.position[0];
+              y = caption.position[1];
+            } else {
+              x = 0;
+              y = 0;
+            }
+
+            var ctx = canvas.getContext('2d');
+            if ('font' in caption) {
+              ctx.font = caption.font;
+            }
+
+            if ('fillStyle' in caption) {
+              ctx.fillStyle = caption.fillStyle;
+            }
+
+            ctx.fillText(caption.text, x, y);
+          }
+
+          var ret = format === 'canvas' ? canvas : {
+            data: canvas.toDataURL(format),
+            width: canvas.width,
+            height: canvas.height,
+            type: format
+          };
+
+          return ret;
+        }, function (reason) {
+          var newReason = reason;
+          alert(reason);
+        }).then(afterExport);
+      };
+
+      this.printExport = function (options) {
+        options = options || {};
+        var _this = this;
+        var images = [];
+
+        var _runPrintTasks = function _runPrintTasks(options, index) {
+          var exportMethod = options[index].export || _this.export;
+          return exportMethod(options[index]).then(function (result) {
+            images.push(result);
+            if (index < options.length - 1) {
+              return _runPrintTasks(options, index + 1);
+            }
+
+            return images;
+          });
+        };
+
+        if (Array.isArray(options)) {
+          return _runPrintTasks(options, 0).then(function (result) {
+            return _this._printExport(options, result);
+          });
+        }
+
+        var exportMethod = options.export || this.export;
+        return exportMethod(options).then(function (result) {
+          return _this._printExport(options, [result]);
+        });
+      };
+
+      this._printExport = function (options, images) {
+        var printWindow = window.open('', '_blank');
+        if (printWindow) {
+          var printDocument = printWindow.document;
+          printDocument.write('<html><head><style>@media print { @page { padding: 0; margin: 0; } }</style><title>' + (options.text ? options.text : '') + '</title></head><body onload=\'window.print(); window.close();\'></body></html>');
+          images.forEach(function (image) {
+            var img = printDocument.createElement('img');
+            img.height = image.height - 20;
+            img.width = image.width - 10;
+            img.src = image.data;
+            printDocument.body.appendChild(img);
+          });
+
+          printDocument.close();
+          printWindow.focus();
+        } else {
+          throw new Error(this.exportError.popupWindowBlocked);
+        }
+
+        return images;
+      };
+
+      this.downloadExport = function (options) {
+        options = options || {};
+
+        if (Array.isArray(options)) {
+          return this._runDownloadTasks(options, 0);
+        } else {
+          return this._downloadExport(options);
+        }
+      };
+
+      this._runDownloadTasks = function (options, index) {
+        var _this = this;
+        var i = index;
+
+        return this._downloadExport(options[i]).then(function (result) {
+          i++;
+
+          if (i < options.length) {
+            return _this._runDownloadTasks(options, i).then(function (tasksResult) {
+              return [result].concat(tasksResult);
+            });
+          } else {
+            return [result];
+          }
+        });
+      };
+
+      this._downloadExport = function (options) {
+        if (!('fileName' in options)) {
+          throw new Error(this.exportError.emptyFilename);
+        }
+
+        var exportMethod = options.export || this.export;
+        var fileName = options.fileName;
+        delete options.fileName;
+
+        var _this = this;
+        return exportMethod(options).then(function (result) {
+          var fileData = atob(result.data.split(',')[1]);
+          var arrayBuffer = new ArrayBuffer(fileData.length);
+          var view = new Uint8Array(arrayBuffer);
+          for (var i = 0; i < fileData.length; i++) {
+            view[i] = fileData.charCodeAt(i) & 0xff;
+          }
+
+          var blob;
+          if (typeof Blob === 'function') {
+            blob = new Blob([arrayBuffer], {
+              type: 'application/octet-stream'
+            });
+          } else {
+            var blobBuilder = new (window.BlobBuilder || window.WebKitBlobBuilder || window.MozBlobBuilder || window.MSBlobBuilder)();
+            blobBuilder.append(arrayBuffer);
+            blob = blobBuilder.getBlob('application/octet-stream');
+          }
+
+          if (window.navigator.msSaveOrOpenBlob) {
+            // IE can not open blob and data links, but has special method for downloading blobs as files.
+            window.navigator.msSaveBlob(blob, fileName);
+          } else {
+            var blobUrl = (window.URL || window.webkitURL).createObjectURL(blob);
+            var downloadLink = document.createElement('a');
+            downloadLink.style = 'display: none';
+            downloadLink.download = fileName;
+            downloadLink.href = blobUrl;
+
+            // IE requires link to be added into body.
+            document.body.appendChild(downloadLink);
+
+            // Emit click to download image.
+            downloadLink.click();
+
+            // Delete appended link.
+            document.body.removeChild(downloadLink);
+          }
+
+          return result;
+        });
+      };
+    });
+  });
+})(L);
+;"use strict";
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+
+!function (t, e) {
+  "object" == (typeof exports === "undefined" ? "undefined" : _typeof(exports)) && "undefined" != typeof module ? e() : "function" == typeof define && define.amd ? define(e) : e();
+}(0, function () {
+  "use strict";
+  function t(t, e) {
+    return e = { exports: {} }, t(e, e.exports), e.exports;
+  }var e = "undefined" != typeof window ? window : "undefined" != typeof global ? global : "undefined" != typeof self ? self : {},
+      n = t(function (t) {
+    !function (e) {
+      function n(t, e) {
+        function n(t) {
+          return e.bgcolor && (t.style.backgroundColor = e.bgcolor), e.width && (t.style.width = e.width + "px"), e.height && (t.style.height = e.height + "px"), e.style && Object.keys(e.style).forEach(function (n) {
+            t.style[n] = e.style[n];
+          }), t;
+        }return e = e || {}, s(e), Promise.resolve(t).then(function (t) {
+          return u(t, e.filter, !0);
+        }).then(c).then(d).then(n).then(function (n) {
+          return g(n, e.width || h.width(t), e.height || h.height(t));
+        });
+      }function i(t, e) {
+        return l(t, e || {}).then(function (e) {
+          return e.getContext("2d").getImageData(0, 0, h.width(t), h.height(t)).data;
+        });
+      }function o(t, e) {
+        return l(t, e || {}).then(function (t) {
+          return t.toDataURL();
+        });
+      }function r(t, e) {
+        return e = e || {}, l(t, e).then(function (t) {
+          return t.toDataURL("image/jpeg", e.quality || 1);
+        });
+      }function a(t, e) {
+        return l(t, e || {}).then(h.canvasToBlob);
+      }function s(t) {
+        void 0 === t.imagePlaceholder ? w.impl.options.imagePlaceholder = M.imagePlaceholder : w.impl.options.imagePlaceholder = t.imagePlaceholder, void 0 === t.cacheBust ? w.impl.options.cacheBust = M.cacheBust : w.impl.options.cacheBust = t.cacheBust;
+      }function l(t, e) {
+        function i(t) {
+          var n = document.createElement("canvas");if (n.width = e.width || h.width(t), n.height = e.height || h.height(t), e.bgcolor) {
+            var i = n.getContext("2d");i.fillStyle = e.bgcolor, i.fillRect(0, 0, n.width, n.height);
+          }return n;
+        }return n(t, e).then(h.makeImage).then(h.delay(100)).then(function (e) {
+          var n = i(t);return n.getContext("2d").drawImage(e, 0, 0), n;
+        });
+      }function u(t, e, n) {
+        function i(t) {
+          return t instanceof HTMLCanvasElement ? h.makeImage(t.toDataURL()) : t.cloneNode(!1);
+        }function o(t, e, n) {
+          var i = t.childNodes;return 0 === i.length ? Promise.resolve(e) : function (t, e, n) {
+            var i = Promise.resolve();return e.forEach(function (e) {
+              i = i.then(function () {
+                return u(e, n);
+              }).then(function (e) {
+                e && t.appendChild(e);
+              });
+            }), i;
+          }(e, h.asArray(i), n).then(function () {
+            return e;
+          });
+        }function r(t, e) {
+          function n() {
+            !function (t, e) {
+              t.cssText ? e.cssText = t.cssText : function (t, e) {
+                h.asArray(t).forEach(function (n) {
+                  e.setProperty(n, t.getPropertyValue(n), t.getPropertyPriority(n));
+                });
+              }(t, e);
+            }(window.getComputedStyle(t), e.style);
+          }function i() {
+            function n(n) {
+              var i = window.getComputedStyle(t, n),
+                  o = i.getPropertyValue("content");if ("" !== o && "none" !== o) {
+                var r = h.uid();e.className = e.className + " " + r;var a = document.createElement("style");a.appendChild(function (t, e, n) {
+                  var i = "." + t + ":" + e,
+                      o = n.cssText ? function (t) {
+                    var e = t.getPropertyValue("content");return t.cssText + " content: " + e + ";";
+                  }(n) : function (t) {
+                    function e(e) {
+                      return e + ": " + t.getPropertyValue(e) + (t.getPropertyPriority(e) ? " !important" : "");
+                    }return h.asArray(t).map(e).join("; ") + ";";
+                  }(n);return document.createTextNode(i + "{" + o + "}");
+                }(r, n, i)), e.appendChild(a);
+              }
+            }[":before", ":after"].forEach(function (t) {
+              n(t);
+            });
+          }function o() {
+            t instanceof HTMLTextAreaElement && (e.innerHTML = t.value), t instanceof HTMLInputElement && e.setAttribute("value", t.value);
+          }function r() {
+            e instanceof SVGElement && (e.setAttribute("xmlns", "http://www.w3.org/2000/svg"), e instanceof SVGRectElement && ["width", "height"].forEach(function (t) {
+              var n = e.getAttribute(t);n && e.style.setProperty(t, n);
+            }));
+          }return e instanceof Element ? Promise.resolve().then(n).then(i).then(o).then(r).then(function () {
+            return e;
+          }) : e;
+        }return n || !e || e(t) ? Promise.resolve(t).then(i).then(function (n) {
+          return o(t, n, e);
+        }).then(function (e) {
+          return r(t, e);
+        }) : Promise.resolve();
+      }function c(t) {
+        return p.resolveAll().then(function (e) {
+          var n = document.createElement("style");return t.appendChild(n), n.appendChild(document.createTextNode(e)), t;
+        });
+      }function d(t) {
+        return f.inlineAll(t).then(function () {
+          return t;
+        });
+      }function g(t, e, n) {
+        return Promise.resolve(t).then(function (t) {
+          return t.setAttribute("xmlns", "http://www.w3.org/1999/xhtml"), new XMLSerializer().serializeToString(t);
+        }).then(h.escapeXhtml).then(function (t) {
+          return '<foreignObject x="0" y="0" width="100%" height="100%">' + t + "</foreignObject>";
+        }).then(function (t) {
+          return '<svg xmlns="http://www.w3.org/2000/svg" width="' + e + '" height="' + n + '">' + t + "</svg>";
+        }).then(function (t) {
+          return "data:image/svg+xml;charset=utf-8," + t;
+        });
+      }var h = function () {
+        function t() {
+          var t = "application/font-woff",
+              e = "image/jpeg";return { woff: t, woff2: t, ttf: "application/font-truetype", eot: "application/vnd.ms-fontobject", png: "image/png", jpg: e, jpeg: e, gif: "image/gif", tiff: "image/tiff", svg: "image/svg+xml" };
+        }function e(t) {
+          var e = /\.([^\.\/]*?)$/g.exec(t);return e ? e[1] : "";
+        }function n(n) {
+          var i = e(n).toLowerCase();return t()[i] || "";
+        }function i(t) {
+          return -1 !== t.search(/^(data:)/);
+        }function o(t) {
+          return new Promise(function (e) {
+            for (var n = window.atob(t.toDataURL().split(",")[1]), i = n.length, o = new Uint8Array(i), r = 0; r < i; r++) {
+              o[r] = n.charCodeAt(r);
+            }e(new Blob([o], { type: "image/png" }));
+          });
+        }function r(t) {
+          return t.toBlob ? new Promise(function (e) {
+            t.toBlob(e);
+          }) : o(t);
+        }function a(t, e) {
+          var n = document.implementation.createHTMLDocument(),
+              i = n.createElement("base");n.head.appendChild(i);var o = n.createElement("a");return n.body.appendChild(o), i.href = e, o.href = t, o.href;
+        }function s(t) {
+          return new Promise(function (e, n) {
+            var i = new Image();i.onload = function () {
+              e(i);
+            }, i.onerror = n, i.src = t;
+          });
+        }function l(t) {
+          var e = 3e4;return w.impl.options.cacheBust && (t += (/\?/.test(t) ? "&" : "?") + new Date().getTime()), new Promise(function (n) {
+            function i() {
+              if (4 === a.readyState) {
+                if (200 !== a.status) return void (s ? n(s) : r("cannot fetch resource: " + t + ", status: " + a.status));var e = new FileReader();e.onloadend = function () {
+                  var t = e.result.split(/,/)[1];n(t);
+                }, e.readAsDataURL(a.response);
+              }
+            }function o() {
+              s ? n(s) : r("timeout of " + e + "ms occured while fetching resource: " + t);
+            }function r(t) {
+              console.error(t), n("");
+            }var a = new XMLHttpRequest();a.onreadystatechange = i, a.ontimeout = o, a.responseType = "blob", a.timeout = e, a.open("GET", t, !0), a.send();var s;if (w.impl.options.imagePlaceholder) {
+              var l = w.impl.options.imagePlaceholder.split(/,/);l && l[1] && (s = l[1]);
+            }
+          });
+        }function u(t, e) {
+          return "data:" + e + ";base64," + t;
+        }function c(t) {
+          return t.replace(/([.*+?^${}()|\[\]\/\\])/g, "\\$1");
+        }function d(t) {
+          return function (e) {
+            return new Promise(function (n) {
+              setTimeout(function () {
+                n(e);
+              }, t);
+            });
+          };
+        }function g(t) {
+          for (var e = [], n = t.length, i = 0; i < n; i++) {
+            e.push(t[i]);
+          }return e;
+        }function h(t) {
+          return t.replace(/#/g, "%23").replace(/\n/g, "%0A");
+        }function m(t) {
+          var e = f(t, "border-left-width"),
+              n = f(t, "border-right-width");return t.scrollWidth + e + n;
+        }function p(t) {
+          var e = f(t, "border-top-width"),
+              n = f(t, "border-bottom-width");return t.scrollHeight + e + n;
+        }function f(t, e) {
+          var n = window.getComputedStyle(t).getPropertyValue(e);return parseFloat(n.replace("px", ""));
+        }return { escape: c, parseExtension: e, mimeType: n, dataAsUrl: u, isDataUrl: i, canvasToBlob: r, resolveUrl: a, getAndEncode: l, uid: function () {
+            var t = 0;return function () {
+              return "u" + function () {
+                return ("0000" + (Math.random() * Math.pow(36, 4) << 0).toString(36)).slice(-4);
+              }() + t++;
+            };
+          }(), delay: d, asArray: g, escapeXhtml: h, makeImage: s, width: m, height: p };
+      }(),
+          m = function () {
+        function t(t) {
+          return -1 !== t.search(o);
+        }function e(t) {
+          for (var e, n = []; null !== (e = o.exec(t));) {
+            n.push(e[1]);
+          }return n.filter(function (t) {
+            return !h.isDataUrl(t);
+          });
+        }function n(t, e, n, i) {
+          function o(t) {
+            return new RegExp("(url\\(['\"]?)(" + h.escape(t) + ")(['\"]?\\))", "g");
+          }return Promise.resolve(e).then(function (t) {
+            return n ? h.resolveUrl(t, n) : t;
+          }).then(i || h.getAndEncode).then(function (t) {
+            return h.dataAsUrl(t, h.mimeType(e));
+          }).then(function (n) {
+            return t.replace(o(e), "$1" + n + "$3");
+          });
+        }function i(i, o, r) {
+          return function () {
+            return !t(i);
+          }() ? Promise.resolve(i) : Promise.resolve(i).then(e).then(function (t) {
+            var e = Promise.resolve(i);return t.forEach(function (t) {
+              e = e.then(function (e) {
+                return n(e, t, o, r);
+              });
+            }), e;
+          });
+        }var o = /url\(['"]?([^'"]+?)['"]?\)/g;return { inlineAll: i, shouldProcess: t, impl: { readUrls: e, inline: n } };
+      }(),
+          p = function () {
+        function t() {
+          return e(document).then(function (t) {
+            return Promise.all(t.map(function (t) {
+              return t.resolve();
+            }));
+          }).then(function (t) {
+            return t.join("\n");
+          });
+        }function e() {
+          function t(t) {
+            return t.filter(function (t) {
+              return t.type === CSSRule.FONT_FACE_RULE;
+            }).filter(function (t) {
+              return m.shouldProcess(t.style.getPropertyValue("src"));
+            });
+          }function e(t) {
+            var e = [];return t.forEach(function (t) {
+              try {
+                h.asArray(t.cssRules || []).forEach(e.push.bind(e));
+              } catch (e) {
+                console.log("Error while reading CSS rules from " + t.href, e.toString());
+              }
+            }), e;
+          }function n(t) {
+            return { resolve: function resolve() {
+                var e = (t.parentStyleSheet || {}).href;return m.inlineAll(t.cssText, e);
+              }, src: function src() {
+                return t.style.getPropertyValue("src");
+              } };
+          }return Promise.resolve(h.asArray(document.styleSheets)).then(e).then(t).then(function (t) {
+            return t.map(n);
+          });
+        }return { resolveAll: t, impl: { readAll: e } };
+      }(),
+          f = function () {
+        function t(t) {
+          function e(e) {
+            return h.isDataUrl(t.src) ? Promise.resolve() : Promise.resolve(t.src).then(e || h.getAndEncode).then(function (e) {
+              return h.dataAsUrl(e, h.mimeType(t.src));
+            }).then(function (e) {
+              return new Promise(function (n, i) {
+                t.onload = n, t.onerror = i, t.src = e;
+              });
+            });
+          }return { inline: e };
+        }function e(n) {
+          return n instanceof Element ? function (t) {
+            var e = t.style.getPropertyValue("background");return e ? m.inlineAll(e).then(function (e) {
+              t.style.setProperty("background", e, t.style.getPropertyPriority("background"));
+            }).then(function () {
+              return t;
+            }) : Promise.resolve(t);
+          }(n).then(function () {
+            return n instanceof HTMLImageElement ? t(n).inline() : Promise.all(h.asArray(n.childNodes).map(function (t) {
+              return e(t);
+            }));
+          }) : Promise.resolve(n);
+        }return { inlineAll: e, impl: { newImage: t } };
+      }(),
+          M = { imagePlaceholder: void 0, cacheBust: !1 },
+          w = { toSvg: n, toPng: o, toJpeg: r, toBlob: a, toPixelData: i, impl: { fontFaces: p, images: f, util: h, inliner: m, options: {} } };t.exports = w;
+    }();
+  }),
+      i = t(function (t) {
+    var n = n || function (t) {
+      if (!(void 0 === t || "undefined" != typeof navigator && /MSIE [1-9]\./.test(navigator.userAgent))) {
+        var e = t.document,
+            n = function n() {
+          return t.URL || t.webkitURL || t;
+        },
+            i = e.createElementNS("http://www.w3.org/1999/xhtml", "a"),
+            o = "download" in i,
+            r = function r(t) {
+          var e = new MouseEvent("click");t.dispatchEvent(e);
+        },
+            a = /constructor/i.test(t.HTMLElement) || t.safari,
+            s = /CriOS\/[\d]+/.test(navigator.userAgent),
+            l = function l(e) {
+          (t.setImmediate || t.setTimeout)(function () {
+            throw e;
+          }, 0);
+        },
+            u = function u(t) {
+          var e = function e() {
+            "string" == typeof t ? n().revokeObjectURL(t) : t.remove();
+          };setTimeout(e, 4e4);
+        },
+            c = function c(t, e, n) {
+          e = [].concat(e);for (var i = e.length; i--;) {
+            var o = t["on" + e[i]];if ("function" == typeof o) try {
+              o.call(t, n || t);
+            } catch (t) {
+              l(t);
+            }
+          }
+        },
+            d = function d(t) {
+          return (/^\s*(?:text\/\S*|application\/xml|\S*\/\S*\+xml)\s*;.*charset\s*=\s*utf-8/i.test(t.type) ? new Blob([String.fromCharCode(65279), t], { type: t.type }) : t
+          );
+        },
+            g = function g(e, l, _g) {
+          _g || (e = d(e));var h,
+              m = this,
+              p = e.type,
+              f = "application/octet-stream" === p,
+              M = function M() {
+            c(m, "writestart progress write writeend".split(" "));
+          };if (m.readyState = m.INIT, o) return h = n().createObjectURL(e), void setTimeout(function () {
+            i.href = h, i.download = l, r(i), M(), u(h), m.readyState = m.DONE;
+          });!function () {
+            if ((s || f && a) && t.FileReader) {
+              var i = new FileReader();return i.onloadend = function () {
+                var e = s ? i.result : i.result.replace(/^data:[^;]*;/, "data:attachment/file;");t.open(e, "_blank") || (t.location.href = e), e = void 0, m.readyState = m.DONE, M();
+              }, i.readAsDataURL(e), void (m.readyState = m.INIT);
+            }if (h || (h = n().createObjectURL(e)), f) t.location.href = h;else {
+              t.open(h, "_blank") || (t.location.href = h);
+            }m.readyState = m.DONE, M(), u(h);
+          }();
+        },
+            h = g.prototype,
+            m = function m(t, e, n) {
+          return new g(t, e || t.name || "download", n);
+        };return "undefined" != typeof navigator && navigator.msSaveOrOpenBlob ? function (t, e, n) {
+          return e = e || t.name || "download", n || (t = d(t)), navigator.msSaveOrOpenBlob(t, e);
+        } : (h.abort = function () {}, h.readyState = h.INIT = 0, h.WRITING = 1, h.DONE = 2, h.error = h.onwritestart = h.onprogress = h.onwrite = h.onabort = h.onerror = h.onwriteend = null, m);
+      }
+    }("undefined" != typeof self && self || "undefined" != typeof window && window || e.content);t.exports && (t.exports.saveAs = n);
+  });L.Control.EasyPrint = L.Control.extend({ options: { title: "Print map", position: "topleft", sizeModes: ["Current"], filename: "map", exportOnly: !1, hidden: !1, tileWait: 500, hideControlContainer: !0, customWindowTitle: window.document.title, spinnerBgCOlor: "#0DC5C1", customSpinnerClass: "epLoader", defaultSizeTitles: { Current: "Current Size", A4Landscape: "A4 Landscape", A4Portrait: "A4 Portrait" } }, onAdd: function onAdd() {
+      this.mapContainer = this._map.getContainer(), this.options.sizeModes = this.options.sizeModes.map(function (t) {
+        return "Current" === t ? { name: this.options.defaultSizeTitles.Current, className: "CurrentSize" } : "A4Landscape" === t ? { height: this._a4PageSize.height, width: this._a4PageSize.width, name: this.options.defaultSizeTitles.A4Landscape, className: "A4Landscape page" } : "A4Portrait" === t ? { height: this._a4PageSize.width, width: this._a4PageSize.height, name: this.options.defaultSizeTitles.A4Portrait, className: "A4Portrait page" } : t;
+      }, this);var t = L.DomUtil.create("div", "leaflet-control-easyPrint leaflet-bar leaflet-control");if (!this.options.hidden) {
+        this._addCss(), L.DomEvent.addListener(t, "mouseover", this._togglePageSizeButtons, this), L.DomEvent.addListener(t, "mouseout", this._togglePageSizeButtons, this);var e = "leaflet-control-easyPrint-button";this.options.exportOnly && (e += "-export"), this.link = L.DomUtil.create("a", e, t), this.link.id = "leafletEasyPrint", this.link.title = this.options.title, this.holder = L.DomUtil.create("ul", "easyPrintHolder", t), this.options.sizeModes.forEach(function (t) {
+          var e = L.DomUtil.create("li", "easyPrintSizeMode", this.holder);e.title = t.name;L.DomUtil.create("a", t.className, e);L.DomEvent.addListener(e, "click", this.printMap, this);
+        }, this), L.DomEvent.disableClickPropagation(t);
+      }return t;
+    }, printMap: function printMap(t, e) {
+      e && (this.options.filename = e), this.options.exportOnly || (this._page = window.open("", "_blank", "toolbar=no,status=no,menubar=no,scrollbars=no,resizable=no,left=10, top=10, width=200, height=250, visible=none"), this._page.document.write(this._createSpinner(this.options.customWindowTitle, this.options.customSpinnerClass, this.options.spinnerBgCOlor))), this.originalState = { mapWidth: this.mapContainer.style.width, widthWasAuto: !1, widthWasPercentage: !1, mapHeight: this.mapContainer.style.height, zoom: this._map.getZoom(), center: this._map.getCenter() }, "auto" === this.originalState.mapWidth ? (this.originalState.mapWidth = this._map.getSize().x + "px", this.originalState.widthWasAuto = !0) : this.originalState.mapWidth.includes("%") && (this.originalState.percentageWidth = this.originalState.mapWidth, this.originalState.widthWasPercentage = !0, this.originalState.mapWidth = this._map.getSize().x + "px"), this._map.fire("easyPrint-start", { event: t }), this.options.hidden || this._togglePageSizeButtons({ type: null }), this.options.hideControlContainer && this._toggleControls();var n = "string" != typeof t ? t.target.className : t;if ("CurrentSize" === n) return this._printOpertion(n);this.outerContainer = this._createOuterContainer(this.mapContainer), this.originalState.widthWasAuto && (this.outerContainer.style.width = this.originalState.mapWidth), this._createImagePlaceholder(n);
+    }, _createImagePlaceholder: function _createImagePlaceholder(t) {
+      var e = this;n.toPng(this.mapContainer, { width: parseInt(this.originalState.mapWidth.replace("px")), height: parseInt(this.originalState.mapHeight.replace("px")) }).then(function (n) {
+        e.blankDiv = document.createElement("div");var i = e.blankDiv;e.outerContainer.parentElement.insertBefore(i, e.outerContainer), i.className = "epHolder", i.style.backgroundImage = 'url("' + n + '")', i.style.position = "absolute", i.style.zIndex = 1011, i.style.display = "initial", i.style.width = e.originalState.mapWidth, i.style.height = e.originalState.mapHeight, e._resizeAndPrintMap(t);
+      }).catch(function (t) {
+        console.error("oops, something went wrong!", t);
+      });
+    }, _resizeAndPrintMap: function _resizeAndPrintMap(t) {
+      this.outerContainer.style.opacity = 0;var e = this.options.sizeModes.filter(function (e) {
+        return e.className === t;
+      });e = e[0], this.mapContainer.style.width = e.width + "px", this.mapContainer.style.height = e.height + "px", this.mapContainer.style.width > this.mapContainer.style.height ? this.orientation = "portrait" : this.orientation = "landscape", this._map.setView(this.originalState.center), this._map.setZoom(this.originalState.zoom), this._map.invalidateSize(), this.options.tileLayer ? this._pausePrint(t) : this._printOpertion(t);
+    }, _pausePrint: function _pausePrint(t) {
+      var e = this,
+          n = setInterval(function () {
+        e.options.tileLayer.isLoading() || (clearInterval(n), e._printOpertion(t));
+      }, e.options.tileWait);
+    }, _printOpertion: function _printOpertion(t) {
+      var e = this,
+          o = this.mapContainer.style.width;(this.originalState.widthWasAuto && "CurrentSize" === t || this.originalState.widthWasPercentage && "CurrentSize" === t) && (o = this.originalState.mapWidth), n.toPng(e.mapContainer, { width: parseInt(o), height: parseInt(e.mapContainer.style.height.replace("px")) }).then(function (t) {
+        var n = e._dataURItoBlob(t);e.options.exportOnly ? i.saveAs(n, e.options.filename + ".png") : e._sendToBrowserPrint(t, e.orientation), e._toggleControls(!0), e.outerContainer && (e.originalState.widthWasAuto ? e.mapContainer.style.width = "auto" : e.originalState.widthWasPercentage ? e.mapContainer.style.width = e.originalState.percentageWidth : e.mapContainer.style.width = e.originalState.mapWidth, e.mapContainer.style.height = e.originalState.mapHeight, e._removeOuterContainer(e.mapContainer, e.outerContainer, e.blankDiv), e._map.invalidateSize(), e._map.setView(e.originalState.center), e._map.setZoom(e.originalState.zoom)), e._map.fire("easyPrint-finished");
+      }).catch(function (t) {
+        console.error("Print operation failed", t);
+      });
+    }, _sendToBrowserPrint: function _sendToBrowserPrint(t, e) {
+      this._page.resizeTo(600, 800);var n = this._createNewWindow(t, e, this);this._page.document.body.innerHTML = "", this._page.document.write(n), this._page.document.close();
+    }, _createSpinner: function _createSpinner(t, e, n) {
+      return "<html><head><title>" + t + "</title></head><body><style>\n      body{\n        background: " + n + ";\n      }\n      .epLoader,\n      .epLoader:before,\n      .epLoader:after {\n        border-radius: 50%;\n      }\n      .epLoader {\n        color: #ffffff;\n        font-size: 11px;\n        text-indent: -99999em;\n        margin: 55px auto;\n        position: relative;\n        width: 10em;\n        height: 10em;\n        box-shadow: inset 0 0 0 1em;\n        -webkit-transform: translateZ(0);\n        -ms-transform: translateZ(0);\n        transform: translateZ(0);\n      }\n      .epLoader:before,\n      .epLoader:after {\n        position: absolute;\n        content: '';\n      }\n      .epLoader:before {\n        width: 5.2em;\n        height: 10.2em;\n        background: #0dc5c1;\n        border-radius: 10.2em 0 0 10.2em;\n        top: -0.1em;\n        left: -0.1em;\n        -webkit-transform-origin: 5.2em 5.1em;\n        transform-origin: 5.2em 5.1em;\n        -webkit-animation: load2 2s infinite ease 1.5s;\n        animation: load2 2s infinite ease 1.5s;\n      }\n      .epLoader:after {\n        width: 5.2em;\n        height: 10.2em;\n        background: #0dc5c1;\n        border-radius: 0 10.2em 10.2em 0;\n        top: -0.1em;\n        left: 5.1em;\n        -webkit-transform-origin: 0px 5.1em;\n        transform-origin: 0px 5.1em;\n        -webkit-animation: load2 2s infinite ease;\n        animation: load2 2s infinite ease;\n      }\n      @-webkit-keyframes load2 {\n        0% {\n          -webkit-transform: rotate(0deg);\n          transform: rotate(0deg);\n        }\n        100% {\n          -webkit-transform: rotate(360deg);\n          transform: rotate(360deg);\n        }\n      }\n      @keyframes load2 {\n        0% {\n          -webkit-transform: rotate(0deg);\n          transform: rotate(0deg);\n        }\n        100% {\n          -webkit-transform: rotate(360deg);\n          transform: rotate(360deg);\n        }\n      }\n      </style>\n    <div class=\"" + e + '">Loading...</div></body></html>';
+    }, _createNewWindow: function _createNewWindow(t, e, n) {
+      return "<html><head>\n        <style>@media print {\n          img { max-width: 98%!important; max-height: 98%!important; }\n          @page { size: " + e + ";}}\n        </style>\n        <script>function step1(){\n        setTimeout('step2()', 10);}\n        function step2(){window.print();window.close()}\n        <\/script></head><body onload='step1()'>\n        <img src=\"" + t + '" style="display:block; margin:auto;"></body></html>';
+    }, _createOuterContainer: function _createOuterContainer(t) {
+      var e = document.createElement("div");return t.parentNode.insertBefore(e, t), t.parentNode.removeChild(t), e.appendChild(t), e.style.width = t.style.width, e.style.height = t.style.height, e.style.display = "inline-block", e.style.overflow = "hidden", e;
+    }, _removeOuterContainer: function _removeOuterContainer(t, e, n) {
+      e.parentNode && (e.parentNode.insertBefore(t, e), e.parentNode.removeChild(n), e.parentNode.removeChild(e));
+    }, _addCss: function _addCss() {
+      var t = document.createElement("style");t.type = "text/css", t.innerHTML = ".leaflet-control-easyPrint-button { \n      background-image: url(data:image/svg+xml;utf8;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/Pgo8IS0tIEdlbmVyYXRvcjogQWRvYmUgSWxsdXN0cmF0b3IgMTYuMC4wLCBTVkcgRXhwb3J0IFBsdWctSW4gLiBTVkcgVmVyc2lvbjogNi4wMCBCdWlsZCAwKSAgLS0+CjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+CjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgdmVyc2lvbj0iMS4xIiBpZD0iQ2FwYV8xIiB4PSIwcHgiIHk9IjBweCIgd2lkdGg9IjE2cHgiIGhlaWdodD0iMTZweCIgdmlld0JveD0iMCAwIDUxMiA1MTIiIHN0eWxlPSJlbmFibGUtYmFja2dyb3VuZDpuZXcgMCAwIDUxMiA1MTI7IiB4bWw6c3BhY2U9InByZXNlcnZlIj4KPGc+Cgk8cGF0aCBkPSJNMTI4LDMyaDI1NnY2NEgxMjhWMzJ6IE00ODAsMTI4SDMyYy0xNy42LDAtMzIsMTQuNC0zMiwzMnYxNjBjMCwxNy42LDE0LjM5OCwzMiwzMiwzMmg5NnYxMjhoMjU2VjM1Mmg5NiAgIGMxNy42LDAsMzItMTQuNCwzMi0zMlYxNjBDNTEyLDE0Mi40LDQ5Ny42LDEyOCw0ODAsMTI4eiBNMzUyLDQ0OEgxNjBWMjg4aDE5MlY0NDh6IE00ODcuMTk5LDE3NmMwLDEyLjgxMy0xMC4zODcsMjMuMi0yMy4xOTcsMjMuMiAgIGMtMTIuODEyLDAtMjMuMjAxLTEwLjM4Ny0yMy4yMDEtMjMuMnMxMC4zODktMjMuMiwyMy4xOTktMjMuMkM0NzYuODE0LDE1Mi44LDQ4Ny4xOTksMTYzLjE4Nyw0ODcuMTk5LDE3NnoiIGZpbGw9IiMwMDAwMDAiLz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8L3N2Zz4K);\n      background-size: 16px 16px; \n      cursor: pointer; \n    }\n    .leaflet-control-easyPrint-button-export { \n      background-image: url(data:image/svg+xml;utf8;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/Pgo8IS0tIEdlbmVyYXRvcjogQWRvYmUgSWxsdXN0cmF0b3IgMTYuMC4wLCBTVkcgRXhwb3J0IFBsdWctSW4gLiBTVkcgVmVyc2lvbjogNi4wMCBCdWlsZCAwKSAgLS0+CjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+CjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgdmVyc2lvbj0iMS4xIiBpZD0iQ2FwYV8xIiB4PSIwcHgiIHk9IjBweCIgd2lkdGg9IjE2cHgiIGhlaWdodD0iMTZweCIgdmlld0JveD0iMCAwIDQzMy41IDQzMy41IiBzdHlsZT0iZW5hYmxlLWJhY2tncm91bmQ6bmV3IDAgMCA0MzMuNSA0MzMuNTsiIHhtbDpzcGFjZT0icHJlc2VydmUiPgo8Zz4KCTxnIGlkPSJmaWxlLWRvd25sb2FkIj4KCQk8cGF0aCBkPSJNMzk1LjI1LDE1M2gtMTAyVjBoLTE1M3YxNTNoLTEwMmwxNzguNSwxNzguNUwzOTUuMjUsMTUzeiBNMzguMjUsMzgyLjV2NTFoMzU3di01MUgzOC4yNXoiIGZpbGw9IiMwMDAwMDAiLz4KCTwvZz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8Zz4KPC9nPgo8L3N2Zz4K);\n      background-size: 16px 16px; \n      cursor: pointer; \n    }\n    .easyPrintHolder a {\n      background-size: 16px 16px;\n      cursor: pointer;\n    }\n    .easyPrintHolder .CurrentSize{\n      background-image: url(data:image/svg+xml;utf8;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCFET0NUWVBFIHN2ZyBQVUJMSUMgIi0vL1czQy8vRFREIFNWRyAxLjEvL0VOIiAiaHR0cDovL3d3dy53My5vcmcvR3JhcGhpY3MvU1ZHLzEuMS9EVEQvc3ZnMTEuZHRkIj4KPHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iMTZweCIgdmVyc2lvbj0iMS4xIiBoZWlnaHQ9IjE2cHgiIHZpZXdCb3g9IjAgMCA2NCA2NCIgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyAwIDAgNjQgNjQiPgogIDxnPgogICAgPGcgZmlsbD0iIzFEMUQxQiI+CiAgICAgIDxwYXRoIGQ9Ik0yNS4yNTUsMzUuOTA1TDQuMDE2LDU3LjE0NVY0Ni41OWMwLTEuMTA4LTAuODk3LTIuMDA4LTIuMDA4LTIuMDA4QzAuODk4LDQ0LjU4MiwwLDQ1LjQ4MSwwLDQ2LjU5djE1LjQwMiAgICBjMCwwLjI2MSwwLjA1MywwLjUyMSwwLjE1NSwwLjc2N2MwLjIwMywwLjQ5MiwwLjU5NCwwLjg4MiwxLjA4NiwxLjA4N0MxLjQ4Niw2My45NDcsMS43NDcsNjQsMi4wMDgsNjRoMTUuNDAzICAgIGMxLjEwOSwwLDIuMDA4LTAuODk4LDIuMDA4LTIuMDA4cy0wLjg5OC0yLjAwOC0yLjAwOC0yLjAwOEg2Ljg1NWwyMS4yMzgtMjEuMjRjMC43ODQtMC43ODQsMC43ODQtMi4wNTUsMC0yLjgzOSAgICBTMjYuMDM5LDM1LjEyMSwyNS4yNTUsMzUuOTA1eiIgZmlsbD0iIzAwMDAwMCIvPgogICAgICA8cGF0aCBkPSJtNjMuODQ1LDEuMjQxYy0wLjIwMy0wLjQ5MS0wLjU5NC0wLjg4Mi0xLjA4Ni0xLjA4Ny0wLjI0NS0wLjEwMS0wLjUwNi0wLjE1NC0wLjc2Ny0wLjE1NGgtMTUuNDAzYy0xLjEwOSwwLTIuMDA4LDAuODk4LTIuMDA4LDIuMDA4czAuODk4LDIuMDA4IDIuMDA4LDIuMDA4aDEwLjU1NmwtMjEuMjM4LDIxLjI0Yy0wLjc4NCwwLjc4NC0wLjc4NCwyLjA1NSAwLDIuODM5IDAuMzkyLDAuMzkyIDAuOTA2LDAuNTg5IDEuNDIsMC41ODlzMS4wMjctMC4xOTcgMS40MTktMC41ODlsMjEuMjM4LTIxLjI0djEwLjU1NWMwLDEuMTA4IDAuODk3LDIuMDA4IDIuMDA4LDIuMDA4IDEuMTA5LDAgMi4wMDgtMC44OTkgMi4wMDgtMi4wMDh2LTE1LjQwMmMwLTAuMjYxLTAuMDUzLTAuNTIyLTAuMTU1LTAuNzY3eiIgZmlsbD0iIzAwMDAwMCIvPgogICAgPC9nPgogIDwvZz4KPC9zdmc+Cg==)\n    }\n    .easyPrintHolder .page {\n      background-image: url(data:image/svg+xml;utf8;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/Pgo8IS0tIEdlbmVyYXRvcjogQWRvYmUgSWxsdXN0cmF0b3IgMTguMS4xLCBTVkcgRXhwb3J0IFBsdWctSW4gLiBTVkcgVmVyc2lvbjogNi4wMCBCdWlsZCAwKSAgLS0+CjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayIgdmVyc2lvbj0iMS4xIiBpZD0iQ2FwYV8xIiB4PSIwcHgiIHk9IjBweCIgdmlld0JveD0iMCAwIDQ0NC44MzMgNDQ0LjgzMyIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgNDQ0LjgzMyA0NDQuODMzOyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSIgd2lkdGg9IjUxMnB4IiBoZWlnaHQ9IjUxMnB4Ij4KPGc+Cgk8Zz4KCQk8cGF0aCBkPSJNNTUuMjUsNDQ0LjgzM2gzMzQuMzMzYzkuMzUsMCwxNy03LjY1LDE3LTE3VjEzOS4xMTdjMC00LjgxNy0xLjk4My05LjM1LTUuMzgzLTEyLjQ2N0wyNjkuNzMzLDQuNTMzICAgIEMyNjYuNjE3LDEuNywyNjIuMzY3LDAsMjU4LjExNywwSDU1LjI1Yy05LjM1LDAtMTcsNy42NS0xNywxN3Y0MTAuODMzQzM4LjI1LDQzNy4xODMsNDUuOSw0NDQuODMzLDU1LjI1LDQ0NC44MzN6ICAgICBNMzcyLjU4MywxNDYuNDgzdjAuODVIMjU2LjQxN3YtMTA4LjhMMzcyLjU4MywxNDYuNDgzeiBNNzIuMjUsMzRoMTUwLjE2N3YxMzAuMzMzYzAsOS4zNSw3LjY1LDE3LDE3LDE3aDEzMy4xNjd2MjI5LjVINzIuMjVWMzR6ICAgICIgZmlsbD0iIzAwMDAwMCIvPgoJPC9nPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+CjxnPgo8L2c+Cjwvc3ZnPgo=);\n    }\n    .easyPrintHolder .A4Landscape { \n      transform: rotate(-90deg);\n    }\n\n    .leaflet-control-easyPrint-button{\n      display: inline-block;\n    }\n    .easyPrintHolder{\n      margin-top:-31px;\n      margin-bottom: -5px;\n      margin-left: 30px;\n      padding-left: 0px;\n      display: none;\n    }\n\n    .easyPrintSizeMode {\n      display: inline-block;\n    }\n    .easyPrintHolder .easyPrintSizeMode a {\n      border-radius: 0px;\n    }\n\n    .easyPrintHolder .easyPrintSizeMode:last-child a{\n      border-top-right-radius: 2px;\n      border-bottom-right-radius: 2px;\n      margin-left: -1px;\n    }\n\n    .easyPrintPortrait:hover, .easyPrintLandscape:hover{\n      background-color: #757570;\n      cursor: pointer;\n    }", document.body.appendChild(t);
+    }, _dataURItoBlob: function _dataURItoBlob(t) {
+      for (var e = atob(t.split(",")[1]), n = t.split(",")[0].split(":")[1].split(";")[0], i = new ArrayBuffer(e.length), o = new DataView(i), r = 0; r < e.length; r++) {
+        o.setUint8(r, e.charCodeAt(r));
+      }return new Blob([i], { type: n });
+    }, _togglePageSizeButtons: function _togglePageSizeButtons(t) {
+      var e = this.holder.style,
+          n = this.link.style;"mouseover" === t.type ? (e.display = "block", n.borderTopRightRadius = "0", n.borderBottomRightRadius = "0") : (e.display = "none", n.borderTopRightRadius = "2px", n.borderBottomRightRadius = "2px");
+    }, _toggleControls: function _toggleControls(t) {
+      var e = document.getElementsByClassName("leaflet-control-container")[0];if (t) return e.style.display = "block";e.style.display = "none";
+    }, _a4PageSize: { height: 715, width: 1045 } }), L.easyPrint = function (t) {
+    return new L.Control.EasyPrint(t);
+  };
+});
+//# sourceMappingURL=bundle.js.map
+;'use strict';
+
 // NTLM (ntlm.js) authentication in JavaScript.
 // ------------------------------------------------------------------------
 // The MIT License (MIT). Copyright (c) 2012 Erland Ranvinge.
@@ -1729,305 +2513,321 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
     });
     theController.$inject = ['MapData', 'map', 'ThemeService', '$modal', 'FeatureService'];
 })();
-;'use strict';
+;"use strict";
 
 (function (module) {
-    module = angular.module('tink.gis');
-    var theController = module.controller('mapController', function ($scope, ExternService, BaseLayersService, MapService, MapData, map, MapEvents, DrawService, GisHelperService, GISService, PopupService, $interval, TypeAheadService, UIService, tinkApi, FeatureService) {
-        //We need to include MapEvents, even tho we don t call it just to make sure it gets loaded!
-        var vm = this;
-        var init = function () {
-            console.log('Tink-Gis-Angular component init!!!!!!!!!');
-            if (window.location.href.startsWith('http://localhost:9000/')) {
-                var externproj = JSON.parse('{"themes":[{"Naam":"Planon","cleanUrl":"https://geoint.antwerpen.be/arcgissql/rest/services/P_Planon/planon/MapServer","type":"esri","visible":true,"layers":[{"visible":true,"name":"PLANON_DOSSIER","id":1},{"visible":true,"name":"perceel","id":4}]},{"Naam":"Patrimonium","cleanUrl":"https://geoint.antwerpen.be/arcgis/rest/services/P_Sik/Patrimonium/MapServer","type":"esri","visible":true,"layers":[{"visible":true,"name":"KAVIA","id":17}]}],"extent":{"_southWest":{"lat":51.20536146014249,"lng":4.409578736245564},"_northEast":{"lat":51.206417795952646,"lng":4.411724381984817}},"isKaart":true}');
-                ExternService.Import(externproj);
+  module = angular.module("tink.gis");
+  var theController = module.controller("mapController", function ($scope, ExternService, BaseLayersService, MapService, MapData, map, MapEvents, DrawService, GisHelperService, GISService, PopupService, $interval, TypeAheadService, UIService, tinkApi, FeatureService) {
+    //We need to include MapEvents, even tho we don t call it just to make sure it gets loaded!
+    var vm = this;
+    vm.exportPNG = function () {
+      vm.easyprinter.printMap("CurrentSize", "Export");
+    };
+    var init = function () {
+      console.log("Tink-Gis-Angular component init!!!!!!!!!");
+      if (window.location.href.startsWith("http://localhost:9000/")) {
+        var externproj = JSON.parse('{"themes":[{"Naam":"Planon","cleanUrl":"https://geoint.antwerpen.be/arcgissql/rest/services/P_Planon/planon/MapServer","type":"esri","visible":true,"layers":[{"visible":true,"name":"PLANON_DOSSIER","id":1},{"visible":true,"name":"perceel","id":4}]},{"Naam":"Patrimonium","cleanUrl":"https://geoint.antwerpen.be/arcgis/rest/services/P_Sik/Patrimonium/MapServer","type":"esri","visible":true,"layers":[{"visible":true,"name":"KAVIA","id":17}]}],"extent":{"_southWest":{"lat":51.20536146014249,"lng":4.409578736245564},"_northEast":{"lat":51.206417795952646,"lng":4.411724381984817}},"isKaart":true}');
+        ExternService.Import(externproj);
 
-                PopupService.Success("Dev autoload", 'Velo en fietspad loaded because you are in DEV.', function () {
-                    alert('onclicktestje');
-                });
-            }
-            TypeAheadService.init();
-        }();
-        vm.mobile = L.Browser.mobile;
-        vm.ZoekenOpLocatie = true;
-        vm.activeInteractieKnop = MapData.ActiveInteractieKnop;
-        $scope.$watch(function () {
-            return MapData.ActiveInteractieKnop;
-        }, function (data) {
-            vm.activeInteractieKnop = data;
-        }, true);
-        vm.drawingType = MapData.DrawingType;
-        $scope.$watch(function () {
-            return MapData.DrawingType;
-        }, function (data) {
-            vm.drawingType = data;
-        }, true);
-
-        vm.SelectableLayers = function () {
-            return MapData.VisibleLayers;
-        };
-        vm.selectedLayer = MapData.SelectedLayer;
-        $scope.$watch(function () {
-            return MapData.SelectedLayer;
-        }, function (newval, oldval) {
-            vm.selectedLayer = newval;
+        PopupService.Success("Dev autoload", "Velo en fietspad loaded because you are in DEV.", function () {
+          alert("onclicktestje");
         });
-        vm.selectedFindLayer = MapData.SelectedFindLayer;
-        $scope.$watch(function () {
-            return MapData.SelectedFindLayer;
-        }, function (newval, oldval) {
-            vm.selectedFindLayer = newval;
-        });
-        $scope.$watch(function () {
-            return MapData.ShowMetenControls;
-        }, function (data) {
-            vm.showMetenControls = data;
-        }, true);
-        vm.showMetenControls = MapData.ShowMetenControls;
-        $scope.$watch(function () {
-            return MapData.ShowDrawControls;
-        }, function (data) {
-            vm.showDrawControls = data;
-        }, true);
-        vm.showDrawControls = MapData.ShowDrawControls;
-        vm.zoekLoc = '';
-        vm.addCursorAuto = function () {
-            if (!$('.leaflet-container').hasClass('cursor-auto')) {
-                $('.leaflet-container').addClass('cursor-auto');
-            }
-        };
-        vm.resetButtonBar = function () {
-            MapData.ActiveInteractieKnop = ActiveInteractieButton.NIETS;
-            vm.activeInteractieKnop = ActiveInteractieButton.NIETS;
-            MapData.DrawingType = DrawingOption.NIETS;
-            MapData.ExtendedType = null;
-            MapData.ShowMetenControls = false;
-            MapData.ShowDrawControls = false;
-        };
-        vm.interactieButtonChanged = function (ActiveButton) {
-            if (vm.activeInteractieKnop != ActiveButton) {
-                MapData.ActiveInteractieKnop = ActiveButton; // If we only could keep the vmactiveInteractieKnop in sync with the one from MapData
-                vm.activeInteractieKnop = ActiveButton;
-                MapData.ShowMetenControls = false;
-                MapData.ShowDrawControls = false;
-                switch (ActiveButton) {
-                    case ActiveInteractieButton.IDENTIFY:
-                    case ActiveInteractieButton.WATISHIER:
-                        MapData.ExtendedType = null;
-                        vm.addCursorAuto();
-                        break;
-                    case ActiveInteractieButton.SELECT:
-                        MapData.ShowDrawControls = true;
-                        MapData.DrawingType = DrawingOption.GEEN; // pff must be possible to be able to sync them...
-                        vm.selectpunt();
-                        break;
-                    case ActiveInteractieButton.METEN:
-                        MapData.ExtendedType = null;
-                        MapData.ShowMetenControls = true;
-                        MapData.DrawingType = DrawingOption.GEEN;
-                        break;
-                }
-            } else {
-                vm.resetButtonBar();
-            }
-        };
-        vm.zoekLaag = function (search) {
-            MapData.CleanMap();
-            MapService.Find(search);
-            UIService.OpenLeftSide();
-        };
-        var setViewAndPutDot = function setViewAndPutDot(loc) {
-            MapData.PanToPoint(loc);
-            MapData.CreateDot(loc);
-        };
-        //ng-keyup="$event.keyCode == 13 && mapctrl.zoekLocatie(mapctrl.zoekLoc)"
-        vm.zoekXY = function (search) {
-            search = search.trim();
-            var WGS84Check = GisHelperService.getWGS84CordsFromString(search);
-            if (WGS84Check.hasCordinates) {
-                setViewAndPutDot(WGS84Check);
-            } else {
-                var lambertCheck = GisHelperService.getLambartCordsFromString(search);
-                if (lambertCheck.hasCordinates) {
-                    var xyWGS84 = GisHelperService.ConvertLambert72ToWSG84({ x: lambertCheck.x, y: lambertCheck.y });
-                    setViewAndPutDot(xyWGS84);
-                } else {
-                    console.log('NIET GEVONDEN');
-                }
-            }
-        };
-        vm.drawingButtonChanged = function (drawOption) {
-            if (MapData.ExtendedType == null) {
-                // else we don t have to clean the map!
+      }
+      TypeAheadService.init();
 
-                if (drawOption == DrawingOption.LIJN || drawOption == DrawingOption.POLYGON || drawOption == DrawingOption.NIETS || drawOption == DrawingOption.VIERKANT) {
-                    MapData.CleanMap();
-                    MapData.CleanSearch();
-                }
-                if (drawOption == DrawingOption.AFSTAND || drawOption == DrawingOption.OPPERVLAKTE) {
-                    // MapData.CleanDrawings();
-                }
-            }
+      //   function manualPrint () {
+      //   }
+    }();
+    vm.mobile = L.Browser.mobile;
+    vm.ZoekenOpLocatie = true;
+    vm.activeInteractieKnop = MapData.ActiveInteractieKnop;
+    $scope.$watch(function () {
+      return MapData.ActiveInteractieKnop;
+    }, function (data) {
+      vm.activeInteractieKnop = data;
+    }, true);
+    vm.easyprinter = L.easyPrint({
+      tileWait: 250,
+      exportOnly: true,
+      hidden: true,
+      hideControlContainer: true
+    }).addTo(map);
+    vm.drawingType = MapData.DrawingType;
+    $scope.$watch(function () {
+      return MapData.DrawingType;
+    }, function (data) {
+      vm.drawingType = data;
+    }, true);
 
-            MapData.DrawingType = drawOption;
-            vm.drawingType = drawOption;
-            DrawService.StartDraw(drawOption);
-        };
-        vm.Loading = 0;
-        vm.MaxLoading = 0;
-
-        vm.selectpunt = function () {
-            MapData.DrawingType = DrawingOption.NIETS;
-            vm.drawingType = DrawingOption.NIETS;
-            if (MapData.ExtendedType == null) {
-                // else we don t have to clean the map!
-                MapData.CleanMap();
-                MapData.CleanSearch();
-            }
-            vm.addCursorAuto();
-        };
-        vm.layerChange = function () {
-            // MapData.CleanMap();
-            MapData.SelectedLayer = vm.selectedLayer;
-        };
-        vm.findLayerChange = function () {
-            // MapData.CleanMap();
-            MapData.SelectedFindLayer = vm.selectedFindLayer;
-        };
-        vm.zoomIn = function () {
-            map.zoomIn();
-        };
-        vm.zoomOut = function () {
-            map.zoomOut();
-        };
-        vm.fullExtent = function () {
-            map.setView(new L.LatLng(51.2192159, 4.4028818), 16);
-        };
-        vm.IsBaseMap1 = true;
-        vm.toonBaseMap1 = function () {
-            vm.IsBaseMap1 = true;
-            map.removeLayer(BaseLayersService.basemap2);
-            map.addLayer(BaseLayersService.basemap1);
-        };
-        vm.toonBaseMap2 = function () {
-            vm.IsBaseMap1 = false;
-            map.removeLayer(BaseLayersService.basemap1);
-            map.addLayer(BaseLayersService.basemap2);
-        };
-        vm.baseMap1Naam = function () {
-            return BaseLayersService.basemap1Naam;
-        };
-        vm.baseMap2Naam = function () {
-            return BaseLayersService.basemap2Naam;
-        };
-        vm.cancelPrint = function () {
-            var html = $('html');
-            if (html.hasClass('print')) {
-                html.removeClass('print');
-            }
-            vm.portrait(); // also put it back to portrait view
-            tinkApi.sideNavToggle.recalculate("asideNavRight");
-            tinkApi.sideNavToggle.recalculate("asideNavLeft");
-        };
-        vm.print = function () {
-            window.print();
-        };
-        vm.Export = function () {
-            map.downloadExport(downloadOptions);
-        };
-        vm.printStyle = 'portrait';
-        var cssPagedMedia = function () {
-            var style = document.createElement('style');
-            document.head.appendChild(style);
-            return function (rule) {
-                style.id = 'tempstyle';
-                style.innerHTML = rule;
-            };
-        }();
-
-        cssPagedMedia.size = function (oriantation) {
-            cssPagedMedia('@page {size: A4 ' + oriantation + '}');
-        };
-        vm.setPrintStyle = function (oriantation) {
-            vm.printStyle = oriantation;
-            cssPagedMedia.size(oriantation);
-        };
-        vm.setPrintStyle('portrait');
-        vm.printLegendPreview = false;
-        vm.previewMap = function () {
-            var html = $('html');
-            vm.printLegendPreview = false;
-            if (html.hasClass('preview-legend')) {
-                html.removeClass('preview-legend');
-            }
-        };
-        vm.previewLegend = function () {
-            var html = $('html');
-            vm.printLegendPreview = true;
-            if (!html.hasClass('preview-legend')) {
-                html.addClass('preview-legend');
-            }
-        };
-        vm.portrait = function () {
-            var html = $('html');
-            vm.setPrintStyle('portrait');
-            if (html.hasClass('landscape')) {
-                html.removeClass('landscape');
-            }
-            map.invalidateSize(false);
-        };
-        vm.landscape = function () {
-            var html = $('html');
-            vm.setPrintStyle('landscape');
-            if (!html.hasClass('landscape')) {
-                html.addClass('landscape');
-            }
-            map.invalidateSize(false);
-        };
-
-        vm.ZoekenInLagen = function () {
-            vm.ZoekenOpLocatie = false;
-            $('.twitter-typeahead').addClass('hide-element');
-        };
-
-        vm.fnZoekenOpLocatie = function () {
-            vm.ZoekenOpLocatie = true;
-            if ($(".twitter-typeahead").hasClass("hide-element")) {
-                $('.twitter-typeahead').removeClass('hide-element');
-            } else {
-                return vm.ZoekenOpLocatie;
-            }
-        };
-        vm.gpstracking = false;
-        var gpstracktimer = null;
-        var gpsmarker = null;
-        vm.zoomToGps = function () {
-            vm.gpstracking = !vm.gpstracking;
-
-            if (vm.gpstracking == false) {
-                $interval.cancel(gpstracktimer);
-                MapEvents.ClearGPS();
-            } else {
-                map.locate({ setView: true, maxZoom: 16 });
-                gpstracktimer = $interval(function () {
-                    map.locate({ setView: false });
-                    console.log('gps refresh');
-                }, 5000);
-            }
-        };
-        map.on('locationfound', function (e) {
-            MapEvents.ClearGPS();
-            var gpsicon = L.divIcon({ className: 'fa fa-crosshairs fa-2x blue', style: 'color: blue' });
-            gpsmarker = L.marker(e.latlng, { icon: gpsicon }).addTo(map);
-        });
-        map.on('locationerror', function (e) {
-            vm.gpstracking = false;
-            $interval.cancel(gpstracktimer);
-            MapEvents.ClearGPS();
-            PopupService.Warning("Browser heeft geen toegang tot locatiegegevens");
-        });
+    vm.SelectableLayers = function () {
+      return MapData.VisibleLayers;
+    };
+    vm.selectedLayer = MapData.SelectedLayer;
+    $scope.$watch(function () {
+      return MapData.SelectedLayer;
+    }, function (newval, oldval) {
+      vm.selectedLayer = newval;
     });
-    theController.$inject = ['BaseLayersService', 'ExternService', 'MapService', 'MapData', 'map', 'MapEvents', 'DrawService', 'GisHelperService', 'GISService', 'PopupService', '$interval', 'UIService', 'tinkApi', 'FeatureService'];
+    vm.selectedFindLayer = MapData.SelectedFindLayer;
+    $scope.$watch(function () {
+      return MapData.SelectedFindLayer;
+    }, function (newval, oldval) {
+      vm.selectedFindLayer = newval;
+    });
+    $scope.$watch(function () {
+      return MapData.ShowMetenControls;
+    }, function (data) {
+      vm.showMetenControls = data;
+    }, true);
+    vm.showMetenControls = MapData.ShowMetenControls;
+    $scope.$watch(function () {
+      return MapData.ShowDrawControls;
+    }, function (data) {
+      vm.showDrawControls = data;
+    }, true);
+    vm.showDrawControls = MapData.ShowDrawControls;
+    vm.zoekLoc = "";
+    vm.addCursorAuto = function () {
+      if (!$(".leaflet-container").hasClass("cursor-auto")) {
+        $(".leaflet-container").addClass("cursor-auto");
+      }
+    };
+    vm.resetButtonBar = function () {
+      MapData.ActiveInteractieKnop = ActiveInteractieButton.NIETS;
+      vm.activeInteractieKnop = ActiveInteractieButton.NIETS;
+      MapData.DrawingType = DrawingOption.NIETS;
+      MapData.ExtendedType = null;
+      MapData.ShowMetenControls = false;
+      MapData.ShowDrawControls = false;
+    };
+    vm.interactieButtonChanged = function (ActiveButton) {
+      if (vm.activeInteractieKnop != ActiveButton) {
+        MapData.ActiveInteractieKnop = ActiveButton; // If we only could keep the vmactiveInteractieKnop in sync with the one from MapData
+        vm.activeInteractieKnop = ActiveButton;
+        MapData.ShowMetenControls = false;
+        MapData.ShowDrawControls = false;
+        switch (ActiveButton) {
+          case ActiveInteractieButton.IDENTIFY:
+          case ActiveInteractieButton.WATISHIER:
+            MapData.ExtendedType = null;
+            vm.addCursorAuto();
+            break;
+          case ActiveInteractieButton.SELECT:
+            MapData.ShowDrawControls = true;
+            MapData.DrawingType = DrawingOption.GEEN; // pff must be possible to be able to sync them...
+            vm.selectpunt();
+            break;
+          case ActiveInteractieButton.METEN:
+            MapData.ExtendedType = null;
+            MapData.ShowMetenControls = true;
+            MapData.DrawingType = DrawingOption.GEEN;
+            break;
+        }
+      } else {
+        vm.resetButtonBar();
+      }
+    };
+    vm.zoekLaag = function (search) {
+      MapData.CleanMap();
+      MapService.Find(search);
+      UIService.OpenLeftSide();
+    };
+    var setViewAndPutDot = function setViewAndPutDot(loc) {
+      MapData.PanToPoint(loc);
+      MapData.CreateDot(loc);
+    };
+    //ng-keyup="$event.keyCode == 13 && mapctrl.zoekLocatie(mapctrl.zoekLoc)"
+    vm.zoekXY = function (search) {
+      search = search.trim();
+      var WGS84Check = GisHelperService.getWGS84CordsFromString(search);
+      if (WGS84Check.hasCordinates) {
+        setViewAndPutDot(WGS84Check);
+      } else {
+        var lambertCheck = GisHelperService.getLambartCordsFromString(search);
+        if (lambertCheck.hasCordinates) {
+          var xyWGS84 = GisHelperService.ConvertLambert72ToWSG84({
+            x: lambertCheck.x,
+            y: lambertCheck.y
+          });
+          setViewAndPutDot(xyWGS84);
+        } else {
+          console.log("NIET GEVONDEN");
+        }
+      }
+    };
+    vm.drawingButtonChanged = function (drawOption) {
+      if (MapData.ExtendedType == null) {
+        // else we don t have to clean the map!
+
+        if (drawOption == DrawingOption.LIJN || drawOption == DrawingOption.POLYGON || drawOption == DrawingOption.NIETS || drawOption == DrawingOption.VIERKANT) {
+          MapData.CleanMap();
+          MapData.CleanSearch();
+        }
+        if (drawOption == DrawingOption.AFSTAND || drawOption == DrawingOption.OPPERVLAKTE) {
+          // MapData.CleanDrawings();
+        }
+      }
+
+      MapData.DrawingType = drawOption;
+      vm.drawingType = drawOption;
+      DrawService.StartDraw(drawOption);
+    };
+    vm.Loading = 0;
+    vm.MaxLoading = 0;
+
+    vm.selectpunt = function () {
+      MapData.DrawingType = DrawingOption.NIETS;
+      vm.drawingType = DrawingOption.NIETS;
+      if (MapData.ExtendedType == null) {
+        // else we don t have to clean the map!
+        MapData.CleanMap();
+        MapData.CleanSearch();
+      }
+      vm.addCursorAuto();
+    };
+    vm.layerChange = function () {
+      // MapData.CleanMap();
+      MapData.SelectedLayer = vm.selectedLayer;
+    };
+    vm.findLayerChange = function () {
+      // MapData.CleanMap();
+      MapData.SelectedFindLayer = vm.selectedFindLayer;
+    };
+    vm.zoomIn = function () {
+      map.zoomIn();
+    };
+    vm.zoomOut = function () {
+      map.zoomOut();
+    };
+    vm.fullExtent = function () {
+      map.setView(new L.LatLng(51.2192159, 4.4028818), 16);
+    };
+    vm.IsBaseMap1 = true;
+    vm.toonBaseMap1 = function () {
+      vm.IsBaseMap1 = true;
+      map.removeLayer(BaseLayersService.basemap2);
+      map.addLayer(BaseLayersService.basemap1);
+    };
+    vm.toonBaseMap2 = function () {
+      vm.IsBaseMap1 = false;
+      map.removeLayer(BaseLayersService.basemap1);
+      map.addLayer(BaseLayersService.basemap2);
+    };
+    vm.baseMap1Naam = function () {
+      return BaseLayersService.basemap1Naam;
+    };
+    vm.baseMap2Naam = function () {
+      return BaseLayersService.basemap2Naam;
+    };
+    vm.cancelPrint = function () {
+      var html = $("html");
+      if (html.hasClass("print")) {
+        html.removeClass("print");
+      }
+      vm.portrait(); // also put it back to portrait view
+      tinkApi.sideNavToggle.recalculate("asideNavRight");
+      tinkApi.sideNavToggle.recalculate("asideNavLeft");
+    };
+    vm.print = function () {
+      window.print();
+    };
+
+    vm.printStyle = "portrait";
+    var cssPagedMedia = function () {
+      var style = document.createElement("style");
+      document.head.appendChild(style);
+      return function (rule) {
+        style.id = "tempstyle";
+        style.innerHTML = rule;
+      };
+    }();
+
+    cssPagedMedia.size = function (oriantation) {
+      cssPagedMedia("@page {size: A4 " + oriantation + "}");
+    };
+    vm.setPrintStyle = function (oriantation) {
+      vm.printStyle = oriantation;
+      cssPagedMedia.size(oriantation);
+    };
+    vm.setPrintStyle("portrait");
+    vm.printLegendPreview = false;
+    vm.previewMap = function () {
+      var html = $("html");
+      vm.printLegendPreview = false;
+      if (html.hasClass("preview-legend")) {
+        html.removeClass("preview-legend");
+      }
+    };
+    vm.previewLegend = function () {
+      var html = $("html");
+      vm.printLegendPreview = true;
+      if (!html.hasClass("preview-legend")) {
+        html.addClass("preview-legend");
+      }
+    };
+    vm.portrait = function () {
+      var html = $("html");
+      vm.setPrintStyle("portrait");
+      if (html.hasClass("landscape")) {
+        html.removeClass("landscape");
+      }
+      map.invalidateSize(false);
+    };
+    vm.landscape = function () {
+      var html = $("html");
+      vm.setPrintStyle("landscape");
+      if (!html.hasClass("landscape")) {
+        html.addClass("landscape");
+      }
+      map.invalidateSize(false);
+    };
+
+    vm.ZoekenInLagen = function () {
+      vm.ZoekenOpLocatie = false;
+      $(".twitter-typeahead").addClass("hide-element");
+    };
+
+    vm.fnZoekenOpLocatie = function () {
+      vm.ZoekenOpLocatie = true;
+      if ($(".twitter-typeahead").hasClass("hide-element")) {
+        $(".twitter-typeahead").removeClass("hide-element");
+      } else {
+        return vm.ZoekenOpLocatie;
+      }
+    };
+    vm.gpstracking = false;
+    var gpstracktimer = null;
+    var gpsmarker = null;
+    vm.zoomToGps = function () {
+      vm.gpstracking = !vm.gpstracking;
+
+      if (vm.gpstracking == false) {
+        $interval.cancel(gpstracktimer);
+        MapEvents.ClearGPS();
+      } else {
+        map.locate({ setView: true, maxZoom: 16 });
+        gpstracktimer = $interval(function () {
+          map.locate({ setView: false });
+          console.log("gps refresh");
+        }, 5000);
+      }
+    };
+    map.on("locationfound", function (e) {
+      MapEvents.ClearGPS();
+      var gpsicon = L.divIcon({
+        className: "fa fa-crosshairs fa-2x blue",
+        style: "color: blue"
+      });
+      gpsmarker = L.marker(e.latlng, { icon: gpsicon }).addTo(map);
+    });
+    map.on("locationerror", function (e) {
+      vm.gpstracking = false;
+      $interval.cancel(gpstracktimer);
+      MapEvents.ClearGPS();
+      PopupService.Warning("Browser heeft geen toegang tot locatiegegevens");
+    });
+  });
+  theController.$inject = ["BaseLayersService", "ExternService", "MapService", "MapData", "map", "MapEvents", "DrawService", "GisHelperService", "GISService", "PopupService", "$interval", "UIService", "tinkApi", "FeatureService"];
 })();
 ;'use strict';
 
@@ -2224,328 +3024,6 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             controllerAs: 'thmctrl'
         };
     });
-})();
-;//http://proj4js.org/
-'use strict';
-
-(function () {
-    var module = angular.module('tink.gis');
-    var service = function service($http, GisHelperService, $q, PopupService) {
-        var _service = {};
-        _service.ReverseGeocode = function (event) {
-            var lambert72Cords = GisHelperService.ConvertWSG84ToLambert72(event.latlng);
-            var loc = lambert72Cords.x + ',' + lambert72Cords.y;
-            var urlloc = encodeURIComponent(loc);
-            var url = Gis.BaseUrl + 'arcgissql/rest/services/COMLOC_CRAB_NAVTEQ/GeocodeServer/reverseGeocode?location=' + urlloc + '&distance=50&outSR=&f=json';
-            var prom = $http.get(url);
-            prom.success(function (data, status, headers, config) {
-                // nothing we just give back the prom do the stuff not here!
-            }).error(function (data, status, headers, config) {
-                PopupService.ErrorFromHttp(data, status, url);
-            });
-            return prom;
-        };
-        _service.QueryCrab = function (straatnaam, huisnummer) {
-            var prom = $q.defer();
-            $http.get('https://geoint.antwerpen.be/arcgissql/rest/services/P_Stad/CRAB_adresposities/MapServer/0/query?' + 'where=GEMEENTE%3D%27Antwerpen%27%20and%20STRAATNM%20%3D%27' + straatnaam + '%27%20and%20' + '(HUISNR%20like%20%27' + huisnummer + '%27%20or%20Huisnr%20like%20%27' + huisnummer + '%5Ba-z%5D%27or%20Huisnr%20like%20%27' + huisnummer + '%5B_%5D%25%27)%20and%20APPTNR%20%3D%20%27%27%20and%20busnr%20%3D%20%27%27' + '&text=&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=*&returnGeometry=true&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&f=pjson').success(function (data, status, headers, config) {
-                // data = GisHelperService.UnwrapProxiedData(data);
-                prom.resolve(data);
-            }).error(function (data, status, headers, config) {
-                prom.reject(null);
-                PopupService.ErrorFromHttp(data, status, url);
-            });
-            return prom.promise;
-        };
-
-        _service.QuerySOLRGIS = function (search) {
-            var prom = $q.defer();
-            var url = Solr.BaseUrl + 'giszoek/solr/search?q=*' + search + '*&wt=json&indent=true&facet=true&rows=999&facet.field=parent&group=true&group.field=parent&group.limit=999&solrtype=gis'; // &group.limit=5
-            $http.get(url).success(function (data, status, headers, config) {
-                prom.resolve(data);
-            }).error(function (data, status, headers, config) {
-                prom.reject(null);
-                PopupService.ErrorFromHttp(data, status, url);
-            });
-            return prom.promise;
-        };
-        _service.QuerySOLRLocatie = function (search) {
-            var prom = $q.defer();
-            var url = Solr.BaseUrl + 'giszoek/solr/search?q=*' + search + '*&wt=json&indent=true&rows=50&solrtype=gislocaties&dismax=true&bq=exactName:DISTRICT^20000.0&bq=layer:straatnaam^20000.0';
-            $http.get(url).success(function (data, status, headers, config) {
-                // data = GisHelperService.UnwrapProxiedData(data);
-                prom.resolve(data);
-            }).error(function (data, status, headers, config) {
-                prom.reject(null);
-                PopupService.ErrorFromHttp(data, status, url);
-            });
-            return prom.promise;
-        };
-        var completeUrl = function completeUrl(url) {
-            // var baseurl = Gis.BaseUrl + 'arcgissql/rest/';
-            // if (!url.contains('arcgissql/rest/') && !url.contains('arcgis/rest/')) {
-            //     url = baseurl + url;
-            // }
-            // if (url.toLowerCase().contains("p_sik") && url.toLowerCase().contains("/arcgissql/")) {
-            //     url = url.replace("/arcgissql/", "/arcgis/");
-            // }
-            return url;
-        };
-        var generateOptionsBasedOnUrl = function generateOptionsBasedOnUrl(url, opts) {
-            if (!opts) {
-                opts = {};
-            }
-            if (url.toLowerCase().includes("p_sik")) {
-                opts.withCredentials = true;
-            }
-            return opts;
-        };
-        _service.GetThemeData = function (mapserver) {
-            var prom = $q.defer();
-
-            var url = completeUrl(mapserver) + '?f=pjson';
-            console.log("ZZZZZ");
-
-            $http.get(url, generateOptionsBasedOnUrl(url)).success(function (data, status, headers, config) {
-                // data = GisHelperService.UnwrapProxiedData(data);
-                prom.resolve(data);
-            }).error(function (data, status, headers, config) {
-                console.log("ZZZZZ");
-                if (url.toLocaleLowerCase().contains("p_sik")) {
-                    prom.resolve(null);
-                } else {
-                    prom.reject(null);
-                    PopupService.ErrorFromHttp(data, status, url);
-                }
-            });
-            return prom.promise;
-        };
-        _service.GetThemeLayerData = function (cleanurl) {
-            var prom = $q.defer();
-
-            var url = completeUrl(cleanurl) + '/layers?f=pjson';
-            $http.get(url, generateOptionsBasedOnUrl(url)).success(function (data, status, headers, config) {
-                // data = GisHelperService.UnwrapProxiedData(data);
-                prom.resolve(data);
-            }).error(function (data, status, headers, config) {
-                prom.reject(null);
-                PopupService.ErrorFromHttp(data, status, url);
-            });
-            return prom.promise;
-        };
-        _service.GetLegendData = function (cleanurl) {
-            var prom = $q.defer();
-
-            var url = completeUrl(cleanurl) + '/legend?f=pjson';
-            $http.get(url, generateOptionsBasedOnUrl(url)).success(function (data, status, headers, config) {
-                // data = GisHelperService.UnwrapProxiedData(data);
-                prom.resolve(data);
-            }).error(function (data, status, headers, config) {
-                prom.reject(null);
-                PopupService.ErrorFromHttp(data, status, url);
-            });
-            return prom.promise;
-        };
-        _service.GetAditionalLayerInfo = function (theme) {
-
-            var promLegend = _service.GetLegendData(theme.cleanUrl);
-            promLegend.then(function (data) {
-                theme.AllLayers.forEach(function (layer) {
-                    var layerid = layer.id;
-                    var layerInfo = data.layers.find(function (x) {
-                        return x.layerId == layerid;
-                    });
-                    layer.legend = [];
-                    if (layerInfo) {
-                        layer.legend = layerInfo.legend;
-                        layer.legend.forEach(function (legenditem) {
-                            legenditem.fullurl = "data:" + legenditem.contentType + ";base64," + legenditem.imageData;
-                        });
-                    }
-                });
-            });
-            var promLayerData = _service.GetThemeLayerData(theme.cleanUrl);
-            promLayerData.then(function (data) {
-                theme.AllLayers.forEach(function (layer) {
-                    var layerid = layer.id;
-                    var layerInfo = data.layers.find(function (x) {
-                        return x.id == layerid;
-                    });
-                    layer.displayField = layerInfo.displayField;
-                    layer.fields = layerInfo.fields;
-                });
-            });
-        };
-        return _service;
-    };
-    module.$inject = ['$http', 'GisHelperService', '$q', 'PopupService'];
-    module.factory('GISService', service);
-})();
-;'use strict';
-
-(function () {
-    var module = angular.module('tink.gis');
-    var service = function service($http, MapService, MapData) {
-        var _service = {};
-
-        _service.Buffer = function (loc, distance, selectedlayer) {
-            var geo = getGeo(loc.geometry);
-            delete geo.geometry.spatialReference;
-            geo.geometries = geo.geometry;
-            delete geo.geometry;
-            var sergeo = serialize(geo);
-            var url = Gis.GeometryUrl;
-            if (loc.mapItem) {
-                loc.mapItem.isBufferedItem = true;
-            }
-            var body = 'inSR=4326&outSR=4326&bufferSR=31370&distances=' + distance * 100 + '&unit=109006&unionResults=true&geodesic=false&geometries=%7B' + sergeo + '%7D&f=json';
-            var prom = $http({
-                method: 'POST',
-                url: url,
-                data: body,
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8;'
-                }
-            });
-            prom.success(function (response) {
-                MapData.CleanSearch();
-                var buffer = MapData.CreateBuffer(response);
-                MapService.Query(buffer, selectedlayer);
-                MapData.SetStyle(loc.mapItem, Style.COREBUFFER, L.AwesomeMarkers.icon({ icon: 'fa-circle-o', markerColor: 'lightgreen' }));
-                return prom;
-            });
-        };
-        _service.Doordruk = function (location) {
-            MapData.CleanSearch();
-
-            MapData.CleanMap();
-            console.log(location);
-            MapService.Query(location, { id: '' });
-        };
-        var getGeo = function getGeo(geometry) {
-            var geoconverted = {};
-            // geoconverted.inSr = 4326;
-
-            // convert bounds to extent and finish
-            if (geometry instanceof L.LatLngBounds) {
-                // set geometry + geometryType
-                geoconverted.geometry = L.esri.Util.boundsToExtent(geometry);
-                geoconverted.geometryType = 'esriGeometryEnvelope';
-                return geoconverted;
-            }
-
-            // convert L.Marker > L.LatLng
-            if (geometry.getLatLng) {
-                geometry = geometry.getLatLng();
-            }
-
-            // convert L.LatLng to a geojson point and continue;
-            if (geometry instanceof L.LatLng) {
-                geometry = {
-                    type: 'Point',
-                    coordinates: [geometry.lng, geometry.lat]
-                };
-            }
-
-            // handle L.GeoJSON, pull out the first geometry
-            if (geometry instanceof L.GeoJSON) {
-                // reassign geometry to the GeoJSON value  (we are assuming that only one feature is present)
-                geometry = geometry.getLayers()[0].feature.geometry;
-                geoconverted.geometry = L.esri.Util.geojsonToArcGIS(geometry);
-                geoconverted.geometryType = L.esri.Util.geojsonTypeToArcGIS(geometry.type);
-            }
-
-            // Handle L.Polyline and L.Polygon
-            if (geometry.toGeoJSON) {
-                geometry = geometry.toGeoJSON();
-            }
-
-            // handle GeoJSON feature by pulling out the geometry
-            if (geometry.type === 'Feature') {
-                // get the geometry of the geojson feature
-                geometry = geometry.geometry;
-            } else {
-                geoconverted.geometry = L.esri.Util.geojsonToArcGIS(geometry);
-                geoconverted.geometryType = L.esri.Util.geojsonTypeToArcGIS(geometry.type);
-            }
-
-            // confirm that our GeoJSON is a point, line or polygon
-            // if (geometry.type === 'Point' || geometry.type === 'LineString' || geometry.type === 'Polygon' || geometry.type === 'MultiLineString') {
-
-            return geoconverted;
-            // }
-
-            // warn the user if we havn't found an appropriate object
-
-            // return geoconverted;
-        };
-        var serialize = function serialize(params) {
-            var data = '';
-            for (var key in params) {
-                if (params.hasOwnProperty(key)) {
-                    var param = params[key];
-                    var type = Object.prototype.toString.call(param);
-                    var value;
-                    if (data.length) {
-                        data += ',';
-                    }
-                    if (type === '[object Array]') {
-                        value = Object.prototype.toString.call(param[0]) === '[object Object]' ? JSON.stringify(param) : param.join(',');
-                    } else if (type === '[object Object]') {
-                        value = JSON.stringify(param);
-                    } else if (type === '[object Date]') {
-                        value = param.valueOf();
-                    } else {
-                        value = '"' + param + '"';
-                    }
-                    if (key == 'geometries') {
-                        data += encodeURIComponent('"' + key + '"') + ':' + encodeURIComponent('[' + value + ']');
-                    } else {
-                        data += encodeURIComponent('"' + key + '"') + ':' + encodeURIComponent(value);
-                    }
-                }
-            }
-
-            return data;
-        };
-        return _service;
-    };
-    module.$inject = ['$http', 'MapService', 'MapData'];
-    module.factory('GeometryService', service);
-})();
-;//http://proj4js.org/
-'use strict';
-
-(function () {
-    var module = angular.module('tink.gis');
-    var service = function service($http, GisHelperService, $q, PopupService) {
-        var _service = {};
-        _service.GetThemeData = function (url) {
-            var fullurl = url + '?request=GetCapabilities&service=WMS';
-            var proxiedurl = GisHelperService.CreateProxyUrl(fullurl);
-            var prom = $http({
-                method: 'GET',
-                url: proxiedurl,
-                timeout: 10000,
-                transformResponse: function transformResponse(data) {
-                    if (data) {
-                        data = GisHelperService.UnwrapProxiedData(data);
-                        if (data.listOfHttpError) {} else {
-                            data = JXON.stringToJs(data).wms_capabilities;
-                        }
-                    }
-                    return data;
-                }
-            }).success(function (data, status, headers, config) {
-                // console.dir(data);  // XML document object
-            }).error(function (data, status, headers, config) {
-                PopupService.ErrorFromHttp(data, status, fullurl);
-            });
-            return prom;
-        };
-        return _service;
-    };
-    module.$inject = ['$http', 'GisHelperService', '$q', 'PopupService'];
-    module.factory('WMSService', service);
 })();
 ;'use strict';
 
@@ -3065,6 +3543,293 @@ var esri2geo = {};
         return _featureService;
     };
     module.factory('FeatureService', featureService);
+})();
+;'use strict';
+
+(function () {
+    var module = angular.module('tink.gis');
+    var service = function service($http, MapService, MapData) {
+        var _service = {};
+
+        _service.Buffer = function (loc, distance, selectedlayer) {
+            var geo = getGeo(loc.geometry);
+            delete geo.geometry.spatialReference;
+            geo.geometries = geo.geometry;
+            delete geo.geometry;
+            var sergeo = serialize(geo);
+            var url = Gis.GeometryUrl;
+            if (loc.mapItem) {
+                loc.mapItem.isBufferedItem = true;
+            }
+            var body = 'inSR=4326&outSR=4326&bufferSR=31370&distances=' + distance * 100 + '&unit=109006&unionResults=true&geodesic=false&geometries=%7B' + sergeo + '%7D&f=json';
+            var prom = $http({
+                method: 'POST',
+                url: url,
+                data: body,
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8;'
+                }
+            });
+            prom.success(function (response) {
+                MapData.CleanSearch();
+                var buffer = MapData.CreateBuffer(response);
+                MapService.Query(buffer, selectedlayer);
+                MapData.SetStyle(loc.mapItem, Style.COREBUFFER, L.AwesomeMarkers.icon({ icon: 'fa-circle-o', markerColor: 'lightgreen' }));
+                return prom;
+            });
+        };
+        _service.Doordruk = function (location) {
+            MapData.CleanSearch();
+
+            MapData.CleanMap();
+            console.log(location);
+            MapService.Query(location, { id: '' });
+        };
+        var getGeo = function getGeo(geometry) {
+            var geoconverted = {};
+            // geoconverted.inSr = 4326;
+
+            // convert bounds to extent and finish
+            if (geometry instanceof L.LatLngBounds) {
+                // set geometry + geometryType
+                geoconverted.geometry = L.esri.Util.boundsToExtent(geometry);
+                geoconverted.geometryType = 'esriGeometryEnvelope';
+                return geoconverted;
+            }
+
+            // convert L.Marker > L.LatLng
+            if (geometry.getLatLng) {
+                geometry = geometry.getLatLng();
+            }
+
+            // convert L.LatLng to a geojson point and continue;
+            if (geometry instanceof L.LatLng) {
+                geometry = {
+                    type: 'Point',
+                    coordinates: [geometry.lng, geometry.lat]
+                };
+            }
+
+            // handle L.GeoJSON, pull out the first geometry
+            if (geometry instanceof L.GeoJSON) {
+                // reassign geometry to the GeoJSON value  (we are assuming that only one feature is present)
+                geometry = geometry.getLayers()[0].feature.geometry;
+                geoconverted.geometry = L.esri.Util.geojsonToArcGIS(geometry);
+                geoconverted.geometryType = L.esri.Util.geojsonTypeToArcGIS(geometry.type);
+            }
+
+            // Handle L.Polyline and L.Polygon
+            if (geometry.toGeoJSON) {
+                geometry = geometry.toGeoJSON();
+            }
+
+            // handle GeoJSON feature by pulling out the geometry
+            if (geometry.type === 'Feature') {
+                // get the geometry of the geojson feature
+                geometry = geometry.geometry;
+            } else {
+                geoconverted.geometry = L.esri.Util.geojsonToArcGIS(geometry);
+                geoconverted.geometryType = L.esri.Util.geojsonTypeToArcGIS(geometry.type);
+            }
+
+            // confirm that our GeoJSON is a point, line or polygon
+            // if (geometry.type === 'Point' || geometry.type === 'LineString' || geometry.type === 'Polygon' || geometry.type === 'MultiLineString') {
+
+            return geoconverted;
+            // }
+
+            // warn the user if we havn't found an appropriate object
+
+            // return geoconverted;
+        };
+        var serialize = function serialize(params) {
+            var data = '';
+            for (var key in params) {
+                if (params.hasOwnProperty(key)) {
+                    var param = params[key];
+                    var type = Object.prototype.toString.call(param);
+                    var value;
+                    if (data.length) {
+                        data += ',';
+                    }
+                    if (type === '[object Array]') {
+                        value = Object.prototype.toString.call(param[0]) === '[object Object]' ? JSON.stringify(param) : param.join(',');
+                    } else if (type === '[object Object]') {
+                        value = JSON.stringify(param);
+                    } else if (type === '[object Date]') {
+                        value = param.valueOf();
+                    } else {
+                        value = '"' + param + '"';
+                    }
+                    if (key == 'geometries') {
+                        data += encodeURIComponent('"' + key + '"') + ':' + encodeURIComponent('[' + value + ']');
+                    } else {
+                        data += encodeURIComponent('"' + key + '"') + ':' + encodeURIComponent(value);
+                    }
+                }
+            }
+
+            return data;
+        };
+        return _service;
+    };
+    module.$inject = ['$http', 'MapService', 'MapData'];
+    module.factory('GeometryService', service);
+})();
+;//http://proj4js.org/
+'use strict';
+
+(function () {
+    var module = angular.module('tink.gis');
+    var service = function service($http, GisHelperService, $q, PopupService) {
+        var _service = {};
+        _service.ReverseGeocode = function (event) {
+            var lambert72Cords = GisHelperService.ConvertWSG84ToLambert72(event.latlng);
+            var loc = lambert72Cords.x + ',' + lambert72Cords.y;
+            var urlloc = encodeURIComponent(loc);
+            var url = Gis.BaseUrl + 'arcgissql/rest/services/COMLOC_CRAB_NAVTEQ/GeocodeServer/reverseGeocode?location=' + urlloc + '&distance=50&outSR=&f=json';
+            var prom = $http.get(url);
+            prom.success(function (data, status, headers, config) {
+                // nothing we just give back the prom do the stuff not here!
+            }).error(function (data, status, headers, config) {
+                PopupService.ErrorFromHttp(data, status, url);
+            });
+            return prom;
+        };
+        _service.QueryCrab = function (straatnaam, huisnummer) {
+            var prom = $q.defer();
+            $http.get('https://geoint.antwerpen.be/arcgissql/rest/services/P_Stad/CRAB_adresposities/MapServer/0/query?' + 'where=GEMEENTE%3D%27Antwerpen%27%20and%20STRAATNM%20%3D%27' + straatnaam + '%27%20and%20' + '(HUISNR%20like%20%27' + huisnummer + '%27%20or%20Huisnr%20like%20%27' + huisnummer + '%5Ba-z%5D%27or%20Huisnr%20like%20%27' + huisnummer + '%5B_%5D%25%27)%20and%20APPTNR%20%3D%20%27%27%20and%20busnr%20%3D%20%27%27' + '&text=&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=*&returnGeometry=true&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&f=pjson').success(function (data, status, headers, config) {
+                // data = GisHelperService.UnwrapProxiedData(data);
+                prom.resolve(data);
+            }).error(function (data, status, headers, config) {
+                prom.reject(null);
+                PopupService.ErrorFromHttp(data, status, url);
+            });
+            return prom.promise;
+        };
+
+        _service.QuerySOLRGIS = function (search) {
+            var prom = $q.defer();
+            var url = Solr.BaseUrl + 'giszoek/solr/search?q=*' + search + '*&wt=json&indent=true&facet=true&rows=999&facet.field=parent&group=true&group.field=parent&group.limit=999&solrtype=gis'; // &group.limit=5
+            $http.get(url).success(function (data, status, headers, config) {
+                prom.resolve(data);
+            }).error(function (data, status, headers, config) {
+                prom.reject(null);
+                PopupService.ErrorFromHttp(data, status, url);
+            });
+            return prom.promise;
+        };
+        _service.QuerySOLRLocatie = function (search) {
+            var prom = $q.defer();
+            var url = Solr.BaseUrl + 'giszoek/solr/search?q=*' + search + '*&wt=json&indent=true&rows=50&solrtype=gislocaties&dismax=true&bq=exactName:DISTRICT^20000.0&bq=layer:straatnaam^20000.0';
+            $http.get(url).success(function (data, status, headers, config) {
+                // data = GisHelperService.UnwrapProxiedData(data);
+                prom.resolve(data);
+            }).error(function (data, status, headers, config) {
+                prom.reject(null);
+                PopupService.ErrorFromHttp(data, status, url);
+            });
+            return prom.promise;
+        };
+        var completeUrl = function completeUrl(url) {
+            // var baseurl = Gis.BaseUrl + 'arcgissql/rest/';
+            // if (!url.contains('arcgissql/rest/') && !url.contains('arcgis/rest/')) {
+            //     url = baseurl + url;
+            // }
+            // if (url.toLowerCase().contains("p_sik") && url.toLowerCase().contains("/arcgissql/")) {
+            //     url = url.replace("/arcgissql/", "/arcgis/");
+            // }
+            return url;
+        };
+        var generateOptionsBasedOnUrl = function generateOptionsBasedOnUrl(url, opts) {
+            if (!opts) {
+                opts = {};
+            }
+            if (url.toLowerCase().includes("p_sik")) {
+                opts.withCredentials = true;
+            }
+            return opts;
+        };
+        _service.GetThemeData = function (mapserver) {
+            var prom = $q.defer();
+
+            var url = completeUrl(mapserver) + '?f=pjson';
+            console.log("ZZZZZ");
+
+            $http.get(url, generateOptionsBasedOnUrl(url)).success(function (data, status, headers, config) {
+                // data = GisHelperService.UnwrapProxiedData(data);
+                prom.resolve(data);
+            }).error(function (data, status, headers, config) {
+                console.log("ZZZZZ");
+                if (url.toLocaleLowerCase().contains("p_sik")) {
+                    prom.resolve(null);
+                } else {
+                    prom.reject(null);
+                    PopupService.ErrorFromHttp(data, status, url);
+                }
+            });
+            return prom.promise;
+        };
+        _service.GetThemeLayerData = function (cleanurl) {
+            var prom = $q.defer();
+
+            var url = completeUrl(cleanurl) + '/layers?f=pjson';
+            $http.get(url, generateOptionsBasedOnUrl(url)).success(function (data, status, headers, config) {
+                // data = GisHelperService.UnwrapProxiedData(data);
+                prom.resolve(data);
+            }).error(function (data, status, headers, config) {
+                prom.reject(null);
+                PopupService.ErrorFromHttp(data, status, url);
+            });
+            return prom.promise;
+        };
+        _service.GetLegendData = function (cleanurl) {
+            var prom = $q.defer();
+
+            var url = completeUrl(cleanurl) + '/legend?f=pjson';
+            $http.get(url, generateOptionsBasedOnUrl(url)).success(function (data, status, headers, config) {
+                // data = GisHelperService.UnwrapProxiedData(data);
+                prom.resolve(data);
+            }).error(function (data, status, headers, config) {
+                prom.reject(null);
+                PopupService.ErrorFromHttp(data, status, url);
+            });
+            return prom.promise;
+        };
+        _service.GetAditionalLayerInfo = function (theme) {
+
+            var promLegend = _service.GetLegendData(theme.cleanUrl);
+            promLegend.then(function (data) {
+                theme.AllLayers.forEach(function (layer) {
+                    var layerid = layer.id;
+                    var layerInfo = data.layers.find(function (x) {
+                        return x.layerId == layerid;
+                    });
+                    layer.legend = [];
+                    if (layerInfo) {
+                        layer.legend = layerInfo.legend;
+                        layer.legend.forEach(function (legenditem) {
+                            legenditem.fullurl = "data:" + legenditem.contentType + ";base64," + legenditem.imageData;
+                        });
+                    }
+                });
+            });
+            var promLayerData = _service.GetThemeLayerData(theme.cleanUrl);
+            promLayerData.then(function (data) {
+                theme.AllLayers.forEach(function (layer) {
+                    var layerid = layer.id;
+                    var layerInfo = data.layers.find(function (x) {
+                        return x.id == layerid;
+                    });
+                    layer.displayField = layerInfo.displayField;
+                    layer.fields = layerInfo.fields;
+                });
+            });
+        };
+        return _service;
+    };
+    module.$inject = ['$http', 'GisHelperService', '$q', 'PopupService'];
+    module.factory('GISService', service);
 })();
 ;'use strict';
 
@@ -4943,6 +5708,41 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     };
     module.factory('UIService', service);
 })();
+;//http://proj4js.org/
+'use strict';
+
+(function () {
+    var module = angular.module('tink.gis');
+    var service = function service($http, GisHelperService, $q, PopupService) {
+        var _service = {};
+        _service.GetThemeData = function (url) {
+            var fullurl = url + '?request=GetCapabilities&service=WMS';
+            var proxiedurl = GisHelperService.CreateProxyUrl(fullurl);
+            var prom = $http({
+                method: 'GET',
+                url: proxiedurl,
+                timeout: 10000,
+                transformResponse: function transformResponse(data) {
+                    if (data) {
+                        data = GisHelperService.UnwrapProxiedData(data);
+                        if (data.listOfHttpError) {} else {
+                            data = JXON.stringToJs(data).wms_capabilities;
+                        }
+                    }
+                    return data;
+                }
+            }).success(function (data, status, headers, config) {
+                // console.dir(data);  // XML document object
+            }).error(function (data, status, headers, config) {
+                PopupService.ErrorFromHttp(data, status, fullurl);
+            });
+            return prom;
+        };
+        return _service;
+    };
+    module.$inject = ['$http', 'GisHelperService', '$q', 'PopupService'];
+    module.factory('WMSService', service);
+})();
 ;'use strict';
 
 (function (module) {
@@ -5470,6 +6270,76 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     };
     module.factory("SearchService", service);
 })();
+;// (function() {
+//
+//     'use strict';
+//
+//     var componentName = "ErrorHandler";
+//     var theComponent = function(appService) {
+//
+//         function _handle(errorResponse) {
+//
+//             // ToDo : vervang onderstaande door eigen error handling, indien gewenst
+//
+//             var message = "fout bij call naar " + errorResponse.config.url + " (" + errorResponse.config.method + ") - " + errorResponse.status + " ";
+//             if (errorResponse.data) {
+//                 if (errorResponse.data.message)
+//                     message += errorResponse.data.message;
+//                 else
+//                     message += errorResponse.statusText;
+//             } else {
+//                 message += errorResponse.statusText;
+//             }
+//             appService.logger.error(message);
+//         }
+//
+//         function _getErrorMessage(errorResponse, defaultMessage) {
+//             defaultMessage = defaultMessage || "unknown error";
+//             if (errorResponse.data) {
+//                 if (errorResponse.data.listOfHttpError) {
+//                     if (errorResponse.data.listOfHttpError.message) {
+//                         return errorResponse.data.listOfHttpError.message;
+//                     } else {
+//                         if (errorResponse.statusText)
+//                             return errorResponse.statusText;
+//                         else
+//                             return defaultMessage;
+//                     }
+//                 } else {
+//                     if (errorResponse.data.message) {
+//                         return errorResponse.data.message;
+//                     } else {
+//                         if (errorResponse.statusText)
+//                             return errorResponse.statusText;
+//                         else
+//                             return defaultMessage;
+//                     }
+//                 }
+//             } else {
+//                 if (errorResponse.statusText)
+//                     return errorResponse.statusText;
+//                 else
+//                     return defaultMessage;
+//             }
+//         }
+//
+//         /* +++++ public interface +++++ */
+//
+//         appService.logger.creation(componentName);
+//
+//         return {
+//             handle: _handle,
+//             getErrorMessage: _getErrorMessage,
+//         };
+//
+//     };
+//
+//     theComponent.$inject = ['AppService'];
+//
+//     angular.module('tink.gis').factory(componentName, theComponent);
+//
+// })();
+"use strict";
 ;'use strict';
 
 L.TileLayer.BetterWMS = L.TileLayer.WMS.extend({
@@ -5544,76 +6414,6 @@ L.TileLayer.BetterWMS = L.TileLayer.WMS.extend({
 L.tileLayer.betterWms = function (url, options) {
     return new L.TileLayer.BetterWMS(url, options);
 };
-;// (function() {
-//
-//     'use strict';
-//
-//     var componentName = "ErrorHandler";
-//     var theComponent = function(appService) {
-//
-//         function _handle(errorResponse) {
-//
-//             // ToDo : vervang onderstaande door eigen error handling, indien gewenst
-//
-//             var message = "fout bij call naar " + errorResponse.config.url + " (" + errorResponse.config.method + ") - " + errorResponse.status + " ";
-//             if (errorResponse.data) {
-//                 if (errorResponse.data.message)
-//                     message += errorResponse.data.message;
-//                 else
-//                     message += errorResponse.statusText;
-//             } else {
-//                 message += errorResponse.statusText;
-//             }
-//             appService.logger.error(message);
-//         }
-//
-//         function _getErrorMessage(errorResponse, defaultMessage) {
-//             defaultMessage = defaultMessage || "unknown error";
-//             if (errorResponse.data) {
-//                 if (errorResponse.data.listOfHttpError) {
-//                     if (errorResponse.data.listOfHttpError.message) {
-//                         return errorResponse.data.listOfHttpError.message;
-//                     } else {
-//                         if (errorResponse.statusText)
-//                             return errorResponse.statusText;
-//                         else
-//                             return defaultMessage;
-//                     }
-//                 } else {
-//                     if (errorResponse.data.message) {
-//                         return errorResponse.data.message;
-//                     } else {
-//                         if (errorResponse.statusText)
-//                             return errorResponse.statusText;
-//                         else
-//                             return defaultMessage;
-//                     }
-//                 }
-//             } else {
-//                 if (errorResponse.statusText)
-//                     return errorResponse.statusText;
-//                 else
-//                     return defaultMessage;
-//             }
-//         }
-//
-//         /* +++++ public interface +++++ */
-//
-//         appService.logger.creation(componentName);
-//
-//         return {
-//             handle: _handle,
-//             getErrorMessage: _getErrorMessage,
-//         };
-//
-//     };
-//
-//     theComponent.$inject = ['AppService'];
-//
-//     angular.module('tink.gis').factory(componentName, theComponent);
-//
-// })();
-"use strict";
 ;'use strict';
 
 L.drawVersion = '0.3.0-dev';
@@ -6048,6 +6848,35 @@ L.drawLocal = {
   );
 
 
+  $templateCache.put('templates/other/layersTemplate.html',
+    "<div data-tink-nav-aside=\"\" id=rightaside data-auto-select=true data-toggle-id=asideNavRight class=\"nav-aside nav-right\">\n" +
+    "<aside class=\"flex-column flex-grow-1\">\n" +
+    "<div class=nav-aside-section>\n" +
+    "<p class=nav-aside-title>Lagenoverzicht</p>\n" +
+    "</div>\n" +
+    "<button ng-click=lyrsctrl.asidetoggle class=nav-right-toggle data-tink-sidenav-collapse=asideNavRight>\n" +
+    "<a href=# title=\"Open menu\"><span class=sr-only>Open right menu</span></a>\n" +
+    "</button>\n" +
+    "<div class=\"flex-column flex-grow-1\">\n" +
+    "<div class=layer-management ng-if=lyrsctrl.layerManagementButtonIsEnabled>\n" +
+    "<div class=\"col-xs-12 margin-top margin-bottom\">\n" +
+    "<button class=\"btn btn-primary btn-layermanagement center-block\" ng-click=lyrsctrl.Lagenbeheer()>Lagenbeheer</button>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "<div class=\"overflow-wrapper flex-grow-1 extra-padding\">\n" +
+    "<ul class=ul-level id=sortableThemes ui-sortable=lyrsctrl.sortableOptions ng-model=lyrsctrl.themes>\n" +
+    "<li class=li-item ng-repeat=\"theme in lyrsctrl.themes\">\n" +
+    "<tink-theme theme=theme layercheckboxchange=lyrsctrl.updatethemevisibility(theme) hidedelete=!lyrsctrl.deleteLayerButtonIsEnabled>\n" +
+    "</tink-theme>\n" +
+    "</li>\n" +
+    "</ul>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "</aside>\n" +
+    "</div>\n"
+  );
+
+
   $templateCache.put('templates/other/layerTemplate.html',
     "<div ng-class=\"{'hidden-print': lyrctrl.layer.IsEnabledAndVisible == false}\">\n" +
     "<div ng-if=lyrctrl.layer.hasLayers>\n" +
@@ -6086,35 +6915,6 @@ L.drawLocal = {
     "</li>\n" +
     "</ul>\n" +
     "</div>"
-  );
-
-
-  $templateCache.put('templates/other/layersTemplate.html',
-    "<div data-tink-nav-aside=\"\" id=rightaside data-auto-select=true data-toggle-id=asideNavRight class=\"nav-aside nav-right\">\n" +
-    "<aside class=\"flex-column flex-grow-1\">\n" +
-    "<div class=nav-aside-section>\n" +
-    "<p class=nav-aside-title>Lagenoverzicht</p>\n" +
-    "</div>\n" +
-    "<button ng-click=lyrsctrl.asidetoggle class=nav-right-toggle data-tink-sidenav-collapse=asideNavRight>\n" +
-    "<a href=# title=\"Open menu\"><span class=sr-only>Open right menu</span></a>\n" +
-    "</button>\n" +
-    "<div class=\"flex-column flex-grow-1\">\n" +
-    "<div class=layer-management ng-if=lyrsctrl.layerManagementButtonIsEnabled>\n" +
-    "<div class=\"col-xs-12 margin-top margin-bottom\">\n" +
-    "<button class=\"btn btn-primary btn-layermanagement center-block\" ng-click=lyrsctrl.Lagenbeheer()>Lagenbeheer</button>\n" +
-    "</div>\n" +
-    "</div>\n" +
-    "<div class=\"overflow-wrapper flex-grow-1 extra-padding\">\n" +
-    "<ul class=ul-level id=sortableThemes ui-sortable=lyrsctrl.sortableOptions ng-model=lyrsctrl.themes>\n" +
-    "<li class=li-item ng-repeat=\"theme in lyrsctrl.themes\">\n" +
-    "<tink-theme theme=theme layercheckboxchange=lyrsctrl.updatethemevisibility(theme) hidedelete=!lyrsctrl.deleteLayerButtonIsEnabled>\n" +
-    "</tink-theme>\n" +
-    "</li>\n" +
-    "</ul>\n" +
-    "</div>\n" +
-    "</div>\n" +
-    "</aside>\n" +
-    "</div>\n"
   );
 
 
@@ -6477,15 +7277,9 @@ var TinkGis;
         _inherits(Layer, _LayerJSON);
 
         function Layer() {
-            var _ref;
-
             _classCallCheck(this, Layer);
 
-            for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-                args[_key] = arguments[_key];
-            }
-
-            var _this = _possibleConstructorReturn(this, (_ref = Layer.__proto__ || Object.getPrototypeOf(Layer)).call.apply(_ref, [this].concat(args)));
+            var _this = _possibleConstructorReturn(this, (Layer.__proto__ || Object.getPrototypeOf(Layer)).apply(this, arguments));
 
             _this.parent = null;
             _this.Layers = [];
