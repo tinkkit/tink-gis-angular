@@ -2867,7 +2867,12 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 onEnd: function onEnd() {
                     console.log(vm.transpSlider.value / 100);
                     vm.theme.SetOpacity(vm.transpSlider.value / 100);
+                },
+                onStart: function onStart() {
+                    console.log("onstartofslider", event);
+                    event.stopPropagation();
                 }
+
             }
         };
     }]);
@@ -5368,7 +5373,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 //Theme is proccessed, now make it unmodified again
                 theme.status = ThemeStatus.UNMODIFIED;
             });
-            console.log('refresh of sortableThemes');
+            // console.log('refresh of sortableThemes');
             $('#sortableThemes').sortable('refresh');
 
             MapData.SetZIndexes();
@@ -5544,8 +5549,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
                         if (numbers.length == 1 && notnumbers.length >= 1) {
                             var huisnummer = numbers[0];
-                            var straatnaam = notnumbers.join(' ');
-                            console.log(straatnaam, huisnummer);
+                            var straatnaam = encodeURIComponent(notnumbers.join(' '));
                             GISService.QueryCrab(straatnaam, huisnummer).then(function (data) {
                                 console.log(data);
                                 var features = data.features.map(function (feature) {
@@ -5559,7 +5563,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                                     obj.name = (obj.straatnaam + " " + obj.huisnummer).trim();
                                     return obj;
                                 }).slice(0, 10);
-                                console.log(features);
                                 asyncResults(features);
                             });
                         } else {
@@ -7061,7 +7064,7 @@ L.drawLocal = {
     "</label>\n" +
     "<button ng-hide=\"hidedelete == true\" style=\"flex-grow: 2\" class=\"trash hidden-print pull-right\" ng-click=thmctrl.deleteTheme()></button>\n" +
     "</div>\n" +
-    "<div style=display:flex ng-show=\"thmctrl.theme.Type=='esri'\">\n" +
+    "<div style=display:flex class=hidden-print ng-show=\"thmctrl.theme.Type=='esri'\">\n" +
     "<rzslider rz-slider-model=thmctrl.transpSlider.value rz-slider-options=thmctrl.transpSlider.options></rzslider>\n" +
     "</div>\n" +
     "<ul class=\"ul-level no-theme-layercontroller-checkbox\" ng-repeat=\"layer in thmctrl.theme.Layers | filter: { enabled: true }\">\n" +

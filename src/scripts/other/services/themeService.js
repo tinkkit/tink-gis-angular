@@ -36,7 +36,7 @@
 
 
             });
-            console.log('refresh of sortableThemes');
+            // console.log('refresh of sortableThemes');
             $('#sortableThemes').sortable('refresh');
 
             MapData.SetZIndexes();

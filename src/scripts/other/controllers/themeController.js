@@ -37,7 +37,13 @@
                     onEnd: function () {
                         console.log(vm.transpSlider.value /100);
                         vm.theme.SetOpacity(vm.transpSlider.value / 100);
+                    },
+                    onStart: function () {
+                        console.log("onstartofslider", event);
+                        event.stopPropagation(); 
                     }
+                    
+
                 }
             }
         }]);

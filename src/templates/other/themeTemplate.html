@@ -8,7 +8,7 @@
         </label>
         <button ng-hide="hidedelete == true" style="flex-grow: 2" class="trash hidden-print pull-right" ng-click="thmctrl.deleteTheme()"></button>
     </div>
-    <div style="display:flex" ng-show="thmctrl.theme.Type=='esri'">
+    <div style="display:flex" class="hidden-print" ng-show="thmctrl.theme.Type=='esri'">
         <rzslider rz-slider-model="thmctrl.transpSlider.value" rz-slider-options="thmctrl.transpSlider.options"></rzslider>
     </div>
     <ul class="ul-level no-theme-layercontroller-checkbox" ng-repeat="layer in thmctrl.theme.Layers | filter: { enabled: true }">

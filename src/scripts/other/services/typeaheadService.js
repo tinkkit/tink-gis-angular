@@ -25,8 +25,7 @@
 
                         if (numbers.length == 1 && notnumbers.length >= 1) {
                             var huisnummer = numbers[0];
-                            var straatnaam = notnumbers.join(' ');
-                            console.log(straatnaam, huisnummer);
+                            var straatnaam = encodeURIComponent(notnumbers.join(' '));
                             GISService.QueryCrab(straatnaam, huisnummer).then(function(data) {
                                 console.log(data);
                                 var features = data.features.map(function(feature) {
@@ -40,7 +39,6 @@
                                     obj.name = (obj.straatnaam + " " + obj.huisnummer).trim();
                                     return obj;
                                 }).slice(0, 10);
-                                console.log(features);
                                 asyncResults(features);
 
                             });
