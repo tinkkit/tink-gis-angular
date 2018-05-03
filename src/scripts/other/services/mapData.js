@@ -494,7 +494,7 @@
                                     icon: 'fa-dot-circle-o',
                                     markerColor: 'red'
                                 });
-                                MapData.SetStyle(featureItem, Style.HIGHLIGHT, myicon);
+                                _data.SetStyle(mapItem, Style.HIGHLIGHT, myicon);
                             }
                             _data.TempExtendFeatures.push(mapItem);
                             featureItem.mapItem = mapItem;

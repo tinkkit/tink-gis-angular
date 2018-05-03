@@ -39,8 +39,8 @@
                         vm.theme.SetOpacity(vm.transpSlider.value / 100);
                     },
                     onStart: function () {
-                        console.log("onstartofslider", event);
-                        event.stopPropagation(); 
+                        // console.log("onstartofslider", event);
+                        // event.stopPropagation(); 
                     }
                     
 

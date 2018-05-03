@@ -13,7 +13,7 @@
                     if (data) {
                         data = helperService.UnwrapProxiedData(data);
                         var returnjson = JXON.stringToJs(data);
-                        var getResults = returnjson['csw:getrecordsresponse']['csw:searchresults'];
+                        var getResults = returnjson['csw:GetRecordsResponse']['csw:SearchResults'];
                         var returnObject = {};
                         returnObject.searchTerm = searchterm;
                         returnObject.currentrecord = startpos;
