@@ -488,6 +488,14 @@
                         var alreadyexists = _data.VisibleFeatures.some(x => x.toGeoJSON().features[0].id == featureItem.id && x.toGeoJSON().features[0].layerName == featureItem.layerName);
                         if (alreadyexists) {
                             var mapItem = L.geoJson(featureItem, { style: thestyle }).addTo(map);
+                            
+                            if(featureItem.geometry.type == 'Point') {
+                                var myicon = L.AwesomeMarkers.icon({
+                                    icon: 'fa-dot-circle-o',
+                                    markerColor: 'red'
+                                });
+                                MapData.SetStyle(featureItem, Style.HIGHLIGHT, myicon);
+                            }
                             _data.TempExtendFeatures.push(mapItem);
                             featureItem.mapItem = mapItem;
                             resultArray.push(featureItem);
