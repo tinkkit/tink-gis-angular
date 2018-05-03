@@ -4,7 +4,11 @@
     var service = function ($http, map, MapData, $rootScope, $q, helperService, PopupService) {
         var _service = {};
         _service.getMetaData = function (searchterm = 'water', startpos = 1, recordsAPage = 10) {
-            var url = 'https://metadata.geopunt.be/zoekdienst/srv/dut/csw?service=CSW&version=2.0.2&SortBy=title&request=GetRecords&namespace=xmlns%28csw=http://www.opengis.net/cat/csw%29&resultType=results&outputSchema=http://www.opengis.net/cat/csw/2.0.2&outputFormat=application/xml&startPosition=' + startpos + '&maxRecords=' + recordsAPage + '&typeNames=csw:Record&elementSetName=full&constraintLanguage=CQL_TEXT&constraint_language_version=1.1.0&constraint=AnyText+LIKE+%27%25' + searchterm + '%25%27AND%20Type%20=%20%27service%27%20AND%20Servicetype%20=%27view%27%20AND%20MetadataPointOfContact%20=%27AIV%27';
+            var url = 'https://metadata.geopunt.be/zoekdienst/srv/dut/csw?' +
+            'service=CSW&version=2.0.2&SortBy=title&request=GetRecords&namespace=xmlns(csw=http://www.opengis.net/cat/csw)&resultType=results&outputSchema=http://www.opengis.net/cat/csw/2.0.2&outputFormat=application/xml'+ 
+            '&startPosition=' + startpos + '&maxRecords=' + recordsAPage + '&typeNames=csw:Record&elementSetName=full&constraintLanguage=CQL_TEXT&constraint_language_version=1.1.0' +
+            '&constraint=AnyText%20LIKE%20%27%' + searchterm + '%%27AND%20Type%20=%20%27service%27%20AND%20Servicetype%20=%27view%27%20AND%20MetadataPointOfContact%20=%27AIV%27';
+            // var url = 'https://metadata.geopunt.be/zoekdienst/srv/dut/csw?service=CSW&version=2.0.2&SortBy=title&request=GetRecords&namespace=xmlns%28csw=http://www.opengis.net/cat/csw%29&resultType=results&outputSchema=http://www.opengis.net/cat/csw/2.0.2&outputFormat=application/xml&startPosition=' + startpos + '&maxRecords=' + recordsAPage + '&typeNames=csw:Record&elementSetName=full&constraintLanguage=CQL_TEXT&constraint_language_version=1.1.0&constraint=AnyText+LIKE+%27%25' + searchterm + '%25%27AND%20Type%20=%20%27service%27%20AND%20Servicetype%20=%27view%27%20AND%20MetadataPointOfContact%20=%27AIV%27';
             // var url = 'https://metadata.geopunt.be/zoekdienst/srv/dut/q?fast=index&from=' + startpos + '&to=' + recordsAPage + '&any=*' + searchterm + '*&sortBy=title&sortOrder=reverse&hitsperpage=' + recordsAPage;
             var prom = $q.defer();
             var proxiedurl = helperService.CreateProxyUrl(url);
@@ -15,25 +19,25 @@
                         var returnjson = JXON.stringToJs(data);
                         var getResults = returnjson['csw:GetRecordsResponse']['csw:SearchResults'];
                         var returnObject = {};
-                        returnObject.searchTerm = searchterm;
-                        returnObject.currentrecord = startpos;
-                        returnObject.recordsAPage = recordsAPage;
-                        returnObject.nextrecord = getResults.nextrecord;
-                        returnObject.numberofrecordsmatched = getResults.numberofrecordsmatched;
-                        returnObject.numberofrecordsreturned = getResults.numberofrecordsreturned;
                         returnObject.results = [];
-                        if (returnObject.numberofrecordsmatched != 0) { // only foreach when there are items
-                            var themeArr = [];
-                            if (getResults['csw:record'].constructor === Array) {
-                                themeArr = getResults['csw:record'];
-                            } else {
-                                themeArr.push(getResults['csw:record']);
-                            }
-                            themeArr.forEach(record => {
-                                var processedTheme = procesTheme(record);
-                                returnObject.results.push(processedTheme);
-                            });
-                        }
+                        // returnObject.searchTerm = searchterm;
+                        // returnObject.currentrecord = startpos;
+                        // returnObject.recordsAPage = recordsAPage;
+                        // returnObject.nextrecord = getResults.nextrecord;
+                        // returnObject.numberofrecordsmatched = getResults.numberofrecordsmatched;
+                        // returnObject.numberofrecordsreturned = getResults.numberofrecordsreturned;
+                        // if (returnObject.numberofrecordsmatched != 0) { // only foreach when there are items
+                        //     var themeArr = [];
+                        //     if (getResults['csw:record'].constructor === Array) {
+                        //         themeArr = getResults['csw:record'];
+                        //     } else {
+                        //         themeArr.push(getResults['csw:record']);
+                        //     }
+                        //     themeArr.forEach(record => {
+                        //         var processedTheme = procesTheme(record);
+                        //         returnObject.results.push(processedTheme);
+                        //     });
+                        // }
                         prom.resolve(returnObject);
                         // console.log(getResults['csw:record']);
                     }
