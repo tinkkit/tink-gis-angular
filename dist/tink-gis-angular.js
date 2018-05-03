@@ -121,7 +121,7 @@
 })();
 ;'use strict';
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 (function (L, undefined) {
   L.Map.addInitHook(function () {
@@ -488,7 +488,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 })(L);
 ;"use strict";
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 !function (t, e) {
   "object" == (typeof exports === "undefined" ? "undefined" : _typeof(exports)) && "undefined" != typeof module ? e() : "function" == typeof define && define.amd ? define(e) : e();
@@ -2299,7 +2299,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 if (data) {
                     data = helperService.UnwrapProxiedData(data);
                     var returnjson = JXON.stringToJs(data);
-                    var getResults = returnjson['csw:getrecordsresponse']['csw:searchresults'];
+                    var getResults = returnjson['csw:GetRecordsResponse']['csw:SearchResults'];
                     var returnObject = {};
                     returnObject.searchTerm = searchterm;
                     returnObject.currentrecord = startpos;
@@ -2869,8 +2869,8 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                     vm.theme.SetOpacity(vm.transpSlider.value / 100);
                 },
                 onStart: function onStart() {
-                    console.log("onstartofslider", event);
-                    event.stopPropagation();
+                    // console.log("onstartofslider", event);
+                    // event.stopPropagation(); 
                 }
 
             }
@@ -3838,7 +3838,7 @@ var esri2geo = {};
 })();
 ;'use strict';
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 (function () {
     var module;
@@ -4661,6 +4661,14 @@ L.control.typeahead = function (args) {
                         });
                         if (alreadyexists) {
                             var mapItem = L.geoJson(featureItem, { style: thestyle }).addTo(map);
+
+                            if (featureItem.geometry.type == 'Point') {
+                                var myicon = L.AwesomeMarkers.icon({
+                                    icon: 'fa-dot-circle-o',
+                                    markerColor: 'red'
+                                });
+                                _data.SetStyle(mapItem, Style.HIGHLIGHT, myicon);
+                            }
                             _data.TempExtendFeatures.push(mapItem);
                             featureItem.mapItem = mapItem;
                             resultArray.push(featureItem);
@@ -4889,7 +4897,7 @@ L.control.typeahead = function (args) {
 })();
 ;'use strict';
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 (function () {
     var module;
@@ -6412,6 +6420,15 @@ L.TileLayer.BetterWMS = L.TileLayer.WMS.extend({
         return this._url + L.Util.getParamString(params, this._url, true);
     }
 
+    // showGetFeatureInfo: function(err, latlng, content) {
+    //     if (err) { console.log(err); return; } // do nothing if there's an error
+
+    //     // Otherwise show the content in a popup, or something.
+    //     L.popup({ maxWidth: 800 })
+    //         .setLatLng(latlng)
+    //         .setContent(content)
+    //         .openOn(this._map);
+    // }
 });
 
 L.tileLayer.betterWms = function (url, options) {
