@@ -8,10 +8,9 @@
             var lambert72Cords = GisHelperService.ConvertWSG84ToLambert72(event.latlng);
             var loc = lambert72Cords.x + ',' + lambert72Cords.y;
             var urlloc = encodeURIComponent(loc);
-            var url = Gis.BaseUrl + 'arcgissql/rest/services/COMLOC_CRAB_NAVTEQ/GeocodeServer/reverseGeocode?location=' + urlloc + '&distance=50&outSR=&f=json';
-            GAAS.ReverseGeocodeUrl 
-            //var url = 'https://reversedgeocode-o.antwerpen.be/' (<- Gis.BaseUrl) + 'api/ReservedGeocoding/GetAntwerpAdresByPoint?SR=31370&X=' + lambert72Cords.x + '&Y=' + lambert72Cords.y + '&buffer=50&count=1';
-            var prom = $http.get(url); //hier???
+            //var url = Gis.BaseUrl + 'arcgissql/rest/services/COMLOC_CRAB_NAVTEQ/GeocodeServer/reverseGeocode?location=' + urlloc + '&distance=50&outSR=&f=json';
+            var url = GAAS.ReversedGeocodeUrl + 'ReservedGeocoding/GetAntwerpAdresByPoint?SR=31370&X=' + lambert72Cords.x + '&Y=' + lambert72Cords.y + '&buffer=50&count=1';
+            var prom = $http.get(url);
             prom.success(function(data, status, headers, config) {
                 // nothing we just give back the prom do the stuff not here!
             }).error(function(data, status, headers, config) {
