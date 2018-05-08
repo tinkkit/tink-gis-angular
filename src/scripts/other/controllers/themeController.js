@@ -35,12 +35,12 @@
                     floor: 0,
                     ceil: 100,
                     onEnd: function () {
-                        console.log(vm.transpSlider.value /100);
+                        // console.log(vm.transpSlider.value /100);
                         vm.theme.SetOpacity(vm.transpSlider.value / 100);
                     },
                     onStart: function () {
-                        console.log("onstartofslider", event);
-                        event.stopPropagation(); 
+                        // console.log("onstartofslider", event);
+                        // event.stopPropagation(); 
                     }
                     
 

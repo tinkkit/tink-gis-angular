@@ -121,7 +121,7 @@
 })();
 ;'use strict';
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 (function (L, undefined) {
   L.Map.addInitHook(function () {
@@ -488,7 +488,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 })(L);
 ;"use strict";
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 !function (t, e) {
   "object" == (typeof exports === "undefined" ? "undefined" : _typeof(exports)) && "undefined" != typeof module ? e() : "function" == typeof define && define.amd ? define(e) : e();
@@ -2291,7 +2291,8 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             var startpos = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
             var recordsAPage = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 10;
 
-            var url = 'https://metadata.geopunt.be/zoekdienst/srv/dut/csw?service=CSW&version=2.0.2&SortBy=title&request=GetRecords&namespace=xmlns%28csw=http://www.opengis.net/cat/csw%29&resultType=results&outputSchema=http://www.opengis.net/cat/csw/2.0.2&outputFormat=application/xml&startPosition=' + startpos + '&maxRecords=' + recordsAPage + '&typeNames=csw:Record&elementSetName=full&constraintLanguage=CQL_TEXT&constraint_language_version=1.1.0&constraint=AnyText+LIKE+%27%25' + searchterm + '%25%27AND%20Type%20=%20%27service%27%20AND%20Servicetype%20=%27view%27%20AND%20MetadataPointOfContact%20=%27AIV%27';
+            var url = 'https://metadata.geopunt.be/zoekdienst/srv/dut/csw?' + 'service=CSW&version=2.0.2&SortBy=title&request=GetRecords&namespace=xmlns(csw=http://www.opengis.net/cat/csw)&resultType=results&outputSchema=http://www.opengis.net/cat/csw/2.0.2&outputFormat=application/xml' + '&startPosition=' + startpos + '&maxRecords=' + recordsAPage + '&typeNames=csw:Record&elementSetName=full&constraintLanguage=CQL_TEXT&constraint_language_version=1.1.0' + '&constraint=AnyText%20LIKE%20%27%' + searchterm + '%%27AND%20Type%20=%20%27service%27%20AND%20Servicetype%20=%27view%27%20AND%20MetadataPointOfContact%20=%27AIV%27';
+            // var url = 'https://metadata.geopunt.be/zoekdienst/srv/dut/csw?service=CSW&version=2.0.2&SortBy=title&request=GetRecords&namespace=xmlns%28csw=http://www.opengis.net/cat/csw%29&resultType=results&outputSchema=http://www.opengis.net/cat/csw/2.0.2&outputFormat=application/xml&startPosition=' + startpos + '&maxRecords=' + recordsAPage + '&typeNames=csw:Record&elementSetName=full&constraintLanguage=CQL_TEXT&constraint_language_version=1.1.0&constraint=AnyText+LIKE+%27%25' + searchterm + '%25%27AND%20Type%20=%20%27service%27%20AND%20Servicetype%20=%27view%27%20AND%20MetadataPointOfContact%20=%27AIV%27';
             // var url = 'https://metadata.geopunt.be/zoekdienst/srv/dut/q?fast=index&from=' + startpos + '&to=' + recordsAPage + '&any=*' + searchterm + '*&sortBy=title&sortOrder=reverse&hitsperpage=' + recordsAPage;
             var prom = $q.defer();
             var proxiedurl = helperService.CreateProxyUrl(url);
@@ -2299,28 +2300,27 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 if (data) {
                     data = helperService.UnwrapProxiedData(data);
                     var returnjson = JXON.stringToJs(data);
-                    var getResults = returnjson['csw:getrecordsresponse']['csw:searchresults'];
+                    var getResults = returnjson['csw:GetRecordsResponse']['csw:SearchResults'];
                     var returnObject = {};
-                    returnObject.searchTerm = searchterm;
-                    returnObject.currentrecord = startpos;
-                    returnObject.recordsAPage = recordsAPage;
-                    returnObject.nextrecord = getResults.nextrecord;
-                    returnObject.numberofrecordsmatched = getResults.numberofrecordsmatched;
-                    returnObject.numberofrecordsreturned = getResults.numberofrecordsreturned;
                     returnObject.results = [];
-                    if (returnObject.numberofrecordsmatched != 0) {
-                        // only foreach when there are items
-                        var themeArr = [];
-                        if (getResults['csw:record'].constructor === Array) {
-                            themeArr = getResults['csw:record'];
-                        } else {
-                            themeArr.push(getResults['csw:record']);
-                        }
-                        themeArr.forEach(function (record) {
-                            var processedTheme = procesTheme(record);
-                            returnObject.results.push(processedTheme);
-                        });
-                    }
+                    // returnObject.searchTerm = searchterm;
+                    // returnObject.currentrecord = startpos;
+                    // returnObject.recordsAPage = recordsAPage;
+                    // returnObject.nextrecord = getResults.nextrecord;
+                    // returnObject.numberofrecordsmatched = getResults.numberofrecordsmatched;
+                    // returnObject.numberofrecordsreturned = getResults.numberofrecordsreturned;
+                    // if (returnObject.numberofrecordsmatched != 0) { // only foreach when there are items
+                    //     var themeArr = [];
+                    //     if (getResults['csw:record'].constructor === Array) {
+                    //         themeArr = getResults['csw:record'];
+                    //     } else {
+                    //         themeArr.push(getResults['csw:record']);
+                    //     }
+                    //     themeArr.forEach(record => {
+                    //         var processedTheme = procesTheme(record);
+                    //         returnObject.results.push(processedTheme);
+                    //     });
+                    // }
                     prom.resolve(returnObject);
                     // console.log(getResults['csw:record']);
                 } else {
@@ -2865,12 +2865,12 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 floor: 0,
                 ceil: 100,
                 onEnd: function onEnd() {
-                    console.log(vm.transpSlider.value / 100);
+                    // console.log(vm.transpSlider.value /100);
                     vm.theme.SetOpacity(vm.transpSlider.value / 100);
                 },
                 onStart: function onStart() {
-                    console.log("onstartofslider", event);
-                    event.stopPropagation();
+                    // console.log("onstartofslider", event);
+                    // event.stopPropagation(); 
                 }
 
             }
@@ -3838,7 +3838,7 @@ var esri2geo = {};
 })();
 ;'use strict';
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 (function () {
     var module;
@@ -4661,6 +4661,14 @@ L.control.typeahead = function (args) {
                         });
                         if (alreadyexists) {
                             var mapItem = L.geoJson(featureItem, { style: thestyle }).addTo(map);
+
+                            if (featureItem.geometry.type == 'Point') {
+                                var myicon = L.AwesomeMarkers.icon({
+                                    icon: 'fa-dot-circle-o',
+                                    markerColor: 'red'
+                                });
+                                _data.SetStyle(mapItem, Style.HIGHLIGHT, myicon);
+                            }
                             _data.TempExtendFeatures.push(mapItem);
                             featureItem.mapItem = mapItem;
                             resultArray.push(featureItem);
@@ -4889,7 +4897,7 @@ L.control.typeahead = function (args) {
 })();
 ;'use strict';
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 (function () {
     var module;
@@ -5074,6 +5082,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
             var promise = new Promise(function (resolve, reject) {
                 ResultsData.RequestStarted++;
+                if (geometry.mapItem != undefined) {
+                    geometry = geometry.mapItem;
+                }
                 theme.MapDataWithCors.query().layer(layerid).intersects(geometry).run(function (error, featureCollection, response) {
                     ResultsData.RequestCompleted++;
                     resolve({ error: error, featureCollection: featureCollection, response: response });
@@ -6412,6 +6423,15 @@ L.TileLayer.BetterWMS = L.TileLayer.WMS.extend({
         return this._url + L.Util.getParamString(params, this._url, true);
     }
 
+    // showGetFeatureInfo: function(err, latlng, content) {
+    //     if (err) { console.log(err); return; } // do nothing if there's an error
+
+    //     // Otherwise show the content in a popup, or something.
+    //     L.popup({ maxWidth: 800 })
+    //         .setLatLng(latlng)
+    //         .setContent(content)
+    //         .openOn(this._map);
+    // }
 });
 
 L.tileLayer.betterWms = function (url, options) {
@@ -7065,7 +7085,7 @@ L.drawLocal = {
     "<button ng-hide=\"hidedelete == true\" style=\"flex-grow: 2\" class=\"trash hidden-print pull-right\" ng-click=thmctrl.deleteTheme()></button>\n" +
     "</div>\n" +
     "<div style=display:flex class=hidden-print ng-show=\"thmctrl.theme.Type=='esri'\">\n" +
-    "<rzslider rz-slider-model=thmctrl.transpSlider.value rz-slider-options=thmctrl.transpSlider.options></rzslider>\n" +
+    "<rzslider class=\"custom-slider hidden-print\" rz-slider-model=thmctrl.transpSlider.value rz-slider-options=thmctrl.transpSlider.options></rzslider>\n" +
     "</div>\n" +
     "<ul class=\"ul-level no-theme-layercontroller-checkbox\" ng-repeat=\"layer in thmctrl.theme.Layers | filter: { enabled: true }\">\n" +
     "<tink-layer layer=layer layercheckboxchange=layercheckboxchange(layer.theme)>\n" +

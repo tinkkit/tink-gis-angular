@@ -190,6 +190,10 @@
             var promise = new Promise(
                 function(resolve, reject) {
                     ResultsData.RequestStarted++;
+                    if(geometry.mapItem != undefined) 
+                    {
+                        geometry = geometry.mapItem;
+                    }
                     theme.MapDataWithCors.query()
                         .layer(layerid)
                         .intersects(geometry)
