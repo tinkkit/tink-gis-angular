@@ -289,7 +289,7 @@
             var prom = GISService.ReverseGeocode(event);
             prom.success(function(data, status, headers, config) {
                 MapData.CleanWatIsHier();
-                if (!data.error) {
+                if (data.length > 0) {
                     //var converted = GisHelperService.ConvertLambert72ToWSG84(data.location);
                     var converted = GisHelperService.ConvertLambert72ToWSG84(data[0].xy);
                     MapData.CreateDot(converted);
