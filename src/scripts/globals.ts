@@ -16,6 +16,9 @@ var ActiveInteractieButton = {
     METEN: 'meten',
     WATISHIER: 'watishier'
 };
+var GAAS = {
+    ReversedGeocodeUrl : ' https://reversedgeocode-o.antwerpen.be/api/'
+}
 var Gis = {
     Arcgissql: '',
     BaseUrl: 'https://geoint.antwerpen.be/',

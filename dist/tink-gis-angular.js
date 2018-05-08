@@ -1536,6 +1536,9 @@ var ActiveInteractieButton = {
     METEN: 'meten',
     WATISHIER: 'watishier'
 };
+var GAAS = {
+    ReversedGeocodeUrl: ' https://reversedgeocode-o.antwerpen.be/api/'
+};
 var Gis = {
     Arcgissql: '',
     BaseUrl: 'https://geoint.antwerpen.be/',
@@ -3692,7 +3695,8 @@ var esri2geo = {};
             var lambert72Cords = GisHelperService.ConvertWSG84ToLambert72(event.latlng);
             var loc = lambert72Cords.x + ',' + lambert72Cords.y;
             var urlloc = encodeURIComponent(loc);
-            var url = Gis.BaseUrl + 'arcgissql/rest/services/COMLOC_CRAB_NAVTEQ/GeocodeServer/reverseGeocode?location=' + urlloc + '&distance=50&outSR=&f=json';
+            //var url = Gis.BaseUrl + 'arcgissql/rest/services/COMLOC_CRAB_NAVTEQ/GeocodeServer/reverseGeocode?location=' + urlloc + '&distance=50&outSR=&f=json';
+            var url = GAAS.ReversedGeocodeUrl + 'ReservedGeocoding/GetAntwerpAdresByPoint?SR=31370&X=' + lambert72Cords.x + '&Y=' + lambert72Cords.y + '&buffer=50&count=1';
             var prom = $http.get(url);
             prom.success(function (data, status, headers, config) {
                 // nothing we just give back the prom do the stuff not here!
@@ -5171,9 +5175,11 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             prom.success(function (data, status, headers, config) {
                 MapData.CleanWatIsHier();
                 if (!data.error) {
-                    var converted = GisHelperService.ConvertLambert72ToWSG84(data.location);
+                    //var converted = GisHelperService.ConvertLambert72ToWSG84(data.location);
+                    var converted = GisHelperService.ConvertLambert72ToWSG84(data[0].xy);
                     MapData.CreateDot(converted);
-                    MapData.CreateOrigineleMarker(event.latlng, true, data.address.Street + ' (' + data.address.Postal + ')');
+                    //MapData.CreateOrigineleMarker(event.latlng, true, data.address.Street + ' (' + data.address.Postal + ')');
+                    MapData.CreateOrigineleMarker(event.latlng, true, data[0].straatnm + ' ' + data[0].huisnr + ' (' + data[0].postcode + ')');
                 } else {
                     MapData.CreateOrigineleMarker(event.latlng, false);
                 }
