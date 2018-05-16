@@ -800,83 +800,94 @@ html.nav-right-open .nav-right-toggle:before {
   height: 100%;
   width: 100%; }
 
-html.print .leaflet-control-scale-line {
-  margin-left: 0.0714285714rem  !important; }
-
-html.print .map-buttons-left,
-html.print .map-buttons-right,
-html.print .tink-layers,
-html.print .tink-search,
-html.print .typeahead,
-html.print .layer-management {
-  display: none; }
-
-html.print.preview-legend .print-content-footer {
-  display: none; }
-
-html.print.preview-legend .leafletmap {
-  display: none; }
-
-html.print.preview-legend .nav-aside:before {
-  background: none; }
-
-html.print.preview-legend .nav-right {
-  position: relative; }
-
-html.print.preview-legend .print-content,
-html.print.preview-legend .print-map {
-  height: 100%; }
-
-html.print.preview-legend .tink-layers {
-  display: block; }
-  html.print.preview-legend .tink-layers .btn-layermanagement,
-  html.print.preview-legend .tink-layers .nav-aside-section,
-  html.print.preview-legend .tink-layers .nav-right-toggle {
+html.print {
+  /**
+ * Aanpassingen Matthiass
+ */ }
+  html.print .leaflet-control-scale-line {
+    margin-left: 0.0714285714rem  !important; }
+  html.print .map-buttons-left,
+  html.print .map-buttons-right,
+  html.print .tink-layers,
+  html.print .tink-search,
+  html.print .typeahead,
+  html.print .layer-management {
     display: none; }
-
-html.print .print-content {
-  height: 255mm;
-  margin: 0 auto;
-  width: 185mm; }
-  html.print .print-content-header {
-    display: block;
-    height: 15mm; }
-  html.print .print-content-footer {
-    display: block;
-    font-size: 15px;
-    height: 25mm;
-    margin-top: 3mm; }
-    html.print .print-content-footer [class*='col-'] {
-      padding-left: 0;
-      padding-right: 0; }
-
-html.print .print-map {
-  height: 212mm; }
-
-html.print .print-menu {
-  display: block; }
-  html.print .print-menu-header {
-    background-color: #fff;
-    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.06);
-    padding: 6px 12px;
-    position: fixed;
-    top: 0;
-    width: 100%;
-    z-index: 1000; }
-  html.print .print-menu-footer {
-    background-color: #fff;
-    bottom: 0;
-    box-shadow: 0 -1px 5px rgba(0, 0, 0, 0.06);
-    padding: 6px 12px;
-    position: fixed;
-    width: 100%;
-    z-index: 1000; }
-
-html.print .margin-print-content {
-  height: 8.5714285714rem ; }
-  @media (min-width: 768px) {
-    html.print .margin-print-content {
-      height: 7.1428571429rem ; } }
+  html.print input[type="checkbox"].hidden-print + label, html.print input[type="radio"].hidden-print + label {
+    padding-left: .1rem;
+    pointer-events: none; }
+  html.print input[type="checkbox"].hidden-print + label:before, html.print input[type="radio"].hidden-print + label:before, html.print input[type="checkbox"].hidden-print + label:after, html.print input[type="radio"].hidden-print + label:after {
+    content: none;
+    position: absolute !important;
+    top: -9999px !important;
+    left: -9999px !important;
+    pointer-events: none; }
+  html.print.preview-legend .print-map .hidden-print {
+    position: absolute !important;
+    top: -9999px !important;
+    left: -9999px !important; }
+  html.print.preview-legend .print-map .visible-box,
+  html.print.preview-legend .print-map .hidden-print {
+    position: absolute !important;
+    top: -9999px !important;
+    left: -9999px !important; }
+  html.print.preview-legend .print-content-footer {
+    display: none; }
+  html.print.preview-legend .leafletmap {
+    display: none; }
+  html.print.preview-legend .nav-aside:before {
+    background: none; }
+  html.print.preview-legend .nav-right {
+    position: relative; }
+  html.print.preview-legend .print-content,
+  html.print.preview-legend .print-map {
+    height: 100%; }
+  html.print.preview-legend .tink-layers {
+    display: block; }
+    html.print.preview-legend .tink-layers .btn-layermanagement,
+    html.print.preview-legend .tink-layers .nav-aside-section,
+    html.print.preview-legend .tink-layers .nav-right-toggle {
+      display: none; }
+  html.print .print-content {
+    height: 255mm;
+    margin: 0 auto;
+    width: 185mm; }
+    html.print .print-content-header {
+      display: block;
+      height: 15mm; }
+    html.print .print-content-footer {
+      display: block;
+      font-size: 15px;
+      height: 25mm;
+      margin-top: 3mm; }
+      html.print .print-content-footer [class*='col-'] {
+        padding-left: 0;
+        padding-right: 0; }
+  html.print .print-map {
+    height: 212mm; }
+  html.print .print-menu {
+    display: block; }
+    html.print .print-menu-header {
+      background-color: #fff;
+      box-shadow: 0 1px 5px rgba(0, 0, 0, 0.06);
+      padding: 6px 12px;
+      position: fixed;
+      top: 0;
+      width: 100%;
+      z-index: 1000; }
+    html.print .print-menu-footer {
+      background-color: #fff;
+      bottom: 0;
+      box-shadow: 0 -1px 5px rgba(0, 0, 0, 0.06);
+      padding: 6px 12px;
+      position: fixed;
+      width: 100%;
+      z-index: 1000; }
+  html.print .margin-print-content {
+    height: 8.5714285714rem ; }
+    @media (min-width: 768px) {
+      html.print .margin-print-content {
+        height: 7.1428571429rem ; } }
 
 html.print.landscape .print-content {
   height: 175mm;

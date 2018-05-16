@@ -9,7 +9,8 @@
 
     JXON.config({
         attrPrefix: '', // default: '@'
-        autoDate: false // default: true
+        autoDate: false, // default: true
+        lowerCaseTags: true
     });
     var init = function() {
         L.AwesomeMarkers.Icon.prototype.options.prefix = 'fa';
