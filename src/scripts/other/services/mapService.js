@@ -69,7 +69,7 @@
                                 if (lay.queryable == true) {
 
                                     ResultsData.RequestStarted++;
-                                    theme.MapData.getFeatureInfo(event.latlng, lay.name, theme.GetFeatureInfoType).success(function(data, status, xhr) {
+                                    theme.MapData.getFeatureInfo(event.latlng, lay.name, theme.GetFeatureInfoType).then(function(data, status, xhr) {
                                         if (data) {
                                             data = GisHelperService.UnwrapProxiedData(data);
                                         }
@@ -115,7 +115,7 @@
                                             // we must still apply for the loading to get updated
                                             $rootScope.$applyAsync();
                                         }
-                                    }).error(function(exception) {
+                                    }).then(function(exception) {
                                         ResultsData.RequestCompleted++;
 
                                     });

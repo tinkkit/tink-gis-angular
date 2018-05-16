@@ -939,12 +939,43 @@ html.print {
     display: none;
   }
 
+ /**
+ * Aanpassingen Matthiass
+ */
+ input[type="checkbox"].hidden-print + label, input[type="radio"].hidden-print + label {
+  padding-left: .1rem;
+  pointer-events: none;
+}
+ input[type="checkbox"].hidden-print + label:before, input[type="radio"].hidden-print + label:before, input[type="checkbox"].hidden-print + label:after, input[type="radio"].hidden-print + label:after {
+  content: none;
+  position: absolute !important;
+  top: -9999px !important;
+  left: -9999px !important;
+  pointer-events: none;
+}
   &.preview-legend {
     .print {
+      &-map {
+        .hidden-print{
+          position: absolute !important;
+          top: -9999px !important;
+          left: -9999px !important;
+          
+        }
+        
+        .visible-box,
+        .hidden-print{
+          position: absolute !important;
+          top: -9999px !important;
+          left: -9999px !important;
+        }
+      }
 
       &-content-footer {
         display: none;
       }
+
+      
     }
 
     .leafletmap {

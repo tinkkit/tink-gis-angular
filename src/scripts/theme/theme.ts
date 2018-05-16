@@ -139,7 +139,7 @@ namespace TinkGis {
                 lays.push(data.capability.layer);
             }
             lays.forEach(layer => {
-                if (layer.queryable === true) { // if it is queryable we have to check or it is compatible with text/xml since that is the only we support atm
+                if (layer.queryable == true) { // if it is queryable we have to check or it is compatible with text/xml since that is the only we support atm
                     if (data.capability.request.getfeatureinfo.format.some(x => x === "text/xml")) {
                         this.GetFeatureInfoType = "text/xml";
                     } else if (data.capability.request.getfeatureinfo.format.some(x => x === "text/plain")) {
