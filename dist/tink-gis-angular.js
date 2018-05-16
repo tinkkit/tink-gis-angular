@@ -2561,7 +2561,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
     vm.easyprinter = L.easyPrint({
       tileWait: 250,
       exportOnly: true,
-      hidden: false,
+      hidden: true,
       hideControlContainer: true
     }).addTo(map);
     vm.drawingType = MapData.DrawingType;

@@ -69,7 +69,7 @@
     vm.easyprinter = L.easyPrint({
         tileWait: 250,
         exportOnly: true,
-        hidden: false,
+        hidden: true,
         hideControlContainer: true
       }).addTo(map);
     vm.drawingType = MapData.DrawingType;
