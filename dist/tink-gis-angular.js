@@ -10,7 +10,8 @@
 
     JXON.config({
         attrPrefix: '', // default: '@'
-        autoDate: false // default: true
+        autoDate: false, // default: true
+        lowerCaseTags: true
     });
     var init = function () {
         L.AwesomeMarkers.Icon.prototype.options.prefix = 'fa';
@@ -2294,8 +2295,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             var startpos = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
             var recordsAPage = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 10;
 
-            var url = 'https://metadata.geopunt.be/zoekdienst/srv/dut/csw?' + 'service=CSW&version=2.0.2&SortBy=title&request=GetRecords&namespace=xmlns(csw=http://www.opengis.net/cat/csw)&resultType=results&outputSchema=http://www.opengis.net/cat/csw/2.0.2&outputFormat=application/xml' + '&startPosition=' + startpos + '&maxRecords=' + recordsAPage + '&typeNames=csw:Record&elementSetName=full&constraintLanguage=CQL_TEXT&constraint_language_version=1.1.0' + '&constraint=AnyText%20LIKE%20%27%' + searchterm + '%%27AND%20Type%20=%20%27service%27%20AND%20Servicetype%20=%27view%27'; //%20AND%20MetadataPointOfContact%20=%27AIV%27';
-            // var url = 'https://metadata.geopunt.be/zoekdienst/srv/dut/csw?service=CSW&version=2.0.2&SortBy=title&request=GetRecords&namespace=xmlns%28csw=http://www.opengis.net/cat/csw%29&resultType=results&outputSchema=http://www.opengis.net/cat/csw/2.0.2&outputFormat=application/xml&startPosition=' + startpos + '&maxRecords=' + recordsAPage + '&typeNames=csw:Record&elementSetName=full&constraintLanguage=CQL_TEXT&constraint_language_version=1.1.0&constraint=AnyText+LIKE+%27%25' + searchterm + '%25%27AND%20Type%20=%20%27service%27%20AND%20Servicetype%20=%27view%27%20AND%20MetadataPointOfContact%20=%27AIV%27';
+            var url = 'https://metadata.geopunt.be/zoekdienst/srv/dut/csw?' + 'service=CSW&version=2.0.2&SortBy=title&request=GetRecords&namespace=xmlns(csw=http://www.opengis.net/cat/csw)&resultType=results&outputSchema=http://www.opengis.net/cat/csw/2.0.2&outputFormat=application/xml' + '&startPosition=' + startpos + '&maxRecords=' + recordsAPage + '&typeNames=csw:Record&elementSetName=full&constraintLanguage=CQL_TEXT&constraint_language_version=1.1.0' + '&constraint=AnyText%20LIKE%20%27%' + searchterm + '%%27AND%20Type%20=%20%27service%27%20AND%20Servicetype%20=%27view%27'; //%20AND%20MetadataPointOfContact%20=%27%27'; //MetadataPointOfContact%20=%27AIV%27';            // var url = 'https://metadata.geopunt.be/zoekdienst/srv/dut/csw?service=CSW&version=2.0.2&SortBy=title&request=GetRecords&namespace=xmlns%28csw=http://www.opengis.net/cat/csw%29&resultType=results&outputSchema=http://www.opengis.net/cat/csw/2.0.2&outputFormat=application/xml&startPosition=' + startpos + '&maxRecords=' + recordsAPage + '&typeNames=csw:Record&elementSetName=full&constraintLanguage=CQL_TEXT&constraint_language_version=1.1.0&constraint=AnyText+LIKE+%27%25' + searchterm + '%25%27AND%20Type%20=%20%27service%27%20AND%20Servicetype%20=%27view%27%20AND%20MetadataPointOfContact%20=%27AIV%27';
             // var url = 'https://metadata.geopunt.be/zoekdienst/srv/dut/q?fast=index&from=' + startpos + '&to=' + recordsAPage + '&any=*' + searchterm + '*&sortBy=title&sortOrder=reverse&hitsperpage=' + recordsAPage;
             var prom = $q.defer();
             var proxiedurl = helperService.CreateProxyUrl(url);
@@ -2303,27 +2303,28 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 if (data) {
                     data = helperService.UnwrapProxiedData(data);
                     var returnjson = JXON.stringToJs(data);
-                    var getResults = returnjson['csw:GetRecordsResponse']['csw:SearchResults'];
+                    var getResults = returnjson['csw:getrecordsresponse']['csw:searchresults'];
                     var returnObject = {};
                     returnObject.results = [];
-                    // returnObject.searchTerm = searchterm;
-                    // returnObject.currentrecord = startpos;
-                    // returnObject.recordsAPage = recordsAPage;
-                    // returnObject.nextrecord = getResults.nextrecord;
-                    // returnObject.numberofrecordsmatched = getResults.numberofrecordsmatched;
-                    // returnObject.numberofrecordsreturned = getResults.numberofrecordsreturned;
-                    // if (returnObject.numberofrecordsmatched != 0) { // only foreach when there are items
-                    //     var themeArr = [];
-                    //     if (getResults['csw:record'].constructor === Array) {
-                    //         themeArr = getResults['csw:record'];
-                    //     } else {
-                    //         themeArr.push(getResults['csw:record']);
-                    //     }
-                    //     themeArr.forEach(record => {
-                    //         var processedTheme = procesTheme(record);
-                    //         returnObject.results.push(processedTheme);
-                    //     });
-                    // }
+                    returnObject.searchTerm = searchterm;
+                    returnObject.currentrecord = startpos;
+                    returnObject.recordsAPage = recordsAPage;
+                    returnObject.nextrecord = getResults.nextrecord;
+                    returnObject.numberofrecordsmatched = getResults.numberofrecordsmatched;
+                    returnObject.numberofrecordsreturned = getResults.numberofrecordsreturned;
+                    if (returnObject.numberofrecordsmatched != 0) {
+                        // only foreach when there are items
+                        var themeArr = [];
+                        if (getResults['csw:record'].constructor === Array) {
+                            themeArr = getResults['csw:record'];
+                        } else {
+                            themeArr.push(getResults['csw:record']);
+                        }
+                        themeArr.forEach(function (record) {
+                            var processedTheme = procesTheme(record);
+                            returnObject.results.push(processedTheme);
+                        });
+                    }
                     prom.resolve(returnObject);
                     // console.log(getResults['csw:record']);
                 } else {
@@ -2349,7 +2350,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 return x.protocol == 'WMS' || x.protocol == 'OGC:WMS';
             });
             if (wmsinfo) {
-                tmptheme.Url = wmsinfo.keyValue;
+                tmptheme.Url = wmsinfo._;
                 tmptheme.Type = ThemeType.WMS;
             } else {
                 tmptheme.Type = 'DONTKNOW';
@@ -2524,7 +2525,15 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
     //We need to include MapEvents, even tho we don t call it just to make sure it gets loaded!
     var vm = this;
     vm.exportPNG = function () {
+      var width = $("#map").width();
+      var height = $("#map").height();
+      $("#map").css("width", width);
+      $("#map").css("height", height);
+
       vm.easyprinter.printMap("CurrentSize", "Export");
+
+      $("#map").css("width", "100%");
+      $("#map").css("height", "100%");
     };
     var init = function () {
       console.log("Tink-Gis-Angular component init!!!!!!!!!");
@@ -2552,7 +2561,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
     vm.easyprinter = L.easyPrint({
       tileWait: 250,
       exportOnly: true,
-      hidden: true,
+      hidden: false,
       hideControlContainer: true
     }).addTo(map);
     vm.drawingType = MapData.DrawingType;
@@ -4974,7 +4983,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                                 if (lay.queryable == true) {
 
                                     ResultsData.RequestStarted++;
-                                    theme.MapData.getFeatureInfo(event.latlng, lay.name, theme.GetFeatureInfoType).success(function (data, status, xhr) {
+                                    theme.MapData.getFeatureInfo(event.latlng, lay.name, theme.GetFeatureInfoType).then(function (data, status, xhr) {
                                         if (data) {
                                             data = GisHelperService.UnwrapProxiedData(data);
                                         }
@@ -5020,7 +5029,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                                             // we must still apply for the loading to get updated
                                             $rootScope.$applyAsync();
                                         }
-                                    }).error(function (exception) {
+                                    }).then(function (exception) {
                                         ResultsData.RequestCompleted++;
                                     });
                                 }
@@ -5174,10 +5183,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             prom.success(function (data, status, headers, config) {
                 MapData.CleanWatIsHier();
                 if (data.length > 0) {
-<<<<<<< HEAD
-                    //var converted = GisHelperService.ConvertLambert72ToWSG84(data.location);
-=======
->>>>>>> development
                     var converted = GisHelperService.ConvertLambert72ToWSG84(data[0].xy);
                     MapData.CreateDot(converted);
                     MapData.CreateOrigineleMarker(event.latlng, true, data[0].straatnm + ' ' + data[0].huisnr + ' (' + data[0].district + ')');
@@ -7626,7 +7631,7 @@ var TinkGis;
                 lays.push(data.capability.layer);
             }
             lays.forEach(function (layer) {
-                if (layer.queryable === true) {
+                if (layer.queryable == true) {
                     if (data.capability.request.getfeatureinfo.format.some(function (x) {
                         return x === "text/xml";
                     })) {

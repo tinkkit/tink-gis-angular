@@ -22,7 +22,15 @@
     //We need to include MapEvents, even tho we don t call it just to make sure it gets loaded!
     var vm = this;
     vm.exportPNG = function() {
+      var width = $("#map").width();
+      var height = $("#map").height();
+      $("#map").css("width", width);
+      $("#map").css("height", height);
+      
       vm.easyprinter.printMap("CurrentSize", "Export");
+      
+      $("#map").css("width", "100%");
+      $("#map").css("height", "100%");
     };
     var init = (function() {
       console.log("Tink-Gis-Angular component init!!!!!!!!!");
@@ -61,7 +69,7 @@
     vm.easyprinter = L.easyPrint({
         tileWait: 250,
         exportOnly: true,
-        hidden: true,
+        hidden: false,
         hideControlContainer: true
       }).addTo(map);
     vm.drawingType = MapData.DrawingType;
