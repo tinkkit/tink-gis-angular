@@ -2,7 +2,7 @@
 (function (module) {
     module = angular.module('tink.gis');
     module.controller('themeController', ['$scope', 'MapService', 'ThemeService',
-        function ($scope, MapService, ThemeService) {
+        function ($scope, MapService, ThemeService, $timeout) {
             var vm = this;
             console.log('Theme geladen');
             vm.theme = $scope.theme;
@@ -46,5 +46,10 @@
 
                 }
             }
+            setTimeout(function(){
+                vm.transpSlider.value = vm.theme.Opacity * 100;
+                $scope.$applyAsync();
+            }, 1000);
+            
         }]);
 })();
