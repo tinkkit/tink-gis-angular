@@ -2845,7 +2845,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
 
 (function (module) {
     module = angular.module('tink.gis');
-    module.controller('themeController', ['$scope', 'MapService', 'ThemeService', function ($scope, MapService, ThemeService) {
+    module.controller('themeController', ['$scope', 'MapService', 'ThemeService', function ($scope, MapService, ThemeService, $timeout) {
         var vm = this;
         console.log('Theme geladen');
         vm.theme = $scope.theme;
@@ -2887,6 +2887,10 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
 
             }
         };
+        setTimeout(function () {
+            $scope.$broadcast('rzSliderForceRender');
+            $scope.$applyAsync();
+        }, 1);
     }]);
 })();
 ;// 'use strict';
