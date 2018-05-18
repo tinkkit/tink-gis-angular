@@ -47,9 +47,9 @@
                 }
             }
             setTimeout(function(){
-                vm.transpSlider.value = vm.theme.Opacity * 100;
+                $scope.$broadcast('rzSliderForceRender');
                 $scope.$applyAsync();
-            }, 1000);
+            }, 1);
             
         }]);
 })();
