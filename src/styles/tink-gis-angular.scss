@@ -100,7 +100,7 @@ svg.leaflet-zoom-animated {
 
 .leaflet-control-scale-line {
   margin-bottom: rem(7);
-  margin-left: rem(140); // set next to kaarttypes
+  margin-left: rem(190); // set next to kaarttypes
     @include mq($screen-sm) {
     margin-bottom: rem(12)
   }
@@ -872,7 +872,7 @@ html.nav-left-open {
   .leaflet-control {
     left: rem($left-nav-aside-width + $leaflet-control-position-left-xs);
     &-scale-line {
-      margin-left: rem(45);
+      margin-left: rem(90);
     }
 
     @include mq($screen-sm) {
