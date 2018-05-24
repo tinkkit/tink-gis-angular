@@ -1833,6 +1833,11 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         // vm.chkChanged = function () {
         //     $scope.$emit('layerCheckboxChangedEvent', $scope.layer); // stuur naar parent ofwel group ofwel theme
         // };
+        angular.forEach($scope.layer.Layers, function (value, key) {
+            if (value.enabled == true) {
+                $scope.showLayer = true;
+            }
+        });
     });
     theController.$inject = [];
 })();
