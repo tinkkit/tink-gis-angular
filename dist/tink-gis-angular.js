@@ -1893,7 +1893,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             $scope.searchTerm = '';
         }();
         $scope.$on("searchChanged", function (event, searchTerm) {
-            $scope.searchTerm = searchTerm;
+            $scope.searchTerm = searchTerm.replace('_', '').replace(' ', '');
             if ($scope.searchTerm.length > 2) {
                 if ($scope.searchTerm != null && $scope.searchTerm != '') {
                     $scope.$parent.solrLoading = true;
@@ -2008,7 +2008,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                                 theme.layersCount = itemMetData.doclist.numFound;
                             }
                             itemMetData.doclist.docs.forEach(function (item) {
-                                if (item.titel[0].toLowerCase().includes(searchterm.toLowerCase())) {
+                                if (item.titel[0].replace(' ', '').replace('_', '').toLowerCase().includes(searchterm.toLowerCase())) {
                                     var layer = theme.layers.find(function (x) {
                                         return x.id == item.key;
                                     });
