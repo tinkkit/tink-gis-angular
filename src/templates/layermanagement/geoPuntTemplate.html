@@ -3,7 +3,7 @@
         <div ng-show="loading == false" class="overflow-wrapper flex-grow-1 list-selectable margin-top margin-bottom">
             <div ng-if="geopuntError === true">
                 <p>De geopunt service(s) die u probeert te bevragen zijn (tijdelijk) niet bereikbaar.</p>
-                <p>Indien dit probleem zich blijft voordoen, gelieve dit hier te melden.</p>
+                <p>Indien dit probleem zich blijft voordoen, gelieve dit te melden.</p>
             </div>
             <div ng-if="!searchIsUrl" ng-repeat="theme in availableThemes">
                 <dl ng-class="{active: isActive(theme)}" ng-class="{'not-allowed': theme.Type != 'wms' &&  theme.Type != 'esri'}">
