@@ -6700,7 +6700,7 @@ L.drawLocal = {
     "<div ng-show=\"loading == false\" class=\"overflow-wrapper flex-grow-1 list-selectable margin-top margin-bottom\">\n" +
     "<div ng-if=\"geopuntError === true\">\n" +
     "<p>De geopunt service(s) die u probeert te bevragen zijn (tijdelijk) niet bereikbaar.</p>\n" +
-    "<p>Indien dit probleem zich blijft voordoen, gelieve dit <a href=# ng-click=geoPuntErrorReport>hier</a> te melden.</p>\n" +
+    "<p>Indien dit probleem zich blijft voordoen, gelieve dit hier te melden.</p>\n" +
     "</div>\n" +
     "<div ng-if=!searchIsUrl ng-repeat=\"theme in availableThemes\">\n" +
     "<dl ng-class=\"{active: isActive(theme)}\" ng-class=\"{'not-allowed': theme.Type != 'wms' &&  theme.Type != 'esri'}\">\n" +
