@@ -54,6 +54,10 @@
             var exception = { url: url, status: status, data: data };
             var callback = function () { _popupService.ExceptionFunc(exception) };
             
+            if(baseurl == "https://metadata.geopunt.be"){
+                title = "Geopunt Error (status " + status + ")";
+                message = "De geopunt service(s) die u probeert te bevragen zijn (tijdelijk) niet bereikbaar.";
+            }
             // if(status == 403) {
             //     title = "Onvoldoende rechten"
             //     if(url.includes("service")) {

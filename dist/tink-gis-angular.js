@@ -1613,6 +1613,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         $scope.loading = false;
         $scope.themeloading = false;
         $scope.currentPage = 1;
+        $scope.geopuntError = null;
 
         $scope.pagingCount = null;
         $scope.numberofrecordsmatched = 0;
@@ -1659,6 +1660,10 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 $scope.$parent.geopuntCount = metadata.numberofrecordsmatched;
             }, function (reason) {
                 console.log(reason);
+                $scope.$parent.geopuntLoading = false;
+                $scope.$parent.geopuntCount = "!";
+                $scope.geopuntError = true;
+                $scope.loading = false;
             });
         };
         $scope.pageChanged = function (page, recordsAPage) {
@@ -1707,6 +1712,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             $scope.selectedTheme = null;
             $scope.copySelectedTheme = null;
             $scope.error = null;
+            $scope.geopuntError = null;
         };
 
         $scope.AddOrUpdateTheme = function () {
@@ -5341,6 +5347,10 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 _popupService.ExceptionFunc(exception);
             };
 
+            if (baseurl == "https://metadata.geopunt.be") {
+                title = "Geopunt Error (status " + status + ")";
+                message = "De geopunt service(s) die u probeert te bevragen zijn (tijdelijk) niet bereikbaar.";
+            }
             // if(status == 403) {
             //     title = "Onvoldoende rechten"
             //     if(url.includes("service")) {
@@ -6713,6 +6723,10 @@ L.drawLocal = {
     "<div class=\"gepoPuntTemplate row relative-container flex-grow-1\">\n" +
     "<div class=\"col-xs-4 flex-column flex-grow-1 margin-top margin-bottom border-right\">\n" +
     "<div ng-show=\"loading == false\" class=\"overflow-wrapper flex-grow-1 list-selectable margin-top margin-bottom\">\n" +
+    "<div ng-if=\"geopuntError === true\">\n" +
+    "<p>De geopunt service(s) die u probeert te bevragen zijn (tijdelijk) niet bereikbaar.</p>\n" +
+    "<p>Indien dit probleem zich blijft voordoen, gelieve dit te melden.</p>\n" +
+    "</div>\n" +
     "<div ng-if=!searchIsUrl ng-repeat=\"theme in availableThemes\">\n" +
     "<dl ng-class=\"{active: isActive(theme)}\" ng-class=\"{'not-allowed': theme.Type != 'wms' &&  theme.Type != 'esri'}\">\n" +
     "<a href=# class=theme-layer ng-click=geopuntThemeChanged(theme)>\n" +

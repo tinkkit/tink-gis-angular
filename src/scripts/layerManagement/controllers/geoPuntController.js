@@ -11,6 +11,7 @@
             $scope.loading = false;
             $scope.themeloading = false;
             $scope.currentPage = 1;
+            $scope.geopuntError = null;
 
             $scope.pagingCount = null;
             $scope.numberofrecordsmatched = 0;
@@ -58,6 +59,10 @@
                     $scope.$parent.geopuntCount = metadata.numberofrecordsmatched;
                 }, function (reason) {
                     console.log(reason);
+                    $scope.$parent.geopuntLoading = false;
+                    $scope.$parent.geopuntCount = "!";
+                    $scope.geopuntError = true;
+                    $scope.loading = false;
                 });
             };
             $scope.pageChanged = function (page, recordsAPage) {
@@ -104,6 +109,7 @@
                 $scope.selectedTheme = null;
                 $scope.copySelectedTheme = null;
                 $scope.error = null;
+                $scope.geopuntError = null;
             };
 
             $scope.AddOrUpdateTheme = function () {
