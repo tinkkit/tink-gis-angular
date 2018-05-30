@@ -3,6 +3,7 @@
     var module = angular.module('tink.gis');
     var typeAheadService = function(map, GISService, MapData, GisHelperService) {
         var _typeAheadService = {};
+        _typeAheadService.lastData = [];
         _typeAheadService.init = function() {
 
             L.control.typeahead({
@@ -25,8 +26,20 @@
 
                         if (numbers.length == 1 && notnumbers.length >= 1) {
                             var huisnummer = numbers[0];
+                            //NEW
+                            var strnmid = 0;
+                            _typeAheadService.lastData.forEach(street => {
+                                var notnumberscombined = '';
+                                notnumbers.forEach(n => {
+                                    notnumberscombined += n;
+                                })
+                                if(street.name.replace(' ', '') == notnumberscombined){
+                                    strnmid = street.streetNameId;
+                                }
+                            });
+                            //END NEW
                             var straatnaam = encodeURIComponent(notnumbers.join(' '));
-                            GISService.QueryCrab(straatnaam, huisnummer).then(function(data) {
+                            GISService.QueryCrab(/*straatnaam*/ strnmid, huisnummer).then(function(data) {
                                 console.log(data);
                                 var features = data.features.map(function(feature) {
                                     var obj = {};
@@ -45,6 +58,7 @@
                         } else {
                             GISService.QuerySOLRLocatie(query.trim()).then(function(data) {
                                 var arr = data.response.docs;
+                                _typeAheadService.lastData = arr;
                                 asyncResults(arr);
                             });
                         }
@@ -140,6 +154,15 @@
 
             if (item.attribute2value) {
                 output += '<p>' + item.attribute2name + ': ' + item.attribute2value + '</p>';
+            }
+            if (item.districts){
+                var districts = item.districts[0];
+                if(item.districts.count > 1){
+                    for (var i=1; i<item.districts.count; i++) {
+                        districts += ', ' + item.districts[i];
+                      }
+                }
+                output += '<p>District: ' + districts + '</p>';
             }
             if (item.layer) {
                 output += '<p>Laag: ' + item.layer + '</p>';
