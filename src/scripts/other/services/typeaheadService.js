@@ -49,7 +49,10 @@
                                     obj.id = feature.attributes.OBJECTID;
                                     obj.x = feature.geometry.x;
                                     obj.y = feature.geometry.y;
-                                    obj.name = (obj.straatnaam + " " + obj.huisnummer).trim();
+                                    obj.name = (obj.straatnaam/*.split('_')[0]*/ + " " + obj.huisnummer).trim();
+                                    // if (obj.straatnaam.split('_')[1]){
+                                    //     obj.name = (obj.straatnaam.split('_')[0] + " " + obj.huisnummer + " (" + obj.straatnaam.split('_')[1] + ")").trim();
+                                    // }
                                     return obj;
                                 }).slice(0, 10);
                                 asyncResults(features);
@@ -147,7 +150,13 @@
             return n != ' ' && n > -1;
         };
         var suggestionfunc = function(item) {
-            var output = '<div>' + item.name;
+            // if(item.districts){
+            //     var output = '<div>' + item.name + ' (' + item.districts[0] + ')';
+            // }
+            // else
+            // {
+                var output = '<div>' + item.name;
+            //}
             if (item.attribute1value) {
                 output += '<p>' + item.attribute1name + ': ' + item.attribute1value + '</p>';
             }
@@ -157,11 +166,11 @@
             }
             if (item.districts){
                 var districts = item.districts[0];
-                if(item.districts.count > 1){
-                    for (var i=1; i<item.districts.count; i++) {
-                        districts += ', ' + item.districts[i];
-                      }
-                }
+                // if(item.districts.count > 1){
+                //     for (var i=1; i<item.districts.count; i++) {
+                //         districts += ', ' + item.districts[i];
+                //       }
+                // }
                 output += '<p>District: ' + districts + '</p>';
             }
             if (item.layer) {

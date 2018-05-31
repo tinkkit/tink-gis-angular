@@ -3744,9 +3744,9 @@ var esri2geo = {};
             });
             return prom;
         };
-        _service.QueryCrab = function (straatnaam, huisnummer) {
+        _service.QueryCrab = function (straatnaamid, huisnummer) {
             var prom = $q.defer();
-            $http.get('https://geoint.antwerpen.be/arcgissql/rest/services/P_Stad/CRAB_adresposities/MapServer/0/query?' + 'where=GEMEENTE%3D%27Antwerpen%27%20and%20STRAATNM%20%3D%27' + straatnaam + '%27%20and%20' + '(HUISNR%20like%20%27' + huisnummer + '%27%20or%20Huisnr%20like%20%27' + huisnummer + '%5Ba-z%5D%27or%20Huisnr%20like%20%27' + huisnummer + '%5B_%5D%25%27)%20and%20APPTNR%20%3D%20%27%27%20and%20busnr%20%3D%20%27%27' + '&text=&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=*&returnGeometry=true&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&f=pjson').success(function (data, status, headers, config) {
+            $http.get('https://geoint.antwerpen.be/arcgissql/rest/services/P_Stad/CRAB_adresposities/MapServer/0/query?' + 'where=GEMEENTE%3D%27Antwerpen%27%20and%20STRAATNMID%20%3D%27' + straatnaamid + '%27%20and%20' + '(HUISNR%20like%20%27' + huisnummer + '%27%20or%20Huisnr%20like%20%27' + huisnummer + '%5Ba-z%5D%27or%20Huisnr%20like%20%27' + huisnummer + '%5B_%5D%25%27)%20and%20APPTNR%20%3D%20%27%27%20and%20busnr%20%3D%20%27%27' + '&text=&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=*&returnGeometry=true&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&f=pjson').success(function (data, status, headers, config) {
                 // data = GisHelperService.UnwrapProxiedData(data);
                 prom.resolve(data);
             }).error(function (data, status, headers, config) {
@@ -5580,6 +5580,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     var module = angular.module('tink.gis');
     var typeAheadService = function typeAheadService(map, GISService, MapData, GisHelperService) {
         var _typeAheadService = {};
+        _typeAheadService.lastData = [];
         _typeAheadService.init = function () {
 
             L.control.typeahead({
@@ -5607,8 +5608,20 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
                         if (numbers.length == 1 && notnumbers.length >= 1) {
                             var huisnummer = numbers[0];
+                            //NEW
+                            var strnmid = 0;
+                            _typeAheadService.lastData.forEach(function (street) {
+                                var notnumberscombined = '';
+                                notnumbers.forEach(function (n) {
+                                    notnumberscombined += n;
+                                });
+                                if (street.name.replace(' ', '') == notnumberscombined) {
+                                    strnmid = street.streetNameId;
+                                }
+                            });
+                            //END NEW
                             var straatnaam = encodeURIComponent(notnumbers.join(' '));
-                            GISService.QueryCrab(straatnaam, huisnummer).then(function (data) {
+                            GISService.QueryCrab( /*straatnaam*/strnmid, huisnummer).then(function (data) {
                                 console.log(data);
                                 var features = data.features.map(function (feature) {
                                     var obj = {};
@@ -5626,6 +5639,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                         } else {
                             GISService.QuerySOLRLocatie(query.trim()).then(function (data) {
                                 var arr = data.response.docs;
+                                _typeAheadService.lastData = arr;
                                 asyncResults(arr);
                             });
                         }
@@ -5706,7 +5720,11 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             return n != ' ' && n > -1;
         };
         var suggestionfunc = function suggestionfunc(item) {
-            var output = '<div>' + item.name;
+            if (item.districts) {
+                var output = '<div>' + item.name + ' (' + item.districts[0] + ')';
+            } else {
+                var output = '<div>' + item.name;
+            }
             if (item.attribute1value) {
                 output += '<p>' + item.attribute1name + ': ' + item.attribute1value + '</p>';
             }
@@ -5714,6 +5732,15 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             if (item.attribute2value) {
                 output += '<p>' + item.attribute2name + ': ' + item.attribute2value + '</p>';
             }
+            // if (item.districts){
+            //     var districts = item.districts[0];
+            //     // if(item.districts.count > 1){
+            //     //     for (var i=1; i<item.districts.count; i++) {
+            //     //         districts += ', ' + item.districts[i];
+            //     //       }
+            //     // }
+            //     output += '<p>District: ' + districts + '</p>';
+            // }
             if (item.layer) {
                 output += '<p>Laag: ' + item.layer + '</p>';
             }
