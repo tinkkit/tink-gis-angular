@@ -2715,25 +2715,38 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
       map.setView(new L.LatLng(51.2192159, 4.4028818), 16);
     };
     vm.IsBaseMap1 = true;
+    vm.IsBaseMap2 = false;
     vm.IsBaseMapGeen = false;
     vm.toonBaseMap1 = function () {
+      if (vm.IsBaseMapGeen == false && vm.IsBaseMap1 == true) {
+        vm.IsBaseMapGeen = true;
+        map.removeLayer(BaseLayersService.basemap1);
+      } else {
+        vm.IsBaseMap2 = false;
+        vm.IsBaseMapGeen = false;
+        map.removeLayer(BaseLayersService.basemap2);
+        map.addLayer(BaseLayersService.basemap1);
+      }
       vm.IsBaseMap1 = true;
-      vm.IsBaseMapGeen = false;
-      map.removeLayer(BaseLayersService.basemap2);
-      map.addLayer(BaseLayersService.basemap1);
     };
     vm.toonBaseMap2 = function () {
-      vm.IsBaseMap1 = false;
-      vm.IsBaseMapGeen = false;
-      map.removeLayer(BaseLayersService.basemap1);
-      map.addLayer(BaseLayersService.basemap2);
+      if (vm.IsBaseMapGeen == false && vm.IsBaseMap2 == true) {
+        vm.IsBaseMapGeen = true;
+        map.removeLayer(BaseLayersService.basemap2);
+      } else {
+        vm.IsBaseMapGeen = false;
+        vm.IsBaseMap1 = false;
+        map.removeLayer(BaseLayersService.basemap1);
+        map.addLayer(BaseLayersService.basemap2);
+      }
+      vm.IsBaseMap2 = true;
     };
-    vm.hideBaseMap1 = function () {
-      vm.IsBaseMap1 = false;
-      vm.IsBaseMapGeen = true;
-      map.removeLayer(BaseLayersService.basemap1);
-      map.removeLayer(BaseLayersService.basemap2);
-    };
+    // vm.hideBaseMap1 = function(){
+    //   vm.IsBaseMap1 = false;
+    //   vm.IsBaseMapGeen = true;
+    //   map.removeLayer(BaseLayersService.basemap1);
+    //   map.removeLayer(BaseLayersService.basemap2);
+    // }
     vm.baseMap1Naam = function () {
       return BaseLayersService.basemap1Naam;
     };
@@ -7002,9 +7015,8 @@ L.drawLocal = {
     "</button>\n" +
     "</div>\n" +
     "<div class=\"btn-group ll kaarttypes\">\n" +
-    "<button class=btn ng-class=\"{active: mapctrl.IsBaseMap1==true}\" ng-click=mapctrl.toonBaseMap1() prevent-default-map>{{mapctrl.baseMap1Naam()}}</button>\n" +
-    "<button class=btn ng-class=\"{active: mapctrl.IsBaseMap1==false && mapctrl.IsBaseMapGeen==false}\" ng-click=mapctrl.toonBaseMap2() prevent-default-map>{{mapctrl.baseMap2Naam()}}</button>\n" +
-    "<button class=btn ng-class=\"{active: mapctrl.IsBaseMapGeen==true}\" ng-click=mapctrl.hideBaseMap1() prevent-default-map>Geen</button>\n" +
+    "<button class=btn ng-class=\"{active: mapctrl.IsBaseMap1==true && mapctrl.IsBaseMapGeen==false}\" ng-click=mapctrl.toonBaseMap1() prevent-default-map>{{mapctrl.baseMap1Naam()}}</button>\n" +
+    "<button class=btn ng-class=\"{active: mapctrl.IsBaseMap2==true && mapctrl.IsBaseMapGeen==false}\" ng-click=mapctrl.toonBaseMap2() prevent-default-map>{{mapctrl.baseMap2Naam()}}</button>\n" +
     "</div>\n" +
     "<div class=\"btn-group ll metenbtns\" ng-show=mapctrl.showMetenControls>\n" +
     "<button ng-click=\"mapctrl.drawingButtonChanged('afstand')\" ng-class=\"{active: mapctrl.drawingType=='afstand'}\" type=button tink-tooltip=\"Meten afstand\" tink-tooltip-align=bottom class=btn prevent-default-map>\n" +
