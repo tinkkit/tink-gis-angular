@@ -3746,7 +3746,31 @@ var esri2geo = {};
         };
         _service.QueryCrab = function (straatnaamid, huisnummer) {
             var prom = $q.defer();
-            $http.get('https://geoint.antwerpen.be/arcgissql/rest/services/P_Stad/CRAB_adresposities/MapServer/0/query?' + 'where=GEMEENTE%3D%27Antwerpen%27%20and%20STRAATNMID%20%3D%27' + straatnaamid + '%27%20and%20' + '(HUISNR%20like%20%27' + huisnummer + '%27%20or%20Huisnr%20like%20%27' + huisnummer + '%5Ba-z%5D%27or%20Huisnr%20like%20%27' + huisnummer + '%5B_%5D%25%27)%20and%20APPTNR%20%3D%20%27%27%20and%20busnr%20%3D%20%27%27' + '&text=&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=*&returnGeometry=true&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&f=pjson').success(function (data, status, headers, config) {
+            var query = 'https://geoint.antwerpen.be/arcgissql/rest/services/P_Stad/CRAB_adresposities/MapServer/0/query?' + 'where=GEMEENTE%3D%27Antwerpen%27';
+            for (var i = 0; i < straatnaamid.length; i++) {
+                if (straatnaamid.length > 1) {
+                    if (i == 0) {
+                        query += '%20and%20(STRAATNMID%20%3D%27' + straatnaamid[i] + '%27';
+                    } else {
+                        query += '%20or%20STRAATNMID%20%3D%27' + straatnaamid[i] + '%27';
+                    }
+                } else {
+                    query += '%20and%20STRAATNMID%20%3D%27' + straatnaamid[i] + '%27';
+                }
+            }
+            if (straatnaamid.length > 1) {
+                query += ')';
+            }
+
+            // straatnaamid.forEach(id => {
+            //     query += '%20and%20STRAATNMID%20%3D%27' + straatnaamid;
+            // });
+            query += '%20and%20' + '(HUISNR%20like%20%27' + huisnummer + '%27%20or%20Huisnr%20like%20%27' + huisnummer + '%5Ba-z%5D%27or%20Huisnr%20like%20%27' + huisnummer + '%5B_%5D%25%27)%20and%20APPTNR%20%3D%20%27%27%20and%20busnr%20%3D%20%27%27' + '&text=&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=*&returnGeometry=true&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&f=pjson';
+            // var originalQuery = 'https://geoint.antwerpen.be/arcgissql/rest/services/P_Stad/CRAB_adresposities/MapServer/0/query?' +
+            // 'where=GEMEENTE%3D%27Antwerpen%27%20and%20STRAATNMID%20%3D%27' + straatnaamid + '%27%20and%20' +
+            // '(HUISNR%20like%20%27' + huisnummer + '%27%20or%20Huisnr%20like%20%27' + huisnummer + '%5Ba-z%5D%27or%20Huisnr%20like%20%27' + huisnummer + '%5B_%5D%25%27)%20and%20APPTNR%20%3D%20%27%27%20and%20busnr%20%3D%20%27%27' +
+            // '&text=&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=*&returnGeometry=true&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&f=pjson';
+            $http.get(query).success(function (data, status, headers, config) {
                 // data = GisHelperService.UnwrapProxiedData(data);
                 prom.resolve(data);
             }).error(function (data, status, headers, config) {
@@ -5581,6 +5605,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     var typeAheadService = function typeAheadService(map, GISService, MapData, GisHelperService) {
         var _typeAheadService = {};
         _typeAheadService.lastData = [];
+        _typeAheadService.lastStreetNameId = null;
         _typeAheadService.init = function () {
 
             L.control.typeahead({
@@ -5609,15 +5634,26 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                         if (numbers.length == 1 && notnumbers.length >= 1) {
                             var huisnummer = numbers[0];
                             //NEW
-                            var strnmid = 0;
+                            var strnmid = [];
+                            var count = 0;
                             _typeAheadService.lastData.forEach(function (street) {
                                 var notnumberscombined = '';
                                 notnumbers.forEach(function (n) {
-                                    notnumberscombined += n;
+                                    notnumberscombined += ' ' + n;
                                 });
-                                if (street.name.replace(' ', '') == notnumberscombined) {
-                                    strnmid = street.streetNameId;
+                                strnmid.push(street.streetNameId);
+                                // if(angular.lowercase(street.name).trim() == angular.lowercase(notnumberscombined).trim() && strnmid.length == 0){
+                                //     count++;
+                                //     strnmid.push(street.streetNameId);
+                                // }
+                                // if(_typeAheadService.lastStreetNameId.length != 0 && strnmid.length == 0){
+                                //     strnmid.push(_typeAheadService.lastStreetNameId);
+                                // }
+                                if (_typeAheadService.lastStreetNameId != null) {
+                                    strnmid = [];
+                                    strnmid.push(_typeAheadService.lastStreetNameId);
                                 }
+                                //_typeAheadService.lastStreetNameId = strnmid;
                             });
                             //END NEW
                             var straatnaam = encodeURIComponent(notnumbers.join(' '));
@@ -5631,7 +5667,11 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                                     obj.id = feature.attributes.OBJECTID;
                                     obj.x = feature.geometry.x;
                                     obj.y = feature.geometry.y;
-                                    obj.name = (obj.straatnaam + " " + obj.huisnummer).trim();
+                                    obj.name = (obj.straatnaam.split('_')[0] + " " + obj.huisnummer).trim();
+                                    if (obj.straatnaam.split('_')[1]) {
+                                        obj.name = (obj.straatnaam.split('_')[0] + " " + obj.huisnummer + " (" + obj.straatnaam.split('_')[1] + ")").trim();
+                                    }
+                                    _typeAheadService.lastStreetNameId = null;
                                     return obj;
                                 }).slice(0, 10);
                                 asyncResults(features);
@@ -5657,8 +5697,12 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             }, {
                 placeholder: 'Geef een X,Y / locatie of POI in.',
                 'typeahead:select': function typeaheadSelect(ev, suggestion) {
+                    //HIER
                     MapData.CleanWatIsHier();
                     MapData.CleanTempFeatures();
+                    if (suggestion.streetNameId) {
+                        _typeAheadService.lastStreetNameId = suggestion.streetNameId;
+                    }
                     if (suggestion.x && suggestion.y) {
                         var cors = {
                             x: suggestion.x,

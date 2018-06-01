@@ -4,6 +4,7 @@
     var typeAheadService = function(map, GISService, MapData, GisHelperService) {
         var _typeAheadService = {};
         _typeAheadService.lastData = [];
+        _typeAheadService.lastStreetNameId = null;
         _typeAheadService.init = function() {
 
             L.control.typeahead({
@@ -27,15 +28,26 @@
                         if (numbers.length == 1 && notnumbers.length >= 1) {
                             var huisnummer = numbers[0];
                             //NEW
-                            var strnmid = 0;
+                            var strnmid = [];
+                            var count = 0;
                             _typeAheadService.lastData.forEach(street => {
                                 var notnumberscombined = '';
                                 notnumbers.forEach(n => {
-                                    notnumberscombined += n;
+                                    notnumberscombined += ' ' + n;
                                 })
-                                if(street.name.replace(' ', '') == notnumberscombined){
-                                    strnmid = street.streetNameId;
+                                strnmid.push(street.streetNameId);
+                                // if(angular.lowercase(street.name).trim() == angular.lowercase(notnumberscombined).trim() && strnmid.length == 0){
+                                //     count++;
+                                //     strnmid.push(street.streetNameId);
+                                // }
+                                // if(_typeAheadService.lastStreetNameId.length != 0 && strnmid.length == 0){
+                                //     strnmid.push(_typeAheadService.lastStreetNameId);
+                                // }
+                                if (_typeAheadService.lastStreetNameId != null){
+                                    strnmid = [];
+                                    strnmid.push(_typeAheadService.lastStreetNameId);
                                 }
+                                //_typeAheadService.lastStreetNameId = strnmid;
                             });
                             //END NEW
                             var straatnaam = encodeURIComponent(notnumbers.join(' '));
@@ -49,10 +61,11 @@
                                     obj.id = feature.attributes.OBJECTID;
                                     obj.x = feature.geometry.x;
                                     obj.y = feature.geometry.y;
-                                    obj.name = (obj.straatnaam/*.split('_')[0]*/ + " " + obj.huisnummer).trim();
-                                    // if (obj.straatnaam.split('_')[1]){
-                                    //     obj.name = (obj.straatnaam.split('_')[0] + " " + obj.huisnummer + " (" + obj.straatnaam.split('_')[1] + ")").trim();
-                                    // }
+                                    obj.name = (obj.straatnaam.split('_')[0] + " " + obj.huisnummer).trim();
+                                    if (obj.straatnaam.split('_')[1]){
+                                        obj.name = (obj.straatnaam.split('_')[0] + " " + obj.huisnummer + " (" + obj.straatnaam.split('_')[1] + ")").trim();
+                                    }
+                                    _typeAheadService.lastStreetNameId = null;
                                     return obj;
                                 }).slice(0, 10);
                                 asyncResults(features);
@@ -80,9 +93,12 @@
 
             }, {
                 placeholder: 'Geef een X,Y / locatie of POI in.',
-                'typeahead:select': function(ev, suggestion) {
+                'typeahead:select': function(ev, suggestion) { //HIER
                     MapData.CleanWatIsHier();
                     MapData.CleanTempFeatures();
+                    if (suggestion.streetNameId){
+                        _typeAheadService.lastStreetNameId = suggestion.streetNameId;
+                    }
                     if (suggestion.x && suggestion.y) {
                         var cors = {
                             x: suggestion.x,
@@ -150,13 +166,13 @@
             return n != ' ' && n > -1;
         };
         var suggestionfunc = function(item) {
-            // if(item.districts){
-            //     var output = '<div>' + item.name + ' (' + item.districts[0] + ')';
-            // }
-            // else
-            // {
+            if(item.districts){
+                var output = '<div>' + item.name + ' (' + item.districts[0] + ')';
+            }
+            else
+            {
                 var output = '<div>' + item.name;
-            //}
+            }
             if (item.attribute1value) {
                 output += '<p>' + item.attribute1name + ': ' + item.attribute1value + '</p>';
             }
@@ -164,15 +180,15 @@
             if (item.attribute2value) {
                 output += '<p>' + item.attribute2name + ': ' + item.attribute2value + '</p>';
             }
-            if (item.districts){
-                var districts = item.districts[0];
-                // if(item.districts.count > 1){
-                //     for (var i=1; i<item.districts.count; i++) {
-                //         districts += ', ' + item.districts[i];
-                //       }
-                // }
-                output += '<p>District: ' + districts + '</p>';
-            }
+            // if (item.districts){
+            //     var districts = item.districts[0];
+            //     // if(item.districts.count > 1){
+            //     //     for (var i=1; i<item.districts.count; i++) {
+            //     //         districts += ', ' + item.districts[i];
+            //     //       }
+            //     // }
+            //     output += '<p>District: ' + districts + '</p>';
+            // }
             if (item.layer) {
                 output += '<p>Laag: ' + item.layer + '</p>';
             }
