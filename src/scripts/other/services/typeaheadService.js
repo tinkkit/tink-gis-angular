@@ -27,7 +27,6 @@
 
                         if (numbers.length == 1 && notnumbers.length >= 1) {
                             var huisnummer = numbers[0];
-                            //NEW
                             var strnmid = [];
                             var count = 0;
                             _typeAheadService.lastData.forEach(street => {
@@ -36,22 +35,13 @@
                                     notnumberscombined += ' ' + n;
                                 })
                                 strnmid.push(street.streetNameId);
-                                // if(angular.lowercase(street.name).trim() == angular.lowercase(notnumberscombined).trim() && strnmid.length == 0){
-                                //     count++;
-                                //     strnmid.push(street.streetNameId);
-                                // }
-                                // if(_typeAheadService.lastStreetNameId.length != 0 && strnmid.length == 0){
-                                //     strnmid.push(_typeAheadService.lastStreetNameId);
-                                // }
                                 if (_typeAheadService.lastStreetNameId != null){
                                     strnmid = [];
                                     strnmid.push(_typeAheadService.lastStreetNameId);
                                 }
-                                //_typeAheadService.lastStreetNameId = strnmid;
                             });
-                            //END NEW
                             var straatnaam = encodeURIComponent(notnumbers.join(' '));
-                            GISService.QueryCrab(/*straatnaam*/ strnmid, huisnummer).then(function(data) {
+                            GISService.QueryCrab(strnmid, huisnummer).then(function(data) {
                                 console.log(data);
                                 var features = data.features.map(function(feature) {
                                     var obj = {};
@@ -93,7 +83,7 @@
 
             }, {
                 placeholder: 'Geef een X,Y / locatie of POI in.',
-                'typeahead:select': function(ev, suggestion) { //HIER
+                'typeahead:select': function(ev, suggestion) {
                     MapData.CleanWatIsHier();
                     MapData.CleanTempFeatures();
                     if (suggestion.streetNameId){
@@ -180,15 +170,6 @@
             if (item.attribute2value) {
                 output += '<p>' + item.attribute2name + ': ' + item.attribute2value + '</p>';
             }
-            // if (item.districts){
-            //     var districts = item.districts[0];
-            //     // if(item.districts.count > 1){
-            //     //     for (var i=1; i<item.districts.count; i++) {
-            //     //         districts += ', ' + item.districts[i];
-            //     //       }
-            //     // }
-            //     output += '<p>District: ' + districts + '</p>';
-            // }
             if (item.layer) {
                 output += '<p>Laag: ' + item.layer + '</p>';
             }
