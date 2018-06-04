@@ -5,6 +5,7 @@
         var _typeAheadService = {};
         _typeAheadService.lastData = [];
         _typeAheadService.lastStreetNameId = null;
+        _typeAheadService.numbers = null;
         _typeAheadService.init = function() {
 
             L.control.typeahead({
@@ -24,6 +25,7 @@
                         var splitquery = query.split(' ');
                         var numbers = splitquery.filter(x => isCharDigit(x[0]));
                         var notnumbers = splitquery.filter(x => !isCharDigit(x[0]));
+                        _typeAheadService.numbers = numbers.length;
 
                         if (numbers.length == 1 && notnumbers.length >= 1) {
                             var huisnummer = numbers[0];
@@ -55,7 +57,6 @@
                                     if (obj.straatnaam.split('_')[1]){
                                         obj.name = (obj.straatnaam.split('_')[0] + " " + obj.huisnummer + " (" + obj.straatnaam.split('_')[1] + ")").trim();
                                     }
-                                    _typeAheadService.lastStreetNameId = null;
                                     return obj;
                                 }).slice(0, 10);
                                 asyncResults(features);
@@ -110,6 +111,9 @@
                 if (e.which == 13 && $('.tt-suggestion').length == 1) {
                     var firstsug = $(".tt-suggestion:first-child");
                     firstsug.trigger('click');
+                    if (_typeAheadService.numbers > 0){
+                        _typeAheadService.lastStreetNameId = null;
+                    }
                 }
             });
         }
