@@ -5619,6 +5619,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         var _typeAheadService = {};
         _typeAheadService.lastData = [];
         _typeAheadService.lastStreetNameId = null;
+        _typeAheadService.numbers = null;
         _typeAheadService.init = function () {
 
             L.control.typeahead({
@@ -5643,10 +5644,10 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                         var notnumbers = splitquery.filter(function (x) {
                             return !isCharDigit(x[0]);
                         });
+                        _typeAheadService.numbers = numbers.length;
 
                         if (numbers.length == 1 && notnumbers.length >= 1) {
                             var huisnummer = numbers[0];
-                            //NEW
                             var strnmid = [];
                             var count = 0;
                             _typeAheadService.lastData.forEach(function (street) {
@@ -5655,22 +5656,13 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                                     notnumberscombined += ' ' + n;
                                 });
                                 strnmid.push(street.streetNameId);
-                                // if(angular.lowercase(street.name).trim() == angular.lowercase(notnumberscombined).trim() && strnmid.length == 0){
-                                //     count++;
-                                //     strnmid.push(street.streetNameId);
-                                // }
-                                // if(_typeAheadService.lastStreetNameId.length != 0 && strnmid.length == 0){
-                                //     strnmid.push(_typeAheadService.lastStreetNameId);
-                                // }
                                 if (_typeAheadService.lastStreetNameId != null) {
                                     strnmid = [];
                                     strnmid.push(_typeAheadService.lastStreetNameId);
                                 }
-                                //_typeAheadService.lastStreetNameId = strnmid;
                             });
-                            //END NEW
                             var straatnaam = encodeURIComponent(notnumbers.join(' '));
-                            GISService.QueryCrab( /*straatnaam*/strnmid, huisnummer).then(function (data) {
+                            GISService.QueryCrab(strnmid, huisnummer).then(function (data) {
                                 console.log(data);
                                 var features = data.features.map(function (feature) {
                                     var obj = {};
@@ -5684,7 +5676,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                                     if (obj.straatnaam.split('_')[1]) {
                                         obj.name = (obj.straatnaam.split('_')[0] + " " + obj.huisnummer + " (" + obj.straatnaam.split('_')[1] + ")").trim();
                                     }
-                                    _typeAheadService.lastStreetNameId = null;
                                     return obj;
                                 }).slice(0, 10);
                                 asyncResults(features);
@@ -5710,7 +5701,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             }, {
                 placeholder: 'Geef een X,Y / locatie of POI in.',
                 'typeahead:select': function typeaheadSelect(ev, suggestion) {
-                    //HIER
                     MapData.CleanWatIsHier();
                     MapData.CleanTempFeatures();
                     if (suggestion.streetNameId) {
@@ -5735,6 +5725,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 if (e.which == 13 && $('.tt-suggestion').length == 1) {
                     var firstsug = $(".tt-suggestion:first-child");
                     firstsug.trigger('click');
+                    if (_typeAheadService.numbers > 0) {
+                        _typeAheadService.lastStreetNameId = null;
+                    }
                 }
             });
         };
@@ -5789,15 +5782,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             if (item.attribute2value) {
                 output += '<p>' + item.attribute2name + ': ' + item.attribute2value + '</p>';
             }
-            // if (item.districts){
-            //     var districts = item.districts[0];
-            //     // if(item.districts.count > 1){
-            //     //     for (var i=1; i<item.districts.count; i++) {
-            //     //         districts += ', ' + item.districts[i];
-            //     //       }
-            //     // }
-            //     output += '<p>District: ' + districts + '</p>';
-            // }
             if (item.layer) {
                 output += '<p>Laag: ' + item.layer + '</p>';
             }
