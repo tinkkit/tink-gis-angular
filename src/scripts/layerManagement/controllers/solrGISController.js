@@ -20,7 +20,7 @@
 
             }();
             $scope.$on("searchChanged", function (event, searchTerm) {
-                $scope.searchTerm = searchTerm.replace('_','').replace(' ','');
+                $scope.searchTerm = searchTerm.replace(/ /g,'').replace(/_/g,'').replace(/-/g,'');
                 if ($scope.searchTerm.length > 2) {
                     if ($scope.searchTerm != null && $scope.searchTerm != '') {
                         $scope.$parent.solrLoading = true;
@@ -132,7 +132,7 @@
                                     theme.layersCount = itemMetData.doclist.numFound;
                                 }
                                 itemMetData.doclist.docs.forEach(item => {
-                                    if (item.titel[0].replace(' ','').replace('_','').toLowerCase().includes(searchterm.toLowerCase())) {
+                                    if (item.titel[0].replace(/ /g,'').replace(/_/g,'').replace(/-/g,'').toLowerCase().includes(searchterm.toLowerCase())) {
                                         var layer = theme.layers.find(x => x.id == item.key);
                                         if (!layer) {
                                             layer = {

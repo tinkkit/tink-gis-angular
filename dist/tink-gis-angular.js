@@ -5632,7 +5632,10 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                             return !isCharDigit(x[0]);
                         });
                         _typeAheadService.numbers = numbers.length;
-
+                        if (query.length == 3) {
+                            //FIXES BUG SIK-496
+                            _typeAheadService.lastStreetNameId = null;
+                        }
                         if (numbers.length == 1 && notnumbers.length >= 1) {
                             var huisnummer = numbers[0];
                             var strnmid = [];
