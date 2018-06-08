@@ -194,7 +194,7 @@
                     {
                         geometry = geometry.mapItem;
                     }
-                    theme.MapDataWithCors.query()
+                    theme.MapData.query()
                         .layer(layerid)
                         .intersects(geometry)
                         .run(function(error, featureCollection, response) {
@@ -208,7 +208,7 @@
             var promise = new Promise(
                 function(resolve, reject) {
                     ResultsData.RequestStarted++;
-                    theme.MapDataWithCors.query()
+                    theme.MapData.query()
                         .layer(layerid)
                         .intersects(geometry)
                         .count(function(error, count, response) {
