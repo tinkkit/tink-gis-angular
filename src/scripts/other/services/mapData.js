@@ -229,7 +229,7 @@
                      '</div>' +
                      '</div>' +
                      '</div>';
-                minwidth = 200;
+                minwidth = 300;
 
             }
             var linkFunction = $compile(html);
