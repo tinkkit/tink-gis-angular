@@ -202,14 +202,8 @@
                             var convertedTheme = ThemeCreater.createARCGISThemeFromJson(data, theme);
                             $scope.previewTheme(convertedTheme, layername);
                         } else {
-                            if(data.error.code == 403){
-                                PopupService.Warning("U hebt geen rechten om het thema " + theme.name  + " te raadplegen.", "Klik hier om toegang aan te vragen.", callback, options);
-                                $scope.error = "U hebt geen rechten om het thema " + theme.name  + " te raadplegen.";
-                            }else{
-                                PopupService.ErrorFromHTTP(data.error, status, theme.cleanUrl);
-                                $scope.error = "Fout bij het laden van de mapservice.";
-                            }
-                            
+                            PopupService.ErrorFromHTTP(data.error, status, theme.cleanUrl);
+                            $scope.error = "Fout bij het laden van de mapservice.";
                         }
                     } else {
                         var callback = function () { 

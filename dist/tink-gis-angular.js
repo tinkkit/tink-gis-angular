@@ -4478,7 +4478,7 @@ L.control.typeahead = function (args) {
                 //     '</div>' +
                 //     '</div>';
                 html = '<div class="container container-low-padding">' + '<div class="row row-no-padding">' + '<div class="col-sm-4" >' + '<a href="http://maps.google.com/maps?q=&layer=c&cbll=' + latlng.lat + ',' + latlng.lng + '" + target="_blank" >' + '<img tink-tooltip="Ga naar streetview" tink-tooltip-align="bottom" src="https://maps.googleapis.com/maps/api/streetview?size=100x50&location=' + latlng.lat + ',' + latlng.lng + '&pitch=-0.76" />' + '</a>' + '</div>' + '<div class="col-sm-8 mouse-over">' + '<div class="col-sm-3">WGS84:</div><div id="wgs" class="col-sm-8" style="text-align: left;">{{WGS84LatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o mouse-over-toshow" ng-click="CopyWGS()"  tink-tooltip="Coördinaten kopieren naar het klembord" tink-tooltip-align="bottom"  ></i></div>' + '<div class="col-sm-3">Lambert:</div><div id="lambert" class="col-sm-8" style="text-align: left;">{{LambertLatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o mouse-over-toshow"  ng-click="CopyLambert()" tink-tooltip="Coördinaten kopieren naar het klembord" tink-tooltip-align="bottom"></i></div>' + '</div>' + '</div>' + '</div>';
-                minwidth = 200;
+                minwidth = 300;
             }
             var linkFunction = $compile(html);
             var newScope = $rootScope.$new();
@@ -5388,24 +5388,20 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 title = "Geopunt Error (status " + status + ")";
                 message = "De geopunt service(s) die u probeert te bevragen zijn (tijdelijk) niet bereikbaar.";
             }
-            // if(status == 403) {
-            //     title = "Onvoldoende rechten"
-            //     if(url.includes("service")) {
-
-            //     }
-            //     message = "U hebt geen rechten om het thema " + url + " te raadplegen";
-            //     callback = function () { 
-            //         var win = window.open('https://um.antwerpen.be/main.aspx', '_blank');
-            //         win.focus();
-            //      };
-            //      var options = {};
-            //      options.timeOut = 10000;
-            //     _popupService.popupGenerator('Warning', title, message, callback, options);
-            // }
-            // else
-            // {
-            _popupService.Error(title, message, callback);
-            // }
+            if (status == 403) {
+                title = "Onvoldoende rechten";
+                if (url.includes("service")) {}
+                message = "U hebt geen rechten om het thema " + url + " te raadplegen";
+                callback = function callback() {
+                    var win = window.open('https://um.antwerpen.be/main.aspx', '_blank');
+                    win.focus();
+                };
+                var options = {};
+                options.timeOut = 10000;
+                _popupService.popupGenerator('Warning', title, message, callback, options);
+            } else {
+                _popupService.Error(title, message, callback);
+            }
         };
         _popupService.Error = function (title, message, callback, options) {
             _popupService.popupGenerator('Error', title, message + "\nKlik hier om te melden.", callback, options);
