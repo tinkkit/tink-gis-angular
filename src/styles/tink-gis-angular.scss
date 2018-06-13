@@ -19,6 +19,10 @@ $leaflet-control-position-left-sm: $map-buttons-position-left-sm + 90px;
   width: 100%;
 }
 
+.leaflet-container {
+  background: #fff;
+}
+
 .tink-map {
   // !! not necessary anymore
   // @include mq($screen-sm) {
