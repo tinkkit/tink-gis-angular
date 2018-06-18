@@ -5654,7 +5654,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                                 notnumbers.forEach(function (n) {
                                     notnumberscombined += ' ' + n;
                                 });
-                                strnmid.push(street.streetNameId);
+                                if (street.streetNameId) {
+                                    strnmid.push(street.streetNameId);
+                                }
                                 if (_typeAheadService.lastStreetNameId != null) {
                                     strnmid = [];
                                     strnmid.push(_typeAheadService.lastStreetNameId);

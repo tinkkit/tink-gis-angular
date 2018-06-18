@@ -38,7 +38,10 @@
                                 notnumbers.forEach(n => {
                                     notnumberscombined += ' ' + n;
                                 })
-                                strnmid.push(street.streetNameId);
+                                if(street.streetNameId) 
+                                {
+                                    strnmid.push(street.streetNameId);
+                                }
                                 if (_typeAheadService.lastStreetNameId != null){
                                     strnmid = [];
                                     strnmid.push(_typeAheadService.lastStreetNameId);
