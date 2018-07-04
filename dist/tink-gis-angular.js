@@ -1538,7 +1538,7 @@ var ActiveInteractieButton = {
     WATISHIER: 'watishier'
 };
 var GAAS = {
-    ReversedGeocodeUrl: ' https://reversedgeocode-o.antwerpen.be/api/'
+    ReversedGeocodeUrl: ' https://reversedgeocode-p.antwerpen.be/api/'
 };
 var Gis = {
     Arcgissql: '',
