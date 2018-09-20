@@ -54,6 +54,11 @@
             var exception = { url: url, status: status, data: data };
             var callback = function () { _popupService.ExceptionFunc(exception) };
             
+            if (status == -1 && url.includes("reversedgeocode-p.antwerpen.be")){
+                title = "ReversedGeocoding Error (status " + status + ")";
+                message = "Er is geen adres binnen Antwerpen in de buurt van deze coördinaten.";
+            }
+
             if(baseurl == "https://metadata.geopunt.be"){
                 title = "Geopunt Error (status " + status + ")";
                 message = "De geopunt service(s) die u probeert te bevragen zijn (tijdelijk) niet bereikbaar.";
