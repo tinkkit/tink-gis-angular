@@ -239,7 +239,7 @@
                 Promise.all(allcountproms).then(function AcceptHandler(results) {
                     console.log(results, featureCount);
                     if (featureCount >= _mapService.MaxFeatures) {
-                        PopupService.Warning("U selecteerde " + featureCount + " resultaten.", "Bij meer dan " + _mapService.MaxFeatures + " resultaten kan het laden wat langer duren en zijn de resultaten niet zichtbaar op de kaart en in de lijst.");
+                        PopupService.Warning("U selecteerde " + featureCount + " resultaten.", "Bij meer dan " + _mapService.MaxFeatures + " resultaten kan het laden wat langer duren en zijn de resultaten niet zichtbaar op de kaart en in de lijst. Exporteren naar CSV blijft mogelijk.");
                     }
                     var allproms = [];
                         MapData.Themes.forEach(theme => { // dus doen we de qry op alle lagen.
