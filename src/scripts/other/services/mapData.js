@@ -196,7 +196,7 @@
                     '<div class="col-sm-3" align="center" >' +
                     '<a href="http://maps.google.com/maps?q=&layer=c&cbll=' + latlng.lat + ',' + latlng.lng + '" + target="_blank" >' +
                     // '<img tink-tooltip="Ga naar streetview" tink-tooltip-align="bottom" src="https://maps.googleapis.com/maps/api/streetview?size=100x50&location=' + latlng.lat + ',' + latlng.lng + '&pitch=-0.76" />' +
-                    '<img tink-tooltip="Ga naar streetview" tink-tooltip-align="bottom" src="https://png.icons8.com/google-maps/color/1600" width="70%" height="70%" />' +
+                    '<img tink-tooltip="Ga naar streetview" tink-tooltip-align="bottom" src="https://seeklogo.com/images/G/google-street-view-logo-665165D1A8-seeklogo.com.png" width="70%" height="70%" />' +
                     '</a>' +
                     '</div>' +
                     '<div class="col-sm-8 mouse-over">' +
