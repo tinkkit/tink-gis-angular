@@ -23,24 +23,18 @@ $leaflet-control-position-left-sm: $map-buttons-position-left-sm + 90px;
   background: #fff;
 }
 
-.tink-accordion-xl{
-  color: #333;
+.xl-panel{
   background-color: #f7f7f7;
   border-color: #eaeaea;
-  padding-right: 1.4285714286rem;
-  width: 100%;
-  border-bottom-right-radius: 3px;
-  border-bottom-left-radius: 3px;
-  -webkit-align-items: center;
-    -ms-flex-align: center;
-    align-items: center;
-    display: -webkit-flex;
-    display: -ms-flexbox;
-    display: flex;
     font-size: 1.1428571429rem;
     font-weight: 700;
     min-height: 2.7142857143rem;
     padding: 0.1428571429rem 1.1428571429rem;
+    border: 1px solid #eaeaea;
+}
+
+.trash-xl{
+  margin-right: 1.4rem;
 }
 
 .tink-map {

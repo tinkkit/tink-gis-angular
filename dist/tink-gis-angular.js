@@ -5210,6 +5210,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 });
                 Promise.all(allcountproms).then(function AcceptHandler(results) {
                     console.log(results, featureCount);
+                    if (featureCount >= _mapService.MaxFeatures) {
+                        PopupService.Warning("U selecteerde " + featureCount + " resultaten.", "Bij meer dan " + _mapService.MaxFeatures + " resultaten kan het laden wat langer duren en zijn de resultaten niet zichtbaar op de kaart en in de lijst.");
+                    }
                     var allproms = [];
                     MapData.Themes.forEach(function (theme) {
                         // dus doen we de qry op alle lagen.
@@ -7294,10 +7297,10 @@ L.drawLocal = {
     "<div class=\"overflow-wrapper margin-top\">\n" +
     "<ul ng-repeat=\"layerGroupName in srchrsltsctrl.featureLayers\">\n" +
     "<tink-accordion ng-if=\"srchrsltsctrl.layerGroupFilter=='geenfilter' || srchrsltsctrl.layerGroupFilter==layerGroupName \" data-one-at-a-time=false>\n" +
-    "<div class=tink-accordion-xl ng-show=\"srchrsltsctrl.aantalFeaturesMetType(layerGroupName) >= 1000\">\n" +
+    "<div class=\"tink-accordion-panel xl-panel\" ng-show=\"srchrsltsctrl.aantalFeaturesMetType(layerGroupName) >= 1000\">\n" +
     "<data-header>\n" +
     "<p class=nav-aside-title style=\"pointer-events: none; align-content: center\">{{layerGroupName}} ({{srchrsltsctrl.aantalFeaturesMetType(layerGroupName)}})\n" +
-    "<button prevent-default ng-click=srchrsltsctrl.deleteFeatureGroup(layerGroupName) class=\"trash pull-right\" style=pointer-events:all></button>\n" +
+    "<button prevent-default ng-click=srchrsltsctrl.deleteFeatureGroup(layerGroupName) class=\"trash pull-right trash-xl\" style=pointer-events:all></button>\n" +
     "</p>\n" +
     "</data-header>\n" +
     "<data-content ng-show=\"srchrsltsctrl.aantalFeaturesMetType(layerGroupName) <= 1000\">\n" +
