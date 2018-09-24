@@ -329,13 +329,13 @@
             })
         }
         _data.processedFeatureArray = [];
-        _data.AddFeatures = function (features, theme, layerId) {
+        _data.AddFeatures = function (features, theme, layerId, featureCount) {
 
             if (!features || features.features.length == 0) {
                 ResultsData.EmptyResult = true;
             } else {
                 ResultsData.EmptyResult = false;
-                var featureArray = _data.GetResultsData(features, theme, layerId);
+                var featureArray = _data.GetResultsData(features, theme, layerId, featureCount);
                 if (_data.ExtendedType == null) { // else we don t have to clean the map!
                     featureArray.forEach(featureItem => {
                         ResultsData.JsonFeatures.push(featureItem);
@@ -448,7 +448,7 @@
             });
             _data.SetDisplayValue(featureItem, layer);
         }
-        _data.GetResultsData = function (features, theme, layerId) {
+        _data.GetResultsData = function (features, theme, layerId, featureCount) {
             var buffereditem = _data.VisibleFeatures.find(x => x.isBufferedItem);
             var resultArray = [];
             // _data.TempExtendFeatures = []; //make sure it is empty
@@ -516,9 +516,11 @@
                                 _data.VisibleFeatures.push(mapItem);
                             }
                         } else {
-                            var mapItem = L.geoJson(featureItem, { style: thestyle }).addTo(map);
-                            _data.VisibleFeatures.push(mapItem);
-                            featureItem.mapItem = mapItem;
+                            if(featureCount <= 1000){
+                                var mapItem = L.geoJson(featureItem, { style: thestyle }).addTo(map);
+                                _data.VisibleFeatures.push(mapItem);
+                                featureItem.mapItem = mapItem;
+                            }
                         }
                         resultArray.push(featureItem);
 

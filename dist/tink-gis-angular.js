@@ -4577,13 +4577,13 @@ L.control.typeahead = function (args) {
             });
         };
         _data.processedFeatureArray = [];
-        _data.AddFeatures = function (features, theme, layerId) {
+        _data.AddFeatures = function (features, theme, layerId, featureCount) {
 
             if (!features || features.features.length == 0) {
                 ResultsData.EmptyResult = true;
             } else {
                 ResultsData.EmptyResult = false;
-                var featureArray = _data.GetResultsData(features, theme, layerId);
+                var featureArray = _data.GetResultsData(features, theme, layerId, featureCount);
                 if (_data.ExtendedType == null) {
                     // else we don t have to clean the map!
                     featureArray.forEach(function (featureItem) {
@@ -4694,7 +4694,7 @@ L.control.typeahead = function (args) {
             });
             _data.SetDisplayValue(featureItem, layer);
         };
-        _data.GetResultsData = function (features, theme, layerId) {
+        _data.GetResultsData = function (features, theme, layerId, featureCount) {
             var buffereditem = _data.VisibleFeatures.find(function (x) {
                 return x.isBufferedItem;
             });
@@ -4770,9 +4770,11 @@ L.control.typeahead = function (args) {
                                 _data.VisibleFeatures.push(mapItem);
                             }
                         } else {
-                            var mapItem = L.geoJson(featureItem, { style: thestyle }).addTo(map);
-                            _data.VisibleFeatures.push(mapItem);
-                            featureItem.mapItem = mapItem;
+                            if (featureCount <= 1000) {
+                                var mapItem = L.geoJson(featureItem, { style: thestyle }).addTo(map);
+                                _data.VisibleFeatures.push(mapItem);
+                                featureItem.mapItem = mapItem;
+                            }
                         }
                         resultArray.push(featureItem);
                     }
@@ -5208,28 +5210,24 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 });
                 Promise.all(allcountproms).then(function AcceptHandler(results) {
                     console.log(results, featureCount);
-                    if (featureCount <= _mapService.MaxFeatures) {
-                        var allproms = [];
-                        MapData.Themes.forEach(function (theme) {
-                            // dus doen we de qry op alle lagen.
-                            if (theme.Type === ThemeType.ESRI) {
-                                theme.VisibleLayers.forEach(function (lay) {
-                                    var prom = _mapService.LayerQuery(theme, lay.id, box);
-                                    allproms.push(prom);
-                                    prom.then(function (arg) {
-                                        MapData.AddFeatures(arg.featureCollection, theme, lay.id);
-                                    });
+                    var allproms = [];
+                    MapData.Themes.forEach(function (theme) {
+                        // dus doen we de qry op alle lagen.
+                        if (theme.Type === ThemeType.ESRI) {
+                            theme.VisibleLayers.forEach(function (lay) {
+                                var prom = _mapService.LayerQuery(theme, lay.id, box);
+                                allproms.push(prom);
+                                prom.then(function (arg) {
+                                    MapData.AddFeatures(arg.featureCollection, theme, lay.id, featureCount);
                                 });
-                            }
-                        });
-                        if (MapData.ExtendedType != null) {
-                            Promise.all(allproms).then(function AcceptHandler(results) {
-                                MapData.ConfirmExtendDialog(MapData.processedFeatureArray);
-                                MapData.processedFeatureArray = [];
                             });
                         }
-                    } else {
-                        PopupService.Warning("U selecteerde " + featureCount + " resultaten.", "Om een vlotte werking te garanderen is het maximum is ingesteld op " + _mapService.MaxFeatures);
+                    });
+                    if (MapData.ExtendedType != null) {
+                        Promise.all(allproms).then(function AcceptHandler(results) {
+                            MapData.ConfirmExtendDialog(MapData.processedFeatureArray);
+                            MapData.processedFeatureArray = [];
+                        });
                     }
                 });
             } else {
@@ -7296,13 +7294,29 @@ L.drawLocal = {
     "<div class=\"overflow-wrapper margin-top\">\n" +
     "<ul ng-repeat=\"layerGroupName in srchrsltsctrl.featureLayers\">\n" +
     "<tink-accordion ng-if=\"srchrsltsctrl.layerGroupFilter=='geenfilter' || srchrsltsctrl.layerGroupFilter==layerGroupName \" data-one-at-a-time=false>\n" +
-    "<tink-accordion-panel data-is-collapsed=srchrsltsctrl.collapsestatepergroup[layerGroupName]>\n" +
+    "<div class=tink-accordion-xl ng-show=\"srchrsltsctrl.aantalFeaturesMetType(layerGroupName) >= 1000\">\n" +
+    "<data-header>\n" +
+    "<p class=nav-aside-title style=\"pointer-events: none; align-content: center\">{{layerGroupName}} ({{srchrsltsctrl.aantalFeaturesMetType(layerGroupName)}})\n" +
+    "<button prevent-default ng-click=srchrsltsctrl.deleteFeatureGroup(layerGroupName) class=\"trash pull-right\" style=pointer-events:all></button>\n" +
+    "</p>\n" +
+    "</data-header>\n" +
+    "<data-content ng-show=\"srchrsltsctrl.aantalFeaturesMetType(layerGroupName) <= 1000\">\n" +
+    "<li ng-repeat=\"feature in srchrsltsctrl.features | filter: { layerName:layerGroupName } :true\" ng-mouseover=srchrsltsctrl.HoverOver(feature)>\n" +
+    "<div class=mouse-over>\n" +
+    "<a tink-tooltip={{feature.displayValue}} tink-tooltip-align=top ng-click=srchrsltsctrl.showDetails(feature)>{{ feature.displayValue| limitTo : 23 }}\n" +
+    "</a>\n" +
+    "<button class=\"trash pull-right mouse-over-toshow\" prevent-default ng-click=srchrsltsctrl.deleteFeature(feature)></button>\n" +
+    "</div>\n" +
+    "</li>\n" +
+    "</data-content>\n" +
+    "</div>\n" +
+    "<tink-accordion-panel data-is-collapsed=srchrsltsctrl.collapsestatepergroup[layerGroupName] ng-show=\"srchrsltsctrl.aantalFeaturesMetType(layerGroupName) <= 1000\">\n" +
     "<data-header>\n" +
     "<p class=nav-aside-title>{{layerGroupName}} ({{srchrsltsctrl.aantalFeaturesMetType(layerGroupName)}})\n" +
     "<button prevent-default ng-click=srchrsltsctrl.deleteFeatureGroup(layerGroupName) class=\"trash pull-right\"></button>\n" +
     "</p>\n" +
     "</data-header>\n" +
-    "<data-content>\n" +
+    "<data-content ng-show=\"srchrsltsctrl.aantalFeaturesMetType(layerGroupName) <= 1000\">\n" +
     "<li ng-repeat=\"feature in srchrsltsctrl.features | filter: { layerName:layerGroupName } :true\" ng-mouseover=srchrsltsctrl.HoverOver(feature)>\n" +
     "<div class=mouse-over>\n" +
     "<a tink-tooltip={{feature.displayValue}} tink-tooltip-align=top ng-click=srchrsltsctrl.showDetails(feature)>{{ feature.displayValue| limitTo : 23 }}\n" +

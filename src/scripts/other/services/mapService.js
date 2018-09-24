@@ -238,15 +238,14 @@
                 });
                 Promise.all(allcountproms).then(function AcceptHandler(results) {
                     console.log(results, featureCount);
-                    if (featureCount <= _mapService.MaxFeatures) {
-                        var allproms = [];
+                    var allproms = [];
                         MapData.Themes.forEach(theme => { // dus doen we de qry op alle lagen.
                             if (theme.Type === ThemeType.ESRI) {
                                 theme.VisibleLayers.forEach(lay => {
                                     var prom = _mapService.LayerQuery(theme, lay.id, box);
                                     allproms.push(prom);
                                     prom.then(function(arg) {
-                                        MapData.AddFeatures(arg.featureCollection, theme, lay.id);
+                                        MapData.AddFeatures(arg.featureCollection, theme, lay.id, featureCount);
                                     });
 
                                 });
@@ -259,12 +258,8 @@
 
                             });
                         }
-
-                    } else {
-                        PopupService.Warning("U selecteerde " + featureCount + " resultaten.", "Om een vlotte werking te garanderen is het maximum is ingesteld op " + _mapService.MaxFeatures);
-                    }
                 });
-
+                
 
             } else {
                 var prom = _mapService.LayerQueryCount(layer.theme, layer.id, box);
