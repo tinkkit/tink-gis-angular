@@ -290,7 +290,7 @@
                 if (data.length > 0) {
                     var converted = GisHelperService.ConvertLambert72ToWSG84(data[0].xy);
                     MapData.CreateDot(converted);
-                    MapData.CreateOrigineleMarker(event.latlng, true, data[0].straatnm + ' ' + data[0].huisnr + ' (' + data[0].district + ')');
+                    MapData.CreateOrigineleMarker(event.latlng, true, data[0].straatnm.split('_')[0] + ' ' + data[0].huisnr + ' (' + data[0].district + ')');
                 } else {
                     MapData.CreateOrigineleMarker(event.latlng, false);
                 }
