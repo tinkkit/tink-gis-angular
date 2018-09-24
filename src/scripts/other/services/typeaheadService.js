@@ -9,62 +9,20 @@
         _typeAheadService.numbers = null;
 
         //Hardcoded districtcodes + names
-        _typeAheadService.districts.push({
-            postcode: 2000,
-            district: "Antwerpen"
-        });
-        _typeAheadService.districts.push({
-            postcode: 2018,
-            district: "Antwerpen"
-        });
-        _typeAheadService.districts.push({
-            postcode: 2020,
-            district: "Antwerpen"
-        });
-        _typeAheadService.districts.push({
-            postcode: 2030,
-            district: "Antwerpen"
-        });
-        _typeAheadService.districts.push({
-            postcode: 2040,
-            district: "Berendrecht"
-        });
-        _typeAheadService.districts.push({
-            postcode: 2050,
-            district: "Antwerpen"
-        });
-        _typeAheadService.districts.push({
-            postcode: 2060,
-            district: "Antwerpen"
-        });
-        _typeAheadService.districts.push({
-            postcode: 2100,
-            district: "Deurne"
-        });
-        _typeAheadService.districts.push({
-            postcode: 2140,
-            district: "Borgerhout"
-        });
-        _typeAheadService.districts.push({
-            postcode: 2170,
-            district: "Merksem"
-        });
-        _typeAheadService.districts.push({
-            postcode: 2180,
-            district: "Ekeren"
-        });
-        _typeAheadService.districts.push({
-            postcode: 2600,
-            district: "Berchem"
-        });
-        _typeAheadService.districts.push({
-            postcode: 2610,
-            district: "Wilrijk"
-        });
-        _typeAheadService.districts.push({
-            postcode: 2660,
-            district: "Hoboken"
-        });
+        _typeAheadService.districts.push({postcode: 2000, district: "Antwerpen"});
+        _typeAheadService.districts.push({postcode: 2018, district: "Antwerpen"});
+        _typeAheadService.districts.push({postcode: 2020, district: "Antwerpen"});
+        _typeAheadService.districts.push({postcode: 2030, district: "Antwerpen"});
+        _typeAheadService.districts.push({postcode: 2040, district: "Berendrecht"});
+        _typeAheadService.districts.push({postcode: 2050, district: "Antwerpen"});
+        _typeAheadService.districts.push({postcode: 2060, district: "Antwerpen"});
+        _typeAheadService.districts.push({postcode: 2100, district: "Deurne"});
+        _typeAheadService.districts.push({postcode: 2140, district: "Borgerhout"});
+        _typeAheadService.districts.push({postcode: 2170, district: "Merksem"});
+        _typeAheadService.districts.push({postcode: 2180, district: "Ekeren"});
+        _typeAheadService.districts.push({postcode: 2600, district: "Berchem"});
+        _typeAheadService.districts.push({postcode: 2610, district: "Wilrijk"});
+        _typeAheadService.districts.push({postcode: 2660, district: "Hoboken"});
 
         _typeAheadService.init = function() {
 
