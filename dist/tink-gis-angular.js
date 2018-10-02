@@ -5002,9 +5002,20 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             if (typeof data != "string") {
                 data = JXON.xmlToString(data); // only if not yet string
             }
+            data = data.replace(/wfs:/g, '');
+            data = data.replace(/gml:/g, '');
+            data = data.replace(/dsi:/g, '');
             var returnjson = JXON.stringToJs(data);
             if (returnjson.featureinforesponse) {
                 json = returnjson.featureinforesponse.fields;
+            }
+            if (returnjson.featurecollection) {
+
+                var test = JSON.stringify(returnjson.featurecollection.featuremember);
+                // json = returnjson.featurecollection.featuremember;
+                for (var key in returnjson.featurecollection.featuremember) {
+                    json = returnjson.featurecollection.featuremember[key];
+                }
             }
             return json;
         };
@@ -5260,7 +5271,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 if (data.length > 0) {
                     var converted = GisHelperService.ConvertLambert72ToWSG84(data[0].xy);
                     MapData.CreateDot(converted);
-                    MapData.CreateOrigineleMarker(event.latlng, true, data[0].straatnm.split('_')[0] + ' ' + data[0].huisnr + ' (' + data[0].district + ')');
+                    MapData.CreateOrigineleMarker(event.latlng, true, data[0].straatnm.split('_')[0] + ' ' + data[0].huisnr + ' (' + data[0].postcode + ' ' + data[0].district + ')');
                 } else {
                     MapData.CreateOrigineleMarker(event.latlng, false);
                 }
@@ -6569,8 +6580,8 @@ L.TileLayer.BetterWMS = L.TileLayer.WMS.extend({
             info_format: requestype
         };
 
-        params[params.version === '1.3.0' ? 'i' : 'x'] = point.x;
-        params[params.version === '1.3.0' ? 'j' : 'y'] = point.y;
+        params[params.version === '1.3.0' ? 'i' : 'x'] = Math.floor(point.x);
+        params[params.version === '1.3.0' ? 'j' : 'y'] = Math.floor(point.y);
 
         return this._url + L.Util.getParamString(params, this._url, true);
     }
