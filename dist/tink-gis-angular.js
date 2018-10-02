@@ -5002,9 +5002,20 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             if (typeof data != "string") {
                 data = JXON.xmlToString(data); // only if not yet string
             }
+            data = data.replace(/wfs:/g, '');
+            data = data.replace(/gml:/g, '');
+            data = data.replace(/dsi:/g, '');
             var returnjson = JXON.stringToJs(data);
             if (returnjson.featureinforesponse) {
                 json = returnjson.featureinforesponse.fields;
+            }
+            if (returnjson.featurecollection) {
+
+                var test = JSON.stringify(returnjson.featurecollection.featuremember);
+                // json = returnjson.featurecollection.featuremember;
+                for (var key in returnjson.featurecollection.featuremember) {
+                    json = returnjson.featurecollection.featuremember[key];
+                }
             }
             return json;
         };
@@ -5625,9 +5636,27 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     var module = angular.module('tink.gis');
     var typeAheadService = function typeAheadService(map, GISService, MapData, GisHelperService) {
         var _typeAheadService = {};
+        _typeAheadService.districts = [];
         _typeAheadService.lastData = [];
         _typeAheadService.lastStreetNameId = null;
         _typeAheadService.numbers = null;
+
+        //Hardcoded districtcodes + names
+        _typeAheadService.districts.push({ postcode: 2000, district: "Antwerpen" });
+        _typeAheadService.districts.push({ postcode: 2018, district: "Antwerpen" });
+        _typeAheadService.districts.push({ postcode: 2020, district: "Antwerpen" });
+        _typeAheadService.districts.push({ postcode: 2030, district: "Antwerpen" });
+        _typeAheadService.districts.push({ postcode: 2040, district: "Berendrecht" });
+        _typeAheadService.districts.push({ postcode: 2050, district: "Antwerpen" });
+        _typeAheadService.districts.push({ postcode: 2060, district: "Antwerpen" });
+        _typeAheadService.districts.push({ postcode: 2100, district: "Deurne" });
+        _typeAheadService.districts.push({ postcode: 2140, district: "Borgerhout" });
+        _typeAheadService.districts.push({ postcode: 2170, district: "Merksem" });
+        _typeAheadService.districts.push({ postcode: 2180, district: "Ekeren" });
+        _typeAheadService.districts.push({ postcode: 2600, district: "Berchem" });
+        _typeAheadService.districts.push({ postcode: 2610, district: "Wilrijk" });
+        _typeAheadService.districts.push({ postcode: 2660, district: "Hoboken" });
+
         _typeAheadService.init = function () {
 
             L.control.typeahead({
@@ -5686,8 +5715,14 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                                     obj.x = feature.geometry.x;
                                     obj.y = feature.geometry.y;
                                     obj.name = (obj.straatnaam.split('_')[0] + " " + obj.huisnummer).trim();
+                                    obj.postcode = feature.attributes.POSTCODE;
+                                    _typeAheadService.districts.forEach(function (district) {
+                                        if (district.postcode == obj.postcode) {
+                                            obj.district = district.district;
+                                        }
+                                    });
                                     if (obj.straatnaam.split('_')[1]) {
-                                        obj.name = (obj.straatnaam.split('_')[0] + " " + obj.huisnummer + " (" + obj.straatnaam.split('_')[1] + ")").trim();
+                                        obj.name = obj.straatnaam.split('_')[0] + " " + obj.huisnummer + ", " + obj.postcode + " " + obj.district;
                                     }
                                     return obj;
                                 }).slice(0, 10);
@@ -6545,8 +6580,8 @@ L.TileLayer.BetterWMS = L.TileLayer.WMS.extend({
             info_format: requestype
         };
 
-        params[params.version === '1.3.0' ? 'i' : 'x'] = point.x;
-        params[params.version === '1.3.0' ? 'j' : 'y'] = point.y;
+        params[params.version === '1.3.0' ? 'i' : 'x'] = Math.floor(point.x);
+        params[params.version === '1.3.0' ? 'j' : 'y'] = Math.floor(point.y);
 
         return this._url + L.Util.getParamString(params, this._url, true);
     }

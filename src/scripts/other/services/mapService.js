@@ -14,9 +14,20 @@
             if (typeof data != "string") {
                 data = JXON.xmlToString(data); // only if not yet string
             }
+            data = data.replace(/wfs:/g, '');
+            data = data.replace(/gml:/g, '');
+            data = data.replace(/dsi:/g, '');
             var returnjson = JXON.stringToJs(data);
             if (returnjson.featureinforesponse) {
                 json = returnjson.featureinforesponse.fields;
+            }
+            if (returnjson.featurecollection){
+                
+                var test = JSON.stringify(returnjson.featurecollection.featuremember);
+                // json = returnjson.featurecollection.featuremember;
+                for (var key in returnjson.featurecollection.featuremember){
+                    json = returnjson.featurecollection.featuremember[key];
+                }
             }
             return json;
         }
