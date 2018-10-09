@@ -5723,6 +5723,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                                     });
                                     if (obj.straatnaam.split('_')[1]) {
                                         obj.name = obj.straatnaam.split('_')[0] + " " + obj.huisnummer + ", " + obj.postcode + " " + obj.district;
+                                    } else {
+                                        obj.name = obj.straatnaam + " " + obj.huisnummer + ", " + obj.postcode + " " + obj.district;
                                     }
                                     return obj;
                                 }).slice(0, 10);
