@@ -58,6 +58,10 @@
         };
         _service.ExportOneToCSV = function (result) {
             var props = Object.getOwnPropertyNames(result.properties).map(k => ({ key: k, value: result.properties[k] }));
+            var geo = Object.getOwnPropertyNames(result.geometry).map(k => ({ key: k, value: result.geometry[k] }));
+            //Pushing both seperately
+            props.push(geo[0]);
+            props.push(geo[1]);
             var csvContent = "", dataString = "", layName = "";
             csvContent += 'sep=;\n'
             csvContent += 'Laag;' + result.layerName + '\n';

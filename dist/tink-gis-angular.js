@@ -6178,7 +6178,14 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 var item = Object.getOwnPropertyNames(newVal.properties).map(function (k) {
                     return { key: k, value: newVal.properties[k] };
                 });
+                var geo = Object.getOwnPropertyNames(newVal.geometry).map(function (k) {
+                    return { key: k, value: newVal.geometry[k] };
+                });
+
                 vm.props = item;
+                //Pushing both seperately
+                vm.props.push(geo[0]);
+                vm.props.push(geo[1]);
                 vm.prevResult = SearchService.GetPrevResult();
                 vm.nextResult = SearchService.GetNextResult();
             } else {
@@ -6398,6 +6405,12 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             var props = Object.getOwnPropertyNames(result.properties).map(function (k) {
                 return { key: k, value: result.properties[k] };
             });
+            var geo = Object.getOwnPropertyNames(result.geometry).map(function (k) {
+                return { key: k, value: result.geometry[k] };
+            });
+            //Pushing both seperately
+            props.push(geo[0]);
+            props.push(geo[1]);
             var csvContent = "",
                 dataString = "",
                 layName = "";

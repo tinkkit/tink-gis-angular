@@ -40,7 +40,12 @@
                     }
                     vm.selectedResult = newVal;
                     var item = Object.getOwnPropertyNames(newVal.properties).map(k => ({ key: k, value: newVal.properties[k] }));
+                    var geo = Object.getOwnPropertyNames(newVal.geometry).map(k => ({ key: k, value: newVal.geometry[k] }));
+                    
                     vm.props = item;
+                    //Pushing both seperately
+                    vm.props.push(geo[0]);
+                    vm.props.push(geo[1]);
                     vm.prevResult = SearchService.GetPrevResult();
                     vm.nextResult = SearchService.GetNextResult();
                 }
