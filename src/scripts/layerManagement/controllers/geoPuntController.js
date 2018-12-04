@@ -13,7 +13,7 @@
             $scope.currentPage = 1;
             $scope.geopuntError = null;
 
-            //test
+            //Data, status and url for GeoPunt error
             $scope.data = null;
             $scope.status = null;
             $scope.url = null;

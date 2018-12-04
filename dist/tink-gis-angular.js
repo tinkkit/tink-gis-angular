@@ -1615,7 +1615,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         $scope.currentPage = 1;
         $scope.geopuntError = null;
 
-        //test
+        //Data, status and url for GeoPunt error
         $scope.data = null;
         $scope.status = null;
         $scope.url = null;
