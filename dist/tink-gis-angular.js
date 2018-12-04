@@ -1615,6 +1615,11 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         $scope.currentPage = 1;
         $scope.geopuntError = null;
 
+        //test
+        $scope.data = null;
+        $scope.status = null;
+        $scope.url = null;
+
         $scope.pagingCount = null;
         $scope.numberofrecordsmatched = 0;
         LayerManagementService.EnabledThemes.length = 0;
@@ -1664,6 +1669,9 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 $scope.$parent.geopuntCount = "!";
                 $scope.geopuntError = true;
                 $scope.loading = false;
+                $scope.data = reason.data;
+                $scope.status = reason.status;
+                $scope.url = reason.url;
             });
         };
         $scope.pageChanged = function (page, recordsAPage) {
@@ -1719,6 +1727,11 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             PopupService.Success("Data is bijgewerkt.", null, null, { timeOut: 1000 });
             LayerManagementService.AddOrUpdateTheme($scope.selectedTheme, $scope.copySelectedTheme);
             $scope.clearPreview();
+        };
+
+        $scope.reportError = function () {
+            var exception = { url: $scope.url, status: $scope.status, data: $scope.data };
+            PopupService.ExceptionFunc(exception);
         };
     }]);
 })();
@@ -2350,8 +2363,11 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                     console.log('EMPTY RESULT');
                 }
             }).error(function (data, status, headers, config) {
-                prom.reject(null);
-                PopupService.ErrorFromHttp(data, status, url);
+                var rejectdata = [];
+                rejectdata.data = data;
+                rejectdata.status = status;
+                rejectdata.url = url;
+                prom.reject(rejectdata);
             });
             return prom.promise;
         };
@@ -6856,7 +6872,7 @@ L.drawLocal = {
     "<div ng-show=\"loading == false\" class=\"overflow-wrapper flex-grow-1 list-selectable margin-top margin-bottom\">\n" +
     "<div ng-if=\"geopuntError === true\">\n" +
     "<p>De geopunt service(s) die u probeert te bevragen zijn (tijdelijk) niet bereikbaar.</p>\n" +
-    "<p>Indien dit probleem zich blijft voordoen, gelieve dit te melden.</p>\n" +
+    "<p>Indien dit probleem zich blijft voordoen, gelieve dit <a href=# ng-click=reportError()>hier</a> te melden.</p>\n" +
     "</div>\n" +
     "<div ng-if=!searchIsUrl ng-repeat=\"theme in availableThemes\">\n" +
     "<dl ng-class=\"{active: isActive(theme)}\" ng-class=\"{'not-allowed': theme.Type != 'wms' &&  theme.Type != 'esri'}\">\n" +

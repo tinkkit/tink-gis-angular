@@ -46,8 +46,11 @@
                     }
                 }).
                 error(function (data, status, headers, config) {
-                    prom.reject(null);
-                    PopupService.ErrorFromHttp(data, status, url);
+                    var rejectdata = [];
+                    rejectdata.data = data;
+                    rejectdata.status = status;
+                    rejectdata.url = url;
+                    prom.reject(rejectdata);
                 });
             return prom.promise;
         };

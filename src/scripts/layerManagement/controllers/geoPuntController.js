@@ -13,6 +13,11 @@
             $scope.currentPage = 1;
             $scope.geopuntError = null;
 
+            //test
+            $scope.data = null;
+            $scope.status = null;
+            $scope.url = null;
+
             $scope.pagingCount = null;
             $scope.numberofrecordsmatched = 0;
             LayerManagementService.EnabledThemes.length = 0;
@@ -63,6 +68,9 @@
                     $scope.$parent.geopuntCount = "!";
                     $scope.geopuntError = true;
                     $scope.loading = false;
+                    $scope.data = reason.data;
+                    $scope.status = reason.status;
+                    $scope.url = reason.url;
                 });
             };
             $scope.pageChanged = function (page, recordsAPage) {
@@ -116,6 +124,11 @@
                 PopupService.Success("Data is bijgewerkt.", null, null, {  timeOut: 1000 });
                 LayerManagementService.AddOrUpdateTheme($scope.selectedTheme, $scope.copySelectedTheme);
                 $scope.clearPreview();
+            };
+
+            $scope.reportError = function() {
+                var exception = { url: $scope.url, status: $scope.status, data: $scope.data };
+                PopupService.ExceptionFunc(exception);
             };
         }
     ]);
