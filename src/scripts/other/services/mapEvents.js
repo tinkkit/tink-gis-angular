@@ -70,7 +70,9 @@
                         case ActiveInteractieButton.SELECT:
 
                             if (MapData.DrawingType != DrawingOption.GEEN && MapData.ExtendedType == null) {
-                                MapData.CleanMap();
+                                if (MapData.DrawingType != DrawingOption.VIERKANT){
+                                    MapData.CleanMap();
+                                }
                                 MapData.CleanSearch();
                             }
                             if (MapData.DrawingType === DrawingOption.NIETS) {
