@@ -4788,10 +4788,10 @@ L.control.typeahead = function (args) {
                                 _data.VisibleFeatures.push(mapItem);
                             }
                         } else {
+                            var mapItem = L.geoJson(featureItem, { style: thestyle }).addTo(map);
+                            featureItem.mapItem = mapItem;
                             if (featureCount <= 1000) {
-                                var mapItem = L.geoJson(featureItem, { style: thestyle }).addTo(map);
                                 _data.VisibleFeatures.push(mapItem);
-                                featureItem.mapItem = mapItem;
                             }
                         }
                         resultArray.push(featureItem);
