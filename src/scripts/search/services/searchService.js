@@ -36,11 +36,17 @@
                     for (var name in feature.properties) {
                         tmparr.push(name.replace(';', ','));
                     }
+                    //adding geometry fields
+                    tmparr.push("TYPE");
+                    tmparr.push("Geometry");
                     var layfirstline = tmparr.join(";");
 
                     csvContent += layName + ";" + layfirstline + '\n';
                 }
                 var infoArray = _.values(feature.properties);
+                //adding geometry field values
+                infoArray.push(feature.geometry.type);
+                infoArray.push(feature.geometry.coordinates);
                 infoArray.unshift(layName);
                 dataString = infoArray.join(";");
                 console.log(dataString);
