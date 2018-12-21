@@ -16,7 +16,7 @@ var ActiveInteractieButton = {
     WATISHIER: 'watishier'
 };
 var GAAS = {
-    ReversedGeocodeUrl: 'https://reversedgeocoding-app1-a.antwerpen.be/'
+    ReversedGeocodeUrl: 'https://reversedgeocoding-app1-p.antwerpen.be/'
 };
 var Gis = {
     Arcgissql: '',
