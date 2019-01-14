@@ -516,11 +516,13 @@
                                 _data.VisibleFeatures.push(mapItem);
                             }
                         } else {
-                            if(featureCount <= 1000){
-                                var mapItem = L.geoJson(featureItem, { style: thestyle }).addTo(map);
-                                featureItem.mapItem = mapItem;
+                            var mapItem = L.geoJson(featureItem, { style: thestyle });
+                            featureItem.mapItem = mapItem;
+                            if(featureCount <= 1000 || featureCount == null){
                                 _data.VisibleFeatures.push(mapItem);
+                                mapItem.addTo(map);
                             }
+                            
                         }
                         resultArray.push(featureItem);
 

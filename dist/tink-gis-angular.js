@@ -4788,10 +4788,11 @@ L.control.typeahead = function (args) {
                                 _data.VisibleFeatures.push(mapItem);
                             }
                         } else {
-                            if (featureCount <= 1000) {
-                                var mapItem = L.geoJson(featureItem, { style: thestyle }).addTo(map);
-                                featureItem.mapItem = mapItem;
+                            var mapItem = L.geoJson(featureItem, { style: thestyle });
+                            featureItem.mapItem = mapItem;
+                            if (featureCount <= 1000 || featureCount == null) {
                                 _data.VisibleFeatures.push(mapItem);
+                                mapItem.addTo(map);
                             }
                         }
                         resultArray.push(featureItem);
@@ -6120,6 +6121,14 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             SearchService.DeleteFeatureGroup(featureGroupName);
         };
         vm.showDetails = function (feature) {
+            var alreadyexists = MapData.VisibleFeatures.some(function (x) {
+                return x.toGeoJSON().features[0].id == feature.id && x.toGeoJSON().features[0].layerName == feature.layerName;
+            });
+            if (!alreadyexists) {
+                var mapItem = L.geoJson(feature, { style: Style.DEFAULT }).addTo(map);
+                MapData.TempExtendFeatures.push(mapItem);
+                feature.mapItem = mapItem;
+            }
             ResultsData.SelectedFeature = feature;
         };
         vm.exportToCSV = function () {
