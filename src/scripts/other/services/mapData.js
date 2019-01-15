@@ -335,7 +335,11 @@
                 ResultsData.EmptyResult = true;
             } else {
                 ResultsData.EmptyResult = false;
-                var featureArray = _data.GetResultsData(features, theme, layerId, featureCount);
+                if (featureCount){
+                    var featureArray = _data.GetResultsData(features, theme, layerId, featureCount);
+                }else{
+                    var featureArray = _data.GetResultsData(features, theme, layerId, features.features.length);
+                }
                 if (_data.ExtendedType == null) { // else we don t have to clean the map!
                     featureArray.forEach(featureItem => {
                         ResultsData.JsonFeatures.push(featureItem);
