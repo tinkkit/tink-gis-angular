@@ -249,7 +249,7 @@
                 });
                 Promise.all(allcountproms).then(function AcceptHandler(results) {
                     console.log(results, featureCount);
-                    if (featureCount >= _mapService.MaxFeatures) {
+                    if (featureCount > _mapService.MaxFeatures) {
                         PopupService.Warning("U selecteerde " + featureCount + " resultaten.", "Bij meer dan " + _mapService.MaxFeatures + " resultaten kan het laden wat langer duren en zijn de resultaten niet zichtbaar op de kaart en in de lijst. Exporteren naar CSV blijft mogelijk.");
                     }
                     var allproms = [];
@@ -278,18 +278,17 @@
             } else {
                 var prom = _mapService.LayerQueryCount(layer.theme, layer.id, box);
                 prom.then(function(arg) {
-                    if (arg.count <= _mapService.MaxFeatures) {
-                        var prom = _mapService.LayerQuery(layer.theme, layer.id, box);
+                    if (arg.count > _mapService.MaxFeatures) {
+                        PopupService.Warning("U selecteerde " + arg.count + " resultaten.", "Bij meer dan " + _mapService.MaxFeatures + " resultaten kan het laden wat langer duren en zijn de resultaten niet zichtbaar op de kaart en in de lijst. Exporteren naar CSV blijft mogelijk.");
+                    }
+                    var prom = _mapService.LayerQuery(layer.theme, layer.id, box);
                         prom.then(function(arg) {
-                            MapData.AddFeatures(arg.featureCollection, layer.theme, layer.id);
+                            MapData.AddFeatures(arg.featureCollection, layer.theme, layer.id, arg.featureCollection.length);
                             if (MapData.ExtendedType != null) {
                                 MapData.ConfirmExtendDialog(MapData.processedFeatureArray);
                                 MapData.processedFeatureArray = [];
                             }
                         });
-                    } else {
-                        PopupService.Warning("U selecteerde " + arg.count + " resultaten.", "Om een vlotte werking te garanderen is het maximum is ingesteld op " + _mapService.MaxFeatures);
-                    }
                 });
 
             }
