@@ -6,6 +6,7 @@
         _typeAheadService.districts = [];
         _typeAheadService.lastData = [];
         _typeAheadService.lastStreetNameId = null;
+        _typeAheadService.lastStreetName = "";
         _typeAheadService.numbers = null;
 
         //Hardcoded districtcodes + names
@@ -56,6 +57,10 @@
                                 notnumbers.forEach(n => {
                                     notnumberscombined += ' ' + n;
                                 })
+                                notnumberscombined = notnumberscombined.trim();
+                                if(_typeAheadService.lastStreetName.trim() != notnumberscombined){
+                                    typeAheadService.lastStreetNameId = null;
+                                }
                                 if(street.streetNameId) 
                                 {
                                     strnmid.push(street.streetNameId);
@@ -64,35 +69,69 @@
                                     strnmid = [];
                                     strnmid.push(_typeAheadService.lastStreetNameId);
                                 }
+                                if(!street.name.toLowerCase().trim().contains(notnumberscombined.toLowerCase())){
+                                    strnmid = [];
+                                }
                             });
                             var straatnaam = encodeURIComponent(notnumbers.join(' '));
-                            GISService.QueryCrab(strnmid, huisnummer).then(function(data) {
-                                console.log(data);
-                                var features = data.features.map(function(feature) {
-                                    var obj = {};
-                                    obj.straatnaam = feature.attributes.STRAATNM;
-                                    obj.huisnummer = feature.attributes.HUISNR;
-                                    // obj.busnummer = feature.attributes.BUSNR;
-                                    obj.id = feature.attributes.OBJECTID;
-                                    obj.x = feature.geometry.x;
-                                    obj.y = feature.geometry.y;
-                                    obj.name = (obj.straatnaam.split('_')[0] + " " + obj.huisnummer).trim();
-                                    obj.postcode = feature.attributes.POSTCODE;
-                                    _typeAheadService.districts.forEach(district => {
-                                        if(district.postcode == obj.postcode){
-                                            obj.district = district.district;
+                            if(strnmid.length != 0){
+                                GISService.QueryCrab(strnmid, huisnummer).then(function(data) {
+                                    console.log(data);
+                                    var features = data.features.map(function(feature) {
+                                        var obj = {};
+                                        obj.straatnaam = feature.attributes.STRAATNM;
+                                        obj.huisnummer = feature.attributes.HUISNR;
+                                        // obj.busnummer = feature.attributes.BUSNR;
+                                        obj.id = feature.attributes.OBJECTID;
+                                        obj.x = feature.geometry.x;
+                                        obj.y = feature.geometry.y;
+                                        obj.name = (obj.straatnaam.split('_')[0] + " " + obj.huisnummer).trim();
+                                        obj.postcode = feature.attributes.POSTCODE;
+                                        _typeAheadService.districts.forEach(district => {
+                                            if(district.postcode == obj.postcode){
+                                                obj.district = district.district;
+                                            }
+                                        });
+                                        if (obj.straatnaam.split('_')[1]){
+                                            obj.name = (obj.straatnaam.split('_')[0] + " " + obj.huisnummer + ", " + obj.postcode + " " + obj.district);
+                                        }else{
+                                            obj.name = obj.straatnaam + " " + obj.huisnummer + ", " + obj.postcode + " " + obj.district;
                                         }
-                                    });
-                                    if (obj.straatnaam.split('_')[1]){
-                                        obj.name = (obj.straatnaam.split('_')[0] + " " + obj.huisnummer + ", " + obj.postcode + " " + obj.district);
-                                    }else{
-                                        obj.name = obj.straatnaam + " " + obj.huisnummer + ", " + obj.postcode + " " + obj.district;
-                                    }
-                                    return obj;
-                                }).slice(0, 10);
-                                asyncResults(features);
-
-                            });
+                                        return obj;
+                                    }).slice(0, 10);
+                                    asyncResults(features);
+    
+                                });
+                            } else {
+                                GISService.QueryCrabName(straatnaam, huisnummer).then(function(data) {
+                                    console.log(data);
+                                    var features = data.features.map(function(feature) {
+                                        var obj = {};
+                                        obj.straatnaam = feature.attributes.STRAATNM;
+                                        obj.huisnummer = feature.attributes.HUISNR;
+                                        // obj.busnummer = feature.attributes.BUSNR;
+                                        obj.id = feature.attributes.OBJECTID;
+                                        obj.x = feature.geometry.x;
+                                        obj.y = feature.geometry.y;
+                                        obj.name = (obj.straatnaam.split('_')[0] + " " + obj.huisnummer).trim();
+                                        obj.postcode = feature.attributes.POSTCODE;
+                                        _typeAheadService.districts.forEach(district => {
+                                            if(district.postcode == obj.postcode){
+                                                obj.district = district.district;
+                                            }
+                                        });
+                                        if (obj.straatnaam.split('_')[1]){
+                                            obj.name = (obj.straatnaam.split('_')[0] + " " + obj.huisnummer + ", " + obj.postcode + " " + obj.district);
+                                        }else{
+                                            obj.name = obj.straatnaam + " " + obj.huisnummer + ", " + obj.postcode + " " + obj.district;
+                                        }
+                                        return obj;
+                                    }).slice(0, 10);
+                                    asyncResults(features);
+    
+                                });
+                            }
+                            
                         } else {
                             GISService.QuerySOLRLocatie(query.trim()).then(function(data) {
                                 var arr = data.response.docs;
@@ -120,6 +159,7 @@
                     MapData.CleanTempFeatures();
                     if (suggestion.streetNameId){
                         _typeAheadService.lastStreetNameId = suggestion.streetNameId;
+                        _typeAheadService.lastStreetName = suggestion.name;
                     }
                     if (suggestion.x && suggestion.y) {
                         var cors = {
