@@ -21,6 +21,8 @@
                                 class="btn" prevent-default-map tink-tooltip="Selecteer met een rechthoek" tink-tooltip-align="bottom"><i class="fa fa-square-o"></i></button>
                             <button ng-click="mapctrl.drawingButtonChanged('polygon')" ng-class="{active: mapctrl.drawingType=='polygon'}" type="button"
                                 class="btn" prevent-default-map tink-tooltip="Selecteer met een veelhoek" tink-tooltip-align="bottom"><i class="fa fa-star-o"></i></button>
+                            <button ng-click="mapctrl.selectAdvanced()" ng-class="{active: mapctrl.drawingType=='zoeken'}" type="button"
+                                class="btn" prevent-default-map tink-tooltip="Geavanceerde opzoeking" tink-tooltip-align="bottom"><i class="fa fa-search"></i></button>
                         </div>
                         <div class="select">
                             <select ng-options="layer as layer.name for layer in mapctrl.SelectableLayers()" ng-model="mapctrl.selectedLayer" ng-show="mapctrl.SelectableLayers().length > 1 && !mapctrl.mobile"

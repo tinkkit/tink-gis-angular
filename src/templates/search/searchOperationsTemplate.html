@@ -1,0 +1,22 @@
+<div>
+    <div class="form-group" ng-repeat="operation in operations track by $index">
+        <div class="formgroup col-xs-4">
+            <div ng-show="operation.addition != null && !$first" class="andOr">{{operation.addition}}</div>
+            <select ng-model="operation.attribute" ng-change="updateOperation($index)"
+                ng-options="attr as attr.name for attr in attributes" value="{{operation.attribute}}"></select>
+        </div>
+        <div class="form-group col-xs-2" ng-class="{'col-xs-4': operations.length == 1}">
+            <select ng-model="operation.operator" ng-options="x for x in operators"
+                ng-change="updateOperation($index)"></select>
+        </div>
+        <div class="form-group col-xs-4">
+            <input type="text" value="{{operation.value}}" placeholder="Waarde" ng-model="operation.value"
+                ng-change="updateOperation($index)" ng-model-options="{ debounce: 500 }">
+        </div>
+        <div class="form-group col-xs-2">
+            <button type="button" class="up"  ng-show="!$first" ng-click="up($index)"></button>
+            <button type="button" class="down"  ng-show="!$last" ng-click="down($index)"></button>
+            <button type="button" class="closetransparant" ng-show="!$first" ng-click="delete($index)"></button>
+        </div>
+    </div>
+</div>

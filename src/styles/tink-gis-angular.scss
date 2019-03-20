@@ -635,6 +635,67 @@ ul {
   }
 }
 
+button.closetransparant{
+  background-color: transparent;
+  color: #bbb;
+  border-width: 0;
+  //padding: 0 rem(12);
+  font-family: FontAwesome;
+  font-weight: 100;
+
+  &:hover,
+  &:focus {
+    color: #333;
+  }
+
+  &:before {
+    content: "\f00d";
+  }
+}
+
+button.up {
+  background-color: transparent;
+  color: #bbb;
+  border-width: 0;
+  //padding: 0 rem
+  font-family: FontAwesome;
+  font-weight: 100;
+
+  &:hover,
+  &:focus {
+    color: #333;
+  }
+
+  &:before {
+    content: "\f062";
+  }
+}
+
+button.down {
+  background-color: transparent;
+  color: #bbb;
+  border-width: 0;
+  //padding: 0 rem(12);
+  font-family: FontAwesome;
+  font-weight: 100;
+
+  &:hover,
+  &:focus {
+    color: #333;
+  }
+
+  &:before {
+    content: "\f063";
+  }
+}
+
+.andOr {
+  position: absolute; 
+  left: -75px; 
+  top: 10px; 
+  font-weight: bold
+}
+
 // customize pagination
 .table-sort-options {
   .table-sort-info {

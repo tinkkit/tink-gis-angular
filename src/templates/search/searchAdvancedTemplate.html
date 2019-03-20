@@ -1,0 +1,43 @@
+<div class="searchAdvancedTemplate modal-header">
+    <div class="row margin-bottom">
+        <div class="col-xs-10">
+            <h4>Geavanceerd zoeken</h4>
+        </div>
+        <div class="col-xs-2">
+            <button class="close pull-right" type="button" data-ng-click="cancel()"></button>
+        </div>
+    </div>
+</div>
+<div class="modal-body width-lg flex-column flex-grow-1">
+    <div class="row margin-top">
+        <div class="col-xs-12">
+            <h4>Query Builder</h4>
+        </div>
+        <div class="form-group col-xs-3 margin-top">
+            <select ng-model="selectedLayer" ng-options="layer as layer.name for layer in SelectedLayers()" ng-change="updateFields()"></select>
+        </div>
+        <div class="col-xs-9">
+            <search-Operations></search-Operations>
+        </div>
+        <div class="margin-top margin-bottom col-xs-12">
+            <button ng-click="addOperation()">AND</button>
+            <button ng-click="orOperation()">OR</button>
+            <button class="pull-right" ng-click="openQueryEditor()">Query Genereren</button>
+        </div>
+    </div>
+</div>
+<div class="row margin-top" ng-show="editor">
+        <span class="empty-message col-xs-12" >* Opgelet! Aanpassingen in de editor zijn niet omkeerbaar naar de Query Builder *</span>
+    <div class="col-xs-12">
+        <h4>Editor</h4>
+    </div>
+    <div class="col-xs-12">
+        <textarea rows="4" ng-model="query" ng-change="updateQuery()">{{query}}</textarea>
+    </div>
+</div>
+<div class="searchAdvancedTemplate modal-footer">
+    <div class="margin-top">
+        <button type="button" class="btn btn-info" ng-click="QueryAPI()">Pas toe</button>
+        <button type="button" class="btn" ng-click="cancel()"> Annuleer</button>
+    </div>
+</div>
