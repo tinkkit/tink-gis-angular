@@ -6,8 +6,8 @@
     } catch (e) {
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
     }
-    var theController = module.controller('searchAdvancedController', ['$scope', '$modalInstance', 'SearchAdvancedService', 'MapData',
-        function ($scope, $modalInstance, SearchAdvancedService, MapData) {
+    var theController = module.controller('searchAdvancedController', ['$scope', '$modalInstance', 'SearchAdvancedService', 'MapData', 'GISService', 'ResultsData',
+        function ($scope, $modalInstance, SearchAdvancedService, MapData, GISService, ResultsData) {
             $scope.editor = false;
             $scope.selectedLayer = null;
             $scope.operations = [];
@@ -62,12 +62,17 @@
                 if (!$scope.editor) {
                     SearchAdvancedService.BuildQuery($scope.selectedLayer);
                     //TODO: API call with query or operations as args ?
+                    var result = SearchAdvancedService.ExecuteQuery($scope.selectedLayer.id, $scope.selectedLayer.theme, $scope.operations);
+                    console.log(result);
                 } else {
                     //TODO: API call with query
+                    SearchAdvancedService.TranslateEditorQuery($scope.query, $scope.operations, $scope.selectedLayer);
+                    var result = SearchAdvancedService.ExecuteQuery($scope.selectedLayer.id, $scope.selectedLayer.theme, $scope.operations);
+                    console.log(result);
                 }
                 console.log("API Call : " + $scope.query); //TODO: remove this testing placeholder
             };
         }]);
 
-    theController.$inject = ['$scope', '$modalInstance', 'SearchAdvancedService', 'MapData'];
+    theController.$inject = ['$scope', '$modalInstance', 'SearchAdvancedService', 'MapData', 'GISService', 'ResultsData'];
 })();
