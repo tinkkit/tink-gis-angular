@@ -340,6 +340,7 @@ button.btn.active {
 //Creating parent container for flex column and overflow-wrapper
 .relative-container {
   // flex container settings
+  min-height:0;
   display: flex;
 }
 
