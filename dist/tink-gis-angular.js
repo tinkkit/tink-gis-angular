@@ -6199,6 +6199,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             SearchService.DeleteFeatureGroup(featureGroupName);
         };
         vm.showDetails = function (feature) {
+            // if (feature.theme.Type !== 'wms') {
             var alreadyexists = MapData.VisibleFeatures.some(function (x) {
                 return x.toGeoJSON().features[0].id == feature.id && x.toGeoJSON().features[0].layerName == feature.layerName;
             });
@@ -6207,6 +6208,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 MapData.TempExtendFeatures.push(mapItem);
                 feature.mapItem = mapItem;
             }
+            // }
             ResultsData.SelectedFeature = feature;
         };
         vm.exportToCSV = function () {
@@ -6268,11 +6270,13 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                         tooltipAnchor: [16, -28],
                         shadowSize: [41, 41]
                     });
-                    MapData.SetStyle(oldVal.mapItem, Style.DEFAULT, myicon);
+                    if (oldVal.theme.Type !== 'wms') {
+                        MapData.SetStyle(oldVal.mapItem, Style.DEFAULT, myicon);
+                    }
                 }
             }
             if (newVal) {
-                if (newVal.mapItem) {
+                if (newVal.mapItem && newVal.theme.Type !== 'wms') {
                     var myicon = L.AwesomeMarkers.icon({
                         icon: 'fa-dot-circle-o',
                         markerColor: 'red'
@@ -6283,14 +6287,18 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 var item = Object.getOwnPropertyNames(newVal.properties).map(function (k) {
                     return { key: k, value: newVal.properties[k] };
                 });
-                var geo = Object.getOwnPropertyNames(newVal.geometry).map(function (k) {
-                    return { key: k, value: newVal.geometry[k] };
-                });
+                if (newVal.theme.Type !== 'wms') {
+                    var geo = Object.getOwnPropertyNames(newVal.geometry).map(function (k) {
+                        return { key: k, value: newVal.geometry[k] };
+                    });
+                }
 
                 vm.props = item;
-                //Pushing both seperately
-                vm.props.push(geo[0]);
-                vm.props.push(geo[1]);
+                if (newVal.theme.Type !== 'wms') {
+                    //Pushing both seperately
+                    vm.props.push(geo[0]);
+                    vm.props.push(geo[1]);
+                }
                 vm.prevResult = SearchService.GetPrevResult();
                 vm.nextResult = SearchService.GetNextResult();
             } else {
