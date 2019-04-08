@@ -90,9 +90,14 @@
         }
 
         _service.HandleOperator = function(operation) {
+            if (operation.value.contains("'")){
+                operation.value = operation.value.substring(1).slice(0, -1);
+            }
             switch (operation.operator) {
                 case 'LIKE':
-                    return operation.operator + ' \'%' + operation.value + '%\'';
+                    if(!operation.value.contains('%')){
+                        return operation.operator + ' \'%' + operation.value + '%\'';
+                    }
                 default:
                     return operation.operator + ' \'' + operation.value + '\'';
             }
@@ -100,19 +105,15 @@
 
         _service.TranslateEditorQuery = function(rawQuery, originalOperations, selectedLayer) { //Adding Operations as parameter for testing
             var newQueryParts = [];
-            newQueryParts.fieldnames = [];
-            newQueryParts.operators = [];
-            newQueryParts.values = [];
-            // var queryParts = rawQuery.split(' ');
+            var newOperations = [];
             var queryParts = rawQuery.split(/('.*?'|[^"\s]+)+(?=\s*|\s*$)/g); //Split parts of query by spaces except when it's between single quotes
+            var line = 0;
 
             queryParts = queryParts.filter(function(str) {
                 return /\S/.test(str);
             });
-            console.log(queryParts);
-            console.log(originalOperations);
-            var operations = [];
-            console.log($rootScope);
+            newOperations[line] = {};
+            newOperations[line].addition = null;
             for (let index = 1; index < queryParts.length; index++) {
                 let isLayerOrField = false;
                 let element = queryParts[index];
@@ -123,38 +124,33 @@
                 console.log(element);
                 console.log(selectedLayer);
                 if (isLayerOrField == false && this.IsOperator(element)) {
-                    newQueryParts.operators.push(element);
+                    newOperations[line].operator = element;
                 }
                 else if (isLayerOrField == true && index == 1) {
-                    newQueryParts.layerid = this.GetLayerIdIfValid(element, selectedLayer);
+                    newQueryParts.layer = this.GetLayerIdIfValid(element);
                     isLayerOrField = false;
                 }
                 else if (isLayerOrField == true && this.IsLayerField($rootScope.selectedLayer, element)) {
-                    newQueryParts.fieldnames.push(element);
+                    newOperations[line].attribute = this.GetLayerField($rootScope.selectedLayer, element, line);
                     isLayerOrField = false;
                 }
                 else if (element != "FROM" && element != "WHERE") {
-                    newQueryParts.values.push(element);
+                    newOperations[line].value = element;
                 } //EXPAND TO SUPPORT AND/OR
             }
             console.log(newQueryParts);
+            newQueryParts.operations = newOperations;
+            return newQueryParts;
         }
 
-        _service.GetLayerIdIfValid = function(layername, currentLayer) {
-            var layerid = null;
+        _service.GetLayerIdIfValid = function(layername) {
             MapData.VisibleLayers.forEach(layer => {
                 if (layer.name === layername) {
-                    layerid = layer.id;
                     $rootScope.selectedLayer = layer;
                 }
             });
 
-            if (layerid != null) {
-                return layerid;
-            } else {
-                $rootScope.selectedLayer = currentLayer;
-                return currentLayer.id;
-            }
+            return $rootScope.selectedLayer;
         }
 
         _service.IsLayerField = function(currentLayer, fieldname) {
@@ -167,6 +163,22 @@
                 }
             });
             return isLayerField;
+        }
+
+        _service.GetLayerField = function(currentLayer, fieldname, line) {
+            var selectedField = null;
+
+            currentLayer.fields.forEach(field => {
+                if (field.name == fieldname) {
+                    selectedField = field;
+                    selectedField.$$hashKey = currentLayer.$$hashKey;
+                }
+            });
+            if (selectedField == null) {
+                var tmpOp = $rootScope.operations[line];
+                return tmpOp.attribute;
+            }
+            return selectedField;
         }
 
         _service.IsOperator = function(element) {

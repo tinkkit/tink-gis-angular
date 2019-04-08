@@ -66,8 +66,8 @@
                     console.log(result);
                 } else {
                     //TODO: API call with query
-                    SearchAdvancedService.TranslateEditorQuery($scope.query, $scope.operations, $scope.selectedLayer);
-                    var result = SearchAdvancedService.ExecuteQuery($scope.selectedLayer.id, $scope.selectedLayer.theme, $scope.operations);
+                    var translatedQuery = SearchAdvancedService.TranslateEditorQuery($scope.query, $scope.operations, $scope.selectedLayer);
+                    var result = SearchAdvancedService.ExecuteQuery(translatedQuery.layer.id, translatedQuery.layer.theme, translatedQuery.operations);
                     console.log(result);
                 }
                 console.log("API Call : " + $scope.query); //TODO: remove this testing placeholder
