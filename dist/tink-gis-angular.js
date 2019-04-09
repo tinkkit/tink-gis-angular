@@ -5349,9 +5349,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             }
         };
 
-        _mapService.startAutoComplete = async function (layer, field, query) {
-            return await this.AutoCompleteQuery(layer, field, query);
-        };
+        // _mapService.startAutoComplete = async function(layer, field, query) {
+        //     return await this.AutoCompleteQuery(layer, field, query);
+        // }
 
         _mapService.Query = function (box, layer) {
             if (!layer) {
@@ -6286,13 +6286,13 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         $scope.operations = [{ addition: null, attribute: null, operator: '=', value: null }];
 
         $scope.updateOperation = function (index) {
-            $scope.autoCompleteActive = false;
+            // $scope.autoCompleteActive = false;
             $scope.changeoperation();
-            var valueInput = document.getElementById("input_waarde");
-            if (valueInput === document.activeElement) {
-                $scope.autoCompleteActive = true;
-                $scope.valueChanged(index);
-            }
+            // var valueInput = document.getElementById("input_waarde");
+            // if(valueInput === document.activeElement){
+            //     $scope.autoCompleteActive = true;
+            //     $scope.valueChanged(index);
+            // }
         };
 
         $scope.$on('updateFields', function (event, data) {
@@ -6348,10 +6348,10 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             $scope.$emit('addedOperation', $scope.operations);
         };
 
-        $scope.valueChanged = async function (index) {
-            var test = document.getElementById("input_waarde").value;
-            $scope.autoComplete = await SearchAdvancedService.autoComplete(test, index);
-        };
+        // $scope.valueChanged = async function (index) {
+        //     // var test = document.getElementById("input_waarde").value;
+        //     // $scope.autoComplete = await SearchAdvancedService.autoComplete(test, index); //TODO activeren wanneer je aan autocomplete werkt
+        // }
     }]);
     theController.$inject = ['$scope', 'SearchAdvancedService'];
 })();
@@ -6902,21 +6902,21 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             return selectedField;
         };
 
-        _service.autoComplete = async function (val, index) {
-            var op = $rootScope.operations[index];
-            var query = "";
-            if (val == "") {
-                query = op.attribute.name + " is not null";
-            } else {
-                query = op.attribute.name + " like '%" + val + "%'";
-            }
-            var prom = await MapService.startAutoComplete($rootScope.selectedLayer, op.attribute, query);
-            if (prom.featureCollection != null) {
-                return prom.featureCollection.features;
-            } else {
-                return [];
-            }
-        };
+        // _service.autoComplete = async function(val, index) {
+        //     const op = $rootScope.operations[index];
+        //     var query = "";
+        //     if (val == "") {
+        //         query = op.attribute.name + " is not null";
+        //     } else {
+        //         query = op.attribute.name + " like '%" + val + "%'";
+        //     }
+        //     var prom = await MapService.startAutoComplete($rootScope.selectedLayer, op.attribute, query);
+        //     if (prom.featureCollection != null) {
+        //         return prom.featureCollection.features;
+        //     } else {
+        //         return [];
+        //     }
+        // }
 
         _service.IsOperator = function (element) {
             var isOperator = false;

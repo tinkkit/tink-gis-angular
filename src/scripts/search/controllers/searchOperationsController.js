@@ -22,13 +22,13 @@
             $scope.operations = [{ addition: null, attribute: null, operator: '=', value: null }];
 
             $scope.updateOperation = function (index){
-                $scope.autoCompleteActive = false;
+                // $scope.autoCompleteActive = false;
                 $scope.changeoperation();
-                var valueInput = document.getElementById("input_waarde");
-                if(valueInput === document.activeElement){
-                    $scope.autoCompleteActive = true;
-                    $scope.valueChanged(index);
-                }
+                // var valueInput = document.getElementById("input_waarde");
+                // if(valueInput === document.activeElement){
+                //     $scope.autoCompleteActive = true;
+                //     $scope.valueChanged(index);
+                // }
             };
 
             $scope.$on('updateFields', function (event, data) {
@@ -88,10 +88,10 @@
                 $scope.$emit('addedOperation', $scope.operations);
             };
 
-            $scope.valueChanged = async function (index) {
-                var test = document.getElementById("input_waarde").value;
-                $scope.autoComplete = await SearchAdvancedService.autoComplete(test, index);
-            }
+            // $scope.valueChanged = async function (index) {
+            //     // var test = document.getElementById("input_waarde").value;
+            //     // $scope.autoComplete = await SearchAdvancedService.autoComplete(test, index); //TODO activeren wanneer je aan autocomplete werkt
+            // }
         }]);
     theController.$inject = ['$scope', 'SearchAdvancedService'];
 })();
