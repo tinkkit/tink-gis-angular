@@ -2555,7 +2555,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
 
 (function (module) {
   module = angular.module("tink.gis");
-  var theController = module.controller("mapController", function ($scope, ExternService, BaseLayersService, MapService, MapData, map, MapEvents, DrawService, GisHelperService, GISService, PopupService, $interval, TypeAheadService, UIService, tinkApi, FeatureService) {
+  var theController = module.controller("mapController", function ($scope, ExternService, BaseLayersService, MapService, MapData, map, MapEvents, DrawService, GisHelperService, GISService, PopupService, $interval, TypeAheadService, UIService, tinkApi, FeatureService, $modal) {
     //We need to include MapEvents, even tho we don t call it just to make sure it gets loaded!
     var vm = this;
     vm.exportPNG = function () {
@@ -2731,6 +2731,30 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
       }
       vm.addCursorAuto();
     };
+
+    vm.selectAdvanced = function () {
+      MapData.DrawingType = DrawingOption.ZOEKEN;
+      vm.drawingType = DrawingOption.ZOEKEN;
+      if (MapData.ExtendedType == null) {
+        // else we don t have to clean the map!
+        MapData.CleanMap();
+        MapData.CleanSearch();
+      }
+      var addLayerInstance = $modal.open({
+        templateUrl: 'templates/search/searchAdvancedTemplate.html',
+        controller: 'searchAdvancedController',
+        resolve: {
+          backdrop: false,
+          keyboard: true
+        }
+      });
+      addLayerInstance.result.then(function () {
+        // ThemeService.AddAndUpdateThemes(selectedThemes);
+      }, function (obj) {
+        console.log('Modal dismissed at: ' + new Date()); // The contoller is closed by the use of the $dismiss call
+      });
+    };
+
     vm.layerChange = function () {
       // MapData.CleanMap();
       MapData.SelectedLayer = vm.selectedLayer;
@@ -2895,7 +2919,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
       PopupService.Warning("Browser heeft geen toegang tot locatiegegevens");
     });
   });
-  theController.$inject = ["BaseLayersService", "ExternService", "MapService", "MapData", "map", "MapEvents", "DrawService", "GisHelperService", "GISService", "PopupService", "$interval", "UIService", "tinkApi", "FeatureService"];
+  theController.$inject = ["BaseLayersService", "ExternService", "MapService", "MapData", "map", "MapEvents", "DrawService", "GisHelperService", "GISService", "PopupService", "$interval", "UIService", "tinkApi", "FeatureService", "$modal"];
 })();
 ;'use strict';
 
@@ -5261,6 +5285,74 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             });
             return promise;
         };
+
+        _mapService.AdvancedQueryCount = function (theme, layerid, query) {
+            var promise = new Promise(function (resolve, reject) {
+                ResultsData.RequestStarted++;
+                theme.MapData.query().layer(layerid).where(query).count(function (error, count, response) {
+                    ResultsData.RequestCompleted++;
+                    resolve({ error: error, count: count, response: response });
+                });
+            });
+            return promise;
+        };
+
+        _mapService.AdvancedLayerQuery = function (theme, layerid, query) {
+            var promise = new Promise(function (resolve, reject) {
+                ResultsData.RequestStarted++;
+                theme.MapData.query().layer(layerid).where(query).run(function (error, featureCollection, response) {
+                    ResultsData.RequestCompleted++;
+                    resolve({ error: error, featureCollection: featureCollection, response: response });
+                });
+            });
+            return promise;
+        };
+
+        _mapService.AdvancedQuery = function (layer, query) {
+            if (!layer) {
+                PopupService.Warning("Geen geldige laag", "Kon geen laag vinden om in te zoeken");
+            } else {
+                var prom = _mapService.AdvancedQueryCount(layer.theme, layer.id, query);
+                prom.then(function (arg) {
+                    if (arg.count > _mapService.MaxFeatures) {
+                        PopupService.Warning("U selecteerde " + arg.count + " resultaten.", "Bij meer dan " + _mapService.MaxFeatures + " resultaten kan het laden wat langer duren en zijn de resultaten niet zichtbaar op de kaart en in de lijst. Exporteren naar CSV blijft mogelijk.");
+                    }
+                    var prom = _mapService.AdvancedLayerQuery(layer.theme, layer.id, query);
+                    prom.then(function (arg) {
+                        MapData.AddFeatures(arg.featureCollection, layer.theme, layer.id, arg.featureCollection.length);
+                        if (MapData.ExtendedType != null) {
+                            MapData.ConfirmExtendDialog(MapData.processedFeatureArray);
+                            MapData.processedFeatureArray = [];
+                        }
+                    });
+                });
+            }
+        };
+
+        _mapService.AutoCompleteQuery = function (layer, field, query) {
+            if (!layer) {
+                PopupService.Warning("Geen geldige laag", "Kon geen laag vinden om in te zoeken");
+            } else {
+                if (!field) {
+                    PopupService.Warning("Geen veld van laag geselecteerd", "Selecteer een veld om autocomplete te kunnen starten");
+                } else {
+                    var promise = new Promise(function (resolve, reject) {
+                        ResultsData.RequestStarted++;
+                        layer.theme.MapData.query().layer(layer.id).where(query).returnGeometry(false).fields(field.name).limit(10).run(function (error, featureCollection, response) {
+                            ResultsData.RequestCompleted++;
+                            resolve({ error: error, featureCollection: featureCollection, response: response });
+                        });
+                    });
+                    console.log(promise);
+                    return promise;
+                }
+            }
+        };
+
+        _mapService.startAutoComplete = async function (layer, field, query) {
+            return await this.AutoCompleteQuery(layer, field, query);
+        };
+
         _mapService.Query = function (box, layer) {
             if (!layer) {
                 layer = MapData.SelectedLayer;
@@ -6059,6 +6151,94 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 ;'use strict';
 
 (function (module) {
+    var module;
+    try {
+        module = angular.module('tink.gis');
+    } catch (e) {
+        module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
+    }
+    var theController = module.controller('searchAdvancedController', ['$scope', '$modalInstance', 'SearchAdvancedService', 'MapData', 'GISService', 'UIService', 'ResultsData', function ($scope, $modalInstance, SearchAdvancedService, MapData, GISService, UIService, ResultsData) {
+        $scope.editor = false;
+        $scope.selectedLayer = null;
+        $scope.operations = [];
+        $scope.query = null;
+
+        $scope.openQueryEditor = function () {
+            $scope.editor = true;
+            if ($scope.selectedLayer) {
+                SearchAdvancedService.BuildQuery($scope.selectedLayer.name);
+            }
+        };
+
+        $scope.SelectedLayers = function () {
+            //display only usable layers
+            return MapData.VisibleLayers.filter(function (data) {
+                return data.name !== "Alle lagen";
+            });
+        };
+
+        $scope.updateFields = function () {
+            SearchAdvancedService.UpdateFields($scope.selectedLayer);
+        };
+
+        $scope.$on('queryBuild', function (event, data) {
+            $scope.query = data;
+        });
+
+        $scope.$on('queryOperationUpdated', function (event, data) {
+            $scope.query = data;
+            $scope.editor = false;
+        });
+
+        $scope.$on('deleteOperation', function () {
+            console.log('false');
+            $scope.editor = false;
+        });
+
+        $scope.addOperation = function () {
+            $scope.editor = false;
+            SearchAdvancedService.newAddOperation();
+        };
+
+        $scope.orOperation = function () {
+            $scope.editor = false;
+            SearchAdvancedService.newOrOperation();
+        };
+
+        $scope.ok = function () {
+            $modalInstance.$close();
+        };
+        $scope.cancel = function () {
+            $modalInstance.$dismiss('cancel is pressed');
+        };
+
+        $scope.QueryAPI = function () {
+            if (!$scope.editor) {
+                SearchAdvancedService.BuildQuery($scope.selectedLayer);
+                //TODO: API call with query or operations as args ?
+                var query = SearchAdvancedService.TranslateOperations($scope.operations);
+                var result = SearchAdvancedService.ExecuteQuery($scope.selectedLayer, query);
+                console.log(result);
+            } else {
+                //TODO: API call with query
+                var rawQueryResult = SearchAdvancedService.MakeNewRawQuery($scope.query);
+                if (rawQueryResult.layer != null) {
+                    var result = SearchAdvancedService.ExecuteQuery(rawQueryResult.layer, rawQueryResult.query);
+                }
+                console.log(result);
+            }
+            console.log("API Call : " + $scope.query); //TODO: remove this testing placeholder
+
+            UIService.OpenLeftSide();
+            $modalInstance.$close();
+        };
+    }]);
+
+    theController.$inject = ['$scope', '$modalInstance', 'SearchAdvancedService', 'MapData', 'UIService', 'GISService', 'ResultsData'];
+})();
+;'use strict';
+
+(function (module) {
     module = angular.module('tink.gis');
     var theController = module.controller('searchController', function ($scope, ResultsData, map, $interval) {
         var vm = this;
@@ -6081,6 +6261,99 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         };
     });
     theController.$inject = ['$scope', 'ResultsData', 'map', '$interval'];
+})();
+;'use strict';
+
+(function (module) {
+    var module;
+    try {
+        module = angular.module('tink.gis');
+    } catch (e) {
+        module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
+    }
+    var theController = module.controller('searchOperationsController', ['$scope', 'SearchAdvancedService', function ($scope, SearchAdvancedService) {
+
+        $scope.attributes = null;['Straat', 'Postcode', 'nummer']; //ophalen vanaf API
+        $scope.operators = ['=', '<>', '<', '>', '<=', '>=', 'LIKE', 'NOT LIKE'];
+        $scope.operator = '=';
+        $scope.selectedAttribute = null;
+        $scope.value = null;
+        $scope.layer = null;
+        $scope.autoCompleteActive = false;
+        $scope.autoComplete = [];
+
+        //initial value to build the form
+        $scope.operations = [{ addition: null, attribute: null, operator: '=', value: null }];
+
+        $scope.updateOperation = function (index) {
+            $scope.autoCompleteActive = false;
+            $scope.changeoperation();
+            var valueInput = document.getElementById("input_waarde");
+            if (valueInput === document.activeElement) {
+                $scope.autoCompleteActive = true;
+                $scope.valueChanged(index);
+            }
+        };
+
+        $scope.$on('updateFields', function (event, data) {
+            $scope.attributes = data.fields;
+        });
+
+        $scope.$on('addOperation', function () {
+
+            $scope.operations.push({ addition: 'AND', attribute: '', operator: '=', value: '' });
+            $scope.changeoperation();
+        });
+
+        $scope.$on('orOperation', function () {
+
+            $scope.operations.push({ addition: 'OR', attribute: '', operator: '=', value: '' });
+            $scope.changeoperation();
+        });
+
+        $scope.delete = function (index) {
+            console.log(index);
+            if (index !== 0) {
+                $scope.operations.splice(index, 1);
+            }
+            $scope.changeoperation();
+        };
+
+        $scope.up = function (index) {
+
+            var op = $scope.operations[index];
+            if (index == 1) {
+                op.addition = null;
+                $scope.operations[0].addition = "AND";
+            }
+            $scope.operations.splice(index, 1);
+            $scope.operations.splice(index - 1, 0, op);
+            $scope.changeoperation();
+        };
+
+        $scope.down = function (index) {
+
+            var op = $scope.operations[index];
+            if (index == 0) {
+                op.addition = "AND";
+                $scope.operations[1].addition = null;
+            }
+
+            $scope.operations.splice(index, 1);
+            $scope.operations.splice(index + 1, 0, op);
+            $scope.changeoperation();
+        };
+
+        $scope.changeoperation = function () {
+            $scope.$emit('addedOperation', $scope.operations);
+        };
+
+        $scope.valueChanged = async function (index) {
+            var test = document.getElementById("input_waarde").value;
+            $scope.autoComplete = await SearchAdvancedService.autoComplete(test, index);
+        };
+    }]);
+    theController.$inject = ['$scope', 'SearchAdvancedService'];
 })();
 ;'use strict';
 
@@ -6385,6 +6658,20 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 (function (module) {
     module = angular.module('tink.gis');
+    module.directive('tinkSearchAdvanced', function () {
+        return {
+            // restrict: 'E',
+            replace: true,
+            templateUrl: 'templates/search/searchAdvancedTemplate.html',
+            controller: 'searchAdvancedController',
+            controllerAs: 'srchadvctrl'
+        };
+    });
+})();
+;'use strict';
+
+(function (module) {
+    module = angular.module('tink.gis');
     module.directive('tinkSearch', function () {
         return {
             // restrict: 'E',
@@ -6392,6 +6679,20 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             templateUrl: 'templates/search/searchTemplate.html',
             controller: 'searchController',
             controllerAs: 'srchctrl'
+        };
+    });
+})();
+;'use strict';
+
+(function (module) {
+    module = angular.module('tink.gis');
+    module.directive('searchOperations', function () {
+        return {
+            // restrict: 'E',
+            replace: true,
+            templateUrl: 'templates/search/searchOperationsTemplate.html',
+            controller: 'searchOperationsController',
+            controllerAs: 'srchoprnctrl'
         };
     });
 })();
@@ -6450,6 +6751,187 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         return _data;
     };
     module.factory('ResultsData', data);
+})();
+;'use strict';
+
+(function () {
+    var module = angular.module('tink.gis');
+    var service = function service($rootScope, MapData, MapService, PopupService, $q, UIService) {
+        var _service = {};
+        $rootScope.attribute = null;
+        $rootScope.operations = [];
+        $rootScope.query = "";
+        $rootScope.selectedLayer = null;
+        $rootScope.operators = ['=', '<>', '<', '>', '<=', '>=', 'LIKE', 'NOT LIKE']; //Misschien betere oplossing? Doorgeven?
+        $rootScope.autoComplete = [];
+
+        _service.newOrOperation = function () {
+            $rootScope.$broadcast('orOperation');
+        };
+
+        _service.newAddOperation = function () {
+            $rootScope.$broadcast('addOperation');
+        };
+
+        $rootScope.$on('addedOperation', function (event, data) {
+            $rootScope.operations = data;
+            $rootScope.$broadcast('queryOperationUpdated', $rootScope.operations);
+        });
+
+        $rootScope.$on('deleteOperation', function () {
+            $rootScope.$emit('deleteOperation');
+        });
+
+        $rootScope.$on('alteredOperation', function () {
+            $rootScope.$emit('alteredOperation');
+        });
+
+        _service.UpdateFields = function (layer) {
+            $rootScope.selectedLayer = layer;
+            $rootScope.$broadcast('updateFields', layer);
+        };
+
+        var checkOperator = function checkOperator(value) {
+            var returnValue = "";
+            if (value.operator == 'LIKE' || value.operator == 'NOT LIKE') {
+                returnValue += value.operator + " \'%" + value.value + "%\' ";
+            } else {
+                returnValue += value.operator + " \'" + value.value + "\' ";
+            }
+            return returnValue;
+        };
+
+        _service.BuildQuery = function (layer) {
+            $rootScope.query = ""; //init
+            $rootScope.query += "FROM " + layer; //always remains the same
+
+            angular.forEach($rootScope.operations, function (value, key) {
+                if (value.addition == null) {
+                    $rootScope.query += " WHERE " + value.attribute.name + " " + checkOperator(value);
+                } else {
+                    $rootScope.query += value.addition + " " + value.attribute.name + " " + checkOperator(value);
+                }
+            });
+
+            $rootScope.$broadcast('queryBuild', $rootScope.query);
+        };
+
+        _service.ExecuteQuery = function (layer, query) {
+            MapService.AdvancedQuery(layer, query);
+        };
+
+        _service.TranslateOperations = function (operations) {
+            var query = '';
+            operations.forEach(function (operation) {
+                if (operation.addition != null) {
+                    query += ' ' + operation.addition + ' (';
+                }
+                query += operation.attribute.alias + ' ';
+                query += _service.HandleOperator(operation);
+                if (operation.addition != null) {
+                    query += ')';
+                }
+            });
+            console.log(query);
+            return query;
+        };
+
+        _service.HandleOperator = function (operation) {
+            if (operation.value.contains("'")) {
+                operation.value = operation.value.substring(1).slice(0, -1);
+            }
+            switch (operation.operator) {
+                case 'LIKE' || 'NOT LIKE':
+                    if (!operation.value.contains('%')) {
+                        return operation.operator + ' \'%' + operation.value + '%\'';
+                    }
+                default:
+                    return operation.operator + ' \'' + operation.value + '\'';
+            }
+        };
+
+        _service.MakeNewRawQuery = function (rawQuery) {
+            var whereIndex = rawQuery.indexOf("WHERE");
+            var beforeWhere = rawQuery.substring(0, whereIndex);
+            this.GetLayerIdIfValid(beforeWhere);
+            var newQuery = rawQuery.substring(whereIndex);
+            newQuery = newQuery.replace("WHERE ", "");
+            return { layer: $rootScope.selectedLayer,
+                query: newQuery
+            };
+        };
+
+        _service.GetLayerIdIfValid = function (layerstring) {
+            $rootScope.selectedLayer = null;
+            MapData.VisibleLayers.forEach(function (layer) {
+                if (layerstring.contains(layer.name)) {
+                    $rootScope.selectedLayer = layer;
+                }
+            });
+            if (!$rootScope.selectedLayer) {
+                PopupService.Warning("Laag niet gevonden", "Kijk na of u de laag juist heeft geschreven of deze laag in de selectie van lagen zit");
+            }
+            return $rootScope.selectedLayer;
+        };
+
+        _service.IsLayerField = function (currentLayer, fieldname) {
+            console.log(currentLayer);
+            console.log(fieldname);
+            var isLayerField = false;
+            currentLayer.fields.forEach(function (field) {
+                if (field.name == fieldname) {
+                    isLayerField = true;
+                }
+            });
+            return isLayerField;
+        };
+
+        _service.GetLayerField = function (currentLayer, fieldname, line) {
+            var selectedField = null;
+
+            currentLayer.fields.forEach(function (field) {
+                if (field.name == fieldname) {
+                    selectedField = field;
+                    selectedField.$$hashKey = currentLayer.$$hashKey;
+                }
+            });
+            if (selectedField == null) {
+                var tmpOp = $rootScope.operations[line];
+                return tmpOp.attribute;
+            }
+            return selectedField;
+        };
+
+        _service.autoComplete = async function (val, index) {
+            var op = $rootScope.operations[index];
+            var query = "";
+            if (val == "") {
+                query = op.attribute.name + " is not null";
+            } else {
+                query = op.attribute.name + " like '%" + val + "%'";
+            }
+            var prom = await MapService.startAutoComplete($rootScope.selectedLayer, op.attribute, query);
+            if (prom.featureCollection != null) {
+                return prom.featureCollection.features;
+            } else {
+                return [];
+            }
+        };
+
+        _service.IsOperator = function (element) {
+            var isOperator = false;
+            $rootScope.operators.forEach(function (operator) {
+                if (operator == element) {
+                    isOperator = true;
+                }
+            });
+            return isOperator;
+        };
+
+        return _service;
+    };
+    module.factory("SearchAdvancedService", service);
+    module.$inject = ['$rootScope', 'MapService', 'PopupService', '$q', 'UIService'];
 })();
 ;'use strict';
 
@@ -7262,6 +7744,7 @@ L.drawLocal = {
     "<button ng-click=\"mapctrl.drawingButtonChanged('lijn')\" ng-class=\"{active: mapctrl.drawingType=='lijn'}\" type=button class=btn prevent-default-map tink-tooltip=\"Selecteer met een lijn\" tink-tooltip-align=bottom><i class=\"fa fa-minus\"></i></button>\n" +
     "<button ng-hide=mapctrl.mobile ng-click=\"mapctrl.drawingButtonChanged('vierkant')\" ng-class=\"{active: mapctrl.drawingType=='vierkant'}\" type=button class=btn prevent-default-map tink-tooltip=\"Selecteer met een rechthoek\" tink-tooltip-align=bottom><i class=\"fa fa-square-o\"></i></button>\n" +
     "<button ng-click=\"mapctrl.drawingButtonChanged('polygon')\" ng-class=\"{active: mapctrl.drawingType=='polygon'}\" type=button class=btn prevent-default-map tink-tooltip=\"Selecteer met een veelhoek\" tink-tooltip-align=bottom><i class=\"fa fa-star-o\"></i></button>\n" +
+    "<button ng-click=mapctrl.selectAdvanced() ng-class=\"{active: mapctrl.drawingType=='zoeken'}\" type=button class=btn prevent-default-map tink-tooltip=\"Geavanceerde opzoeking\" tink-tooltip-align=bottom><i class=\"fa fa-search\"></i></button>\n" +
     "</div>\n" +
     "<div class=select>\n" +
     "<select ng-options=\"layer as layer.name for layer in mapctrl.SelectableLayers()\" ng-model=mapctrl.selectedLayer ng-show=\"mapctrl.SelectableLayers().length > 1 && !mapctrl.mobile\" ng-change=mapctrl.layerChange() prevent-default-map></select>\n" +
@@ -7431,6 +7914,76 @@ L.drawLocal = {
     "<div class=text-right>\n" +
     "<button type=submit data-ng-click=ok()>Klaar</button>\n" +
     "</div>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "</div>\n"
+  );
+
+
+  $templateCache.put('templates/search/searchAdvancedTemplate.html',
+    "<div class=\"searchAdvancedTemplate modal-header\">\n" +
+    "<div class=\"row margin-bottom\">\n" +
+    "<div class=col-xs-10>\n" +
+    "<h4>Geavanceerd zoeken</h4>\n" +
+    "</div>\n" +
+    "<div class=col-xs-2>\n" +
+    "<button class=\"close pull-right\" type=button data-ng-click=cancel()></button>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "<div class=\"modal-body width-lg flex-column flex-grow-1\">\n" +
+    "<div class=\"row margin-top\">\n" +
+    "<div class=col-xs-12>\n" +
+    "<h4>Query Builder</h4>\n" +
+    "</div>\n" +
+    "<div class=\"form-group col-xs-3 margin-top\">\n" +
+    "<select ng-model=selectedLayer ng-options=\"layer as layer.name for layer in SelectedLayers()\" ng-change=updateFields()></select>\n" +
+    "</div>\n" +
+    "<div class=col-xs-9>\n" +
+    "<search-operations></search-operations>\n" +
+    "</div>\n" +
+    "<div class=\"margin-top margin-bottom col-xs-12\">\n" +
+    "<button ng-click=addOperation()>AND</button>\n" +
+    "<button ng-click=orOperation()>OR</button>\n" +
+    "<button class=pull-right ng-click=openQueryEditor()>Query Genereren</button>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "<div class=\"row margin-top\" ng-show=editor>\n" +
+    "<span class=\"empty-message col-xs-12\">* Opgelet! Aanpassingen in de editor zijn niet omkeerbaar naar de Query Builder *</span>\n" +
+    "<div class=col-xs-12>\n" +
+    "<h4>Editor</h4>\n" +
+    "</div>\n" +
+    "<div class=col-xs-12>\n" +
+    "<textarea rows=4 ng-model=query ng-change=updateQuery()>{{query}}</textarea>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "<div class=\"searchAdvancedTemplate modal-footer\">\n" +
+    "<div class=margin-top>\n" +
+    "<button type=button class=\"btn btn-info\" ng-click=QueryAPI()>Pas toe</button>\n" +
+    "<button type=button class=btn ng-click=cancel()> Annuleer</button>\n" +
+    "</div>\n" +
+    "</div>"
+  );
+
+
+  $templateCache.put('templates/search/searchOperationsTemplate.html',
+    "<div>\n" +
+    "<div class=form-group ng-repeat=\"operation in operations track by $index\">\n" +
+    "<div class=\"formgroup col-xs-4\">\n" +
+    "<div ng-show=\"operation.addition != null && !$first\" class=andOr>{{operation.addition}}</div>\n" +
+    "<select ng-model=operation.attribute ng-change=updateOperation($index) ng-options=\"attr as attr.name for attr in attributes\" value={{operation.attribute}}></select>\n" +
+    "</div>\n" +
+    "<div class=\"form-group col-xs-2\" ng-class=\"{'col-xs-4': operations.length == 1}\">\n" +
+    "<select ng-model=operation.operator ng-options=\"x for x in operators\" ng-change=updateOperation($index)></select>\n" +
+    "</div>\n" +
+    "<div class=\"form-group col-xs-4\">\n" +
+    "<input value={{operation.value}} placeholder=Waarde ng-model=operation.value ng-change=updateOperation($index) ng-click=valueChanged($index) ng-model-options=\"{ debounce: 500 }\" id=input_waarde class=twitter-typeahead>\n" +
+    "</div>\n" +
+    "<div class=\"form-group col-xs-2\">\n" +
+    "<button type=button class=up ng-show=!$first ng-click=up($index)></button>\n" +
+    "<button type=button class=down ng-show=!$last ng-click=down($index)></button>\n" +
+    "<button type=button class=closetransparant ng-show=!$first ng-click=delete($index)></button>\n" +
     "</div>\n" +
     "</div>\n" +
     "</div>\n"
