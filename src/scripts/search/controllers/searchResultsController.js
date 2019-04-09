@@ -109,12 +109,14 @@
                 SearchService.DeleteFeatureGroup(featureGroupName);
             };
             vm.showDetails = function (feature) {
-                var alreadyexists = MapData.VisibleFeatures.some(x => x.toGeoJSON().features[0].id == feature.id && x.toGeoJSON().features[0].layerName == feature.layerName);
-                        if (!alreadyexists) {
-                            var mapItem = L.geoJson(feature, { style: Style.DEFAULT }).addTo(map);
-                            MapData.TempExtendFeatures.push(mapItem);
-                            feature.mapItem = mapItem;
-                        }
+                // if (feature.theme.Type !== 'wms') {
+                    var alreadyexists = MapData.VisibleFeatures.some(x => x.toGeoJSON().features[0].id == feature.id && x.toGeoJSON().features[0].layerName == feature.layerName);
+                    if (!alreadyexists) {
+                        var mapItem = L.geoJson(feature, { style: Style.DEFAULT }).addTo(map);
+                        MapData.TempExtendFeatures.push(mapItem);
+                        feature.mapItem = mapItem;
+                    }
+                // }
                 ResultsData.SelectedFeature = feature;
             };
             vm.exportToCSV = function () {

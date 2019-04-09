@@ -6,8 +6,8 @@
     } catch (e) {
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
     }
-    var theController = module.controller('searchAdvancedController', ['$scope', '$modalInstance', 'SearchAdvancedService', 'MapData', 'GISService', 'ResultsData',
-        function ($scope, $modalInstance, SearchAdvancedService, MapData, GISService, ResultsData) {
+    var theController = module.controller('searchAdvancedController', ['$scope', '$modalInstance', 'SearchAdvancedService', 'MapData', 'GISService', 'UIService', 'ResultsData',
+        function ($scope, $modalInstance, SearchAdvancedService, MapData, GISService, UIService, ResultsData) {
             $scope.editor = false;
             $scope.selectedLayer = null;
             $scope.operations = [];
@@ -15,7 +15,9 @@
 
             $scope.openQueryEditor = function () {
                 $scope.editor = true;
-                SearchAdvancedService.BuildQuery($scope.selectedLayer.name);
+                if ($scope.selectedLayer) {
+                    SearchAdvancedService.BuildQuery($scope.selectedLayer.name);
+                }
             };
 
             $scope.SelectedLayers = function () {
@@ -62,17 +64,23 @@
                 if (!$scope.editor) {
                     SearchAdvancedService.BuildQuery($scope.selectedLayer);
                     //TODO: API call with query or operations as args ?
-                    var result = SearchAdvancedService.ExecuteQuery($scope.selectedLayer.id, $scope.selectedLayer.theme, $scope.operations);
+                    var query = SearchAdvancedService.TranslateOperations($scope.operations);
+                    var result = SearchAdvancedService.ExecuteQuery($scope.selectedLayer, query);
                     console.log(result);
                 } else {
                     //TODO: API call with query
-                    var translatedQuery = SearchAdvancedService.TranslateEditorQuery($scope.query, $scope.operations, $scope.selectedLayer);
-                    var result = SearchAdvancedService.ExecuteQuery(translatedQuery.layer.id, translatedQuery.layer.theme, translatedQuery.operations);
+                    var rawQueryResult = SearchAdvancedService.MakeNewRawQuery($scope.query);
+                    if (rawQueryResult.layer != null) {
+                        var result = SearchAdvancedService.ExecuteQuery(rawQueryResult.layer, rawQueryResult.query);
+                    }
                     console.log(result);
                 }
                 console.log("API Call : " + $scope.query); //TODO: remove this testing placeholder
+                
+                UIService.OpenLeftSide();
+                $modalInstance.$close();
             };
         }]);
 
-    theController.$inject = ['$scope', '$modalInstance', 'SearchAdvancedService', 'MapData', 'GISService', 'ResultsData'];
+    theController.$inject = ['$scope', '$modalInstance', 'SearchAdvancedService', 'MapData', 'UIService', 'GISService', 'ResultsData'];
 })();

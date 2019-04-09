@@ -229,6 +229,89 @@
                 });
             return promise;
         };
+
+        _mapService.AdvancedQueryCount = function(theme, layerid, query) {
+            var promise = new Promise(
+                function(resolve, reject) {
+                    ResultsData.RequestStarted++;
+                    theme.MapData.query()
+                        .layer(layerid)
+                        .where(query)
+                        .count(function(error, count, response) {
+                            ResultsData.RequestCompleted++;
+                            resolve({ error, count, response });
+                        });
+                });
+            return promise;
+        }
+
+        _mapService.AdvancedLayerQuery = function (theme, layerid, query) {
+            var promise = new Promise(
+                function(resolve, reject) {
+                    ResultsData.RequestStarted++;
+                    theme.MapData.query()
+                        .layer(layerid)
+                        .where(query)
+                        .run(function(error, featureCollection, response) {
+                            ResultsData.RequestCompleted++;
+                            resolve({ error, featureCollection, response });
+                        });
+                });
+            return promise;
+        }
+
+        _mapService.AdvancedQuery = function(layer, query) {
+            if (!layer) {
+                PopupService.Warning("Geen geldige laag", "Kon geen laag vinden om in te zoeken");
+            } else {
+                var prom = _mapService.AdvancedQueryCount(layer.theme, layer.id, query);
+                prom.then(function(arg) {
+                    if (arg.count > _mapService.MaxFeatures) {
+                        PopupService.Warning("U selecteerde " + arg.count + " resultaten.", "Bij meer dan " + _mapService.MaxFeatures + " resultaten kan het laden wat langer duren en zijn de resultaten niet zichtbaar op de kaart en in de lijst. Exporteren naar CSV blijft mogelijk.");
+                    }
+                    var prom = _mapService.AdvancedLayerQuery(layer.theme, layer.id, query);
+                        prom.then(function(arg) {
+                            MapData.AddFeatures(arg.featureCollection, layer.theme, layer.id, arg.featureCollection.length);
+                            if (MapData.ExtendedType != null) {
+                                MapData.ConfirmExtendDialog(MapData.processedFeatureArray);
+                                MapData.processedFeatureArray = [];
+                            }
+                        });
+                });
+            }
+        }
+
+        _mapService.AutoCompleteQuery = function(layer, field, query) {
+            if (!layer) {
+                PopupService.Warning("Geen geldige laag", "Kon geen laag vinden om in te zoeken");
+            } else {
+                if (!field) {
+                    PopupService.Warning("Geen veld van laag geselecteerd", "Selecteer een veld om autocomplete te kunnen starten");
+                } else {
+                    var promise = new Promise(
+                        function(resolve, reject) {
+                            ResultsData.RequestStarted++;
+                            layer.theme.MapData.query()
+                                .layer(layer.id)
+                                .where(query)
+                                .returnGeometry(false)
+                                .fields(field.name)
+                                .limit(10)
+                                .run(function(error, featureCollection, response) {
+                                    ResultsData.RequestCompleted++;
+                                    resolve({ error, featureCollection, response });
+                                });
+                        });
+                        console.log(promise);
+                    return promise;
+                }
+            }
+        }
+
+        _mapService.startAutoComplete = async function(layer, field, query) {
+            return await this.AutoCompleteQuery(layer, field, query);
+        }
+
         _mapService.Query = function(box, layer) {
             if (!layer) {
                 layer = MapData.SelectedLayer;

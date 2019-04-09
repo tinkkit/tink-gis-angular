@@ -1,13 +1,14 @@
 'use strict';
 (function () {
     var module = angular.module('tink.gis');
-    var service = function ($rootScope, MapData, GISService, ResultsData, $q, UIService) {
+    var service = function ($rootScope, MapData, MapService, PopupService, $q, UIService) {
         var _service = {};
         $rootScope.attribute = null;
         $rootScope.operations = [];
         $rootScope.query = "";
         $rootScope.selectedLayer = null;
-        $rootScope.operators = ['=', '<>', '<', '>', '<=', '>=', 'LIKE']; //Misschien betere oplossing? Doorgeven?
+        $rootScope.operators = ['=', '<>', '<', '>', '<=', '>=', 'LIKE', 'NOT LIKE']; //Misschien betere oplossing? Doorgeven?
+        $rootScope.autoComplete = [];
 
         _service.newOrOperation = function () {
             $rootScope.$broadcast('orOperation');
@@ -31,12 +32,13 @@
         });
 
         _service.UpdateFields = function (layer) {
+            $rootScope.selectedLayer = layer;
             $rootScope.$broadcast('updateFields', layer);
         };
 
         var checkOperator = function (value) {
             var returnValue = "";
-            if (value.operator == 'LIKE') {
+            if (value.operator == 'LIKE' || value.operator == 'NOT LIKE') {
                 returnValue += value.operator + " \'%" + value.value + "%\' ";
             } else {
                 returnValue += value.operator + " \'" + value.value + "\' ";
@@ -46,44 +48,34 @@
 
         _service.BuildQuery = function (layer) {
             $rootScope.query = ""; //init
-            $rootScope.query += "FROM (" + layer; //always remains the same
+            $rootScope.query += "FROM " + layer; //always remains the same
 
             angular.forEach($rootScope.operations, function (value, key) {
                 if (value.addition == null) {
-                    $rootScope.query += ") WHERE (" + value.attribute.name +  ") " + checkOperator(value);
+                    $rootScope.query += " WHERE " + value.attribute.name +  " " + checkOperator(value);
                 } else {
-                    $rootScope.query += value.addition + " (" + value.attribute.name + ") " + checkOperator(value);
+                    $rootScope.query += value.addition + " " + value.attribute.name + " " + checkOperator(value);
                 }
             });
 
             $rootScope.$broadcast('queryBuild', $rootScope.query);
         };
 
-        _service.ExecuteQuery = function (layerid, theme, operations) {
-            var prom = $q.defer();
-            var query = this.TranslateOperations(operations);
-            
-            theme.MapData.query()
-                .layer(layerid)
-                .where(query)
-                .run(function(error, featureCollection, response) {
-                    if (error) {
-                        prom.reject(error);
-                    } else {
-                        prom.resolve(featureCollection, response);
-                        ResultsData.RequestCompleted++;
-                        MapData.AddFeatures(featureCollection, theme, layerid);
-                        UIService.OpenLeftSide();
-                    }
-                });
-            return prom.promise;
+        _service.ExecuteQuery = function (layer, query) {
+            MapService.AdvancedQuery(layer, query);
         }
 
         _service.TranslateOperations = function (operations) {
             var query = '';
             operations.forEach(operation => {
+                if (operation.addition != null) {
+                    query += ' ' + operation.addition + ' (';
+                }
                 query += operation.attribute.alias + ' ';
                 query += _service.HandleOperator(operation);
+                if (operation.addition != null) {
+                    query += ')';
+                }
             });
             console.log(query);
             return query;
@@ -94,7 +86,7 @@
                 operation.value = operation.value.substring(1).slice(0, -1);
             }
             switch (operation.operator) {
-                case 'LIKE':
+                case 'LIKE' || 'NOT LIKE':
                     if(!operation.value.contains('%')){
                         return operation.operator + ' \'%' + operation.value + '%\'';
                     }
@@ -103,53 +95,27 @@
             }
         }
 
-        _service.TranslateEditorQuery = function(rawQuery, originalOperations, selectedLayer) { //Adding Operations as parameter for testing
-            var newQueryParts = [];
-            var newOperations = [];
-            var queryParts = rawQuery.split(/('.*?'|[^"\s]+)+(?=\s*|\s*$)/g); //Split parts of query by spaces except when it's between single quotes
-            var line = 0;
-
-            queryParts = queryParts.filter(function(str) {
-                return /\S/.test(str);
-            });
-            newOperations[line] = {};
-            newOperations[line].addition = null;
-            for (let index = 1; index < queryParts.length; index++) {
-                let isLayerOrField = false;
-                let element = queryParts[index];
-                if (element.contains('(') && element.contains(')')) {
-                    element = element.substring(1).slice(0, -1); //Removes front and back brackets
-                    isLayerOrField = true;
-                }
-                console.log(element);
-                console.log(selectedLayer);
-                if (isLayerOrField == false && this.IsOperator(element)) {
-                    newOperations[line].operator = element;
-                }
-                else if (isLayerOrField == true && index == 1) {
-                    newQueryParts.layer = this.GetLayerIdIfValid(element);
-                    isLayerOrField = false;
-                }
-                else if (isLayerOrField == true && this.IsLayerField($rootScope.selectedLayer, element)) {
-                    newOperations[line].attribute = this.GetLayerField($rootScope.selectedLayer, element, line);
-                    isLayerOrField = false;
-                }
-                else if (element != "FROM" && element != "WHERE") {
-                    newOperations[line].value = element;
-                } //EXPAND TO SUPPORT AND/OR
-            }
-            console.log(newQueryParts);
-            newQueryParts.operations = newOperations;
-            return newQueryParts;
+        _service.MakeNewRawQuery = function(rawQuery) {
+            var whereIndex = rawQuery.indexOf("WHERE");
+            var beforeWhere = rawQuery.substring(0, whereIndex);
+            this.GetLayerIdIfValid(beforeWhere);
+            var newQuery = rawQuery.substring(whereIndex);
+            newQuery = newQuery.replace("WHERE ", "");
+            return { layer: $rootScope.selectedLayer,
+                     query: newQuery
+                    };
         }
 
-        _service.GetLayerIdIfValid = function(layername) {
+        _service.GetLayerIdIfValid = function(layerstring) {
+            $rootScope.selectedLayer = null;
             MapData.VisibleLayers.forEach(layer => {
-                if (layer.name === layername) {
+                if (layerstring.contains(layer.name)) {
                     $rootScope.selectedLayer = layer;
                 }
             });
-
+            if (!$rootScope.selectedLayer) {
+                PopupService.Warning("Laag niet gevonden", "Kijk na of u de laag juist heeft geschreven of deze laag in de selectie van lagen zit");
+            }
             return $rootScope.selectedLayer;
         }
 
@@ -181,6 +147,22 @@
             return selectedField;
         }
 
+        _service.autoComplete = async function(val, index) {
+            const op = $rootScope.operations[index];
+            var query = "";
+            if (val == "") {
+                query = op.attribute.name + " is not null";
+            } else {
+                query = op.attribute.name + " like '%" + val + "%'";
+            }
+            var prom = await MapService.startAutoComplete($rootScope.selectedLayer, op.attribute, query);
+            if (prom.featureCollection != null) {
+                return prom.featureCollection.features;
+            } else {
+                return [];
+            }
+        }
+
         _service.IsOperator = function(element) {
             var isOperator = false;
             $rootScope.operators.forEach(operator => {
@@ -194,6 +176,6 @@
         return _service;
     };
     module.factory("SearchAdvancedService", service);
-    module.$inject = ['$rootScope', 'GISService', 'ResultsData', '$q', 'UIService'];
+    module.$inject = ['$rootScope', 'MapService', 'PopupService', '$q', 'UIService'];
 })();
 

@@ -26,12 +26,14 @@
                             tooltipAnchor: [16, -28],
                             shadowSize: [41, 41]
                         });
-                        MapData.SetStyle(oldVal.mapItem, Style.DEFAULT, myicon);
+                        if (oldVal.theme.Type !== 'wms') {
+                            MapData.SetStyle(oldVal.mapItem, Style.DEFAULT, myicon);
+                        }
                     }
 
                 }
                 if (newVal) {
-                    if (newVal.mapItem) {
+                    if (newVal.mapItem && newVal.theme.Type !== 'wms') {
                         var myicon = L.AwesomeMarkers.icon({
                             icon: 'fa-dot-circle-o',
                             markerColor: 'red'
@@ -40,12 +42,16 @@
                     }
                     vm.selectedResult = newVal;
                     var item = Object.getOwnPropertyNames(newVal.properties).map(k => ({ key: k, value: newVal.properties[k] }));
-                    var geo = Object.getOwnPropertyNames(newVal.geometry).map(k => ({ key: k, value: newVal.geometry[k] }));
+                    if (newVal.theme.Type !== 'wms') {
+                        var geo = Object.getOwnPropertyNames(newVal.geometry).map(k => ({ key: k, value: newVal.geometry[k] }));
+                    }
                     
                     vm.props = item;
-                    //Pushing both seperately
-                    vm.props.push(geo[0]);
-                    vm.props.push(geo[1]);
+                    if (newVal.theme.Type !== 'wms') {
+                        //Pushing both seperately
+                        vm.props.push(geo[0]);
+                        vm.props.push(geo[1]);
+                    }
                     vm.prevResult = SearchService.GetPrevResult();
                     vm.nextResult = SearchService.GetNextResult();
                 }

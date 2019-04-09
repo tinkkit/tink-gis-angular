@@ -396,6 +396,9 @@ button.btn.active {
   transform: translate(0, 0) !important; }
 
 .relative-container {
+  min-height: 0;
+  display: -webkit-flex;
+  display: -ms-flexbox;
   display: flex; }
 
 .flex-column {
@@ -403,7 +406,10 @@ button.btn.active {
   flex-direction: column; }
 
 .flex-grow-1 {
-  flex-grow: 1; }
+  -webkit-flex-grow: 1;
+      -ms-flex-positive: 1;
+          flex-grow: 1;
+  min-height: 0; }
 
 .overflow-wrapper {
   overflow: auto; }

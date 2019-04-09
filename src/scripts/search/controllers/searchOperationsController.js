@@ -10,17 +10,25 @@
         function ($scope, SearchAdvancedService) {
 
             $scope.attributes = null; ['Straat', 'Postcode', 'nummer']; //ophalen vanaf API
-            $scope.operators = ['=', '<>', '<', '>', '<=', '>=', 'LIKE'];
+            $scope.operators = ['=', '<>', '<', '>', '<=', '>=', 'LIKE', 'NOT LIKE'];
             $scope.operator = '=';
             $scope.selectedAttribute = null;
             $scope.value = null;
             $scope.layer = null;
+            $scope.autoCompleteActive = false;
+            $scope.autoComplete = [];
 
             //initial value to build the form
             $scope.operations = [{ addition: null, attribute: null, operator: '=', value: null }];
 
-            $scope.updateOperation = function(){
+            $scope.updateOperation = function (index){
+                $scope.autoCompleteActive = false;
                 $scope.changeoperation();
+                var valueInput = document.getElementById("input_waarde");
+                if(valueInput === document.activeElement){
+                    $scope.autoCompleteActive = true;
+                    $scope.valueChanged(index);
+                }
             };
 
             $scope.$on('updateFields', function (event, data) {
@@ -79,8 +87,11 @@
             $scope.changeoperation = function() {
                 $scope.$emit('addedOperation', $scope.operations);
             };
-            
 
+            $scope.valueChanged = async function (index) {
+                var test = document.getElementById("input_waarde").value;
+                $scope.autoComplete = await SearchAdvancedService.autoComplete(test, index);
+            }
         }]);
     theController.$inject = ['$scope', 'SearchAdvancedService'];
 })();
