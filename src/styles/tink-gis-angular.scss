@@ -1024,7 +1024,7 @@ html.print {
  * Aanpassingen Matthiass
  */
  input[type="checkbox"].hidden-print + label, input[type="radio"].hidden-print + label {
-  padding-left: .1rem;
+  padding-left: .1rem; // test
   pointer-events: none;
 }
  input[type="checkbox"].hidden-print + label:before, input[type="radio"].hidden-print + label:before, input[type="checkbox"].hidden-print + label:after, input[type="radio"].hidden-print + label:after {
