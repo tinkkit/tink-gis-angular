@@ -6826,7 +6826,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 if (operation.addition != null) {
                     query += ' ' + operation.addition + ' (';
                 }
-                query += operation.attribute.alias + ' ';
+                query += operation.attribute.name + ' ';
                 query += _service.HandleOperator(operation);
                 if (operation.addition != null) {
                     query += ')';
