@@ -440,7 +440,11 @@
             }
         }
         _data.SetFieldsData = function(featureItem, layer) {
+            let aliasDifferentThanName = false;
             layer.fields.forEach(field => {
+                if(field.name != field.alias && featureItem.properties[field.alias] == null) {
+                    aliasDifferentThanName = true;
+                }
                 if(featureItem.properties[field.name] == null && featureItem.properties[field.alias] == null) {
                     featureItem.properties[field.name] = "";
                 }
@@ -450,8 +454,20 @@
                     featureItem.properties[field.name] = date_string;
                 }
             });
+            if (aliasDifferentThanName) {
+                featureItem.properties = setAliasAsDisplayName(featureItem, layer);
+            }
             _data.SetDisplayValue(featureItem, layer);
         }
+
+        var setAliasAsDisplayName = function(featureItem, layer) {
+            var newProperties = {};
+            layer.fields.forEach(field => {
+                newProperties[field.alias] = featureItem.properties[field.name];
+            });
+            return newProperties;
+        }
+
         _data.GetResultsData = function (features, theme, layerId, featureCount) {
             var buffereditem = _data.VisibleFeatures.find(x => x.isBufferedItem);
             var resultArray = [];

@@ -4765,7 +4765,11 @@ L.control.typeahead = function (args) {
             }
         };
         _data.SetFieldsData = function (featureItem, layer) {
+            var aliasDifferentThanName = false;
             layer.fields.forEach(function (field) {
+                if (field.name != field.alias && featureItem.properties[field.alias] == null) {
+                    aliasDifferentThanName = true;
+                }
                 if (featureItem.properties[field.name] == null && featureItem.properties[field.alias] == null) {
                     featureItem.properties[field.name] = "";
                 }
@@ -4775,8 +4779,20 @@ L.control.typeahead = function (args) {
                     featureItem.properties[field.name] = date_string;
                 }
             });
+            if (aliasDifferentThanName) {
+                featureItem.properties = setAliasAsDisplayName(featureItem, layer);
+            }
             _data.SetDisplayValue(featureItem, layer);
         };
+
+        var setAliasAsDisplayName = function setAliasAsDisplayName(featureItem, layer) {
+            var newProperties = {};
+            layer.fields.forEach(function (field) {
+                newProperties[field.alias] = featureItem.properties[field.name];
+            });
+            return newProperties;
+        };
+
         _data.GetResultsData = function (features, theme, layerId, featureCount) {
             var buffereditem = _data.VisibleFeatures.find(function (x) {
                 return x.isBufferedItem;
