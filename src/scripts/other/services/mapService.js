@@ -218,11 +218,28 @@
         };
 
         var validateFeatureCollectionGeometry = function(features) {
-            if (_mapService.MaxFeatures >= features.length) {
+            if (_mapService.MaxFeatures >= features.length) { //This might not be necessary as I added 'toFixed(8)' when converting coordinates
                 for (let index = 0; index < features.length; index++) {
+                    if (index == 100) {
+                        console.log('passed 100');
+                    } else if (index == 200) {
+                        console.log('passed 200');
+                    } else if (index == 300) {
+                        console.log('passed 300');
+                    } else if (index == 300) {
+                        console.log('passed 400');
+                    } else if (index == 500) {
+                        console.log('passed 500');
+                    }
+                    if (index > 300) {
+                        console.log(index);
+                    }
+                    if (index == 378) {
+                        console.log('HIERZO');
+                    }
                     const element = features[index];
                     if (element.geometry == null && element.properties.X != null && element.properties.Y != null) {
-                        const search = element.properties.X + "," + element.properties.Y;
+                        const search = element.properties.X.toFixed(8) + "," + element.properties.Y.toFixed(8);
                         var lambertCheck = GisHelperService.getLambartCordsFromString(search);
                         var xyWGS84 = GisHelperService.ConvertLambert72ToWSG84({
                         x: lambertCheck.x,
