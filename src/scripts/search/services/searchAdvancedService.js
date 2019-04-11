@@ -63,6 +63,7 @@
 
         _service.ExecuteQuery = function (layer, query) {
             MapService.AdvancedQuery(layer, query);
+            MapData.ShowDrawControls = false;
         }
 
         _service.TranslateOperations = function (operations) {

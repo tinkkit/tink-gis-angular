@@ -6836,6 +6836,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
         _service.ExecuteQuery = function (layer, query) {
             MapService.AdvancedQuery(layer, query);
+            MapData.ShowDrawControls = false;
         };
 
         _service.TranslateOperations = function (operations) {
