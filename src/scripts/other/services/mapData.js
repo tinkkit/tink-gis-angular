@@ -441,7 +441,7 @@
         }
         _data.SetFieldsData = function(featureItem, layer) {
             layer.fields.forEach(field => {
-                if(featureItem.properties[field.name] == null) {
+                if(featureItem.properties[field.name] == null && featureItem.properties[field.alias] == null) {
                     featureItem.properties[field.name] = "";
                 }
                 if (field.type == 'esriFieldTypeDate' && typeof featureItem.properties[field.name] == 'number') {

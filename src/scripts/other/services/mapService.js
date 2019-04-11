@@ -210,11 +210,29 @@
                         .intersects(geometry)
                         .run(function(error, featureCollection, response) {
                             ResultsData.RequestCompleted++;
+                            validateFeatureCollectionGeometry(featureCollection.features);
                             resolve({ error, featureCollection, response });
                         });
                 });
             return promise;
         };
+
+        var validateFeatureCollectionGeometry = function(features) {
+            for (let index = 0; index < features.length; index++) {
+                const element = features[index];
+                if (element.geometry == null && element.properties.X != null && element.properties.Y != null) {
+                    const search = element.properties.X + "," + element.properties.Y;
+                    var lambertCheck = GisHelperService.getLambartCordsFromString(search);
+                    var xyWGS84 = GisHelperService.ConvertLambert72ToWSG84({
+                        x: lambertCheck.x,
+                        y: lambertCheck.y
+                      });
+                    element.geometry = { coordinates: [xyWGS84.y, xyWGS84.x],
+                                        type: "Point"};
+                }                                
+            }
+        }
+
         _mapService.LayerQueryCount = function(theme, layerid, geometry) {
             var promise = new Promise(
                 function(resolve, reject) {

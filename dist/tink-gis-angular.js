@@ -4766,7 +4766,7 @@ L.control.typeahead = function (args) {
         };
         _data.SetFieldsData = function (featureItem, layer) {
             layer.fields.forEach(function (field) {
-                if (featureItem.properties[field.name] == null) {
+                if (featureItem.properties[field.name] == null && featureItem.properties[field.alias] == null) {
                     featureItem.properties[field.name] = "";
                 }
                 if (field.type == 'esriFieldTypeDate' && typeof featureItem.properties[field.name] == 'number') {
@@ -5270,11 +5270,29 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 }
                 theme.MapDataWithCors.query().layer(layerid).intersects(geometry).run(function (error, featureCollection, response) {
                     ResultsData.RequestCompleted++;
+                    validateFeatureCollectionGeometry(featureCollection.features);
                     resolve({ error: error, featureCollection: featureCollection, response: response });
                 });
             });
             return promise;
         };
+
+        var validateFeatureCollectionGeometry = function validateFeatureCollectionGeometry(features) {
+            for (var index = 0; index < features.length; index++) {
+                var element = features[index];
+                if (element.geometry == null && element.properties.X != null && element.properties.Y != null) {
+                    var search = element.properties.X + "," + element.properties.Y;
+                    var lambertCheck = GisHelperService.getLambartCordsFromString(search);
+                    var xyWGS84 = GisHelperService.ConvertLambert72ToWSG84({
+                        x: lambertCheck.x,
+                        y: lambertCheck.y
+                    });
+                    element.geometry = { coordinates: [xyWGS84.y, xyWGS84.x],
+                        type: "Point" };
+                }
+            }
+        };
+
         _mapService.LayerQueryCount = function (theme, layerid, geometry) {
             var promise = new Promise(function (resolve, reject) {
                 ResultsData.RequestStarted++;

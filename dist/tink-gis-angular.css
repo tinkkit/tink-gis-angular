@@ -207,7 +207,7 @@
   width: 22.8571428571rem ; }
 
 .tink-map .nav-aside.nav-right {
-  width: 19.2857142857rem ; }
+  width: 22.8571428571rem ; }
 
 .leafletmap {
   position: relative; }
@@ -797,9 +797,9 @@ html.has-nav-left .nav-left {
           transform: translate(-22.8571428571rem , 0); }
 
 .nav-right {
-  -webkit-transform: translate(19.2857142857rem , 0);
-      -ms-transform: translate(19.2857142857rem , 0);
-          transform: translate(19.2857142857rem , 0); }
+  -webkit-transform: translate(22.8571428571rem , 0);
+      -ms-transform: translate(22.8571428571rem , 0);
+          transform: translate(22.8571428571rem , 0); }
 
 .map-buttons-left {
   height: 100%;
@@ -834,7 +834,7 @@ html.nav-left-open .leaflet-control {
       left: 30.3571428571rem ; } }
 
 html.nav-right-open .map-buttons-right {
-  right: 19.2857142857rem ; }
+  right: 22.8571428571rem ; }
 
 html.nav-right-open .nav-right {
   -webkit-transform: translate(0, 0);
