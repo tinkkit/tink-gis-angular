@@ -6315,6 +6315,14 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
         $scope.$on('updateFields', function (event, data) {
             $scope.attributes = data.fields;
+            for (var index = 0; index < $scope.attributes.length; index++) {
+                var element = $scope.attributes[index];
+                if (element.name != element.alias) {
+                    element.displayName = element.name + " (" + element.alias + ")";
+                } else {
+                    element.displayName = element.name;
+                }
+            }
         });
 
         $scope.$on('addOperation', function () {
@@ -6837,6 +6845,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         _service.ExecuteQuery = function (layer, query) {
             MapService.AdvancedQuery(layer, query);
             MapData.ShowDrawControls = false;
+            MapData.ActiveInteractieKnop = ActiveInteractieButton.NIETS;
         };
 
         _service.TranslateOperations = function (operations) {
@@ -7991,7 +8000,7 @@ L.drawLocal = {
     "<div class=form-group ng-repeat=\"operation in operations track by $index\">\n" +
     "<div class=\"formgroup col-xs-4\">\n" +
     "<div ng-show=\"operation.addition != null && !$first\" class=andOr>{{operation.addition}}</div>\n" +
-    "<select ng-model=operation.attribute ng-change=updateOperation($index) ng-options=\"attr as attr.name for attr in attributes\" value={{operation.attribute}}></select>\n" +
+    "<select ng-model=operation.attribute ng-change=updateOperation($index) ng-options=\"attr as attr.displayName for attr in attributes\" value={{operation.attribute}}></select>\n" +
     "</div>\n" +
     "<div class=\"form-group col-xs-2\" ng-class=\"{'col-xs-4': operations.length == 1}\">\n" +
     "<select ng-model=operation.operator ng-options=\"x for x in operators\" ng-change=updateOperation($index)></select>\n" +

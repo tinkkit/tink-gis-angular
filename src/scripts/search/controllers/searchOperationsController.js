@@ -33,6 +33,14 @@
 
             $scope.$on('updateFields', function (event, data) {
                 $scope.attributes = data.fields;
+                for (let index = 0; index < $scope.attributes.length; index++) {
+                    const element = $scope.attributes[index];
+                    if (element.name != element.alias) {
+                        element.displayName = element.name + " (" + element.alias + ")";
+                    } else {
+                        element.displayName = element.name;
+                    }
+                }
             })
 
             $scope.$on('addOperation', function () {

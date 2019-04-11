@@ -64,6 +64,7 @@
         _service.ExecuteQuery = function (layer, query) {
             MapService.AdvancedQuery(layer, query);
             MapData.ShowDrawControls = false;
+            MapData.ActiveInteractieKnop = ActiveInteractieButton.NIETS;
         }
 
         _service.TranslateOperations = function (operations) {

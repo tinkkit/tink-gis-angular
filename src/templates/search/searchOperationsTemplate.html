@@ -3,7 +3,7 @@
         <div class="formgroup col-xs-4">
             <div ng-show="operation.addition != null && !$first" class="andOr">{{operation.addition}}</div>
             <select ng-model="operation.attribute" ng-change="updateOperation($index)"
-                ng-options="attr as attr.name for attr in attributes" value="{{operation.attribute}}"></select>
+                ng-options="attr as attr.displayName for attr in attributes" value="{{operation.attribute}}"></select>
         </div>
         <div class="form-group col-xs-2" ng-class="{'col-xs-4': operations.length == 1}">
             <select ng-model="operation.operator" ng-options="x for x in operators"
