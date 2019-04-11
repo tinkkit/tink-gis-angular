@@ -7995,8 +7995,8 @@ L.drawLocal = {
     "<div class=\"form-group col-xs-2\" ng-class=\"{'col-xs-4': operations.length == 1}\">\n" +
     "<select ng-model=operation.operator ng-options=\"x for x in operators\" ng-change=updateOperation($index)></select>\n" +
     "</div>\n" +
-    "<div class=\"form-group col-xs-4\">\n" +
-    "<input value={{operation.value}} placeholder=Waarde ng-model=operation.value ng-change=updateOperation($index) ng-click=valueChanged($index) ng-model-options=\"{ debounce: 500 }\" id=input_waarde>\n" +
+    "<div class=\"formgroup col-xs-4\">\n" +
+    "<input type=search value={{operation.value}} placeholder=Waarde ng-model=operation.value ng-change=updateOperation($index) ng-click=valueChanged($index) ng-model-options=\"{ debounce: 500 }\" id=input_waarde>\n" +
     "</div>\n" +
     "<div class=\"form-group col-xs-2\">\n" +
     "<button type=button class=up ng-show=!$first ng-click=up($index)></button>\n" +
