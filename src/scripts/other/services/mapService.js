@@ -332,9 +332,9 @@
             }
         }
 
-        // _mapService.startAutoComplete = async function(layer, field, query) {
-        //     return await this.AutoCompleteQuery(layer, field, query);
-        // }
+        _mapService.startAutoComplete = function(layer, field, query) {
+            return this.AutoCompleteQuery(layer, field, query);
+        }
 
         _mapService.Query = function(box, layer) {
             if (!layer) {

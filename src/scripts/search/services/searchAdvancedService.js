@@ -149,21 +149,25 @@
             return selectedField;
         }
 
-        // _service.autoComplete = async function(val, index) {
-        //     const op = $rootScope.operations[index];
-        //     var query = "";
-        //     if (val == "") {
-        //         query = op.attribute.name + " is not null";
-        //     } else {
-        //         query = op.attribute.name + " like '%" + val + "%'";
-        //     }
-        //     var prom = await MapService.startAutoComplete($rootScope.selectedLayer, op.attribute, query);
-        //     if (prom.featureCollection != null) {
-        //         return prom.featureCollection.features;
-        //     } else {
-        //         return [];
-        //     }
-        // }
+        _service.BuildAutoCompleteQuery = function(val, index) {
+            if($rootScope.operations.length != 0) {
+                const op = $rootScope.operations[index];
+                var query = "";
+                if (val == "") {
+                    query = op.attribute.name + " is not null";
+                } else {
+                    query = op.attribute.name + " like '%" + val + "%'";
+                }
+                var prom = MapService.startAutoComplete($rootScope.selectedLayer, op.attribute, query);
+
+                return {    layer: $rootScope.selectedLayer,
+                            attribute: op.attribute,
+                            query: query
+                        };
+            } else {
+                return {};
+            }
+        }
 
         _service.IsOperator = function(element) {
             var isOperator = false;

@@ -5286,7 +5286,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 }
                 theme.MapDataWithCors.query().layer(layerid).intersects(geometry).run(function (error, featureCollection, response) {
                     ResultsData.RequestCompleted++;
-                    validateFeatureCollectionGeometry(featureCollection.features);
+                    if (featureCollection) {
+                        validateFeatureCollectionGeometry(featureCollection.features);
+                    }
                     resolve({ error: error, featureCollection: featureCollection, response: response });
                 });
             });
@@ -5297,23 +5299,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             if (_mapService.MaxFeatures >= features.length) {
                 //This might not be necessary as I added 'toFixed(8)' when converting coordinates
                 for (var index = 0; index < features.length; index++) {
-                    if (index == 100) {
-                        console.log('passed 100');
-                    } else if (index == 200) {
-                        console.log('passed 200');
-                    } else if (index == 300) {
-                        console.log('passed 300');
-                    } else if (index == 300) {
-                        console.log('passed 400');
-                    } else if (index == 500) {
-                        console.log('passed 500');
-                    }
-                    if (index > 300) {
-                        console.log(index);
-                    }
-                    if (index == 378) {
-                        console.log('HIERZO');
-                    }
                     var element = features[index];
                     if (element.geometry == null && element.properties.X != null && element.properties.Y != null) {
                         var search = element.properties.X.toFixed(8) + "," + element.properties.Y.toFixed(8);
@@ -5404,9 +5389,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             }
         };
 
-        // _mapService.startAutoComplete = async function(layer, field, query) {
-        //     return await this.AutoCompleteQuery(layer, field, query);
-        // }
+        _mapService.startAutoComplete = function (layer, field, query) {
+            return this.AutoCompleteQuery(layer, field, query);
+        };
 
         _mapService.Query = function (box, layer) {
             if (!layer) {
@@ -6326,7 +6311,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     } catch (e) {
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
     }
-    var theController = module.controller('searchOperationsController', ['$scope', 'SearchAdvancedService', function ($scope, SearchAdvancedService) {
+    var theController = module.controller('searchOperationsController', ['$scope', 'SearchAdvancedService', 'MapService', function ($scope, SearchAdvancedService, MapService) {
 
         $scope.attributes = null;['Straat', 'Postcode', 'nummer']; //ophalen vanaf API
         $scope.operators = ['=', '<>', '<', '>', '<=', '>=', 'LIKE', 'NOT LIKE'];
@@ -6336,25 +6321,22 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         $scope.layer = null;
         $scope.autoCompleteActive = false;
         $scope.autoComplete = [];
+        $scope.index = null;
 
         //initial value to build the form
         $scope.operations = [{ addition: null, attribute: null, operator: '=', value: null }];
 
         $scope.updateOperation = function (index) {
-            // $scope.autoCompleteActive = false;
+            $scope.index = index;
+            $scope.autoCompleteActive = false;
             $scope.changeoperation();
-            // var valueInput = document.getElementById("input_waarde");
-            // if(valueInput === document.activeElement){
-            //     $scope.autoCompleteActive = true;
-            //     $scope.valueChanged(index);
-            // }
         };
 
         $scope.$on('updateFields', function (event, data) {
             $scope.attributes = data.fields;
             for (var index = 0; index < $scope.attributes.length; index++) {
                 var element = $scope.attributes[index];
-                if (element.name != element.alias) {
+                if (element.name.toLowerCase() != element.alias.toLowerCase()) {
                     element.displayName = element.name + " (" + element.alias + ")";
                 } else {
                     element.displayName = element.name;
@@ -6411,12 +6393,49 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             $scope.$emit('addedOperation', $scope.operations);
         };
 
-        // $scope.valueChanged = async function (index) {
-        //     // var test = document.getElementById("input_waarde").value;
-        //     // $scope.autoComplete = await SearchAdvancedService.autoComplete(test, index); //TODO activeren wanneer je aan autocomplete werkt
-        // }
+        $scope.valueChanged = function (index) {
+            $scope.index = index;
+        };
+
+        setTimeout(function () {
+            console.log("letsgo qrtyq");
+            console.log($('.typeaheadsearchoperations'));
+            var suggestionfunc = function suggestionfunc(item) {
+                console.log("ok");
+                return "<div>" + item.properties[$scope.operations[$scope.index].attribute.name] + "</div>";
+            };
+            var abc = $('.typeaheadsearchoperations').typeahead({
+                classNames: {
+                    input: 'tt-input-querybuild',
+                    hint: 'tt-hint-querybuild'
+                }
+            }, {
+                async: true,
+                name: 'autoComplete',
+                source: function source(query, syncResults, asyncResults) {
+                    if ($scope.index != null) {
+                        var queryParams = SearchAdvancedService.BuildAutoCompleteQuery(query, $scope.index);
+
+                        var prom = MapService.startAutoComplete(queryParams.layer, queryParams.attribute, queryParams.query);
+                        prom.then(function (arg) {
+                            if (arg && arg.featureCollection.features != null) {
+                                $scope.autoComplete = arg.featureCollection.features;
+                            } else {
+                                $scope.autoComplete = [];
+                            }
+                            asyncResults($scope.autoComplete);
+                        });
+                    } else {
+                        syncResults([]);
+                    }
+                },
+                templates: { suggestion: suggestionfunc }
+            });
+
+            console.log(abc);
+        }, 500);
     }]);
-    theController.$inject = ['$scope', 'SearchAdvancedService'];
+    theController.$inject = ['$scope', 'SearchAdvancedService', 'MapService'];
 })();
 ;'use strict';
 
@@ -6967,21 +6986,25 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             return selectedField;
         };
 
-        // _service.autoComplete = async function(val, index) {
-        //     const op = $rootScope.operations[index];
-        //     var query = "";
-        //     if (val == "") {
-        //         query = op.attribute.name + " is not null";
-        //     } else {
-        //         query = op.attribute.name + " like '%" + val + "%'";
-        //     }
-        //     var prom = await MapService.startAutoComplete($rootScope.selectedLayer, op.attribute, query);
-        //     if (prom.featureCollection != null) {
-        //         return prom.featureCollection.features;
-        //     } else {
-        //         return [];
-        //     }
-        // }
+        _service.BuildAutoCompleteQuery = function (val, index) {
+            if ($rootScope.operations.length != 0) {
+                var op = $rootScope.operations[index];
+                var query = "";
+                if (val == "") {
+                    query = op.attribute.name + " is not null";
+                } else {
+                    query = op.attribute.name + " like '%" + val + "%'";
+                }
+                var prom = MapService.startAutoComplete($rootScope.selectedLayer, op.attribute, query);
+
+                return { layer: $rootScope.selectedLayer,
+                    attribute: op.attribute,
+                    query: query
+                };
+            } else {
+                return {};
+            }
+        };
 
         _service.IsOperator = function (element) {
             var isOperator = false;
@@ -8043,7 +8066,7 @@ L.drawLocal = {
     "<select ng-model=operation.operator ng-options=\"x for x in operators\" ng-change=updateOperation($index)></select>\n" +
     "</div>\n" +
     "<div class=\"formgroup col-xs-4\">\n" +
-    "<input type=search value={{operation.value}} placeholder=Waarde ng-model=operation.value ng-change=updateOperation($index) ng-click=valueChanged($index) ng-model-options=\"{ debounce: 500 }\" id=input_waarde>\n" +
+    "<input class=typeaheadsearchoperations type=search value={{operation.value}} placeholder=Waarde ng-model=operation.value ng-change=updateOperation($index) ng-click=valueChanged($index) ng-model-options=\"{ debounce: 500 }\" id=input_waarde>\n" +
     "</div>\n" +
     "<div class=\"form-group col-xs-2\">\n" +
     "<button type=button class=up ng-show=!$first ng-click=up($index)></button>\n" +

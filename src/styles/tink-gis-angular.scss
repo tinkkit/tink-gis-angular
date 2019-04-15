@@ -735,6 +735,14 @@ input.typeahead.tt-input {
   background-color: #fff;
 }
 
+input.typeahead.tt-input-querybuild {
+  background-color: #fff;
+}
+
+input[type="search"].tt-hint{
+  background-color: #fff;
+}
+
 .tt-suggestion + .tt-suggestion {
   border-top: 1px solid $gray-lighter;
 }
