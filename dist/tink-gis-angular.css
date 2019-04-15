@@ -599,7 +599,8 @@ button.closetransparant {
   color: #bbb;
   border-width: 0;
   font-family: FontAwesome;
-  font-weight: 100; }
+  font-weight: 100;
+  max-width: 30%; }
   button.closetransparant:hover, button.closetransparant:focus {
     color: #333; }
   button.closetransparant:before {
@@ -610,7 +611,8 @@ button.up {
   color: #bbb;
   border-width: 0;
   font-family: FontAwesome;
-  font-weight: 100; }
+  font-weight: 100;
+  max-width: 30%; }
   button.up:hover, button.up:focus {
     color: #333; }
   button.up:before {
@@ -621,7 +623,8 @@ button.down {
   color: #bbb;
   border-width: 0;
   font-family: FontAwesome;
-  font-weight: 100; }
+  font-weight: 100;
+  max-width: 30%; }
   button.down:hover, button.down:focus {
     color: #333; }
   button.down:before {
@@ -656,14 +659,24 @@ button.down {
     .twitter-typeahead {
       top: 1.0714285714rem ; } }
 
+.querybuild > .twitter-typeahead {
+  position: relative;
+  width: 100%;
+  right: 0;
+  top: 0; }
+
+.querybuild > .tt-menu {
+  max-width: 95%; }
+
 input.typeahead.tt-input {
   background-color: #fff; }
 
 input.typeahead.tt-input-querybuild {
   background-color: #fff; }
 
-input[type="search"].tt-hint {
-  background-color: #fff; }
+input.typeahead.tt-hint-querybuild {
+  background-color: #fff;
+  width: 100%; }
 
 .tt-suggestion + .tt-suggestion {
   border-top: 1px solid #eaeaea; }

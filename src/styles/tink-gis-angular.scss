@@ -644,6 +644,7 @@ button.closetransparant{
   //padding: 0 rem(12);
   font-family: FontAwesome;
   font-weight: 100;
+  max-width: 30%;
 
   &:hover,
   &:focus {
@@ -662,6 +663,7 @@ button.up {
   //padding: 0 rem
   font-family: FontAwesome;
   font-weight: 100;
+  max-width: 30%;
 
   &:hover,
   &:focus {
@@ -680,6 +682,7 @@ button.down {
   //padding: 0 rem(12);
   font-family: FontAwesome;
   font-weight: 100;
+  max-width: 30%;
 
   &:hover,
   &:focus {
@@ -731,6 +734,17 @@ button.down {
   }
 }
 
+.querybuild > .twitter-typeahead {
+  position: relative;
+  width: 100%;
+  right: 0;
+  top: 0;
+}
+
+.querybuild > .tt-menu {
+  max-width: 95%;
+}
+
 input.typeahead.tt-input {
   background-color: #fff;
 }
@@ -739,8 +753,9 @@ input.typeahead.tt-input-querybuild {
   background-color: #fff;
 }
 
-input[type="search"].tt-hint{
+input.typeahead.tt-hint-querybuild{
   background-color: #fff;
+  width: 100%;
 }
 
 .tt-suggestion + .tt-suggestion {

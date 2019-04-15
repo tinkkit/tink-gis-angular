@@ -9,9 +9,8 @@
             <select ng-model="operation.operator" ng-options="x for x in operators"
                 ng-change="updateOperation($index)"></select>
         </div>
-        <div class="formgroup col-xs-4">
-            <!-- <input class="typeaheadsearchoperations" type="text" id="input_waarde"> -->
-                <input class="typeaheadsearchoperations" type="search" value="{{operation.value}}" placeholder="Waarde" ng-model="operation.value"
+        <div class="form-group col-xs-4 querybuild">
+            <input class="typeaheadsearchoperations" type="search" value="{{operation.value}}" placeholder="Waarde" ng-model="operation.value"
                 ng-change="updateOperation($index)" ng-click="valueChanged($index)" ng-model-options="{ debounce: 500 }" id="input_waarde">
         </div>
         <div class="form-group col-xs-2">

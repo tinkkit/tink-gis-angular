@@ -6330,6 +6330,18 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             $scope.index = index;
             $scope.autoCompleteActive = false;
             $scope.changeoperation();
+
+            if (document.activeElement != document.getElementById('input_waarde')) {
+                var prom = ExecuteEmptyAutoCompleteQuery();
+
+                prom.then(function (arg) {
+                    if (arg && arg.featureCollection.features != null) {
+                        $scope.autoComplete = arg.featureCollection.features;
+                    } else {
+                        $scope.autoComplete = [];
+                    }
+                });
+            }
         };
 
         $scope.$on('updateFields', function (event, data) {
@@ -6397,43 +6409,45 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             $scope.index = index;
         };
 
+        var ExecuteEmptyAutoCompleteQuery = function ExecuteEmptyAutoCompleteQuery() {
+            var queryParams = SearchAdvancedService.BuildAutoCompleteQuery('', $scope.index);
+            return MapService.startAutoComplete(queryParams.layer, queryParams.attribute, queryParams.query);
+        };
+
+        var FillAutoComplete = function FillAutoComplete(query, syncResults, asyncResults) {
+            if ($scope.index != null) {
+                var queryParams = SearchAdvancedService.BuildAutoCompleteQuery(query, $scope.index);
+                MapService.startAutoComplete(queryParams.layer, queryParams.attribute, queryParams.query).then(function (arg) {
+                    if (arg && arg.featureCollection.features != null) {
+                        $scope.autoComplete = arg.featureCollection.features;
+                    } else {
+                        $scope.autoComplete = [];
+                    }
+                    asyncResults($scope.autoComplete);
+                });
+            } else {
+                syncResults($scope.autoComplete);
+            }
+        };
+
         setTimeout(function () {
-            console.log("letsgo qrtyq");
-            console.log($('.typeaheadsearchoperations'));
             var suggestionfunc = function suggestionfunc(item) {
-                console.log("ok");
                 return "<div>" + item.properties[$scope.operations[$scope.index].attribute.name] + "</div>";
             };
-            var abc = $('.typeaheadsearchoperations').typeahead({
-                classNames: {
-                    input: 'tt-input-querybuild',
-                    hint: 'tt-hint-querybuild'
-                }
+            $('.typeaheadsearchoperations').typeahead({
+                minLength: 0
             }, {
                 async: true,
                 name: 'autoComplete',
-                source: function source(query, syncResults, asyncResults) {
-                    if ($scope.index != null) {
-                        var queryParams = SearchAdvancedService.BuildAutoCompleteQuery(query, $scope.index);
-
-                        var prom = MapService.startAutoComplete(queryParams.layer, queryParams.attribute, queryParams.query);
-                        prom.then(function (arg) {
-                            if (arg && arg.featureCollection.features != null) {
-                                $scope.autoComplete = arg.featureCollection.features;
-                            } else {
-                                $scope.autoComplete = [];
-                            }
-                            asyncResults($scope.autoComplete);
-                        });
-                    } else {
-                        syncResults([]);
-                    }
-                },
-                templates: { suggestion: suggestionfunc }
+                source: FillAutoComplete,
+                templates: {
+                    suggestion: suggestionfunc,
+                    notFound: ['<div class="empty-message"><b>Geen resultaten gevonden</b></div>']
+                }
             });
 
-            console.log(abc);
-        }, 500);
+            $(".typeaheadsearchoperations").on('focus');
+        }, 100);
     }]);
     theController.$inject = ['$scope', 'SearchAdvancedService', 'MapService'];
 })();
@@ -6993,10 +7007,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 if (val == "") {
                     query = op.attribute.name + " is not null";
                 } else {
-                    query = op.attribute.name + " like '%" + val + "%'";
+                    query = op.attribute.name + " like '" + val + "%'";
                 }
-                var prom = MapService.startAutoComplete($rootScope.selectedLayer, op.attribute, query);
-
                 return { layer: $rootScope.selectedLayer,
                     attribute: op.attribute,
                     query: query
@@ -8065,7 +8077,7 @@ L.drawLocal = {
     "<div class=\"form-group col-xs-2\" ng-class=\"{'col-xs-4': operations.length == 1}\">\n" +
     "<select ng-model=operation.operator ng-options=\"x for x in operators\" ng-change=updateOperation($index)></select>\n" +
     "</div>\n" +
-    "<div class=\"formgroup col-xs-4\">\n" +
+    "<div class=\"form-group col-xs-4 querybuild\">\n" +
     "<input class=typeaheadsearchoperations type=search value={{operation.value}} placeholder=Waarde ng-model=operation.value ng-change=updateOperation($index) ng-click=valueChanged($index) ng-model-options=\"{ debounce: 500 }\" id=input_waarde>\n" +
     "</div>\n" +
     "<div class=\"form-group col-xs-2\">\n" +

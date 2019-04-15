@@ -26,6 +26,18 @@
                 $scope.index = index;
                 $scope.autoCompleteActive = false;
                 $scope.changeoperation();
+                
+                if (document.activeElement != document.getElementById('input_waarde')){
+                    var prom = ExecuteEmptyAutoCompleteQuery();
+
+                    prom.then(function(arg) {
+                        if(arg && arg.featureCollection.features != null) {
+                            $scope.autoComplete = arg.featureCollection.features;
+                        } else {
+                            $scope.autoComplete = [];
+                        }
+                    });
+                }
             };
 
             $scope.$on('updateFields', function (event, data) {
@@ -96,46 +108,48 @@
             $scope.valueChanged = function (index) {
                 $scope.index = index;
             };
+
+            var ExecuteEmptyAutoCompleteQuery = function() {
+                var queryParams = SearchAdvancedService.BuildAutoCompleteQuery('', $scope.index);
+                return MapService.startAutoComplete(queryParams.layer, queryParams.attribute, queryParams.query);
+            }
+
+            var FillAutoComplete = function(query, syncResults, asyncResults) {
+                if($scope.index != null) {
+                    var queryParams = SearchAdvancedService.BuildAutoCompleteQuery(query, $scope.index);
+                    MapService.startAutoComplete(queryParams.layer, queryParams.attribute, queryParams.query)
+                        .then(function(arg) {
+                            if(arg && arg.featureCollection.features != null) {
+                                $scope.autoComplete = arg.featureCollection.features;
+                            } else {
+                                $scope.autoComplete = [];
+                            }
+                            asyncResults($scope.autoComplete);
+                    });
+                } else {
+                    syncResults($scope.autoComplete);
+                }
+            }
       
               setTimeout(function(){ 
-                console.log("letsgo qrtyq");
-                console.log($('.typeaheadsearchoperations'));
                 var suggestionfunc = function(item) {
-                    console.log("ok");
                     return "<div>" + item.properties[$scope.operations[$scope.index].attribute.name] + "</div>";
                 }
-          var abc =  $('.typeaheadsearchoperations').typeahead({
-              classNames: {
-                  input: 'tt-input-querybuild',
-                  hint: 'tt-hint-querybuild'
-              }
-              },
-              {
-                async: true,
-                name: 'autoComplete',
-                  source: function (query, syncResults, asyncResults) {
-                      if($scope.index != null) {
-                            var queryParams = SearchAdvancedService.BuildAutoCompleteQuery(query, $scope.index);
+                $('.typeaheadsearchoperations').typeahead({
+                    minLength: 0
+                    },
+                    {
+                        async: true,
+                        name: 'autoComplete',
+                        source: FillAutoComplete,
+                        templates : { 
+                            suggestion: suggestionfunc,
+                            notFound: ['<div class="empty-message"><b>Geen resultaten gevonden</b></div>']
+                            }
+                    });
 
-                            var prom = MapService.startAutoComplete(queryParams.layer, queryParams.attribute, queryParams.query);
-                            prom.then(function(arg) {
-                                if(arg && arg.featureCollection.features != null) {
-                                    $scope.autoComplete = arg.featureCollection.features;
-                                } else {
-                                    $scope.autoComplete = [];
-                                }
-                                asyncResults($scope.autoComplete);
-                            });
-                      } else {
-                          syncResults([]);
-                      }
-                  },
-                  templates : { suggestion: suggestionfunc}
-              });
-
-           
-              console.log(abc);
-              }, 500);
+                $(".typeaheadsearchoperations").on('focus');
+              }, 100);
          
         }]);
     theController.$inject = ['$scope', 'SearchAdvancedService', 'MapService'];

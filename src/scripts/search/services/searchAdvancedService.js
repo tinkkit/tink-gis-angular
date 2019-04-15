@@ -156,10 +156,8 @@
                 if (val == "") {
                     query = op.attribute.name + " is not null";
                 } else {
-                    query = op.attribute.name + " like '%" + val + "%'";
+                    query = op.attribute.name + " like '" + val + "%'";
                 }
-                var prom = MapService.startAutoComplete($rootScope.selectedLayer, op.attribute, query);
-
                 return {    layer: $rootScope.selectedLayer,
                             attribute: op.attribute,
                             query: query
