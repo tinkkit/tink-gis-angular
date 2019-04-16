@@ -6320,7 +6320,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         $scope.value = null;
         $scope.layer = null;
         $scope.autoCompleteActive = false;
-        $scope.autoComplete = [];
+        $scope.autoComplete = [{ collection: [], element: null }];
         $scope.index = null;
 
         //initial value to build the form
@@ -6336,9 +6336,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
                 prom.then(function (arg) {
                     if (arg && arg.featureCollection.features != null) {
-                        $scope.autoComplete = arg.featureCollection.features;
+                        $scope.autoComplete[$scope.index].collection = arg.featureCollection.features;
                     } else {
-                        $scope.autoComplete = [];
+                        $scope.autoComplete[$scope.index].collection = [];
                     }
                 });
             }
@@ -6357,21 +6357,21 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         });
 
         $scope.$on('addOperation', function () {
-
             $scope.operations.push({ addition: 'AND', attribute: '', operator: '=', value: '' });
+            $scope.autoComplete.push({ collection: [], element: null });
             $scope.changeoperation();
         });
 
         $scope.$on('orOperation', function () {
-
             $scope.operations.push({ addition: 'OR', attribute: '', operator: '=', value: '' });
+            $scope.autoComplete.push({ collection: [], element: null });
             $scope.changeoperation();
         });
 
         $scope.delete = function (index) {
-            console.log(index);
             if (index !== 0) {
                 $scope.operations.splice(index, 1);
+                $scope.autoComplete.splice(index, 1);
             }
             $scope.changeoperation();
         };
@@ -6379,18 +6379,22 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         $scope.up = function (index) {
 
             var op = $scope.operations[index];
+            var ac = $scope.autoComplete[index];
             if (index == 1) {
                 op.addition = null;
                 $scope.operations[0].addition = "AND";
             }
             $scope.operations.splice(index, 1);
             $scope.operations.splice(index - 1, 0, op);
+
+            $scope.autoComplete.splice(index, 1);
+            $scope.autoComplete.splice(index - 1, 0, ac);
             $scope.changeoperation();
         };
 
         $scope.down = function (index) {
-
             var op = $scope.operations[index];
+            var ac = $scope.autoComplete[index];
             if (index == 0) {
                 op.addition = "AND";
                 $scope.operations[1].addition = null;
@@ -6398,11 +6402,17 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
             $scope.operations.splice(index, 1);
             $scope.operations.splice(index + 1, 0, op);
+
+            $scope.autoComplete.splice(index, 1);
+            $scope.autoComplete.splice(index + 1, 0, ac);
             $scope.changeoperation();
         };
 
         $scope.changeoperation = function () {
             $scope.$emit('addedOperation', $scope.operations);
+            setTimeout(function () {
+                initializeTypeahead();
+            }, 100);
         };
 
         $scope.valueChanged = function (index) {
@@ -6415,38 +6425,67 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         };
 
         var FillAutoComplete = function FillAutoComplete(query, syncResults, asyncResults) {
+            var docId = document.activeElement.id.replace("input_waarde_", '');
+            if (parseInt(docId) !== $scope.index) {
+                $scope.index = parseInt(docId);
+                query = document.activeElement.value;
+                var element = document.getElementById("input_waarde_" + docId);
+                element.value = document.activeElement.value;
+            }
             if ($scope.index != null) {
                 var queryParams = SearchAdvancedService.BuildAutoCompleteQuery(query, $scope.index);
                 MapService.startAutoComplete(queryParams.layer, queryParams.attribute, queryParams.query).then(function (arg) {
                     if (arg && arg.featureCollection.features != null) {
-                        $scope.autoComplete = arg.featureCollection.features;
+                        $scope.autoComplete[$scope.index].collection = GetAutoCompleteValue(arg.featureCollection.features);
                     } else {
-                        $scope.autoComplete = [];
+                        $scope.autoComplete[$scope.index].collection = [];
                     }
-                    asyncResults($scope.autoComplete);
+                    asyncResults($scope.autoComplete[$scope.index].collection);
                 });
             } else {
-                syncResults($scope.autoComplete);
+                syncResults($scope.autoComplete[$scope.index].collection);
+            }
+        };
+
+        var GetAutoCompleteValue = function GetAutoCompleteValue(collection) {
+            var returnCollection = [];
+            collection.forEach(function (element) {
+                returnCollection.push(element.properties[$scope.operations[$scope.index].attribute.name]);
+            });
+            return returnCollection;
+        };
+
+        var suggestionfunc = function suggestionfunc(item) {
+            return "<div>" + item + "</div>";
+        };
+
+        var initializeTypeahead = function initializeTypeahead() {
+            if ($scope.index == null) $scope.index = 0;
+
+            if ($scope.autoComplete[$scope.index].element == null) {
+                var acElement = $('#input_waarde_' + $scope.index);
+                acElement.typeahead({
+                    minLength: 0
+                }, {
+                    async: true,
+                    name: 'autoComplete',
+                    source: FillAutoComplete,
+                    templates: {
+                        suggestion: suggestionfunc,
+                        notFound: ['<div class="empty-message"><b>Geen resultaten gevonden</b></div>']
+                    }
+                });
+
+                acElement.on('focus');
+                acElement.bind('typeahead:select', function (ev, suggestion) {
+                    $scope.operations[$scope.index].value = suggestion;
+                });
+                $scope.autoComplete[$scope.index].element = acElement;
             }
         };
 
         setTimeout(function () {
-            var suggestionfunc = function suggestionfunc(item) {
-                return "<div>" + item.properties[$scope.operations[$scope.index].attribute.name] + "</div>";
-            };
-            $('.typeaheadsearchoperations').typeahead({
-                minLength: 0
-            }, {
-                async: true,
-                name: 'autoComplete',
-                source: FillAutoComplete,
-                templates: {
-                    suggestion: suggestionfunc,
-                    notFound: ['<div class="empty-message"><b>Geen resultaten gevonden</b></div>']
-                }
-            });
-
-            $(".typeaheadsearchoperations").on('focus');
+            initializeTypeahead();
         }, 100);
     }]);
     theController.$inject = ['$scope', 'SearchAdvancedService', 'MapService'];
@@ -8078,7 +8117,7 @@ L.drawLocal = {
     "<select ng-model=operation.operator ng-options=\"x for x in operators\" ng-change=updateOperation($index)></select>\n" +
     "</div>\n" +
     "<div class=\"form-group col-xs-4 querybuild\">\n" +
-    "<input class=typeaheadsearchoperations type=search value={{operation.value}} placeholder=Waarde ng-model=operation.value ng-change=updateOperation($index) ng-click=valueChanged($index) ng-model-options=\"{ debounce: 500 }\" id=input_waarde>\n" +
+    "<input class=typeaheadsearchoperations ng-class=waarde_$index type=search value={{operation.value}} placeholder=Waarde ng-model=operation.value ng-change=updateOperation($index) ng-click=valueChanged($index) ng-model-options=\"{ debounce: 500 }\" id=input_waarde_{{$index}}>\n" +
     "</div>\n" +
     "<div class=\"form-group col-xs-2\">\n" +
     "<button type=button class=up ng-show=!$first ng-click=up($index)></button>\n" +

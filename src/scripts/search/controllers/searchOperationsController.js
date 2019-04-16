@@ -16,7 +16,7 @@
             $scope.value = null;
             $scope.layer = null;
             $scope.autoCompleteActive = false;
-            $scope.autoComplete = [];
+            $scope.autoComplete = [{collection: [], element: null}];
             $scope.index = null;
 
             //initial value to build the form
@@ -32,9 +32,9 @@
 
                     prom.then(function(arg) {
                         if(arg && arg.featureCollection.features != null) {
-                            $scope.autoComplete = arg.featureCollection.features;
+                            $scope.autoComplete[$scope.index].collection = arg.featureCollection.features;
                         } else {
-                            $scope.autoComplete = [];
+                            $scope.autoComplete[$scope.index].collection = [];
                         }
                     });
                 }
@@ -53,25 +53,29 @@
             })
 
             $scope.$on('addOperation', function () {
-
                 $scope.operations.push(
                     { addition: 'AND', attribute: '', operator: '=', value: '' }
+                );
+                $scope.autoComplete.push(
+                    { collection: [], element: null }
                 );
                 $scope.changeoperation();
             })
 
             $scope.$on('orOperation', function () {
-
                 $scope.operations.push(
                     { addition: 'OR', attribute: '', operator: '=', value: '' }
+                );
+                $scope.autoComplete.push(
+                    { collection: [], element: null }
                 );
                 $scope.changeoperation();
             })
 
             $scope.delete = function (index) {
-                console.log(index);
                 if (index !== 0) {
                     $scope.operations.splice(index, 1);
+                    $scope.autoComplete.splice(index, 1);
                 }
                 $scope.changeoperation();
             };
@@ -79,18 +83,22 @@
             $scope.up = function (index) {
 
                 var op = $scope.operations[index];
+                var ac = $scope.autoComplete[index];
                 if (index == 1) {
                     op.addition = null;
                     $scope.operations[0].addition = "AND";
                 }
                 $scope.operations.splice(index, 1);
                 $scope.operations.splice(index - 1, 0, op);
+
+                $scope.autoComplete.splice(index, 1);
+                $scope.autoComplete.splice(index - 1, 0, ac);
                 $scope.changeoperation();
             };
 
             $scope.down = function (index) {
-
                 var op = $scope.operations[index];
+                var ac = $scope.autoComplete[index];
                 if (index == 0) {
                     op.addition = "AND";
                     $scope.operations[1].addition = null;
@@ -98,11 +106,17 @@
                 
                 $scope.operations.splice(index, 1);
                 $scope.operations.splice(index + 1, 0, op);
+
+                $scope.autoComplete.splice(index, 1);
+                $scope.autoComplete.splice(index + 1, 0, ac);
                 $scope.changeoperation();
             };
 
             $scope.changeoperation = function() {
                 $scope.$emit('addedOperation', $scope.operations);
+                setTimeout(function() {
+                    initializeTypeahead();
+                }, 100);
             };
 
             $scope.valueChanged = function (index) {
@@ -115,42 +129,71 @@
             }
 
             var FillAutoComplete = function(query, syncResults, asyncResults) {
+                var docId = document.activeElement.id.replace("input_waarde_", '');
+                if(parseInt(docId) !== $scope.index){
+                    $scope.index = parseInt(docId);
+                    query = document.activeElement.value;
+                    var element = document.getElementById("input_waarde_" + docId);
+                    element.value = document.activeElement.value;
+                }
                 if($scope.index != null) {
                     var queryParams = SearchAdvancedService.BuildAutoCompleteQuery(query, $scope.index);
                     MapService.startAutoComplete(queryParams.layer, queryParams.attribute, queryParams.query)
                         .then(function(arg) {
                             if(arg && arg.featureCollection.features != null) {
-                                $scope.autoComplete = arg.featureCollection.features;
+                                $scope.autoComplete[$scope.index].collection = GetAutoCompleteValue(arg.featureCollection.features);
                             } else {
-                                $scope.autoComplete = [];
+                                $scope.autoComplete[$scope.index].collection = [];
                             }
-                            asyncResults($scope.autoComplete);
+                            asyncResults($scope.autoComplete[$scope.index].collection);
                     });
                 } else {
-                    syncResults($scope.autoComplete);
+                    syncResults($scope.autoComplete[$scope.index].collection);
                 }
             }
+
+            var GetAutoCompleteValue = function(collection) {
+                var returnCollection = [];
+                collection.forEach(element => {
+                    returnCollection.push(element.properties[$scope.operations[$scope.index].attribute.name]);
+                });
+                return returnCollection;
+            }
+            
+            var suggestionfunc = function(item) {
+                return "<div>" + item + "</div>";
+            }
       
-              setTimeout(function(){ 
-                var suggestionfunc = function(item) {
-                    return "<div>" + item.properties[$scope.operations[$scope.index].attribute.name] + "</div>";
-                }
-                $('.typeaheadsearchoperations').typeahead({
-                    minLength: 0
-                    },
-                    {
-                        async: true,
-                        name: 'autoComplete',
-                        source: FillAutoComplete,
-                        templates : { 
-                            suggestion: suggestionfunc,
-                            notFound: ['<div class="empty-message"><b>Geen resultaten gevonden</b></div>']
-                            }
+            var initializeTypeahead = function() {
+                if ($scope.index == null) $scope.index = 0;
+
+                if ($scope.autoComplete[$scope.index].element == null){
+                    var acElement = $('#input_waarde_' + $scope.index);
+                    acElement.typeahead({
+                        minLength: 0
+                        },
+                        {
+                            async: true,
+                            name: 'autoComplete',
+                            source: FillAutoComplete,
+                            templates : { 
+                                suggestion: suggestionfunc,
+                                notFound: ['<div class="empty-message"><b>Geen resultaten gevonden</b></div>']
+                                }
                     });
 
-                $(".typeaheadsearchoperations").on('focus');
+                    acElement.on('focus');
+                    acElement.bind('typeahead:select', function(ev, suggestion) {
+                        $scope.operations[$scope.index].value = suggestion;
+                      });
+                    $scope.autoComplete[$scope.index].element = acElement;
+                    
+                }
+            }
+
+            setTimeout(function(){ 
+                initializeTypeahead();
               }, 100);
-         
         }]);
     theController.$inject = ['$scope', 'SearchAdvancedService', 'MapService'];
 })();
