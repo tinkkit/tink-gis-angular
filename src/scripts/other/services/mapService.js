@@ -277,7 +277,9 @@
                         .where(query)
                         .run(function(error, featureCollection, response) {
                             ResultsData.RequestCompleted++;
-                            validateFeatureCollectionGeometry(featureCollection.features);
+                            if (featureCollection != null) {
+                                validateFeatureCollectionGeometry(featureCollection.features);
+                            }
                             resolve({ error, featureCollection, response });
                         });
                 });
@@ -295,10 +297,14 @@
                     }
                     var prom = _mapService.AdvancedLayerQuery(layer.theme, layer.id, query);
                         prom.then(function(arg) {
-                            MapData.AddFeatures(arg.featureCollection, layer.theme, layer.id, arg.featureCollection.length);
-                            if (MapData.ExtendedType != null) {
-                                MapData.ConfirmExtendDialog(MapData.processedFeatureArray);
-                                MapData.processedFeatureArray = [];
+                            if (arg.error == undefined){
+                                MapData.AddFeatures(arg.featureCollection, layer.theme, layer.id, arg.featureCollection.length);
+                                if (MapData.ExtendedType != null) {
+                                    MapData.ConfirmExtendDialog(MapData.processedFeatureArray);
+                                    MapData.processedFeatureArray = [];
+                                }
+                            } else {
+                                PopupService.ErrorWithException("Fout bij het uitvoeren van de query", "Code: " + arg.error.error.code + "<br/>Message:" +arg.error.error.message + "<br/>Bent u zeker dat u een geldige query opstelde?<br/>");
                             }
                         });
                 });
