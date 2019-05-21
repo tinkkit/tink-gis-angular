@@ -32,7 +32,7 @@
 
                     prom.then(function(arg) {
                         if(arg && arg.featureCollection.features != null) {
-                            $scope.autoComplete[$scope.index].collection = arg.featureCollection.features;
+                            $scope.autoComplete[$scope.index].collection = arg.featureCollection.features.filter(onlyUnique);
                         } else {
                             $scope.autoComplete[$scope.index].collection = [];
                         }
@@ -141,7 +141,8 @@
                     MapService.startAutoComplete(queryParams.layer, queryParams.attribute, queryParams.query)
                         .then(function(arg) {
                             if(arg && arg.featureCollection.features != null) {
-                                $scope.autoComplete[$scope.index].collection = GetAutoCompleteValue(arg.featureCollection.features);
+                                const result = GetAutoCompleteValue(arg.featureCollection.features);
+                                $scope.autoComplete[$scope.index].collection = result.filter(onlyUnique);
                             } else {
                                 $scope.autoComplete[$scope.index].collection = [];
                             }
@@ -150,6 +151,10 @@
                 } else {
                     syncResults($scope.autoComplete[$scope.index].collection);
                 }
+            }
+
+            function onlyUnique(value, index, self) { 
+                return self.indexOf(value) === index;
             }
 
             var GetAutoCompleteValue = function(collection) {

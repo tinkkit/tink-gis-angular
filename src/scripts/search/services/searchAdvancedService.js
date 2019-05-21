@@ -79,7 +79,6 @@
                     query += ')';
                 }
             });
-            console.log(query);
             return query;
         }
 
@@ -122,8 +121,6 @@
         }
 
         _service.IsLayerField = function(currentLayer, fieldname) {
-            console.log(currentLayer);
-            console.log(fieldname);
             var isLayerField = false;
             currentLayer.fields.forEach(field => {
                 if (field.name == fieldname) {
