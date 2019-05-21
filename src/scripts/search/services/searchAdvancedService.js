@@ -156,7 +156,7 @@
                 if (val == "") {
                     query = op.attribute.name + " is not null";
                 } else {
-                    query = op.attribute.name + " like '" + val + "%'";
+                    query = op.attribute.name + " like '%" + val + "%'";
                 }
                 return {    layer: $rootScope.selectedLayer,
                             attribute: op.attribute,
