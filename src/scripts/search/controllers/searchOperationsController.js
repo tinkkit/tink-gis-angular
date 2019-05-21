@@ -27,12 +27,15 @@
                 $scope.autoCompleteActive = false;
                 $scope.changeoperation();
                 
-                if (document.activeElement != document.getElementById('input_waarde')){
+                const op = $scope.operations[index];
+
+                if (document.activeElement != document.getElementById('input_waarde') && op.attribute != null){
                     var prom = ExecuteEmptyAutoCompleteQuery();
 
                     prom.then(function(arg) {
-                        if(arg && arg.featureCollection.features != null) {
-                            $scope.autoComplete[$scope.index].collection = arg.featureCollection.features.filter(onlyUnique);
+                        if(arg && arg.error == undefined && arg.featureCollection.features != null) {
+                            const result = GetAutoCompleteValue(arg.featureCollection.features);
+                            $scope.autoComplete[$scope.index].collection = result.filter(onlyUnique);
                         } else {
                             $scope.autoComplete[$scope.index].collection = [];
                         }
@@ -115,7 +118,10 @@
             $scope.changeoperation = function() {
                 $scope.$emit('addedOperation', $scope.operations);
                 setTimeout(function() {
-                    initializeTypeahead();
+                    var op = $scope.operations[$scope.index];
+                    if (op.attribute != null) {
+                        initializeTypeahead();
+                    }
                 }, 100);
             };
 
@@ -140,7 +146,7 @@
                     var queryParams = SearchAdvancedService.BuildAutoCompleteQuery(query, $scope.index);
                     MapService.startAutoComplete(queryParams.layer, queryParams.attribute, queryParams.query)
                         .then(function(arg) {
-                            if(arg && arg.featureCollection.features != null) {
+                            if(arg && arg.error == undefined && arg.featureCollection.features != null) {
                                 const result = GetAutoCompleteValue(arg.featureCollection.features);
                                 $scope.autoComplete[$scope.index].collection = result.filter(onlyUnique);
                             } else {
