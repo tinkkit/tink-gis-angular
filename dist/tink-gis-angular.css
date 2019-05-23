@@ -888,6 +888,10 @@ html.print {
   html.print .typeahead,
   html.print .layer-management {
     display: none; }
+  html.print #rightaside {
+    width: -webkit-fit-content;
+    width: -moz-fit-content;
+    width: fit-content; }
   html.print input[type="checkbox"].hidden-print + label, html.print input[type="radio"].hidden-print + label {
     padding-left: .1rem;
     pointer-events: none; }
