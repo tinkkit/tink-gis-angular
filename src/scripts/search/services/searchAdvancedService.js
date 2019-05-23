@@ -79,7 +79,6 @@
                     query += ')';
                 }
             });
-            console.log(query);
             return query;
         }
 
@@ -122,8 +121,6 @@
         }
 
         _service.IsLayerField = function(currentLayer, fieldname) {
-            console.log(currentLayer);
-            console.log(fieldname);
             var isLayerField = false;
             currentLayer.fields.forEach(field => {
                 if (field.name == fieldname) {
@@ -156,7 +153,7 @@
                 if (val == "") {
                     query = op.attribute.name + " is not null";
                 } else {
-                    query = op.attribute.name + " like '" + val + "%'";
+                    query = op.attribute.name + " like '%" + val + "%'";
                 }
                 return {    layer: $rootScope.selectedLayer,
                             attribute: op.attribute,

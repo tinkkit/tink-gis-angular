@@ -39,7 +39,6 @@
             })
 
             $scope.$on('deleteOperation', function () {
-                console.log('false');
                 $scope.editor = false;
             })
 
@@ -63,19 +62,14 @@
             $scope.QueryAPI = function () {
                 if (!$scope.editor) {
                     SearchAdvancedService.BuildQuery($scope.selectedLayer);
-                    //TODO: API call with query or operations as args ?
                     var query = SearchAdvancedService.TranslateOperations($scope.operations);
                     var result = SearchAdvancedService.ExecuteQuery($scope.selectedLayer, query);
-                    console.log(result);
                 } else {
-                    //TODO: API call with query
                     var rawQueryResult = SearchAdvancedService.MakeNewRawQuery($scope.query);
                     if (rawQueryResult.layer != null) {
                         var result = SearchAdvancedService.ExecuteQuery(rawQueryResult.layer, rawQueryResult.query);
                     }
-                    console.log(result);
                 }
-                console.log("API Call : " + $scope.query); //TODO: remove this testing placeholder
                 
                 UIService.OpenLeftSide();
                 $modalInstance.$close();
