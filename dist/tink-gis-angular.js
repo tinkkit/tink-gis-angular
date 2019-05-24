@@ -6237,7 +6237,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         });
 
         $scope.$on('deleteOperation', function () {
-            console.log('false');
             $scope.editor = false;
         });
 
@@ -6261,19 +6260,14 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         $scope.QueryAPI = function () {
             if (!$scope.editor) {
                 SearchAdvancedService.BuildQuery($scope.selectedLayer);
-                //TODO: API call with query or operations as args ?
                 var query = SearchAdvancedService.TranslateOperations($scope.operations);
                 var result = SearchAdvancedService.ExecuteQuery($scope.selectedLayer, query);
-                console.log(result);
             } else {
-                //TODO: API call with query
                 var rawQueryResult = SearchAdvancedService.MakeNewRawQuery($scope.query);
                 if (rawQueryResult.layer != null) {
                     var result = SearchAdvancedService.ExecuteQuery(rawQueryResult.layer, rawQueryResult.query);
                 }
-                console.log(result);
             }
-            console.log("API Call : " + $scope.query); //TODO: remove this testing placeholder
 
             UIService.OpenLeftSide();
             $modalInstance.$close();
@@ -6337,12 +6331,15 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             $scope.autoCompleteActive = false;
             $scope.changeoperation();
 
-            if (document.activeElement != document.getElementById('input_waarde')) {
+            var op = $scope.operations[index];
+
+            if (document.activeElement != document.getElementById('input_waarde') && op.attribute != null) {
                 var prom = ExecuteEmptyAutoCompleteQuery();
 
                 prom.then(function (arg) {
-                    if (arg && arg.featureCollection.features != null) {
-                        $scope.autoComplete[$scope.index].collection = arg.featureCollection.features;
+                    if (arg && arg.error == undefined && arg.featureCollection.features != null) {
+                        var result = GetAutoCompleteValue(arg.featureCollection.features);
+                        $scope.autoComplete[$scope.index].collection = result.filter(onlyUnique);
                     } else {
                         $scope.autoComplete[$scope.index].collection = [];
                     }
@@ -6417,7 +6414,10 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         $scope.changeoperation = function () {
             $scope.$emit('addedOperation', $scope.operations);
             setTimeout(function () {
-                initializeTypeahead();
+                var op = $scope.operations[$scope.index];
+                if (op.attribute != null) {
+                    initializeTypeahead();
+                }
             }, 100);
         };
 
@@ -6441,8 +6441,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             if ($scope.index != null) {
                 var queryParams = SearchAdvancedService.BuildAutoCompleteQuery(query, $scope.index);
                 MapService.startAutoComplete(queryParams.layer, queryParams.attribute, queryParams.query).then(function (arg) {
-                    if (arg && arg.featureCollection.features != null) {
-                        $scope.autoComplete[$scope.index].collection = GetAutoCompleteValue(arg.featureCollection.features);
+                    if (arg && arg.error == undefined && arg.featureCollection.features != null) {
+                        var result = GetAutoCompleteValue(arg.featureCollection.features);
+                        $scope.autoComplete[$scope.index].collection = result.filter(onlyUnique);
                     } else {
                         $scope.autoComplete[$scope.index].collection = [];
                     }
@@ -6452,6 +6453,10 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 syncResults($scope.autoComplete[$scope.index].collection);
             }
         };
+
+        function onlyUnique(value, index, self) {
+            return self.indexOf(value) === index;
+        }
 
         var GetAutoCompleteValue = function GetAutoCompleteValue(collection) {
             var returnCollection = [];
@@ -6975,7 +6980,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                     query += ')';
                 }
             });
-            console.log(query);
             return query;
         };
 
@@ -7018,8 +7022,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         };
 
         _service.IsLayerField = function (currentLayer, fieldname) {
-            console.log(currentLayer);
-            console.log(fieldname);
             var isLayerField = false;
             currentLayer.fields.forEach(function (field) {
                 if (field.name == fieldname) {
@@ -7052,7 +7054,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 if (val == "") {
                     query = op.attribute.name + " is not null";
                 } else {
-                    query = op.attribute.name + " like '" + val + "%'";
+                    query = op.attribute.name + " like '%" + val + "%'";
                 }
                 return { layer: $rootScope.selectedLayer,
                     attribute: op.attribute,
