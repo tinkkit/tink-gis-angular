@@ -6466,10 +6466,29 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
         var GetAutoCompleteValue = function GetAutoCompleteValue(collection) {
             var returnCollection = [];
+            var op = $scope.operations[$scope.index];
             collection.forEach(function (element) {
-                returnCollection.push(element.properties[$scope.operations[$scope.index].attribute.name]);
+                if (op.attribute.type == 'esriFieldTypeDate') {
+                    returnCollection.push(FormatTimestamp(element.properties[op.attribute.name]));
+                } else {
+                    returnCollection.push(element.properties[op.attribute.name]);
+                }
             });
             return returnCollection;
+        };
+
+        var FormatTimestamp = function FormatTimestamp(timestamp) {
+            var date = new Date(timestamp);
+
+            var year = date.getFullYear();
+            var month = date.getMonth() + 1;
+            var day = date.getDate();
+
+            if (month < 10) {
+                return year + '-0' + month + '-' + day;
+            }
+
+            return year + '-' + month + '-' + day;
         };
 
         var suggestionfunc = function suggestionfunc(item) {
