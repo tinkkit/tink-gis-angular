@@ -25,6 +25,7 @@
                 var layers = MapData.VisibleLayers.filter(data => data.name !== "Alle lagen");
                 if (layers.length == 1){
                     $scope.selectedLayer = layers[0];
+                    SearchAdvancedService.UpdateFields($scope.selectedLayer);
                 }
                 return layers;
             }
@@ -71,7 +72,6 @@
                     var result = SearchAdvancedService.ExecuteQuery($scope.selectedLayer, query);
                 } else {
                     var rawQueryResult = SearchAdvancedService.MakeNewRawQuery($scope.query);
-                    // rawQueryResult += 
                     if (rawQueryResult.layer != null) {
                         var result = SearchAdvancedService.ExecuteQuery(rawQueryResult.layer, rawQueryResult.query);
                     }
