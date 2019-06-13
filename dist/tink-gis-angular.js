@@ -6218,9 +6218,13 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
         $scope.SelectedLayers = function () {
             //display only usable layers
-            return MapData.VisibleLayers.filter(function (data) {
+            var layers = MapData.VisibleLayers.filter(function (data) {
                 return data.name !== "Alle lagen";
             });
+            if (layers.length == 1) {
+                $scope.selectedLayer = layers[0];
+            }
+            return layers;
         };
 
         $scope.updateFields = function () {
@@ -6258,12 +6262,14 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         };
 
         $scope.QueryAPI = function () {
+            console.log(MapData.ExtendedType);
             if (!$scope.editor) {
                 SearchAdvancedService.BuildQuery($scope.selectedLayer);
                 var query = SearchAdvancedService.TranslateOperations($scope.operations);
                 var result = SearchAdvancedService.ExecuteQuery($scope.selectedLayer, query);
             } else {
                 var rawQueryResult = SearchAdvancedService.MakeNewRawQuery($scope.query);
+                // rawQueryResult += 
                 if (rawQueryResult.layer != null) {
                     var result = SearchAdvancedService.ExecuteQuery(rawQueryResult.layer, rawQueryResult.query);
                 }
