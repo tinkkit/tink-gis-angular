@@ -186,6 +186,7 @@
                         {
                             async: true,
                             name: 'autoComplete',
+                            limit: 10,
                             source: FillAutoComplete,
                             templates : { 
                                 suggestion: suggestionfunc,

@@ -326,7 +326,7 @@
                                 .where(query)
                                 .returnGeometry(false)
                                 .fields(field.name)
-                                .limit(10)
+                                .limit(20)
                                 .run(function(error, featureCollection, response) {
                                     ResultsData.RequestCompleted++;
                                     resolve({ error, featureCollection, response });
