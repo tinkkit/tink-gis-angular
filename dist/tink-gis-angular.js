@@ -6339,7 +6339,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
             var op = $scope.operations[index];
 
-            if (document.activeElement != document.getElementById('input_waarde') && op.attribute != null) {
+            if (document.activeElement != document.getElementById('input_waarde_' + index) && op.attribute != null) {
                 var prom = ExecuteEmptyAutoCompleteQuery();
 
                 prom.then(function (arg) {
@@ -6349,6 +6349,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                     } else {
                         $scope.autoComplete[$scope.index].collection = [];
                     }
+                    refreshTypeahead();
                 });
             }
         };
@@ -6421,7 +6422,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             $scope.$emit('addedOperation', $scope.operations);
             setTimeout(function () {
                 var op = $scope.operations[$scope.index];
-                if (op.attribute != null) {
+                if (op.attribute != null && (op.value == null || op.value == '')) {
                     initializeTypeahead();
                 }
             }, 100);
@@ -6499,26 +6500,38 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             if ($scope.index == null) $scope.index = 0;
 
             if ($scope.autoComplete[$scope.index].element == null) {
-                var acElement = $('#input_waarde_' + $scope.index);
-                acElement.typeahead({
-                    minLength: 0
-                }, {
-                    async: true,
-                    name: 'autoComplete',
-                    limit: 10,
-                    source: FillAutoComplete,
-                    templates: {
-                        suggestion: suggestionfunc,
-                        notFound: ['<div class="empty-message"><b>Geen resultaten gevonden</b></div>']
-                    }
-                });
-
-                acElement.on('focus');
-                acElement.bind('typeahead:select', function (ev, suggestion) {
-                    $scope.operations[$scope.index].value = suggestion;
-                });
-                $scope.autoComplete[$scope.index].element = acElement;
+                createTypeahead();
             }
+        };
+
+        var refreshTypeahead = function refreshTypeahead() {
+            $('#input_waarde_' + $scope.index).typeahead('destroy');
+            createTypeahead();
+        };
+
+        var createTypeahead = function createTypeahead() {
+            var acElement = $('#input_waarde_' + $scope.index);
+            acElement.typeahead({
+                minLength: 0
+            }, {
+                async: true,
+                name: 'autoComplete',
+                limit: 10,
+                source: FillAutoComplete,
+                templates: {
+                    suggestion: suggestionfunc,
+                    notFound: ['<div class="empty-message"><b>Geen resultaten gevonden</b></div>']
+                }
+            });
+
+            acElement.on('focus', function (ev) {
+                console.log(acElement[0].value);
+                acElement.typeahead('val', acElement[0].value);
+            });
+            acElement.bind('typeahead:select', function (ev, suggestion) {
+                $scope.operations[$scope.index].value = suggestion;
+            });
+            $scope.autoComplete[$scope.index].element = acElement;
         };
 
         setTimeout(function () {
