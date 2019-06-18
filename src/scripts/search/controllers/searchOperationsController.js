@@ -29,7 +29,7 @@
                 
                 const op = $scope.operations[index];
 
-                if (document.activeElement != document.getElementById('input_waarde') && op.attribute != null){
+                if (document.activeElement != document.getElementById('input_waarde_' + index) && op.attribute != null){
                     var prom = ExecuteEmptyAutoCompleteQuery();
 
                     prom.then(function(arg) {
@@ -39,6 +39,7 @@
                         } else {
                             $scope.autoComplete[$scope.index].collection = [];
                         }
+                        refreshTypeahead();
                     });
                 }
             };
@@ -119,7 +120,7 @@
                 $scope.$emit('addedOperation', $scope.operations);
                 setTimeout(function() {
                     var op = $scope.operations[$scope.index];
-                    if (op.attribute != null) {
+                    if (op.attribute != null && (op.value == null || op.value == '')) {
                         initializeTypeahead();
                     }
                 }, 100);
@@ -134,7 +135,8 @@
                 return MapService.startAutoComplete(queryParams.layer, queryParams.attribute, queryParams.query);
             }
 
-            var FillAutoComplete = function(query, syncResults, asyncResults) {
+            var FillAutoComplete
+             = function(query, syncResults, asyncResults) {
                 var docId = document.activeElement.id.replace("input_waarde_", '');
                 if(parseInt(docId) !== $scope.index){
                     $scope.index = parseInt(docId);
@@ -198,28 +200,39 @@
                 if ($scope.index == null) $scope.index = 0;
 
                 if ($scope.autoComplete[$scope.index].element == null){
-                    var acElement = $('#input_waarde_' + $scope.index);
-                    acElement.typeahead({
-                        minLength: 0
-                        },
-                        {
-                            async: true,
-                            name: 'autoComplete',
-                            limit: 10,
-                            source: FillAutoComplete,
-                            templates : { 
-                                suggestion: suggestionfunc,
-                                notFound: ['<div class="empty-message"><b>Geen resultaten gevonden</b></div>']
-                                }
-                    });
-
-                    acElement.on('focus');
-                    acElement.bind('typeahead:select', function(ev, suggestion) {
-                        $scope.operations[$scope.index].value = suggestion;
-                      });
-                    $scope.autoComplete[$scope.index].element = acElement;
-                    
+                    createTypeahead();
                 }
+            }
+
+            var refreshTypeahead = function () {
+                $('#input_waarde_' + $scope.index).typeahead('destroy');
+                createTypeahead();
+            }
+
+            var createTypeahead = function() {
+                var acElement = $('#input_waarde_' + $scope.index);
+                acElement.typeahead({
+                    minLength: 0
+                    },
+                    {
+                        async: true,
+                        name: 'autoComplete',
+                        limit: 10,
+                        source: FillAutoComplete,
+                        templates : { 
+                            suggestion: suggestionfunc,
+                            notFound: ['<div class="empty-message"><b>Geen resultaten gevonden</b></div>']
+                            }
+                });
+
+                acElement.on('focus', function(ev){
+                    console.log(acElement[0].value);
+                    acElement.typeahead('val', acElement[0].value);
+                });
+                acElement.bind('typeahead:select', function(ev, suggestion) {
+                    $scope.operations[$scope.index].value = suggestion;
+                    });
+                $scope.autoComplete[$scope.index].element = acElement;
             }
 
             setTimeout(function(){ 
