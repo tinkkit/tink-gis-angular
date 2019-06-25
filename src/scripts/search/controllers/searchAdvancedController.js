@@ -31,7 +31,9 @@
             }
 
             $scope.updateFields = function() {
-                SearchAdvancedService.UpdateFields($scope.selectedLayer);
+                if ($scope.selectedLayer != null && $scope.selectedLayer != undefined){
+                    SearchAdvancedService.UpdateFields($scope.selectedLayer);
+                }
             }
 
             $scope.$on('queryBuild', function (event, data) {

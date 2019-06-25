@@ -83,8 +83,8 @@
         }
 
         _service.HandleOperator = function(operation) {
-            if (operation.value.contains("'")){
-                operation.value = operation.value.substring(1).slice(0, -1);
+            if (operation.value.toString().contains("'")){
+                operation.value = operation.value.toString().substring(1).slice(0, -1);
             }
             switch (operation.operator) {
                 case 'LIKE' || 'NOT LIKE':
