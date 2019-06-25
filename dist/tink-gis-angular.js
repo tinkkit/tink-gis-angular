@@ -6229,7 +6229,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         };
 
         $scope.updateFields = function () {
-            SearchAdvancedService.UpdateFields($scope.selectedLayer);
+            if ($scope.selectedLayer != null && $scope.selectedLayer != undefined) {
+                SearchAdvancedService.UpdateFields($scope.selectedLayer);
+            }
         };
 
         $scope.$on('queryBuild', function (event, data) {
@@ -7023,8 +7025,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         };
 
         _service.HandleOperator = function (operation) {
-            if (operation.value.contains("'")) {
-                operation.value = operation.value.substring(1).slice(0, -1);
+            if (operation.value.toString().contains("'")) {
+                operation.value = operation.value.toString().substring(1).slice(0, -1);
             }
             switch (operation.operator) {
                 case 'LIKE' || 'NOT LIKE':
