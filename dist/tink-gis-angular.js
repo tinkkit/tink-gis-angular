@@ -6207,7 +6207,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         $scope.editor = false;
         $scope.selectedLayer = null;
         $scope.operations = [];
-        $scope.query = null;
+        if ($scope.query == undefined) $scope.query = null;
 
         $scope.openQueryEditor = function () {
             $scope.editor = true;
@@ -6265,7 +6265,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         };
 
         $scope.QueryAPI = function () {
-            console.log(MapData.ExtendedType);
             if (!$scope.editor) {
                 SearchAdvancedService.BuildQuery($scope.selectedLayer);
                 var query = SearchAdvancedService.TranslateOperations($scope.operations);
@@ -6280,6 +6279,10 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             UIService.OpenLeftSide();
             $modalInstance.$close();
         };
+
+        if ($scope.query != null && $scope.query != "") {
+            $scope.openQueryEditor();
+        }
     }]);
 
     theController.$inject = ['$scope', '$modalInstance', 'SearchAdvancedService', 'MapData', 'UIService', 'GISService', 'ResultsData'];
