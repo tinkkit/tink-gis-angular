@@ -11,7 +11,7 @@
             $scope.editor = false;
             $scope.selectedLayer = null;
             $scope.operations = [];
-            $scope.query = null;
+            if ($scope.query == undefined) $scope.query = null;
 
             $scope.openQueryEditor = function () {
                 $scope.editor = true;
@@ -67,7 +67,6 @@
             };
 
             $scope.QueryAPI = function () {
-                console.log(MapData.ExtendedType);
                 if (!$scope.editor) {
                     SearchAdvancedService.BuildQuery($scope.selectedLayer);
                     var query = SearchAdvancedService.TranslateOperations($scope.operations);
@@ -82,6 +81,10 @@
                 UIService.OpenLeftSide();
                 $modalInstance.$close();
             };
+
+            if ($scope.query != null && $scope.query != ""){
+                $scope.openQueryEditor();
+            }
         }]);
 
     theController.$inject = ['$scope', '$modalInstance', 'SearchAdvancedService', 'MapData', 'UIService', 'GISService', 'ResultsData'];
