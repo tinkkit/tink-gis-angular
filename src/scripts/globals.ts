@@ -20,6 +20,8 @@ var GAAS = {
     // ReversedGeocodeUrl : ' https://reversedgeocode-p.antwerpen.be/api/' CHANGE BACK BEFORE MTP!!! ONLY FOR TESTING IN ACC 
     // NEEDS TO BE A LINK TO APISTORE AS WELL
     ReversedGeocodeUrl : 'https://reversedgeocoding-app1-p.antwerpen.be/'
+    // link to API Store
+    // ReversedGeocodeUrl : 'https://api-gw-p.antwerpen.be/gis/reversedgeocoding/v1/'
 }
 var Gis = {
     Arcgissql: '',

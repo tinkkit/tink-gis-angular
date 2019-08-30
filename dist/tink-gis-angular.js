@@ -3791,6 +3791,18 @@ var esri2geo = {};
             //CHANGE BACK BEFORE MTP NEEDS TO BE A LINK TO REVGEOCODE FROM API STORE AND THIS IS ONLY FOR TESTING IN ACC!!!!!!
             // var url = GAAS.ReversedGeocodeUrl + 'ReservedGeocoding/GetAntwerpAdresByPoint?SR=31370&X=' + lambert72Cords.x + '&Y=' + lambert72Cords.y + '&buffer=50&count=1';
             var url = GAAS.ReversedGeocodeUrl + 'antwerpaddressbypoint?SR=31370&X=' + lambert72Cords.x + '&Y=' + lambert72Cords.y + '&buffer=50&count=1';
+
+            // -------------------------- to go through the api store when the api key is not exposed
+            // var req = {
+            //     method: 'GET',
+            //     url: url,
+            //     headers: {
+            //         'apikey': config apikey
+            //     },
+            // }
+            // var prom = $http(req);
+            // ---------------------------
+
             var prom = $http.get(url);
             prom.success(function (data, status, headers, config) {
                 // nothing we just give back the prom do the stuff not here!
