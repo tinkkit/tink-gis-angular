@@ -7839,7 +7839,7 @@ L.drawLocal = {
     "<div class=\"wmsUrlTemplate row relative-container\">\n" +
     "<div class=\"col-xs-8 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
     "<div>\n" +
-    "<input class=searchbox ng-model=url ng-change=urlChanged() placeholder=\"Geef een wms url in\">\n" +
+    "<input class=searchbox type=url ng-model=url ng-change=urlChanged() placeholder=\"Geef een wms url in\">\n" +
     "</div>\n" +
     "</div>\n" +
     "<div class=\"col-xs-4 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
