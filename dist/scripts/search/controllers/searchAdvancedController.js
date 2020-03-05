@@ -73,11 +73,13 @@
                 SearchAdvancedService.BuildQuery($scope.selectedLayer);
                 var query = SearchAdvancedService.TranslateOperations($scope.operations);
                 var result = SearchAdvancedService.ExecuteQuery($scope.selectedLayer, query);
+                console.log("editor = false");
             } else {
                 var rawQueryResult = SearchAdvancedService.MakeNewRawQuery($scope.query);
                 if (rawQueryResult.layer != null) {
                     var result = SearchAdvancedService.ExecuteQuery(rawQueryResult.layer, rawQueryResult.query);
                 }
+                console.log("editor = true ");
             }
 
             UIService.OpenLeftSide();
