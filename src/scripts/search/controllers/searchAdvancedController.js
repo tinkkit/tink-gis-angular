@@ -73,6 +73,7 @@
                     var result = SearchAdvancedService.ExecuteQuery($scope.selectedLayer, query);
                 } else {
                     var rawQueryResult = SearchAdvancedService.MakeNewRawQuery($scope.query);
+                    SearchAdvancedService.UpdateQuery($scope.query);
                     if (rawQueryResult.layer != null) {
                         var result = SearchAdvancedService.ExecuteQuery(rawQueryResult.layer, rawQueryResult.query);
                     }
