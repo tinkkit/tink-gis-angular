@@ -6283,6 +6283,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 var result = SearchAdvancedService.ExecuteQuery($scope.selectedLayer, query);
             } else {
                 var rawQueryResult = SearchAdvancedService.MakeNewRawQuery($scope.query);
+                SearchAdvancedService.UpdateQuery($scope.query);
                 if (rawQueryResult.layer != null) {
                     var result = SearchAdvancedService.ExecuteQuery(rawQueryResult.layer, rawQueryResult.query);
                 }
@@ -7014,6 +7015,13 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                     $rootScope.query += value.addition + " " + value.attribute.name + " " + checkOperator(value);
                 }
             });
+
+            $rootScope.$broadcast('queryBuild', $rootScope.query);
+        };
+
+        _service.UpdateQuery = function (query) {
+
+            $rootScope.query = query;
 
             $rootScope.$broadcast('queryBuild', $rootScope.query);
         };
