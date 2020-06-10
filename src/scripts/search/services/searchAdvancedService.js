@@ -61,6 +61,14 @@
             $rootScope.$broadcast('queryBuild', $rootScope.query);
         };
 
+        _service.UpdateQuery = function (query) {
+
+            $rootScope.query = query;
+
+            $rootScope.$broadcast('queryBuild', $rootScope.query);
+
+        }
+
         _service.ExecuteQuery = function (layer, query) {
             MapService.AdvancedQuery(layer, query);
             MapData.ShowDrawControls = false;
