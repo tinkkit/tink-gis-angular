@@ -7845,12 +7845,12 @@ L.drawLocal = {
 
   $templateCache.put('templates/layermanagement/wmsUrlTemplate.html',
     "<div class=\"wmsUrlTemplate row relative-container\">\n" +
-    "<div class=\"col-xs-4 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
+    "<div class=\"col-xs-6 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
     "<div>\n" +
-    "<input class=searchbox ng-model=url ng-change=urlChanged() placeholder=\"Geef een wms url in\">\n" +
+    "<input class=searchbox ng-model=url ng-change=urlChanged() placeholder=\"Geef een wms url in\" style=width:100%>\n" +
     "</div>\n" +
     "</div>\n" +
-    "<div class=\"col-xs-8 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
+    "<div class=\"col-xs-6 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
     "<div>\n" +
     "<button ng-disabled=!urlIsValid ng-click=laadUrl()>Laad url</button>\n" +
     "</div>\n" +
