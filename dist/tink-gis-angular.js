@@ -8241,7 +8241,7 @@ L.drawLocal = {
     "<data-content ng-show=\"srchrsltsctrl.aantalFeaturesMetType(layerGroupName) <= 1000\">\n" +
     "<li ng-repeat=\"feature in srchrsltsctrl.features | filter: { layerName:layerGroupName } :true\" ng-mouseover=srchrsltsctrl.HoverOver(feature)>\n" +
     "<div class=mouse-over>\n" +
-    "<a tink-tooltip={{feature.displayValue}} tink-tooltip-align=top ng-click=srchrsltsctrl.showDetails(feature)>{{ feature.displayValue| limitTo : 23 }}\n" +
+    "<a tink-tooltip={{feature.displayValue}} tink-tooltip-align=top ng-click=srchrsltsctrl.showDetails(feature)>{{ feature.displayValue| limitTo : 40 }}\n" +
     "</a>\n" +
     "<button class=\"trash pull-right mouse-over-toshow\" prevent-default ng-click=srchrsltsctrl.deleteFeature(feature)></button>\n" +
     "</div>\n" +
@@ -8257,7 +8257,7 @@ L.drawLocal = {
     "<data-content ng-show=\"srchrsltsctrl.aantalFeaturesMetType(layerGroupName) <= 1000\">\n" +
     "<li ng-repeat=\"feature in srchrsltsctrl.features | filter: { layerName:layerGroupName } :true\" ng-mouseover=srchrsltsctrl.HoverOver(feature)>\n" +
     "<div class=mouse-over>\n" +
-    "<a tink-tooltip={{feature.displayValue}} tink-tooltip-align=top ng-click=srchrsltsctrl.showDetails(feature)>{{ feature.displayValue| limitTo : 23 }}\n" +
+    "<a tink-tooltip={{feature.displayValue}} tink-tooltip-align=top ng-click=srchrsltsctrl.showDetails(feature)>{{ feature.displayValue| limitTo : 40 }}\n" +
     "</a>\n" +
     "<button class=\"trash pull-right mouse-over-toshow\" prevent-default ng-click=srchrsltsctrl.deleteFeature(feature)></button>\n" +
     "</div>\n" +
