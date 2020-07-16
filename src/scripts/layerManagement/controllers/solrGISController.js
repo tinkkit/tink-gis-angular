@@ -179,9 +179,7 @@
                         theme.enabled = true;
                         layer.enabled = true;
                         layer.AllLayers.forEach(x => x.enabled = true);
-                        if (layer.parent) {
-                            layer.parent.enabled = true;
-                        }
+                        $scope.CheckAndSetParentEnabled(layer);
                     }
                 }
                 $scope.selectedTheme = theme;
@@ -232,6 +230,13 @@
                 LayerManagementService.AddOrUpdateTheme($scope.selectedTheme, $scope.copySelectedTheme);
                 $scope.clearPreview();
             };
+            $scope.CheckAndSetParentEnabled = function(layer) {
+                if (layer.parent) {
+                    layer.parent.enabled = true;
+                    $scope.CheckAndSetParentEnabled(layer.parent);
+                }
+            }
+
             $scope.ok = function () {
                 $modalInstance.$close();
             };

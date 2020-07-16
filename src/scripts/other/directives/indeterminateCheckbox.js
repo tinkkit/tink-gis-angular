@@ -27,7 +27,7 @@
 
                     // Watch the children for changes
                     scope.$watch(watchChildrenListWithProperty, function (newValue, oldValue) {
-                        if (newValue !== oldValue) {
+
                             var hasChecked = false;
                             var hasUnchecked = false;
                             // Loop through the children
@@ -52,7 +52,6 @@
                                     modelCtrl.$setViewValue(hasChecked);
                                 }
                             }
-                        }
                     }, true);
                 }
             }
