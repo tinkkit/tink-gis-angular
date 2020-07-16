@@ -992,6 +992,10 @@ html.print.landscape .print-map {
   display: inline-block;
   cursor: pointer; }
 
+.coordinate-pointer {
+  display: inline-block;
+  cursor: pointer; }
+
 /**
  * Full page loader
  */
