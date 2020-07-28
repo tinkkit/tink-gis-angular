@@ -4598,6 +4598,28 @@ L.control.typeahead = function (args) {
             document.execCommand("copy");
             $temp.remove();
         };
+        _data.CreatePerimeterMarker = function (perimeter, surfaceArea, e) {
+            var html = '<div class="container container-low-padding">' + '<div class="row row-no-padding">' + '<div class="col-sm-5">Opp (m<sup>2</sup>):</div><div id="surfacearea" class= "col-sm-6" style="text-align: left">' + surfaceArea + '</div><div class="col-sm-1"><i class="fa fa-files-o coordinate-pointer"  ng-click="CopySurfaceArea()" tink-tooltip="Oppervlakte kopieren naar het klembord" tink-tooltip-align="bottom"></i></div>' + '</div>' + '<div class="row row-no-padding">' + '<div class="col-sm-5">Omtrek (m):</div><div id="perimeter" class= "col-sm-6" style="text-align: left">' + perimeter + '</div><div class="col-sm-1"><i class="fa fa-files-o coordinate-pointer"  ng-click="CopyPerimeter()" tink-tooltip="Omtrek kopieren naar het klembord" tink-tooltip-align="bottom"></i></div>' + '</div>' + '</div>';
+
+            var linkFunction = $compile(html);
+            var newScope = $rootScope.$new();
+
+            newScope.CopySurfaceArea = function () {
+                copyToClipboard('#surfacearea');
+            };
+            newScope.CopyPerimeter = function () {
+                copyToClipboard('#perimeter');
+            };
+            var domele = linkFunction(newScope)[0];
+
+            var popup = e.layer.bindPopup(domele, { minWidth: 150, closeButton: true });
+            popup.on('popupclose', function (event) {
+                map.removeLayer(e.layer);
+                // MapData.CleanDrawings();
+                // MapData.CleanMap();
+            });
+            e.layer.openPopup();
+        };
         _data.CreateDot = function (loc) {
             _data.CleanWatIsHier();
             var dotIcon = L.icon({
@@ -5053,14 +5075,7 @@ L.control.typeahead = function (args) {
                             break;
                         case DrawingOption.OPPERVLAKTE:
                             var omtrek = berkenOmtrek(e.layer._latlngs[0]);
-                            var popuptekst = '<p>Opp  (m<sup>2</sup>): ' + LGeo.area(e.layer).toFixed(2) + '</p>' + '<p>Omtrek (m): ' + omtrek + ' </p>';
-                            var popup = e.layer.bindPopup(popuptekst);
-                            popup.on('popupclose', function (event) {
-                                map.removeLayer(e.layer);
-                                // MapData.CleanDrawings();
-                                // MapData.CleanMap();
-                            });
-                            e.layer.openPopup();
+                            MapData.CreatePerimeterMarker(omtrek, LGeo.area(e.layer).toFixed(2), e);
                             break;
                         default:
                             break;
