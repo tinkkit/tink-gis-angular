@@ -183,7 +183,21 @@
                 map.fitBounds(featureBounds);
             }
         };
+        
+        _externService.SetCityExtent = function() {
+            var extent = {
+                _northEast : {
+                    lat: "51.3877433490741",
+                    lng: "4.75561140002421"
+                },
+                _southWest: {
+                    lat: "51.1324947954227",
+                    lng: "3.95971169623321"
+                }
+            };
 
+            _externService.setExtent(extent);
+        }
 
         _externService.CleanMapAndThemes = function() {
             MapData.CleanMap();
