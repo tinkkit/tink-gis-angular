@@ -1551,6 +1551,9 @@ Gis.Arcgissql = Gis.BaseUrl + 'arcgissql/rest/';
 var Solr = {
     BaseUrl: 'https://esb-app1-o.antwerpen.be/v1/'
 };
+var LocationPicker = {
+    BaseUrl: 'https://locationpicker-app1-o.antwerpen.be/api/v2/'
+};
 var DrawingOption = {
     GEEN: 'geen',
     NIETS: '',
@@ -3910,6 +3913,18 @@ var esri2geo = {};
             });
             return prom.promise;
         };
+        _service.QueryLocationPickerLocation = function (search) {
+            var prom = $q.defer();
+            var url = LocationPicker.BaseUrl + 'locations?search=' + search + '&sort=name&limit=50&layers=all';
+            $http.get(url).success(function (data, status, headers, config) {
+                // data = GisHelperService.UnwrapProxiedData(data);
+                prom.resolve(data);
+            }).error(function (data, status, headers, config) {
+                prom.reject(null);
+                PopupService.ErrorFromHttp(data, status, url);
+            });
+            return prom.promise;
+        };
         _service.QuerySOLRLocatie = function (search) {
             var prom = $q.defer();
             var url = Solr.BaseUrl + 'giszoek/solr/search?q=*' + search + '*&wt=json&indent=true&rows=50&solrtype=gislocaties&dismax=true&bq=exactName:DISTRICT^20000.0&bq=layer:straatnaam^20000.0';
@@ -6007,8 +6022,29 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                                 });
                             }
                         } else {
-                            GISService.QuerySOLRLocatie(query.trim()).then(function (data) {
-                                var arr = data.response.docs;
+                            GISService.QueryLocationPickerLocation(query.trim()).then(function (data) {
+                                var arr = data.map(function (feature) {
+                                    var obj = {};
+                                    obj.key = feature.id;
+                                    obj.id = feature.fullId;
+                                    obj.name = feature.name;
+                                    obj.layer = feature.layer;
+                                    obj.layerString = feature.layer;
+                                    if (feature.antwerpDistrict !== null && feature.antwerpDistrict.match(/^ *$/) === null) {
+                                        obj.districts = [feature.antwerpDistrict];
+                                    }
+                                    if (feature.position) {
+                                        if (feature.position.geometry) {
+                                            obj.geometry = feature.position.geometry;
+                                        }
+                                        if (feature.position.lambert72) {
+                                            obj.x = feature.position.lambert72.x;
+                                            obj.y = feature.position.lambert72.y;
+                                        }
+                                    }
+
+                                    return obj;
+                                });
                                 _typeAheadService.lastData = arr;
                                 asyncResults(arr);
                             });
@@ -6041,9 +6077,11 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                         var xyWGS84 = GisHelperService.ConvertLambert72ToWSG84(cors);
                         setViewAndPutDot(xyWGS84);
                     } else {
-                        var idsplitted = suggestion.id.split("/");
-                        var layerid = idsplitted[3];
-                        QueryForTempFeatures(layerid, 'ObjectID=' + suggestion.key);
+                        if (suggestion.id) {
+                            var idsplitted = suggestion.id.split("/");
+                            var layerid = idsplitted[3];
+                            QueryForTempFeatures(layerid, 'ObjectID=' + suggestion.key);
+                        }
                     }
                 }
 
