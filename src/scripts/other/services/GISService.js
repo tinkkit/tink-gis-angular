@@ -126,6 +126,19 @@
                 });
             return prom.promise;
         };
+        _service.QueryLocationPickerLocation = function(search) {
+            var prom = $q.defer();
+            var url = LocationPicker.BaseUrl + 'locations?search=' + search + '&sort=name&limit=50&layers=all';
+            $http.get(url)
+                .success(function(data, status, headers, config) {
+                    // data = GisHelperService.UnwrapProxiedData(data);
+                    prom.resolve(data);
+                }).error(function(data, status, headers, config) {
+                    prom.reject(null);
+                    PopupService.ErrorFromHttp(data, status, url);
+                });
+            return prom.promise;
+        }
         _service.QuerySOLRLocatie = function(search) {
             var prom = $q.defer();
             var url = Solr.BaseUrl + 'giszoek/solr/search?q=*' + search + '*&wt=json&indent=true&rows=50&solrtype=gislocaties&dismax=true&bq=exactName:DISTRICT^20000.0&bq=layer:straatnaam^20000.0';
