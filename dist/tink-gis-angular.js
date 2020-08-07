@@ -2085,9 +2085,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                     layer.AllLayers.forEach(function (x) {
                         return x.enabled = true;
                     });
-                    if (layer.parent) {
-                        layer.parent.enabled = true;
-                    }
+                    $scope.CheckAndSetParentEnabled(layer);
                 }
             }
             $scope.selectedTheme = theme;
@@ -2137,6 +2135,13 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             LayerManagementService.AddOrUpdateTheme($scope.selectedTheme, $scope.copySelectedTheme);
             $scope.clearPreview();
         };
+        $scope.CheckAndSetParentEnabled = function (layer) {
+            if (layer.parent) {
+                layer.parent.enabled = true;
+                $scope.CheckAndSetParentEnabled(layer.parent);
+            }
+        };
+
         $scope.ok = function () {
             $modalInstance.$close();
         };
@@ -3024,30 +3029,29 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
 
                     // Watch the children for changes
                     scope.$watch(watchChildrenListWithProperty, function (newValue, oldValue) {
-                        if (newValue !== oldValue) {
-                            var hasChecked = false;
-                            var hasUnchecked = false;
-                            // Loop through the children
-                            angular.forEach(newValue, function (child) {
-                                if (child) {
-                                    hasChecked = true;
-                                } else {
-                                    hasUnchecked = true;
-                                }
-                            });
-                            // Determine which state to put the checkbox in
-                            if (hasChecked && hasUnchecked) {
-                                element.prop('checked', true);
-                                element.prop('indeterminate', true);
-                                if (modelCtrl) {
-                                    modelCtrl.$setViewValue(true);
-                                }
+
+                        var hasChecked = false;
+                        var hasUnchecked = false;
+                        // Loop through the children
+                        angular.forEach(newValue, function (child) {
+                            if (child) {
+                                hasChecked = true;
                             } else {
-                                element.prop('checked', hasChecked);
-                                element.prop('indeterminate', false);
-                                if (modelCtrl) {
-                                    modelCtrl.$setViewValue(hasChecked);
-                                }
+                                hasUnchecked = true;
+                            }
+                        });
+                        // Determine which state to put the checkbox in
+                        if (hasChecked && hasUnchecked) {
+                            element.prop('checked', true);
+                            element.prop('indeterminate', true);
+                            if (modelCtrl) {
+                                modelCtrl.$setViewValue(true);
+                            }
+                        } else {
+                            element.prop('checked', hasChecked);
+                            element.prop('indeterminate', false);
+                            if (modelCtrl) {
+                                modelCtrl.$setViewValue(hasChecked);
                             }
                         }
                     }, true);
