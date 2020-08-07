@@ -1551,6 +1551,9 @@ Gis.Arcgissql = Gis.BaseUrl + 'arcgissql/rest/';
 var Solr = {
     BaseUrl: 'https://esb-app1-o.antwerpen.be/v1/'
 };
+var LocationPicker = {
+    BaseUrl: 'https://locationpicker-app1-o.antwerpen.be/api/v2/'
+};
 var DrawingOption = {
     GEEN: 'geen',
     NIETS: '',
@@ -3601,6 +3604,21 @@ var esri2geo = {};
             }
         };
 
+        _externService.SetCityExtent = function () {
+            var extent = {
+                _northEast: {
+                    lat: "51.3877433490741",
+                    lng: "4.75561140002421"
+                },
+                _southWest: {
+                    lat: "51.1324947954227",
+                    lng: "3.95971169623321"
+                }
+            };
+
+            _externService.setExtent(extent);
+        };
+
         _externService.CleanMapAndThemes = function () {
             MapData.CleanMap();
             ThemeService.CleanThemes();
@@ -3892,6 +3910,18 @@ var esri2geo = {};
             var prom = $q.defer();
             var url = Solr.BaseUrl + 'giszoek/solr/search?q=*' + search + '*&wt=json&indent=true&facet=true&rows=999&facet.field=parent&group=true&group.field=parent&group.limit=999&solrtype=gis'; // &group.limit=5
             $http.get(url).success(function (data, status, headers, config) {
+                prom.resolve(data);
+            }).error(function (data, status, headers, config) {
+                prom.reject(null);
+                PopupService.ErrorFromHttp(data, status, url);
+            });
+            return prom.promise;
+        };
+        _service.QueryLocationPickerLocation = function (search) {
+            var prom = $q.defer();
+            var url = LocationPicker.BaseUrl + 'locations?search=' + search + '&sort=name&limit=50&layers=all';
+            $http.get(url).success(function (data, status, headers, config) {
+                // data = GisHelperService.UnwrapProxiedData(data);
                 prom.resolve(data);
             }).error(function (data, status, headers, config) {
                 prom.reject(null);
@@ -4564,7 +4594,7 @@ L.control.typeahead = function (args) {
             if (straatNaam) {
                 html = '<div class="container container-low-padding">' + '<div class="row row-no-padding">' + '<div class="col-sm-3" align="center" >' + '<a href="http://maps.google.com/maps?q=&layer=c&cbll=' + latlng.lat + ',' + latlng.lng + '" + target="_blank" >' +
                 // '<img tink-tooltip="Ga naar streetview" tink-tooltip-align="bottom" src="https://maps.googleapis.com/maps/api/streetview?size=100x50&location=' + latlng.lat + ',' + latlng.lng + '&pitch=-0.76" />' +
-                '<img tink-tooltip="Ga naar streetview" tink-tooltip-align="bottom" src="https://seeklogo.com/images/G/google-street-view-logo-665165D1A8-seeklogo.com.png" width="70%" height="70%" />' + '</a>' + '</div>' + '<div class="col-sm-8 mouse-over">' + '<div class="col-sm-12"><b>' + straatNaam + '</b></div>' + '<div class="col-sm-3">WGS84:</div><div id="wgs" class="col-sm-8" style="text-align: left;">{{WGS84LatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o mouse-over-toshow" ng-click="CopyWGS()"  tink-tooltip="Coördinaten kopieren naar het klembord" tink-tooltip-align="bottom"  ></i></div>' + '<div class="col-sm-3">Lambert:</div><div id="lambert" class="col-sm-8" style="text-align: left;">{{LambertLatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o mouse-over-toshow"  ng-click="CopyLambert()" tink-tooltip="Coördinaten kopieren naar het klembord" tink-tooltip-align="bottom"></i></div>' + '</div>' + '</div>' + '</div>';
+                '<img tink-tooltip="Ga naar streetview" tink-tooltip-align="bottom" src="https://seeklogo.com/images/G/google-street-view-logo-665165D1A8-seeklogo.com.png" width="70%" height="70%" />' + '</a>' + '</div>' + '<div class="col-sm-8">' + '<div class="col-sm-12"><b>' + straatNaam + '</b></div>' + '<div class="col-sm-3">WGS84:</div><div id="wgs" class="col-sm-8" style="text-align: left;">{{WGS84LatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o coordinate-pointer" ng-click="CopyWGS()"  tink-tooltip="Coördinaten kopieren naar het klembord" tink-tooltip-align="bottom"  ></i></div>' + '<div class="col-sm-3">Lambert:</div><div id="lambert" class="col-sm-8" style="text-align: left;">{{LambertLatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o coordinate-pointer"  ng-click="CopyLambert()" tink-tooltip="Coördinaten kopieren naar het klembord" tink-tooltip-align="bottom"></i></div>' + '</div>' + '</div>' + '</div>';
                 minwidth = 300;
             } else {
                 // html =
@@ -4576,7 +4606,7 @@ L.control.typeahead = function (args) {
                 //     '</div>';
                 html = '<div class="container container-low-padding">' + '<div class="row row-no-padding">' + '<div class="col-sm-3" >' + '<a href="http://maps.google.com/maps?q=&layer=c&cbll=' + latlng.lat + ',' + latlng.lng + '" + target="_blank" >' +
                 //  '<img tink-tooltip="Ga naar streetview" tink-tooltip-align="bottom" src="https://maps.googleapis.com/maps/api/streetview?size=100x50&location=' + latlng.lat + ',' + latlng.lng + '&pitch=-0.76" />' +
-                '<img tink-tooltip="Ga naar streetview" tink-tooltip-align="bottom" src="https://seeklogo.com/images/G/google-street-view-logo-665165D1A8-seeklogo.com.png" width="70%" height="70%" />' + '</a>' + '</div>' + '<div class="col-sm-8 mouse-over">' + '<div class="col-sm-3">WGS84:</div><div id="wgs" class="col-sm-8" style="text-align: left;">{{WGS84LatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o mouse-over-toshow" ng-click="CopyWGS()"  tink-tooltip="Coördinaten kopieren naar het klembord" tink-tooltip-align="bottom"  ></i></div>' + '<div class="col-sm-3">Lambert:</div><div id="lambert" class="col-sm-8" style="text-align: left;">{{LambertLatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o mouse-over-toshow"  ng-click="CopyLambert()" tink-tooltip="Coördinaten kopieren naar het klembord" tink-tooltip-align="bottom"></i></div>' + '</div>' + '</div>' + '</div>';
+                '<img tink-tooltip="Ga naar streetview" tink-tooltip-align="bottom" src="https://seeklogo.com/images/G/google-street-view-logo-665165D1A8-seeklogo.com.png" width="70%" height="70%" />' + '</a>' + '</div>' + '<div class="col-sm-8">' + '<div class="col-sm-3">WGS84:</div><div id="wgs" class="col-sm-8" style="text-align: left;">{{WGS84LatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o coordinate-pointer" ng-click="CopyWGS()"  tink-tooltip="Coördinaten kopieren naar het klembord" tink-tooltip-align="bottom"  ></i></div>' + '<div class="col-sm-3">Lambert:</div><div id="lambert" class="col-sm-8" style="text-align: left;">{{LambertLatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o coordinate-pointer"  ng-click="CopyLambert()" tink-tooltip="Coördinaten kopieren naar het klembord" tink-tooltip-align="bottom"></i></div>' + '</div>' + '</div>' + '</div>';
                 minwidth = 300;
             }
             var linkFunction = $compile(html);
@@ -4601,6 +4631,28 @@ L.control.typeahead = function (args) {
             $temp.val($(element).text()).select();
             document.execCommand("copy");
             $temp.remove();
+        };
+        _data.CreatePerimeterMarker = function (perimeter, surfaceArea, e) {
+            var html = '<div class="container container-low-padding">' + '<div class="row row-no-padding">' + '<div class="col-sm-5">Opp (m<sup>2</sup>):</div><div id="surfacearea" class= "col-sm-6" style="text-align: left">' + surfaceArea + '</div><div class="col-sm-1"><i class="fa fa-files-o coordinate-pointer"  ng-click="CopySurfaceArea()" tink-tooltip="Oppervlakte kopieren naar het klembord" tink-tooltip-align="bottom"></i></div>' + '</div>' + '<div class="row row-no-padding">' + '<div class="col-sm-5">Omtrek (m):</div><div id="perimeter" class= "col-sm-6" style="text-align: left">' + perimeter + '</div><div class="col-sm-1"><i class="fa fa-files-o coordinate-pointer"  ng-click="CopyPerimeter()" tink-tooltip="Omtrek kopieren naar het klembord" tink-tooltip-align="bottom"></i></div>' + '</div>' + '</div>';
+
+            var linkFunction = $compile(html);
+            var newScope = $rootScope.$new();
+
+            newScope.CopySurfaceArea = function () {
+                copyToClipboard('#surfacearea');
+            };
+            newScope.CopyPerimeter = function () {
+                copyToClipboard('#perimeter');
+            };
+            var domele = linkFunction(newScope)[0];
+
+            var popup = e.layer.bindPopup(domele, { minWidth: 150, closeButton: true });
+            popup.on('popupclose', function (event) {
+                map.removeLayer(e.layer);
+                // MapData.CleanDrawings();
+                // MapData.CleanMap();
+            });
+            e.layer.openPopup();
         };
         _data.CreateDot = function (loc) {
             _data.CleanWatIsHier();
@@ -5057,14 +5109,7 @@ L.control.typeahead = function (args) {
                             break;
                         case DrawingOption.OPPERVLAKTE:
                             var omtrek = berkenOmtrek(e.layer._latlngs[0]);
-                            var popuptekst = '<p>Opp  (m<sup>2</sup>): ' + LGeo.area(e.layer).toFixed(2) + '</p>' + '<p>Omtrek (m): ' + omtrek + ' </p>';
-                            var popup = e.layer.bindPopup(popuptekst);
-                            popup.on('popupclose', function (event) {
-                                map.removeLayer(e.layer);
-                                // MapData.CleanDrawings();
-                                // MapData.CleanMap();
-                            });
-                            e.layer.openPopup();
+                            MapData.CreatePerimeterMarker(omtrek, LGeo.area(e.layer).toFixed(2), e);
                             break;
                         default:
                             break;
@@ -5981,8 +6026,29 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                                 });
                             }
                         } else {
-                            GISService.QuerySOLRLocatie(query.trim()).then(function (data) {
-                                var arr = data.response.docs;
+                            GISService.QueryLocationPickerLocation(query.trim()).then(function (data) {
+                                var arr = data.map(function (feature) {
+                                    var obj = {};
+                                    obj.key = feature.id;
+                                    obj.id = feature.fullId;
+                                    obj.name = feature.name;
+                                    obj.layer = feature.layer;
+                                    obj.layerString = feature.layer;
+                                    if (feature.antwerpDistrict !== null && feature.antwerpDistrict.match(/^ *$/) === null) {
+                                        obj.districts = [feature.antwerpDistrict];
+                                    }
+                                    if (feature.position) {
+                                        if (feature.position.geometry) {
+                                            obj.geometry = feature.position.geometry;
+                                        }
+                                        if (feature.position.lambert72) {
+                                            obj.x = feature.position.lambert72.x;
+                                            obj.y = feature.position.lambert72.y;
+                                        }
+                                    }
+
+                                    return obj;
+                                });
                                 _typeAheadService.lastData = arr;
                                 asyncResults(arr);
                             });
@@ -6015,9 +6081,11 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                         var xyWGS84 = GisHelperService.ConvertLambert72ToWSG84(cors);
                         setViewAndPutDot(xyWGS84);
                     } else {
-                        var idsplitted = suggestion.id.split("/");
-                        var layerid = idsplitted[3];
-                        QueryForTempFeatures(layerid, 'ObjectID=' + suggestion.key);
+                        if (suggestion.id) {
+                            var idsplitted = suggestion.id.split("/");
+                            var layerid = idsplitted[3];
+                            QueryForTempFeatures(layerid, 'ObjectID=' + suggestion.key);
+                        }
                     }
                 }
 

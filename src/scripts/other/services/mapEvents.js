@@ -150,15 +150,7 @@
                             break;
                         case DrawingOption.OPPERVLAKTE:
                             var omtrek = berkenOmtrek(e.layer._latlngs[0]);
-                            var popuptekst = '<p>Opp  (m<sup>2</sup>): ' + (LGeo.area(e.layer)).toFixed(2) + '</p>'
-                                + '<p>Omtrek (m): ' + omtrek + ' </p>';
-                            var popup = e.layer.bindPopup(popuptekst);
-                            popup.on('popupclose', function (event) {
-                                map.removeLayer(e.layer);
-                                // MapData.CleanDrawings();
-                                // MapData.CleanMap();
-                            });
-                            e.layer.openPopup();
+                            MapData.CreatePerimeterMarker(omtrek, (LGeo.area(e.layer)).toFixed(2), e);
                             break;
                         default:
                             break;

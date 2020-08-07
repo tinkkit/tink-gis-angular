@@ -133,8 +133,30 @@
                             }
                             
                         } else {
-                            GISService.QuerySOLRLocatie(query.trim()).then(function(data) {
-                                var arr = data.response.docs;
+                            GISService.QueryLocationPickerLocation(query.trim()).then(function(data) {
+                                var arr = data.map(function(feature) {
+                                    var obj = {};
+                                    obj.key = feature.id;
+                                    obj.id = feature.fullId;
+                                    obj.name = feature.name;
+                                    obj.layer = feature.layer;
+                                    obj.layerString = feature.layer;
+                                    if (feature.antwerpDistrict !== null && feature.antwerpDistrict.match(/^ *$/) === null) {
+                                        obj.districts = [feature.antwerpDistrict]
+                                    }
+                                    if (feature.position) {
+                                        if (feature.position.geometry) {
+                                            obj.geometry = feature.position.geometry;
+                                        }
+                                        if (feature.position.lambert72) {
+                                            obj.x = feature.position.lambert72.x;
+                                            obj.y = feature.position.lambert72.y;
+                                        }
+                                    }
+
+
+                                    return obj;
+                                });
                                 _typeAheadService.lastData = arr;
                                 asyncResults(arr);
                             });
@@ -169,9 +191,11 @@
                         var xyWGS84 = GisHelperService.ConvertLambert72ToWSG84(cors);
                         setViewAndPutDot(xyWGS84);
                     } else {
-                        var idsplitted = suggestion.id.split("/");
-                        var layerid = idsplitted[3];
-                        QueryForTempFeatures(layerid, 'ObjectID=' + suggestion.key);
+                        if (suggestion.id) {
+                            var idsplitted = suggestion.id.split("/");
+                            var layerid = idsplitted[3];
+                            QueryForTempFeatures(layerid, 'ObjectID=' + suggestion.key);
+                        }
 
                     }
                 }

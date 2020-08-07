@@ -34,6 +34,9 @@ Gis.Arcgissql = Gis.BaseUrl + 'arcgissql/rest/';
 var Solr = {
     BaseUrl: 'https://esb-app1-o.antwerpen.be/v1/'
 }
+var LocationPicker = {
+    BaseUrl: 'https://locationpicker-app1-o.antwerpen.be/api/v2/'
+}
 const DrawingOption = {
     GEEN: 'geen',
     NIETS: '',
