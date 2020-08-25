@@ -195,6 +195,13 @@
       }
     };
     vm.drawingButtonChanged = function (drawOption) {
+      MapData.RemovedUnfinishedDrawings = false;
+      // if there is an unfinished intake, remove first before starting new intake
+      if (MapData.DrawingObject && MapData.DrawingObject._enabled) {
+        MapData.RemovedUnfinishedDrawings = true;
+        MapData.CleanDrawings();
+      }
+
       if (MapData.ExtendedType == null) {
         // else we don t have to clean the map!
 
