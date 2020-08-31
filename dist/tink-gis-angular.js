@@ -4746,7 +4746,12 @@ L.control.typeahead = function (args) {
                 if (_data.ExtendedType == null) {
                     // else we don t have to clean the map!
                     featureArray.forEach(function (featureItem) {
-                        ResultsData.JsonFeatures.push(featureItem);
+                        var selectedFeature = ResultsData.JsonFeatures.filter(function (x) {
+                            return x.id == featureItem.id;
+                        });
+                        if (selectedFeature.length === 0) {
+                            ResultsData.JsonFeatures.push(featureItem);
+                        }
                     });
                 } else {
                     _data.processedFeatureArray = featureArray.concat(_data.processedFeatureArray);
