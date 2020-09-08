@@ -2505,6 +2505,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
     var theController = module.controller('layersController', function ($scope, MapData, map, ThemeService, $modal, FeatureService) {
         var vm = this;
         vm.themes = MapData.Themes;
+        vm.queryData = MapData.QueryData;
         vm.selectedLayers = [];
 
         vm.sortableOptions = {
@@ -2540,6 +2541,12 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         });
         vm.updatethemevisibility = function (theme) {
             ThemeService.UpdateThemeVisibleLayers(theme);
+        };
+        vm.updateQueryVisibility = function (showQuery) {
+            ThemeService.updateQueryVisibility(showQuery);
+        };
+        vm.deleteQueryLayer = function () {
+            ThemeService.DeleteQueryLayer();
         };
         vm.Lagenbeheer = function () {
             var addLayerInstance = $modal.open({
@@ -4416,6 +4423,7 @@ L.control.typeahead = function (args) {
         _data.SelectedLayer = _data.defaultlayer;
         _data.DrawLayer = null;
         _data.DefaultLayer = null; // can be set from the featureservice
+        _data.QueryData = { showLayer: false, layer: null };
         _data.SelectedFindLayer = _data.defaultlayer;
         _data.ResetVisibleLayers = function () {
             console.log("RestVisLayers");
@@ -4669,6 +4677,13 @@ L.control.typeahead = function (args) {
                 iconSize: [24, 24]
             });
             WatIsHierMarker = L.marker([loc.x, loc.y], { icon: dotIcon }).addTo(map);
+        };
+
+        _data.CreateFeatureLayerMarker = function (loc, iconUrl) {
+            var icon = L.icon({
+                iconUrl: iconUrl
+            });
+            return L.marker(loc, { icon: icon });
         };
         _data.CleanSearch = function () {
             ResultsData.CleanSearch();
@@ -5768,6 +5783,14 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             MapData.ResetVisibleLayers();
             theme.UpdateMap(map);
         };
+
+        _service.updateQueryVisibility = function (showQuery) {
+            if (showQuery === true) {
+                map.addLayer(MapData.QueryData.layer.mapData);
+            } else {
+                map.removeLayer(MapData.QueryData.layer.mapData);
+            }
+        };
         _service.UpdateTheme = function (updatedTheme, existingTheme) {
             //lets update the existingTheme
             for (var x = 0; x < updatedTheme.AllLayers.length; x++) {
@@ -5875,6 +5898,40 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                     break;
             }
         };
+
+        _service.AddQueryLayer = function (queryLayerData, query) {
+            if (MapData.QueryData.layer) {
+                _service.DeleteQueryLayer();
+            }
+            MapData.QueryData.showLayer = true;
+
+            var queryLayer = {
+                name: queryLayerData.name
+            };
+
+            queryLayer.mapData = L.esri.featureLayer({
+                maxZoom: 20,
+                minZoom: 0,
+                url: queryLayerData.theme.cleanUrl + '/' + queryLayerData.id + '/query',
+                where: query,
+                opacity: 1,
+                continuousWorld: true,
+                useCors: false,
+                f: 'image',
+                pointToLayer: function pointToLayer(geoJson, latlng) {
+                    return MapData.CreateFeatureLayerMarker(latlng, queryLayerData.legend[0].fullurl);
+                }
+            }).addTo(map);
+
+            MapData.QueryData.layer = queryLayer;
+        };
+
+        _service.DeleteQueryLayer = function () {
+            map.removeLayer(MapData.QueryData.layer.mapData);
+            MapData.QueryData.showLayer = false;
+            MapData.QueryData.layer = null;
+        };
+
         _service.CleanThemes = function () {
             while (MapData.Themes.length != 0) {
                 console.log('DELETING THIS THEME', MapData.Themes[0]);
@@ -6301,7 +6358,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     } catch (e) {
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
     }
-    var theController = module.controller('searchAdvancedController', ['$scope', '$modalInstance', 'SearchAdvancedService', 'MapData', 'GISService', 'UIService', 'ResultsData', function ($scope, $modalInstance, SearchAdvancedService, MapData, GISService, UIService, ResultsData) {
+    var theController = module.controller('searchAdvancedController', ['$scope', '$modalInstance', 'SearchAdvancedService', 'MapData', 'GISService', 'UIService', 'ResultsData', 'ThemeService', function ($scope, $modalInstance, SearchAdvancedService, MapData, GISService, UIService, ResultsData, ThemeService) {
         $scope.editor = false;
         $scope.selectedLayer = null;
         $scope.operations = [];
@@ -6379,12 +6436,19 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             $modalInstance.$close();
         };
 
+        $scope.FilterQueriedLayer = function () {
+            var rawQueryResult = SearchAdvancedService.MakeNewRawQuery($scope.query);
+            ThemeService.AddQueryLayer($scope.selectedLayer, rawQueryResult.query);
+
+            $modalInstance.$close();
+        };
+
         if ($scope.query != null && $scope.query != "") {
             $scope.openQueryEditor();
         }
     }]);
 
-    theController.$inject = ['$scope', '$modalInstance', 'SearchAdvancedService', 'MapData', 'UIService', 'GISService', 'ResultsData'];
+    theController.$inject = ['$scope', '$modalInstance', 'SearchAdvancedService', 'MapData', 'UIService', 'GISService', 'ResultsData', 'ThemeService'];
 })();
 ;'use strict';
 
@@ -7973,6 +8037,16 @@ L.drawLocal = {
     "</tink-theme>\n" +
     "</li>\n" +
     "</ul>\n" +
+    "<ul class=ul-level id=queryLayer>\n" +
+    "<li class=li-item ng-show=lyrsctrl.queryData.layer>\n" +
+    "<img class=layer-icon class=layer-icon ng-src=\"{{lyrsctrl.queryData.layer.legend[0].fullurl}} \">\n" +
+    "<input class=\"visible-box hidden-print\" type=checkbox id=queryDataChk ng-model=lyrsctrl.queryData.showLayer ng-change=lyrsctrl.updateQueryVisibility(lyrsctrl.queryData.showLayer)>\n" +
+    "<label for=queryDataChk title=\"{{ lyrsctrl.queryData.layer.name }}\"> {{ lyrsctrl.queryData.layer.name }}\n" +
+    "<span class=\"label-info hidden-print\">Query</span>\n" +
+    "</label>\n" +
+    "<button style=\"flex-grow: 2\" class=\"trash hidden-print pull-right\" ng-click=lyrsctrl.deleteQueryLayer()></button>\n" +
+    "</li>\n" +
+    "</ul>\n" +
     "</div>\n" +
     "</div>\n" +
     "</aside>\n" +
@@ -8259,6 +8333,7 @@ L.drawLocal = {
     "<div class=margin-top>\n" +
     "<button type=button class=\"btn btn-info\" ng-click=QueryAPI()>Pas toe</button>\n" +
     "<button type=button class=btn ng-click=cancel()> Annuleer</button>\n" +
+    "<button type=button class=\"btn btn-info\" ng-show=\"editor && selectedLayer\" ng-click=FilterQueriedLayer()>Query laag maken</button>\n" +
     "</div>\n" +
     "</div>"
   );

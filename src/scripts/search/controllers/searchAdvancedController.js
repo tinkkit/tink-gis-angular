@@ -6,8 +6,8 @@
     } catch (e) {
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
     }
-    var theController = module.controller('searchAdvancedController', ['$scope', '$modalInstance', 'SearchAdvancedService', 'MapData', 'GISService', 'UIService', 'ResultsData',
-        function ($scope, $modalInstance, SearchAdvancedService, MapData, GISService, UIService, ResultsData) {
+    var theController = module.controller('searchAdvancedController', ['$scope', '$modalInstance', 'SearchAdvancedService', 'MapData', 'GISService', 'UIService', 'ResultsData', 'ThemeService',
+        function ($scope, $modalInstance, SearchAdvancedService, MapData, GISService, UIService, ResultsData, ThemeService) {
             $scope.editor = false;
             $scope.selectedLayer = null;
             $scope.operations = [];
@@ -83,10 +83,17 @@
                 $modalInstance.$close();
             };
 
+            $scope.FilterQueriedLayer = function() {
+                var rawQueryResult = SearchAdvancedService.MakeNewRawQuery($scope.query);
+                ThemeService.AddQueryLayer($scope.selectedLayer, rawQueryResult.query);
+
+                $modalInstance.$close();
+            }
+
             if ($scope.query != null && $scope.query != ""){
                 $scope.openQueryEditor();
             }
         }]);
 
-    theController.$inject = ['$scope', '$modalInstance', 'SearchAdvancedService', 'MapData', 'UIService', 'GISService', 'ResultsData'];
+    theController.$inject = ['$scope', '$modalInstance', 'SearchAdvancedService', 'MapData', 'UIService', 'GISService', 'ResultsData', 'ThemeService'];
 })();

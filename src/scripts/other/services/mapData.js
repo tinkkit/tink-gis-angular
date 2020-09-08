@@ -15,6 +15,7 @@
         _data.SelectedLayer = _data.defaultlayer;
         _data.DrawLayer = null;
         _data.DefaultLayer = null; // can be set from the featureservice
+        _data.QueryData = { showLayer: false, layer: null};
         _data.SelectedFindLayer = _data.defaultlayer;
         _data.ResetVisibleLayers = function () {
             console.log("RestVisLayers");
@@ -296,6 +297,13 @@
                 iconSize: [24, 24]
             });
             WatIsHierMarker = L.marker([loc.x, loc.y], { icon: dotIcon }).addTo(map);
+        }
+
+        _data.CreateFeatureLayerMarker = function (loc, iconUrl) {
+            var icon = L.icon({
+                iconUrl: iconUrl
+            });
+            return L.marker(loc, { icon: icon});
         }
         _data.CleanSearch = function () {
             ResultsData.CleanSearch();

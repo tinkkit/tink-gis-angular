@@ -4,6 +4,7 @@
     var theController = module.controller('layersController', function ($scope, MapData, map, ThemeService, $modal, FeatureService) {
         var vm = this;
         vm.themes = MapData.Themes;
+        vm.queryData = MapData.QueryData;
         vm.selectedLayers = [];
 
         vm.sortableOptions = {
@@ -33,6 +34,12 @@
         });
         vm.updatethemevisibility = function (theme) {
             ThemeService.UpdateThemeVisibleLayers(theme);
+        };
+        vm.updateQueryVisibility = function (showQuery) {
+            ThemeService.updateQueryVisibility(showQuery);
+        };
+        vm.deleteQueryLayer = function () {
+            ThemeService.DeleteQueryLayer();
         };
         vm.Lagenbeheer = function () {
             var addLayerInstance = $modal.open({

@@ -45,6 +45,15 @@
             MapData.ResetVisibleLayers();
             theme.UpdateMap(map);
         };
+
+        _service.updateQueryVisibility = function(showQuery) {
+            if (showQuery === true)
+            {
+                map.addLayer(MapData.QueryData.layer.mapData);
+            } else {
+                map.removeLayer(MapData.QueryData.layer.mapData);
+            }
+        }
         _service.UpdateTheme = function(updatedTheme, existingTheme) {
             //lets update the existingTheme
             for (var x = 0; x < updatedTheme.AllLayers.length; x++) {
@@ -152,6 +161,40 @@
                     break;
             }
         };
+
+        _service.AddQueryLayer = function(queryLayerData, query) {
+            if (MapData.QueryData.layer) {
+                _service.DeleteQueryLayer();
+            }
+            MapData.QueryData.showLayer = true;
+
+            var queryLayer = {
+                name: queryLayerData.name
+            };
+
+            queryLayer.mapData = L.esri.featureLayer({
+                maxZoom: 20,
+                minZoom: 0,
+                url: queryLayerData.theme.cleanUrl + '/' + queryLayerData.id + '/query',
+                where: query,
+                opacity: 1,
+                continuousWorld: true,
+                useCors: false,
+                f: 'image',
+                pointToLayer: (geoJson, latlng) => {
+                    return MapData.CreateFeatureLayerMarker(latlng, queryLayerData.legend[0].fullurl);
+                },
+            }).addTo(map);
+
+            MapData.QueryData.layer = queryLayer;
+        }
+
+        _service.DeleteQueryLayer = function () {
+            map.removeLayer(MapData.QueryData.layer.mapData);
+            MapData.QueryData.showLayer = false;
+            MapData.QueryData.layer = null;
+        }
+
         _service.CleanThemes = function() {
             while (MapData.Themes.length != 0) {
                 console.log('DELETING THIS THEME', MapData.Themes[0]);
