@@ -140,13 +140,7 @@
           switch (MapData.DrawingType) {
             case DrawingOption.AFSTAND:
               var afstand = berekendAfstand(e.layer._latlngs);
-              var popup = e.layer.bindPopup("Afstand (m): " + afstand + " ");
-              popup.on("popupclose", function (event) {
-                map.removeLayer(e.layer);
-                // MapData.CleanDrawings();
-                // MapData.CleanMap();
-              });
-              e.layer.openPopup();
+              MapData.CreateDistanceMarker(afstand, e);
               break;
             case DrawingOption.OPPERVLAKTE:
               var omtrek = berkenOmtrek(e.layer._latlngs[0]);
