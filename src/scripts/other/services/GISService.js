@@ -128,7 +128,7 @@
         };
         _service.QueryLocationPickerLocation = function(search) {
             var prom = $q.defer();
-            var url = LocationPicker.BaseUrl + 'locations?search=' + search + '&sort=name&limit=50&layers=all';
+            var url = LocationPicker.BaseUrl + 'locations?search=' + search + '&sort=name&limit=50&layers=all&prioritizelayer=district,straatnaam';
             $http.get(url)
                 .success(function(data, status, headers, config) {
                     // data = GisHelperService.UnwrapProxiedData(data);
