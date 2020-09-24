@@ -3671,11 +3671,26 @@ var esri2geo = {};
                 _featureService.extraResultButtonConditionCallBack = conditioncallback;
             }
         };
+        _featureService.ConfigSecondResultButton = function (isEnabled, text, callback, conditioncallback) {
+            _featureService.secondResultButtonText = text;
+            _featureService.secondResultButtonIsEnabled = isEnabled;
+            if (callback) {
+                _featureService.secondResultButtonCallBack = callback;
+            }
+            if (conditioncallback) {
+                _featureService.secondResultButtonConditionCallBack = conditioncallback;
+            }
+        };
         _featureService.extraResultButtonIsEnabled = false;
+        _featureService.secondResultButtonIsEnabled = false;
         _featureService.resultButtonText = 'extra knop text';
+        _featureService.secondResultButtonText = 'extra knop text';
         _featureService.extraResultButtonCallBack = function () {};
         _featureService.extraResultButtonConditionCallBack = function () {
             return _featureService.extraResultButtonIsEnabled;
+        };
+        _featureService.secondResultButtonConditionCallBack = function () {
+            return _featureService.secondResultButtonIsEnabled;
         };
         return _featureService;
     };
@@ -6869,14 +6884,32 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         });
 
         $scope.$watch(function () {
+            return FeatureService.secondResultButtonIsEnabled;
+        }, function (newValue, oldValue) {
+            vm.secondResultButtonIsEnabled = FeatureService.secondResultButtonIsEnabled;
+            vm.secondResultButton = FeatureService.secondResultButtonCallBack;
+            vm.secondResultButtonText = FeatureService.secondResultButtonText;
+        });
+
+        $scope.$watch(function () {
             return FeatureService.extraResultButtonConditionCallBack();
         }, function (newValue, oldValue) {
             // console.log(newValue, oldValue, "ZZZZZZZZZZZZZZZZZZZZZ");
             vm.extraResultButtonIsEnabled = newValue;
         });
+
+        $scope.$watch(function () {
+            return FeatureService.secondResultButtonConditionCallBack();
+        }, function (newValue, oldValue) {
+            vm.secondResultButtonIsEnabled = newValue;
+        });
         vm.extraResultButtonIsEnabled = FeatureService.extraResultButtonIsEnabled;
         vm.extraResultButton = FeatureService.extraResultButtonCallBack;
         vm.resultButtonText = FeatureService.resultButtonText;
+
+        vm.secondResultButtonIsEnabled = FeatureService.secondResultButtonIsEnabled;
+        vm.secondResultButton = FeatureService.secondResultButtonCallBack;
+        vm.secondResultButtonText = FeatureService.secondResultButtonText;
     });
     theController.$inject = ['$scope', 'ResultsData', 'map', 'SearchService', 'MapData', 'FeatureService', '$modal', 'GeometryService'];
 })();
@@ -8396,6 +8429,7 @@ L.drawLocal = {
     "<i class=\"fa fa-minus\" aria-hidden=true></i>\n" +
     "</button>\n" +
     "<button class=btn-sm ng-if=srchrsltsctrl.extraResultButtonIsEnabled ng-click=srchrsltsctrl.extraResultButton()>{{srchrsltsctrl.resultButtonText}}</button>\n" +
+    "<button class=btn-sm ng-if=srchrsltsctrl.secondResultButtonIsEnabled ng-click=srchrsltsctrl.secondResultButton()>{{srchrsltsctrl.secondResultButtonText}}</button>\n" +
     "</div>\n" +
     "<div class=col-xs-12>\n" +
     "<select ng-model=srchrsltsctrl.layerGroupFilter>\n" +

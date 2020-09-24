@@ -132,13 +132,27 @@
                 vm.resultButtonText = FeatureService.resultButtonText;
             });
 
+            $scope.$watch(function () { return FeatureService.secondResultButtonIsEnabled; }, function (newValue, oldValue) {
+                vm.secondResultButtonIsEnabled = FeatureService.secondResultButtonIsEnabled;
+                vm.secondResultButton = FeatureService.secondResultButtonCallBack;
+                vm.secondResultButtonText = FeatureService.secondResultButtonText;
+            });
+
             $scope.$watch(function () { return FeatureService.extraResultButtonConditionCallBack(); }, function (newValue, oldValue) {
                 // console.log(newValue, oldValue, "ZZZZZZZZZZZZZZZZZZZZZ");
                 vm.extraResultButtonIsEnabled = newValue;
             });
+
+            $scope.$watch(function () { return FeatureService.secondResultButtonConditionCallBack(); }, function (newValue, oldValue) {
+                vm.secondResultButtonIsEnabled = newValue;
+            }) 
             vm.extraResultButtonIsEnabled = FeatureService.extraResultButtonIsEnabled;
             vm.extraResultButton = FeatureService.extraResultButtonCallBack;
             vm.resultButtonText = FeatureService.resultButtonText;
+
+            vm.secondResultButtonIsEnabled = FeatureService.secondResultButtonIsEnabled;
+            vm.secondResultButton = FeatureService.secondResultButtonCallBack;
+            vm.secondResultButtonText = FeatureService.secondResultButtonText;
 
         });
     theController.$inject = ['$scope', 'ResultsData', 'map', 'SearchService', 'MapData', 'FeatureService', '$modal', 'GeometryService'];
