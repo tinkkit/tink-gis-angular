@@ -4670,6 +4670,26 @@ L.control.typeahead = function (args) {
             });
             e.layer.openPopup();
         };
+        _data.CreateDistanceMarker = function (distance, e) {
+            var html = '<div class="container container-low-padding">' + '<div class="row row-no-padding">' + '<div class="col-sm-5">Afstand (m):</div><div id="distance" class= "col-sm-6" style="text-align: center">' + distance + '</div><div class="col-sm-1"><i class="fa fa-files-o coordinate-pointer"  ng-click="CopyDistance()" tink-tooltip="Afstand kopieren naar het klembord" tink-tooltip-align="bottom"></i></div>' + '</div>' + '</div>';
+
+            var linkFunction = $compile(html);
+            var newScope = $rootScope.$new();
+
+            newScope.CopyDistance = function () {
+                copyToClipboard('#distance');
+            };
+
+            var domele = linkFunction(newScope)[0];
+
+            var popup = e.layer.bindPopup(domele, { minWidth: 150, closeButton: true });
+            popup.on('popupclose', function (event) {
+                map.removeLayer(e.layer);
+                // MapData.CleanDrawings();
+                // MapData.CleanMap();
+            });
+            e.layer.openPopup();
+        };
         _data.CreateDot = function (loc) {
             _data.CleanWatIsHier();
             var dotIcon = L.icon({
@@ -5128,13 +5148,7 @@ L.control.typeahead = function (args) {
           switch (MapData.DrawingType) {
             case DrawingOption.AFSTAND:
               var afstand = berekendAfstand(e.layer._latlngs);
-              var popup = e.layer.bindPopup("Afstand (m): " + afstand + " ");
-              popup.on("popupclose", function (event) {
-                map.removeLayer(e.layer);
-                // MapData.CleanDrawings();
-                // MapData.CleanMap();
-              });
-              e.layer.openPopup();
+              MapData.CreateDistanceMarker(afstand, e);
               break;
             case DrawingOption.OPPERVLAKTE:
               var omtrek = berkenOmtrek(e.layer._latlngs[0]);
