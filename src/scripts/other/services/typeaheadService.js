@@ -41,6 +41,13 @@
                 displayKey: 'name',
                 source: function(query, syncResults, asyncResults) {
                     if (query.replace(/[^0-9]/g, '').length < 6) { // if less then 6 numbers then we just search
+                        var hasComma = query.indexOf(',');
+
+                        // if search isn't coordinates only search for the first part
+                        if (hasComma > -1) {
+                            query = query.replace(query.substr(hasComma, query.length), '');
+                        }
+
                         var splitquery = query.split(' ');
                         var numbers = splitquery.filter(x => isCharDigit(x[0]));
                         var notnumbers = splitquery.filter(x => !isCharDigit(x[0]));
@@ -103,32 +110,21 @@
     
                                 });
                             } else {
-                                GISService.QueryCrabName(straatnaam, huisnummer).then(function(data) {
-                                    console.log(data);
-                                    var features = data.features.map(function(feature) {
+                                GISService.QueryLocationPickerAddress(straatnaam, huisnummer).then(function(data) {
+                                    var features = data.map(function(feature) {
                                         var obj = {};
-                                        obj.straatnaam = feature.attributes.STRAATNM;
-                                        obj.huisnummer = feature.attributes.HUISNR;
-                                        // obj.busnummer = feature.attributes.BUSNR;
-                                        obj.id = feature.attributes.OBJECTID;
-                                        obj.x = feature.geometry.x;
-                                        obj.y = feature.geometry.y;
-                                        obj.name = (obj.straatnaam.split('_')[0] + " " + obj.huisnummer).trim();
-                                        obj.postcode = feature.attributes.POSTCODE;
-                                        _typeAheadService.districts.forEach(district => {
-                                            if(district.postcode == obj.postcode){
-                                                obj.district = district.district;
-                                            }
-                                        });
-                                        if (obj.straatnaam.split('_')[1]){
-                                            obj.name = (obj.straatnaam.split('_')[0] + " " + obj.huisnummer + ", " + obj.postcode + " " + obj.district);
-                                        }else{
-                                            obj.name = obj.straatnaam + " " + obj.huisnummer + ", " + obj.postcode + " " + obj.district;
-                                        }
+                                        obj.straatnaam = feature.street.streetName;
+                                        obj.huisnummer = feature.houseNumber.houseNumber;
+                                        obj.id = feature.id;
+                                        obj.x = feature.addressPosition.lambert72.x;
+                                        obj.y = feature.addressPosition.lambert72.y;
+                                        obj.name = feature.formattedAddress;
+                                        obj.postcode = feature.municipalityPost.postCode;
+                                        obj.district = feature.municipalityPost.antwerpDistrict;
                                         return obj;
-                                    }).slice(0, 10);
+                                    }).slice (0,10);
+
                                     asyncResults(features);
-    
                                 });
                             }
                             
