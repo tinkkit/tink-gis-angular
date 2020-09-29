@@ -326,7 +326,8 @@
 
         _data.CreateFeatureLayerMarker = function (loc, iconUrl) {
             var icon = L.icon({
-                iconUrl: iconUrl
+                iconUrl: iconUrl,
+                iconAnchor: [10, 10],
             });
             return L.marker(loc, { icon: icon});
         }
