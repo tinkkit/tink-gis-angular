@@ -187,6 +187,7 @@
             }).addTo(map);
 
             MapData.QueryData.layer = queryLayer;
+            MapData.QueryData.layerData = queryLayerData;
         }
 
         _service.DeleteQueryLayer = function () {
