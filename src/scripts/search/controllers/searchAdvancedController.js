@@ -22,7 +22,7 @@
 
             $scope.SelectedLayers = function () {
                 //display only usable layers
-                var layers = MapData.VisibleLayers.filter(data => data.name !== "Alle lagen");
+                var layers = MapData.VisibleLayers.filter(data => data.name !== "Alle lagen" && data.fields);
                 if (layers.length == 1){
                     $scope.selectedLayer = layers[0];
                     SearchAdvancedService.UpdateFields($scope.selectedLayer);
@@ -85,7 +85,7 @@
 
             $scope.FilterQueriedLayer = function() {
                 var rawQueryResult = SearchAdvancedService.MakeNewRawQuery($scope.query);
-                ThemeService.AddQueryLayer($scope.selectedLayer, rawQueryResult.query);
+                ThemeService.AddQueryLayer($scope.selectedLayer.name, $scope.selectedLayer.id, rawQueryResult.query, $scope.selectedLayer.theme);
 
                 $modalInstance.$close();
             }

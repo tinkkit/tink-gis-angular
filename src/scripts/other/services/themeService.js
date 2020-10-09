@@ -162,36 +162,64 @@
             }
         };
 
-        _service.AddQueryLayer = function(queryLayerData, query) {
+        _service.AddQueryLayerFromImport = function(name, layerId, query, theme) {
+            // only gets called from externservice.import ==> extra mapData object is necessary to use identify call on dynamicmaplayer, is not available on featurelayer
+            theme.MapData = L.esri.dynamicMapLayer({
+                maxZoom: 20,
+                minZoom: 0,
+                url: theme.cleanUrl,
+                opacity: theme.Opacity,
+                layers: layerId,
+                continuousWorld: true,
+                useCors: false,
+                f: 'image'
+            })
+            _service.AddQueryLayer(name, layerId, query, theme);
+        };
+
+        _service.AddQueryLayer = function(name, layerId, query, theme) {
             if (MapData.QueryData.layer) {
                 _service.DeleteQueryLayer();
             }
             MapData.QueryData.showLayer = true;
 
             var queryLayer = {
-                name: queryLayerData.name
+                baseUrl: theme.cleanUrl,
+                name: name,
+                layerId: layerId,
+                query: query
             };
 
-            queryLayer.mapData = L.esri.featureLayer({
-                maxZoom: 20,
-                minZoom: 0,
-                url: queryLayerData.theme.cleanUrl + '/' + queryLayerData.id + '/query',
-                where: query,
-                opacity: 1,
-                continuousWorld: true,
-                useCors: false,
-                f: 'image',
-                pointToLayer: (geoJson, latlng) => {
-                    return MapData.CreateFeatureLayerMarker(latlng, queryLayerData.legend[0].fullurl);
-                },
-            }).addTo(map);
+            var promLegend = GISService.GetLegendData(queryLayer.baseUrl);
+            promLegend.then(function(data) { 
+                var layerInfo = data.layers.find(x => x.layerId == layerId);
+                if (layerInfo && layerInfo.legend && layerInfo.legend[0]) {
+                    var legendFullUrl =  `data: ${layerInfo.legend[0].contentType};base64, ${layerInfo.legend[0].imageData}`;
+                }
 
-            MapData.QueryData.layer = queryLayer;
-            MapData.QueryData.layerData = queryLayerData;
+                queryLayer.mapData = L.esri.featureLayer({
+                    maxZoom: 20,
+                    minZoom: 0,
+                    url: queryLayer.baseUrl + '/' + queryLayer.layerId + '/query',
+                    where: query,
+                    opacity: 1,
+                    continuousWorld: true,
+                    useCors: false,
+                    f: 'image',
+                    pointToLayer: (geoJson, latlng) => {
+                        return MapData.CreateFeatureLayerMarker(latlng, legendFullUrl);
+                    },
+                }).addTo(map);
+    
+                MapData.QueryData.layer = queryLayer;
+                MapData.QueryData.theme = theme;
+            });
         }
 
         _service.DeleteQueryLayer = function () {
-            map.removeLayer(MapData.QueryData.layer.mapData);
+            if (MapData.QueryData.layer && MapData.QueryData.layer.mapData) {
+                map.removeLayer(MapData.QueryData.layer.mapData);
+            }
             MapData.QueryData.showLayer = false;
             MapData.QueryData.layer = null;
         }
