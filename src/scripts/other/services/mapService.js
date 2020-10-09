@@ -146,15 +146,15 @@
 
             if (MapData.QueryData) 
             {
-                if (MapData.QueryData.layerData.theme.Type === ThemeType.ESRI) {
-                    var visanddisplayedlayers = MapData.QueryData.layerData.id;
+                if (MapData.QueryData.theme.MapData) {
+                    var visanddisplayedlayers = MapData.QueryData.layer.layerId;
                     var layersVoorIdentify = 'all:' + visanddisplayedlayers;
                     
                     ResultsData.RequestStarted++;
 
-                    MapData.QueryData.layerData.theme.MapData.identify().on(map).at(event.latlng).layers(layersVoorIdentify).tolerance(tolerance).run(function(error, featureCollection) {
+                    MapData.QueryData.theme.MapData.identify().on(map).at(event.latlng).layers(layersVoorIdentify).tolerance(tolerance).run(function(error, featureCollection) {
                         ResultsData.RequestCompleted++;
-                        MapData.AddFeatures(featureCollection, MapData.QueryData.layerData.theme);
+                        MapData.AddFeatures(featureCollection, MapData.QueryData.theme);
                     });
                 }
             }
@@ -214,14 +214,14 @@
 
             if (MapData.QueryData) 
             {
-                if (MapData.QueryData.layerData.theme.Type === ThemeType.ESRI) {
-                    var visanddisplayedlayers = MapData.QueryData.layerData.id;
+                if (MapData.QueryData.theme.MapData) {
+                    var visanddisplayedlayers = MapData.QueryData.layer.layerId;
                     var layersVoorIdentify = 'all:' + visanddisplayedlayers;
                     
                     ResultsData.RequestStarted++;
-                    MapData.QueryData.layerData.theme.MapData.identify().on(map).at(event.latlng).layers(layersVoorIdentify).run(function(error, featureCollection) {
+                    MapData.QueryData.theme.MapData.identify().on(map).at(event.latlng).layers(layersVoorIdentify).run(function(error, featureCollection) {
                         ResultsData.RequestCompleted++;
-                        MapData.AddFeatures(featureCollection, MapData.QueryData.layerData.theme);
+                        MapData.AddFeatures(featureCollection, MapData.QueryData.theme);
                     });
                 }
             }
@@ -439,7 +439,7 @@
 
             if (MapData.QueryData)
             {
-                if (MapData.QueryData.layerData.theme.Type == ThemeType.ESRI)
+                if (MapData.QueryData.theme.Type == ThemeType.ESRI)
                 {
                     var prom = new Promise(
                         function(resolve, reject) {
@@ -451,7 +451,7 @@
 
                             MapData.QueryData.layer.mapData.query()
                                 .where(MapData.QueryData.layer.mapData.options.where)
-                                .layer(MapData.QueryData.layerData.id)
+                                .layer(MapData.QueryData.layer.layerId)
                                 .intersects(box)
                                 .run(function(error, featureCollection, response) {
                                     ResultsData.RequestCompleted++;
@@ -461,7 +461,7 @@
                     )
 
                     prom.then(function(arg) {
-                            MapData.AddFeatures(arg.featureCollection, MapData.QueryData.layerData.theme, MapData.QueryData.layerData.id, arg.featureCollection.length);
+                            MapData.AddFeatures(arg.featureCollection, MapData.QueryData.theme, MapData.QueryData.layer.layerId, arg.featureCollection.length);
                         });
                 }
             }
