@@ -187,14 +187,15 @@
                 baseUrl: theme.cleanUrl,
                 name: name,
                 layerId: layerId,
-                query: query
+                query: query,
             };
 
             var promLegend = GISService.GetLegendData(queryLayer.baseUrl);
             promLegend.then(function(data) { 
                 var layerInfo = data.layers.find(x => x.layerId == layerId);
                 if (layerInfo && layerInfo.legend && layerInfo.legend[0]) {
-                    var legendFullUrl =  `data: ${layerInfo.legend[0].contentType};base64, ${layerInfo.legend[0].imageData}`;
+                    var legendFullUrl =  `data:${layerInfo.legend[0].contentType};base64, ${layerInfo.legend[0].imageData}`;
+                    queryLayer.legendUrl = legendFullUrl;
                 }
 
                 queryLayer.mapData = L.esri.featureLayer({

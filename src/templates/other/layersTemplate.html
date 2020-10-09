@@ -21,7 +21,7 @@
                 </ul>
                 <ul class="ul-level" id="queryLayer">
                     <li class="li-item" ng-show="lyrsctrl.queryData.layer">
-                        <img class="layer-icon" class="layer-icon" ng-src="{{lyrsctrl.queryData.layer.legend[0].fullurl}} "></img>
+                        <img class="layer-icon" ng-if="lyrsctrl.queryData.layer.legendUrl" class="layer-icon" ng-src="{{lyrsctrl.queryData.layer.legendUrl}} "></img>
                         <input class="visible-box hidden-print" type="checkbox" id="queryDataChk" ng-model="lyrsctrl.queryData.showLayer" ng-change="lyrsctrl.updateQueryVisibility(lyrsctrl.queryData.showLayer)">
                         <label for="queryDataChk" title="{{ lyrsctrl.queryData.layer.name }}"> {{ lyrsctrl.queryData.layer.name }}
                             <span class="label-info hidden-print">Query</span>
