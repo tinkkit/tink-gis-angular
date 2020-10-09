@@ -6066,7 +6066,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                     return x.layerId == layerId;
                 });
                 if (layerInfo && layerInfo.legend && layerInfo.legend[0]) {
-                    var legendFullUrl = 'data: ' + layerInfo.legend[0].contentType + ';base64, ' + layerInfo.legend[0].imageData;
+                    var legendFullUrl = 'data:' + layerInfo.legend[0].contentType + ';base64, ' + layerInfo.legend[0].imageData;
+                    queryLayer.legendUrl = legendFullUrl;
                 }
 
                 queryLayer.mapData = L.esri.featureLayer({
@@ -8218,7 +8219,7 @@ L.drawLocal = {
     "</ul>\n" +
     "<ul class=ul-level id=queryLayer>\n" +
     "<li class=li-item ng-show=lyrsctrl.queryData.layer>\n" +
-    "<img class=layer-icon class=layer-icon ng-src=\"{{lyrsctrl.queryData.layer.legend[0].fullurl}} \">\n" +
+    "<img class=layer-icon ng-if=lyrsctrl.queryData.layer.legendUrl class=layer-icon ng-src=\"{{lyrsctrl.queryData.layer.legendUrl}} \">\n" +
     "<input class=\"visible-box hidden-print\" type=checkbox id=queryDataChk ng-model=lyrsctrl.queryData.showLayer ng-change=lyrsctrl.updateQueryVisibility(lyrsctrl.queryData.showLayer)>\n" +
     "<label for=queryDataChk title=\"{{ lyrsctrl.queryData.layer.name }}\"> {{ lyrsctrl.queryData.layer.name }}\n" +
     "<span class=\"label-info hidden-print\">Query</span>\n" +
