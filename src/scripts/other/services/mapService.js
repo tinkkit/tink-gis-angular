@@ -144,7 +144,7 @@
 
             });
 
-            if (MapData.QueryData) 
+            if (MapData.QueryData && MapData.QueryData.theme && MapData.QueryData.layer) 
             {
                 if (MapData.QueryData.theme.MapData) {
                     var visanddisplayedlayers = MapData.QueryData.layer.layerId;
@@ -212,7 +212,7 @@
                 
             }
 
-            if (MapData.QueryData) 
+            if (MapData.QueryData && MapData.QueryData.theme && MapData.QueryData.layer) 
             {
                 if (MapData.QueryData.theme.MapData) {
                     var visanddisplayedlayers = MapData.QueryData.layer.layerId;
@@ -437,7 +437,7 @@
 
             }
 
-            if (MapData.QueryData)
+            if (MapData.QueryData && MapData.QueryData.theme && MapData.QueryData.layer)
             {
                 if (MapData.QueryData.theme.Type == ThemeType.ESRI)
                 {
