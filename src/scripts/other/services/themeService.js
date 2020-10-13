@@ -46,12 +46,13 @@
             theme.UpdateMap(map);
         };
 
-        _service.updateQueryVisibility = function(showQuery) {
-            if (showQuery === true)
+        _service.updateQueryVisibility = function(index, showQuery) {
+            let queryLayer = MapData.QueryLayers[index];
+            if (queryLayer.showLayer === true)
             {
-                map.addLayer(MapData.QueryData.layer.mapData);
+                map.addLayer(queryLayer.layer.mapData);
             } else {
-                map.removeLayer(MapData.QueryData.layer.mapData);
+                map.removeLayer(queryLayer.layer.mapData);
             }
         }
         _service.UpdateTheme = function(updatedTheme, existingTheme) {
@@ -178,30 +179,28 @@
         };
 
         _service.AddQueryLayer = function(name, layerId, query, theme) {
-            if (MapData.QueryData.layer) {
-                _service.DeleteQueryLayer();
-            }
-            MapData.QueryData.showLayer = true;
-
-            var queryLayer = {
-                baseUrl: theme.cleanUrl,
-                name: name,
-                layerId: layerId,
-                query: query,
+            let queryLayer = {
+                layer: {
+                    baseUrl: theme.cleanUrl,
+                    name: name,
+                    layerId: layerId,
+                    query: query
+                },
+                showLayer: true
             };
 
-            var promLegend = GISService.GetLegendData(queryLayer.baseUrl);
+            var promLegend = GISService.GetLegendData(queryLayer.layer.baseUrl);
             promLegend.then(function(data) { 
                 var layerInfo = data.layers.find(x => x.layerId == layerId);
                 if (layerInfo && layerInfo.legend && layerInfo.legend[0]) {
                     var legendFullUrl =  `data:${layerInfo.legend[0].contentType};base64, ${layerInfo.legend[0].imageData}`;
-                    queryLayer.legendUrl = legendFullUrl;
+                    queryLayer.layer.legendUrl = legendFullUrl;
                 }
 
-                queryLayer.mapData = L.esri.featureLayer({
+                queryLayer.layer.mapData = L.esri.featureLayer({
                     maxZoom: 20,
                     minZoom: 0,
-                    url: queryLayer.baseUrl + '/' + queryLayer.layerId + '/query',
+                    url: queryLayer.layer.baseUrl + '/' + queryLayer.layer.layerId + '/query',
                     where: query,
                     opacity: 1,
                     continuousWorld: true,
@@ -212,17 +211,19 @@
                     },
                 }).addTo(map);
     
-                MapData.QueryData.layer = queryLayer;
-                MapData.QueryData.theme = theme;
+                queryLayer.theme = theme;
+                MapData.QueryLayers.push(queryLayer);
             });
         }
 
-        _service.DeleteQueryLayer = function () {
-            if (MapData.QueryData.layer && MapData.QueryData.layer.mapData) {
-                map.removeLayer(MapData.QueryData.layer.mapData);
+        _service.DeleteQueryLayer = function (index) {
+            if (index > -1) {
+                let queryLayer = MapData.QueryLayers[index];
+                if (queryLayer) {
+                    map.removeLayer(queryLayer.layer.mapData);
+                    MapData.QueryLayers.splice(index, 1);
+                }
             }
-            MapData.QueryData.showLayer = false;
-            MapData.QueryData.layer = null;
         }
 
         _service.CleanThemes = function() {

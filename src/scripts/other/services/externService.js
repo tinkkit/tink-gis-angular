@@ -63,22 +63,25 @@
             exportObject.extent = map.getBounds();
             exportObject.isKaart = true;
 
-            if (MapData.QueryData && MapData.QueryData.layer) {
-                var queryLayer = {
-                    LayerId: MapData.QueryData.layer.layerId,
-                    Name: MapData.QueryData.layer.name,
-                    BaseUrl: MapData.QueryData.layer.baseUrl,
-                    Where: MapData.QueryData.layer.query
+            exportObject.QueryLayers = MapData.QueryLayers.map(queryLayer => {
+                return {
+                    LayerId: queryLayer.layer.layerId,
+                    Name: queryLayer.layer.name,
+                    BaseUrl: queryLayer.layer.baseUrl,
+                    Where: queryLayer.layer.query
                 };
-                exportObject.QueryLayers = [queryLayer];
-            }
+            });
+
             return exportObject;
         };
 
         _externService.Import = function(project) {
             console.log(project);
             _externService.setExtent(project.extent);
-            ThemeService.DeleteQueryLayer();
+            _.each(MapData.QueryLayers, function(queryLayer)  {
+                //remove all querylayers, foreach remove the first index
+                ThemeService.DeleteQueryLayer(0);
+            });
 
             let themesArray = [];
             let promises = [];
@@ -117,6 +120,38 @@
 
                     });
                 }
+            });
+
+            // import selected query layers
+            project.queryLayers.forEach(queryLayer => {
+                let queryLayerTheme = {
+                    cleanUrl: queryLayer.baseUrl,
+                    naam:'QueryLayer',
+                    type: ThemeType.ESRI,
+                    visible: true
+                };
+
+                let prom = GISService.GetThemeData(queryLayer.baseUrl);
+                promises.push(prom);
+                    prom.then(function(data) {
+                        if (data) {
+                            if (!data.error) {
+                                let arcgistheme = ThemeCreater.createARCGISThemeFromJson(data, queryLayerTheme);
+                                GISService.GetAditionalLayerInfo(arcgistheme);
+                                ThemeService.AddQueryLayerFromImport(queryLayer.name, queryLayer.layerId , queryLayer.where, arcgistheme);
+                            } else {
+                                PopupService.ErrorWithException("Fout bij laden van mapservice", "Kan mapservice met volgende url niet laden: " + queryLayerTheme.cleanUrl, data.error);
+                            }
+                        } else {
+                            var callback = function () { 
+                                var win = window.open('https://um.antwerpen.be/main.aspx', '_blank');
+                                win.focus();
+                             };
+                             var options = {};
+                             options.timeOut = 10000;
+                            PopupService.Warning("U hebt geen rechten om het thema " + queryLayerTheme.Naam  + " te raadplegen.", "Klik hier om toegang aan te vragen.", callback, options);
+                        }
+                    });
             });
 
             var allpromises = $q.all(promises);
@@ -172,37 +207,6 @@
                     }
 
                 }
-
-            // import selected query layer
-            project.queryLayers.forEach(queryLayer => {
-                let queryLayerTheme = {
-                    cleanUrl: queryLayer.baseUrl,
-                    naam:'QueryLayer',
-                    type: ThemeType.ESRI,
-                    visible: true
-                };
-
-                let prom = GISService.GetThemeData(queryLayer.baseUrl);
-                    prom.then(function(data) {
-                        if (data) {
-                            if (!data.error) {
-                                let arcgistheme = ThemeCreater.createARCGISThemeFromJson(data, queryLayerTheme);
-                                GISService.GetAditionalLayerInfo(arcgistheme);
-                                ThemeService.AddQueryLayerFromImport(queryLayer.name, queryLayer.layerId , queryLayer.where, arcgistheme);
-                            } else {
-                                PopupService.ErrorWithException("Fout bij laden van mapservice", "Kan mapservice met volgende url niet laden: " + queryLayerTheme.cleanUrl, data.error);
-                            }
-                        } else {
-                            var callback = function () { 
-                                var win = window.open('https://um.antwerpen.be/main.aspx', '_blank');
-                                win.focus();
-                             };
-                             var options = {};
-                             options.timeOut = 10000;
-                            PopupService.Warning("U hebt geen rechten om het thema " + queryLayerTheme.Naam  + " te raadplegen.", "Klik hier om toegang aan te vragen.", callback, options);
-                        }
-                    });
-            });
             });
             
             
