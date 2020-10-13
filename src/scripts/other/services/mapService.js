@@ -144,20 +144,19 @@
 
             });
 
-            if (MapData.QueryData && MapData.QueryData.theme && MapData.QueryData.layer) 
-            {
-                if (MapData.QueryData.theme.MapData) {
-                    var visanddisplayedlayers = MapData.QueryData.layer.layerId;
+            _.each(MapData.QueryLayers, function(queryLayer) {
+                if (queryLayer.theme.MapData) {
+                    var visanddisplayedlayers = queryLayer.layer.layerId;
                     var layersVoorIdentify = 'all:' + visanddisplayedlayers;
                     
                     ResultsData.RequestStarted++;
 
-                    MapData.QueryData.theme.MapData.identify().on(map).at(event.latlng).layers(layersVoorIdentify).tolerance(tolerance).run(function(error, featureCollection) {
+                    queryLayer.theme.MapData.identify().on(map).at(event.latlng).layers(layersVoorIdentify).tolerance(tolerance).run(function(error, featureCollection) {
                         ResultsData.RequestCompleted++;
-                        MapData.AddFeatures(featureCollection, MapData.QueryData.theme);
+                        MapData.AddFeatures(featureCollection, queryLayer.theme);
                     });
                 }
-            }
+            });
 
         };
         _mapService.IdentifyProm = function(theme, latlng, layerids) {
@@ -212,19 +211,18 @@
                 
             }
 
-            if (MapData.QueryData && MapData.QueryData.theme && MapData.QueryData.layer) 
-            {
-                if (MapData.QueryData.theme.MapData) {
-                    var visanddisplayedlayers = MapData.QueryData.layer.layerId;
+            _.each(MapData.QueryLayers, function(queryLayer) {
+                if (queryLayer.theme.MapData) {
+                    var visanddisplayedlayers = queryLayer.layer.layerId;
                     var layersVoorIdentify = 'all:' + visanddisplayedlayers;
                     
                     ResultsData.RequestStarted++;
-                    MapData.QueryData.theme.MapData.identify().on(map).at(event.latlng).layers(layersVoorIdentify).run(function(error, featureCollection) {
+                    queryLayer.theme.MapData.identify().on(map).at(event.latlng).layers(layersVoorIdentify).run(function(error, featureCollection) {
                         ResultsData.RequestCompleted++;
-                        MapData.AddFeatures(featureCollection, MapData.QueryData.theme);
+                        MapData.AddFeatures(featureCollection, queryLayer.theme);
                     });
                 }
-            }
+            });
 
         };
         _mapService.LayerQuery = function(theme, layerid, geometry) {
@@ -437,9 +435,8 @@
 
             }
 
-            if (MapData.QueryData && MapData.QueryData.theme && MapData.QueryData.layer)
-            {
-                if (MapData.QueryData.theme.Type == ThemeType.ESRI)
+            _.each(MapData.QueryLayers, function(queryLayer) {
+                if (queryLayer.theme && queryLayer.theme.Type == ThemeType.ESRI)
                 {
                     var prom = new Promise(
                         function(resolve, reject) {
@@ -449,9 +446,9 @@
                                 box = box.mapItem;
                             }
 
-                            MapData.QueryData.layer.mapData.query()
-                                .where(MapData.QueryData.layer.mapData.options.where)
-                                .layer(MapData.QueryData.layer.layerId)
+                            queryLayer.layer.mapData.query()
+                                .where(queryLayer.layer.mapData.options.where)
+                                .layer(queryLayer.layer.layerId)
                                 .intersects(box)
                                 .run(function(error, featureCollection, response) {
                                     ResultsData.RequestCompleted++;
@@ -461,10 +458,11 @@
                     )
 
                     prom.then(function(arg) {
-                            MapData.AddFeatures(arg.featureCollection, MapData.QueryData.theme, MapData.QueryData.layer.layerId, arg.featureCollection.length);
+                            MapData.AddFeatures(arg.featureCollection, queryLayer.theme, queryLayer.layer.layerId, arg.featureCollection.length);
                         });
                 }
-            }
+            });
+
         };
         _mapService.WatIsHier = function(event) {
             var prom = GISService.ReverseGeocode(event);

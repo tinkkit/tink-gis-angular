@@ -2505,7 +2505,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
     var theController = module.controller('layersController', function ($scope, MapData, map, ThemeService, $modal, FeatureService) {
         var vm = this;
         vm.themes = MapData.Themes;
-        vm.queryData = MapData.QueryData;
+        vm.queryLayers = MapData.QueryLayers;
         vm.selectedLayers = [];
 
         vm.sortableOptions = {
@@ -2542,11 +2542,11 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         vm.updatethemevisibility = function (theme) {
             ThemeService.UpdateThemeVisibleLayers(theme);
         };
-        vm.updateQueryVisibility = function (showQuery) {
-            ThemeService.updateQueryVisibility(showQuery);
+        vm.updateQueryVisibility = function (index) {
+            ThemeService.updateQueryVisibility(index);
         };
-        vm.deleteQueryLayer = function () {
-            ThemeService.DeleteQueryLayer();
+        vm.deleteQueryLayer = function (index) {
+            ThemeService.DeleteQueryLayer(index);
         };
         vm.Lagenbeheer = function () {
             var addLayerInstance = $modal.open({
@@ -3498,22 +3498,25 @@ var esri2geo = {};
             exportObject.extent = map.getBounds();
             exportObject.isKaart = true;
 
-            if (MapData.QueryData && MapData.QueryData.layer) {
-                var queryLayer = {
-                    LayerId: MapData.QueryData.layer.layerId,
-                    Name: MapData.QueryData.layer.name,
-                    BaseUrl: MapData.QueryData.layer.baseUrl,
-                    Where: MapData.QueryData.layer.query
+            exportObject.QueryLayers = MapData.QueryLayers.map(function (queryLayer) {
+                return {
+                    LayerId: queryLayer.layer.layerId,
+                    Name: queryLayer.layer.name,
+                    BaseUrl: queryLayer.layer.baseUrl,
+                    Where: queryLayer.layer.query
                 };
-                exportObject.QueryLayers = [queryLayer];
-            }
+            });
+
             return exportObject;
         };
 
         _externService.Import = function (project) {
             console.log(project);
             _externService.setExtent(project.extent);
-            ThemeService.DeleteQueryLayer();
+            _.each(MapData.QueryLayers, function (queryLayer) {
+                //remove all querylayers, foreach remove the first index
+                ThemeService.DeleteQueryLayer(0);
+            });
 
             var themesArray = [];
             var promises = [];
@@ -3551,6 +3554,38 @@ var esri2geo = {};
                         console.log('error!!!!!!!', data, status, headers, config);
                     });
                 }
+            });
+
+            // import selected query layers
+            project.queryLayers.forEach(function (queryLayer) {
+                var queryLayerTheme = {
+                    cleanUrl: queryLayer.baseUrl,
+                    naam: 'QueryLayer',
+                    type: ThemeType.ESRI,
+                    visible: true
+                };
+
+                var prom = GISService.GetThemeData(queryLayer.baseUrl);
+                promises.push(prom);
+                prom.then(function (data) {
+                    if (data) {
+                        if (!data.error) {
+                            var arcgistheme = ThemeCreater.createARCGISThemeFromJson(data, queryLayerTheme);
+                            GISService.GetAditionalLayerInfo(arcgistheme);
+                            ThemeService.AddQueryLayerFromImport(queryLayer.name, queryLayer.layerId, queryLayer.where, arcgistheme);
+                        } else {
+                            PopupService.ErrorWithException("Fout bij laden van mapservice", "Kan mapservice met volgende url niet laden: " + queryLayerTheme.cleanUrl, data.error);
+                        }
+                    } else {
+                        var callback = function callback() {
+                            var win = window.open('https://um.antwerpen.be/main.aspx', '_blank');
+                            win.focus();
+                        };
+                        var options = {};
+                        options.timeOut = 10000;
+                        PopupService.Warning("U hebt geen rechten om het thema " + queryLayerTheme.Naam + " te raadplegen.", "Klik hier om toegang aan te vragen.", callback, options);
+                    }
+                });
             });
 
             var allpromises = $q.all(promises);
@@ -3613,37 +3648,6 @@ var esri2geo = {};
                         MapData.DefaultLayer = defaultLayer;
                     }
                 }
-
-                // import selected query layer
-                project.queryLayers.forEach(function (queryLayer) {
-                    var queryLayerTheme = {
-                        cleanUrl: queryLayer.baseUrl,
-                        naam: 'QueryLayer',
-                        type: ThemeType.ESRI,
-                        visible: true
-                    };
-
-                    var prom = GISService.GetThemeData(queryLayer.baseUrl);
-                    prom.then(function (data) {
-                        if (data) {
-                            if (!data.error) {
-                                var arcgistheme = ThemeCreater.createARCGISThemeFromJson(data, queryLayerTheme);
-                                GISService.GetAditionalLayerInfo(arcgistheme);
-                                ThemeService.AddQueryLayerFromImport(queryLayer.name, queryLayer.layerId, queryLayer.where, arcgistheme);
-                            } else {
-                                PopupService.ErrorWithException("Fout bij laden van mapservice", "Kan mapservice met volgende url niet laden: " + queryLayerTheme.cleanUrl, data.error);
-                            }
-                        } else {
-                            var callback = function callback() {
-                                var win = window.open('https://um.antwerpen.be/main.aspx', '_blank');
-                                win.focus();
-                            };
-                            var options = {};
-                            options.timeOut = 10000;
-                            PopupService.Warning("U hebt geen rechten om het thema " + queryLayerTheme.Naam + " te raadplegen.", "Klik hier om toegang aan te vragen.", callback, options);
-                        }
-                    });
-                });
             });
 
             return allpromises;
@@ -4494,7 +4498,8 @@ L.control.typeahead = function (args) {
         _data.SelectedLayer = _data.defaultlayer;
         _data.DrawLayer = null;
         _data.DefaultLayer = null; // can be set from the featureservice
-        _data.QueryData = { showLayer: false, layer: null };
+        // _data.QueryData = { showLayer: false, layer: null};
+        _data.QueryLayers = [];
         _data.SelectedFindLayer = _data.defaultlayer;
         _data.ResetVisibleLayers = function () {
             console.log("RestVisLayers");
@@ -5406,19 +5411,19 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 }
             });
 
-            if (MapData.QueryData && MapData.QueryData.theme && MapData.QueryData.layer) {
-                if (MapData.QueryData.theme.MapData) {
-                    var visanddisplayedlayers = MapData.QueryData.layer.layerId;
+            _.each(MapData.QueryLayers, function (queryLayer) {
+                if (queryLayer.theme.MapData) {
+                    var visanddisplayedlayers = queryLayer.layer.layerId;
                     var layersVoorIdentify = 'all:' + visanddisplayedlayers;
 
                     ResultsData.RequestStarted++;
 
-                    MapData.QueryData.theme.MapData.identify().on(map).at(event.latlng).layers(layersVoorIdentify).tolerance(tolerance).run(function (error, featureCollection) {
+                    queryLayer.theme.MapData.identify().on(map).at(event.latlng).layers(layersVoorIdentify).tolerance(tolerance).run(function (error, featureCollection) {
                         ResultsData.RequestCompleted++;
-                        MapData.AddFeatures(featureCollection, MapData.QueryData.theme);
+                        MapData.AddFeatures(featureCollection, queryLayer.theme);
                     });
                 }
-            }
+            });
         };
         _mapService.IdentifyProm = function (theme, latlng, layerids) {
 
@@ -5467,18 +5472,18 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 });
             }
 
-            if (MapData.QueryData && MapData.QueryData.theme && MapData.QueryData.layer) {
-                if (MapData.QueryData.theme.MapData) {
-                    var visanddisplayedlayers = MapData.QueryData.layer.layerId;
+            _.each(MapData.QueryLayers, function (queryLayer) {
+                if (queryLayer.theme.MapData) {
+                    var visanddisplayedlayers = queryLayer.layer.layerId;
                     var layersVoorIdentify = 'all:' + visanddisplayedlayers;
 
                     ResultsData.RequestStarted++;
-                    MapData.QueryData.theme.MapData.identify().on(map).at(event.latlng).layers(layersVoorIdentify).run(function (error, featureCollection) {
+                    queryLayer.theme.MapData.identify().on(map).at(event.latlng).layers(layersVoorIdentify).run(function (error, featureCollection) {
                         ResultsData.RequestCompleted++;
-                        MapData.AddFeatures(featureCollection, MapData.QueryData.theme);
+                        MapData.AddFeatures(featureCollection, queryLayer.theme);
                     });
                 }
-            }
+            });
         };
         _mapService.LayerQuery = function (theme, layerid, geometry) {
 
@@ -5664,25 +5669,25 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 });
             }
 
-            if (MapData.QueryData && MapData.QueryData.theme && MapData.QueryData.layer) {
-                if (MapData.QueryData.theme.Type == ThemeType.ESRI) {
+            _.each(MapData.QueryLayers, function (queryLayer) {
+                if (queryLayer.theme && queryLayer.theme.Type == ThemeType.ESRI) {
                     var prom = new Promise(function (resolve, reject) {
                         ResultsData.RequestStarted++;
                         if (box.mapItem != undefined) {
                             box = box.mapItem;
                         }
 
-                        MapData.QueryData.layer.mapData.query().where(MapData.QueryData.layer.mapData.options.where).layer(MapData.QueryData.layer.layerId).intersects(box).run(function (error, featureCollection, response) {
+                        queryLayer.layer.mapData.query().where(queryLayer.layer.mapData.options.where).layer(queryLayer.layer.layerId).intersects(box).run(function (error, featureCollection, response) {
                             ResultsData.RequestCompleted++;
                             resolve({ error: error, featureCollection: featureCollection, response: response });
                         });
                     });
 
                     prom.then(function (arg) {
-                        MapData.AddFeatures(arg.featureCollection, MapData.QueryData.theme, MapData.QueryData.layer.layerId, arg.featureCollection.length);
+                        MapData.AddFeatures(arg.featureCollection, queryLayer.theme, queryLayer.layer.layerId, arg.featureCollection.length);
                     });
                 }
-            }
+            });
         };
         _mapService.WatIsHier = function (event) {
             var prom = GISService.ReverseGeocode(event);
@@ -5917,11 +5922,12 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             theme.UpdateMap(map);
         };
 
-        _service.updateQueryVisibility = function (showQuery) {
-            if (showQuery === true) {
-                map.addLayer(MapData.QueryData.layer.mapData);
+        _service.updateQueryVisibility = function (index, showQuery) {
+            var queryLayer = MapData.QueryLayers[index];
+            if (queryLayer.showLayer === true) {
+                map.addLayer(queryLayer.layer.mapData);
             } else {
-                map.removeLayer(MapData.QueryData.layer.mapData);
+                map.removeLayer(queryLayer.layer.mapData);
             }
         };
         _service.UpdateTheme = function (updatedTheme, existingTheme) {
@@ -6048,32 +6054,30 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         };
 
         _service.AddQueryLayer = function (name, layerId, query, theme) {
-            if (MapData.QueryData.layer) {
-                _service.DeleteQueryLayer();
-            }
-            MapData.QueryData.showLayer = true;
-
             var queryLayer = {
-                baseUrl: theme.cleanUrl,
-                name: name,
-                layerId: layerId,
-                query: query
+                layer: {
+                    baseUrl: theme.cleanUrl,
+                    name: name,
+                    layerId: layerId,
+                    query: query
+                },
+                showLayer: true
             };
 
-            var promLegend = GISService.GetLegendData(queryLayer.baseUrl);
+            var promLegend = GISService.GetLegendData(queryLayer.layer.baseUrl);
             promLegend.then(function (data) {
                 var layerInfo = data.layers.find(function (x) {
                     return x.layerId == layerId;
                 });
                 if (layerInfo && layerInfo.legend && layerInfo.legend[0]) {
                     var legendFullUrl = 'data:' + layerInfo.legend[0].contentType + ';base64, ' + layerInfo.legend[0].imageData;
-                    queryLayer.legendUrl = legendFullUrl;
+                    queryLayer.layer.legendUrl = legendFullUrl;
                 }
 
-                queryLayer.mapData = L.esri.featureLayer({
+                queryLayer.layer.mapData = L.esri.featureLayer({
                     maxZoom: 20,
                     minZoom: 0,
-                    url: queryLayer.baseUrl + '/' + queryLayer.layerId + '/query',
+                    url: queryLayer.layer.baseUrl + '/' + queryLayer.layer.layerId + '/query',
                     where: query,
                     opacity: 1,
                     continuousWorld: true,
@@ -6084,17 +6088,19 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                     }
                 }).addTo(map);
 
-                MapData.QueryData.layer = queryLayer;
-                MapData.QueryData.theme = theme;
+                queryLayer.theme = theme;
+                MapData.QueryLayers.push(queryLayer);
             });
         };
 
-        _service.DeleteQueryLayer = function () {
-            if (MapData.QueryData.layer && MapData.QueryData.layer.mapData) {
-                map.removeLayer(MapData.QueryData.layer.mapData);
+        _service.DeleteQueryLayer = function (index) {
+            if (index > -1) {
+                var queryLayer = MapData.QueryLayers[index];
+                if (queryLayer) {
+                    map.removeLayer(queryLayer.layer.mapData);
+                    MapData.QueryLayers.splice(index, 1);
+                }
             }
-            MapData.QueryData.showLayer = false;
-            MapData.QueryData.layer = null;
         };
 
         _service.CleanThemes = function () {
@@ -8217,14 +8223,14 @@ L.drawLocal = {
     "</tink-theme>\n" +
     "</li>\n" +
     "</ul>\n" +
-    "<ul class=ul-level id=queryLayer>\n" +
-    "<li class=li-item ng-show=lyrsctrl.queryData.layer>\n" +
-    "<img class=layer-icon ng-if=lyrsctrl.queryData.layer.legendUrl class=layer-icon ng-src=\"{{lyrsctrl.queryData.layer.legendUrl}} \">\n" +
-    "<input class=\"visible-box hidden-print\" type=checkbox id=queryDataChk ng-model=lyrsctrl.queryData.showLayer ng-change=lyrsctrl.updateQueryVisibility(lyrsctrl.queryData.showLayer)>\n" +
-    "<label for=queryDataChk title=\"{{ lyrsctrl.queryData.layer.name }}\"> {{ lyrsctrl.queryData.layer.name }}\n" +
+    "<ul class=ul-level id=queryLayers ng-show=\"lyrsctrl.queryLayers.length > 0\">\n" +
+    "<li class=li-item ng-repeat=\"queryLayer in lyrsctrl.queryLayers track by $index\">\n" +
+    "<img class=layer-icon ng-if=queryLayer.layer.legendUrl class=layer-icon ng-src=\"{{queryLayer.layer.legendUrl}} \">\n" +
+    "<input class=\"visible-box hidden-print\" type=checkbox id=queryDataChk{{$index}} ng-model=queryLayer.showLayer ng-change=lyrsctrl.updateQueryVisibility($index)>\n" +
+    "<label for=queryDataChk{{$index}} title=\"{{ queryLayer.layer.name }}\"> {{ queryLayer.layer.name }}\n" +
     "<span class=\"label-info hidden-print\">Query</span>\n" +
     "</label>\n" +
-    "<button style=\"flex-grow: 2\" class=\"trash hidden-print pull-right\" ng-click=lyrsctrl.deleteQueryLayer()></button>\n" +
+    "<button style=\"flex-grow: 2\" class=\"trash hidden-print pull-right\" ng-click=lyrsctrl.deleteQueryLayer($index)></button>\n" +
     "</li>\n" +
     "</ul>\n" +
     "</div>\n" +
