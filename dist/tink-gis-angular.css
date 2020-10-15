@@ -1177,3 +1177,10 @@ body.stop-scrolling {
 
 .custom-slider.rzslider .rz-tick.rz-selected {
   background: #347ea6; }
+
+.black-label {
+  color: #333;
+  font-weight: normal;
+  min-height: 1.7142857143rem;
+  padding: 0rem 0rem 0rem 0.5rem;
+  position: relative; }

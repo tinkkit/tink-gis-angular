@@ -2507,6 +2507,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         vm.themes = MapData.Themes;
         vm.queryLayers = MapData.QueryLayers;
         vm.selectedLayers = [];
+        vm.showQueryLayers = true;
 
         vm.sortableOptions = {
             stop: function stop(e, ui) {
@@ -4498,7 +4499,6 @@ L.control.typeahead = function (args) {
         _data.SelectedLayer = _data.defaultlayer;
         _data.DrawLayer = null;
         _data.DefaultLayer = null; // can be set from the featureservice
-        // _data.QueryData = { showLayer: false, layer: null};
         _data.QueryLayers = [];
         _data.SelectedFindLayer = _data.defaultlayer;
         _data.ResetVisibleLayers = function () {
@@ -8217,13 +8217,10 @@ L.drawLocal = {
     "</div>\n" +
     "</div>\n" +
     "<div class=\"overflow-wrapper flex-grow-1 extra-padding\">\n" +
-    "<ul class=ul-level id=sortableThemes ui-sortable=lyrsctrl.sortableOptions ng-model=lyrsctrl.themes>\n" +
-    "<li class=li-item ng-repeat=\"theme in lyrsctrl.themes\">\n" +
-    "<tink-theme theme=theme layercheckboxchange=lyrsctrl.updatethemevisibility(theme) hidedelete=!lyrsctrl.deleteLayerButtonIsEnabled>\n" +
-    "</tink-theme>\n" +
-    "</li>\n" +
-    "</ul>\n" +
-    "<ul class=ul-level id=queryLayers ng-show=\"lyrsctrl.queryLayers.length > 0\">\n" +
+    "<div class=\"can-open margin-bottom\" ng-show=\"lyrsctrl.queryLayers.length > 0\" ng-class=\"{'open': lyrsctrl.showQueryLayers}\">\n" +
+    "<label class=black-label>Query lagen:</label>\n" +
+    "<span class=show-layer ng-click=\"lyrsctrl.showQueryLayers = !lyrsctrl.showQueryLayers\"></span>\n" +
+    "<ul class=ul-level id=queryLayers ng-show=\"lyrsctrl.showQueryLayers && lyrsctrl.queryLayers.length > 0\">\n" +
     "<li class=li-item ng-repeat=\"queryLayer in lyrsctrl.queryLayers track by $index\">\n" +
     "<img class=layer-icon ng-if=queryLayer.layer.legendUrl class=layer-icon ng-src=\"{{queryLayer.layer.legendUrl}} \">\n" +
     "<input class=\"visible-box hidden-print\" type=checkbox id=queryDataChk{{$index}} ng-model=queryLayer.showLayer ng-change=lyrsctrl.updateQueryVisibility($index)>\n" +
@@ -8231,6 +8228,14 @@ L.drawLocal = {
     "<span class=\"label-info hidden-print\">Query</span>\n" +
     "</label>\n" +
     "<button style=\"flex-grow: 2\" class=\"trash hidden-print pull-right\" ng-click=lyrsctrl.deleteQueryLayer($index)></button>\n" +
+    "</li>\n" +
+    "</ul>\n" +
+    "<hr>\n" +
+    "</div>\n" +
+    "<ul class=ul-level id=sortableThemes ui-sortable=lyrsctrl.sortableOptions ng-model=lyrsctrl.themes>\n" +
+    "<li class=li-item ng-repeat=\"theme in lyrsctrl.themes\">\n" +
+    "<tink-theme theme=theme layercheckboxchange=lyrsctrl.updatethemevisibility(theme) hidedelete=!lyrsctrl.deleteLayerButtonIsEnabled>\n" +
+    "</tink-theme>\n" +
     "</li>\n" +
     "</ul>\n" +
     "</div>\n" +
