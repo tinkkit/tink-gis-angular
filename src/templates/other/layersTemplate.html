@@ -13,20 +13,25 @@
                 </div>
             </div>
             <div class="overflow-wrapper flex-grow-1 extra-padding">
+                <div class="can-open margin-bottom" ng-show="lyrsctrl.queryLayers.length > 0" ng-class="{'open': lyrsctrl.showQueryLayers}">
+                    <label class="black-label">Query lagen:</label>
+                    <span class="show-layer" ng-click="lyrsctrl.showQueryLayers = !lyrsctrl.showQueryLayers"></span>
+                    <ul class="ul-level" id="queryLayers" ng-show="lyrsctrl.showQueryLayers && lyrsctrl.queryLayers.length > 0">
+                        <li class="li-item" ng-repeat="queryLayer in lyrsctrl.queryLayers track by $index">
+                            <img class="layer-icon" ng-if="queryLayer.layer.legendUrl" class="layer-icon" ng-src="{{queryLayer.layer.legendUrl}} "></img>
+                            <input class="visible-box hidden-print" type="checkbox" id="queryDataChk{{$index}}" ng-model="queryLayer.showLayer" ng-change="lyrsctrl.updateQueryVisibility($index)">
+                            <label for="queryDataChk{{$index}}" title="{{ queryLayer.layer.name }}"> {{ queryLayer.layer.name }}
+                                <span class="label-info hidden-print">Query</span>
+                            </label>
+                            <button style="flex-grow: 2" class="trash hidden-print pull-right" ng-click="lyrsctrl.deleteQueryLayer($index)"></button>
+                        </li>
+                    </ul>
+                    <hr>
+                </div>
                 <ul class="ul-level" id="sortableThemes" ui-sortable="lyrsctrl.sortableOptions" ng-model="lyrsctrl.themes">
                     <li class="li-item" ng-repeat="theme in lyrsctrl.themes">
                         <tink-Theme theme="theme" layercheckboxchange="lyrsctrl.updatethemevisibility(theme)" hidedelete="!lyrsctrl.deleteLayerButtonIsEnabled">
                         </tink-Theme>
-                    </li>
-                </ul>
-                <ul class="ul-level" id="queryLayers" ng-show="lyrsctrl.queryLayers.length > 0">
-                    <li class="li-item" ng-repeat="queryLayer in lyrsctrl.queryLayers track by $index">
-                        <img class="layer-icon" ng-if="queryLayer.layer.legendUrl" class="layer-icon" ng-src="{{queryLayer.layer.legendUrl}} "></img>
-                        <input class="visible-box hidden-print" type="checkbox" id="queryDataChk{{$index}}" ng-model="queryLayer.showLayer" ng-change="lyrsctrl.updateQueryVisibility($index)">
-                        <label for="queryDataChk{{$index}}" title="{{ queryLayer.layer.name }}"> {{ queryLayer.layer.name }}
-                            <span class="label-info hidden-print">Query</span>
-                        </label>
-                        <button style="flex-grow: 2" class="trash hidden-print pull-right" ng-click="lyrsctrl.deleteQueryLayer($index)"></button>
                     </li>
                 </ul>
             </div>
