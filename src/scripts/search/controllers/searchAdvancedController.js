@@ -36,6 +36,8 @@
                 }
             }
 
+            $scope.checkAddOrUpdate
+
             $scope.$on('queryBuild', function (event, data) {
                 $scope.query = data;
             })
@@ -70,7 +72,9 @@
                 if (!$scope.editor) {
                     SearchAdvancedService.BuildQuery($scope.selectedLayer);
                     var query = SearchAdvancedService.TranslateOperations($scope.operations);
-                    var result = SearchAdvancedService.ExecuteQuery($scope.selectedLayer, query);
+                    if (!query === '') {
+                        var result = SearchAdvancedService.ExecuteQuery($scope.selectedLayer, query);
+                    }
                 } else {
                     var rawQueryResult = SearchAdvancedService.MakeNewRawQuery($scope.query);
                     SearchAdvancedService.UpdateQuery($scope.query);
@@ -84,8 +88,19 @@
             };
 
             $scope.FilterQueriedLayer = function() {
-                var rawQueryResult = SearchAdvancedService.MakeNewRawQuery($scope.query);
-                ThemeService.AddQueryLayer($scope.selectedLayer.name, $scope.selectedLayer.id, rawQueryResult.query, $scope.selectedLayer.theme);
+                if (!$scope.editor) {
+                    SearchAdvancedService.BuildQuery($scope.selectedLayer);
+                    var query = SearchAdvancedService.TranslateOperations($scope.operations);
+                    if ($scope.selectedLayer && !query === '') {
+                        ThemeService.AddQueryLayer($scope.selectedLayer.name, $scope.selectedLayer.id, query, $scope.selectedLayer.theme);
+                    }
+                } else {
+                    var rawQueryResult = SearchAdvancedService.MakeNewRawQuery($scope.query);
+                    SearchAdvancedService.UpdateQuery($scope.query);
+                    if ($scope.selectedLayer) {
+                        ThemeService.AddQueryLayer($scope.selectedLayer.name, $scope.selectedLayer.id, rawQueryResult.query, $scope.selectedLayer.theme);                    
+                    }
+                }
 
                 $modalInstance.$close();
             }

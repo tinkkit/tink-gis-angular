@@ -179,41 +179,50 @@
         };
 
         _service.AddQueryLayer = function(name, layerId, query, theme) {
-            let queryLayer = {
-                layer: {
-                    baseUrl: theme.cleanUrl,
-                    name: name,
-                    layerId: layerId,
-                    query: query
-                },
-                showLayer: true
-            };
-
-            var promLegend = GISService.GetLegendData(queryLayer.layer.baseUrl);
-            promLegend.then(function(data) { 
-                var layerInfo = data.layers.find(x => x.layerId == layerId);
-                if (layerInfo && layerInfo.legend && layerInfo.legend[0]) {
-                    var legendFullUrl =  `data:${layerInfo.legend[0].contentType};base64, ${layerInfo.legend[0].imageData}`;
-                    queryLayer.layer.legendUrl = legendFullUrl;
+            let existingQueryLayer = MapData.QueryLayers.find(queryLayer => queryLayer.layer.baseUrl === theme.cleanUrl && queryLayer.layer.layerId === layerId);
+            // currently only allowed to add 1 querylayer for a specific layer
+            if (existingQueryLayer) {
+                if (existingQueryLayer.layer.mapData) {
+                    existingQueryLayer.layer.mapData.setWhere(query);
+                    existingQueryLayer.layer.query = query;
                 }
-
-                queryLayer.layer.mapData = L.esri.featureLayer({
-                    maxZoom: 20,
-                    minZoom: 0,
-                    url: queryLayer.layer.baseUrl + '/' + queryLayer.layer.layerId + '/query',
-                    where: query,
-                    opacity: 1,
-                    continuousWorld: true,
-                    useCors: false,
-                    f: 'image',
-                    pointToLayer: (geoJson, latlng) => {
-                        return MapData.CreateFeatureLayerMarker(latlng, legendFullUrl);
+            } else {
+                let queryLayer = {
+                    layer: {
+                        baseUrl: theme.cleanUrl,
+                        name: name,
+                        layerId: layerId,
+                        query: query
                     },
-                }).addTo(map);
+                    showLayer: true
+                };
     
-                queryLayer.theme = theme;
-                MapData.QueryLayers.push(queryLayer);
-            });
+                var promLegend = GISService.GetLegendData(queryLayer.layer.baseUrl);
+                promLegend.then(function(data) { 
+                    var layerInfo = data.layers.find(x => x.layerId == layerId);
+                    if (layerInfo && layerInfo.legend && layerInfo.legend[0]) {
+                        var legendFullUrl =  `data:${layerInfo.legend[0].contentType};base64, ${layerInfo.legend[0].imageData}`;
+                        queryLayer.layer.legendUrl = legendFullUrl;
+                    }
+    
+                    queryLayer.layer.mapData = L.esri.featureLayer({
+                        maxZoom: 20,
+                        minZoom: 0,
+                        url: queryLayer.layer.baseUrl + '/' + queryLayer.layer.layerId + '/query',
+                        where: query,
+                        opacity: 0.1,
+                        continuousWorld: true,
+                        useCors: false,
+                        f: 'image',
+                        pointToLayer: (geoJson, latlng) => {
+                            return MapData.CreateFeatureLayerMarker(latlng, legendFullUrl);
+                        },
+                    }).addTo(map);
+        
+                    queryLayer.theme = theme;
+                    MapData.QueryLayers.push(queryLayer);
+                });
+            }
         }
 
         _service.DeleteQueryLayer = function (index) {
