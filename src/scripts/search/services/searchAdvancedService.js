@@ -81,12 +81,19 @@
                 if (operation.addition != null) {
                     query += ' ' + operation.addition + ' (';
                 }
-                query += operation.attribute.name + ' ';
-                query += _service.HandleOperator(operation);
+                if (operation.attribute != null) {
+                    query += operation.attribute.name + ' ';
+                }
+                if (operation.value != null) {
+                    query += _service.HandleOperator(operation);
+                }                
                 if (operation.addition != null) {
                     query += ')';
                 }
             });
+            if (query === '') {
+                PopupService.Warning("Ongeldige query", "Kijk na of u een geldige query heeft samengesteld.");
+            }
             return query;
         }
 

@@ -6054,43 +6054,54 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         };
 
         _service.AddQueryLayer = function (name, layerId, query, theme) {
-            var queryLayer = {
-                layer: {
-                    baseUrl: theme.cleanUrl,
-                    name: name,
-                    layerId: layerId,
-                    query: query
-                },
-                showLayer: true
-            };
-
-            var promLegend = GISService.GetLegendData(queryLayer.layer.baseUrl);
-            promLegend.then(function (data) {
-                var layerInfo = data.layers.find(function (x) {
-                    return x.layerId == layerId;
-                });
-                if (layerInfo && layerInfo.legend && layerInfo.legend[0]) {
-                    var legendFullUrl = 'data:' + layerInfo.legend[0].contentType + ';base64, ' + layerInfo.legend[0].imageData;
-                    queryLayer.layer.legendUrl = legendFullUrl;
-                }
-
-                queryLayer.layer.mapData = L.esri.featureLayer({
-                    maxZoom: 20,
-                    minZoom: 0,
-                    url: queryLayer.layer.baseUrl + '/' + queryLayer.layer.layerId + '/query',
-                    where: query,
-                    opacity: 1,
-                    continuousWorld: true,
-                    useCors: false,
-                    f: 'image',
-                    pointToLayer: function pointToLayer(geoJson, latlng) {
-                        return MapData.CreateFeatureLayerMarker(latlng, legendFullUrl);
-                    }
-                }).addTo(map);
-
-                queryLayer.theme = theme;
-                MapData.QueryLayers.push(queryLayer);
+            var existingQueryLayer = MapData.QueryLayers.find(function (queryLayer) {
+                return queryLayer.layer.baseUrl === theme.cleanUrl && queryLayer.layer.layerId === layerId;
             });
+            // currently only allowed to add 1 querylayer for a specific layer
+            if (existingQueryLayer) {
+                if (existingQueryLayer.layer.mapData) {
+                    existingQueryLayer.layer.mapData.setWhere(query);
+                    existingQueryLayer.layer.query = query;
+                }
+            } else {
+                var queryLayer = {
+                    layer: {
+                        baseUrl: theme.cleanUrl,
+                        name: name,
+                        layerId: layerId,
+                        query: query
+                    },
+                    showLayer: true
+                };
+
+                var promLegend = GISService.GetLegendData(queryLayer.layer.baseUrl);
+                promLegend.then(function (data) {
+                    var layerInfo = data.layers.find(function (x) {
+                        return x.layerId == layerId;
+                    });
+                    if (layerInfo && layerInfo.legend && layerInfo.legend[0]) {
+                        var legendFullUrl = 'data:' + layerInfo.legend[0].contentType + ';base64, ' + layerInfo.legend[0].imageData;
+                        queryLayer.layer.legendUrl = legendFullUrl;
+                    }
+
+                    queryLayer.layer.mapData = L.esri.featureLayer({
+                        maxZoom: 20,
+                        minZoom: 0,
+                        url: queryLayer.layer.baseUrl + '/' + queryLayer.layer.layerId + '/query',
+                        where: query,
+                        opacity: 0.1,
+                        continuousWorld: true,
+                        useCors: false,
+                        f: 'image',
+                        pointToLayer: function pointToLayer(geoJson, latlng) {
+                            return MapData.CreateFeatureLayerMarker(latlng, legendFullUrl);
+                        }
+                    }).addTo(map);
+
+                    queryLayer.theme = theme;
+                    MapData.QueryLayers.push(queryLayer);
+                });
+            }
         };
 
         _service.DeleteQueryLayer = function (index) {
@@ -6557,6 +6568,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             }
         };
 
+        $scope.checkAddOrUpdate;
+
         $scope.$on('queryBuild', function (event, data) {
             $scope.query = data;
         });
@@ -6591,7 +6604,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             if (!$scope.editor) {
                 SearchAdvancedService.BuildQuery($scope.selectedLayer);
                 var query = SearchAdvancedService.TranslateOperations($scope.operations);
-                var result = SearchAdvancedService.ExecuteQuery($scope.selectedLayer, query);
+                if (!query === '') {
+                    var result = SearchAdvancedService.ExecuteQuery($scope.selectedLayer, query);
+                }
             } else {
                 var rawQueryResult = SearchAdvancedService.MakeNewRawQuery($scope.query);
                 SearchAdvancedService.UpdateQuery($scope.query);
@@ -6605,8 +6620,19 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         };
 
         $scope.FilterQueriedLayer = function () {
-            var rawQueryResult = SearchAdvancedService.MakeNewRawQuery($scope.query);
-            ThemeService.AddQueryLayer($scope.selectedLayer.name, $scope.selectedLayer.id, rawQueryResult.query, $scope.selectedLayer.theme);
+            if (!$scope.editor) {
+                SearchAdvancedService.BuildQuery($scope.selectedLayer);
+                var query = SearchAdvancedService.TranslateOperations($scope.operations);
+                if ($scope.selectedLayer && !query === '') {
+                    ThemeService.AddQueryLayer($scope.selectedLayer.name, $scope.selectedLayer.id, query, $scope.selectedLayer.theme);
+                }
+            } else {
+                var rawQueryResult = SearchAdvancedService.MakeNewRawQuery($scope.query);
+                SearchAdvancedService.UpdateQuery($scope.query);
+                if ($scope.selectedLayer) {
+                    ThemeService.AddQueryLayer($scope.selectedLayer.name, $scope.selectedLayer.id, rawQueryResult.query, $scope.selectedLayer.theme);
+                }
+            }
 
             $modalInstance.$close();
         };
@@ -7374,12 +7400,19 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 if (operation.addition != null) {
                     query += ' ' + operation.addition + ' (';
                 }
-                query += operation.attribute.name + ' ';
-                query += _service.HandleOperator(operation);
+                if (operation.attribute != null) {
+                    query += operation.attribute.name + ' ';
+                }
+                if (operation.value != null) {
+                    query += _service.HandleOperator(operation);
+                }
                 if (operation.addition != null) {
                     query += ')';
                 }
             });
+            if (query === '') {
+                PopupService.Warning("Ongeldige query", "Kijk na of u een geldige query heeft samengesteld.");
+            }
             return query;
         };
 
@@ -8524,7 +8557,7 @@ L.drawLocal = {
     "<div class=margin-top>\n" +
     "<button type=button class=\"btn btn-info\" ng-click=QueryAPI()>Pas toe</button>\n" +
     "<button type=button class=btn ng-click=cancel()> Annuleer</button>\n" +
-    "<button type=button class=\"btn btn-info\" ng-show=\"editor && selectedLayer\" ng-click=FilterQueriedLayer()>Query laag maken</button>\n" +
+    "<button type=button class=\"btn btn-info\" ng-click=FilterQueriedLayer()>Query laag maken/bijwerken</button>\n" +
     "</div>\n" +
     "</div>"
   );
