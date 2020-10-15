@@ -6,6 +6,7 @@
         vm.themes = MapData.Themes;
         vm.queryLayers = MapData.QueryLayers;
         vm.selectedLayers = [];
+        vm.showQueryLayers = true;
 
         vm.sortableOptions = {
             stop: function (e, ui) {
