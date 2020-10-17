@@ -1,7 +1,7 @@
 'use strict';
 (function() {
     var module = angular.module('tink.gis');
-    var service = function(map, ThemeCreater, MapData, GISService) {
+    var service = function(map, ThemeCreater, MapData, GISService, $q) {
         var _service = {};
         _service.AddAndUpdateThemes = function(themesBatch) {
             console.log('Themes batch for add and updates...');
@@ -198,24 +198,62 @@
                 };
     
                 var promLegend = GISService.GetLegendData(queryLayer.layer.baseUrl);
-                promLegend.then(function(data) { 
-                    var layerInfo = data.layers.find(x => x.layerId == layerId);
+                var promLayerInfo = GISService.GetLayerSpecification(queryLayer.layer.baseUrl + '/' + queryLayer.layer.layerId);
+
+                var allpromises = $q.all([promLegend, promLayerInfo]);
+
+                allpromises.then(function(data) {
+                    var layerInfo = data[0].layers.find(x => x.layerId == layerId);
                     if (layerInfo && layerInfo.legend && layerInfo.legend[0]) {
                         var legendFullUrl =  `data:${layerInfo.legend[0].contentType};base64, ${layerInfo.legend[0].imageData}`;
                         queryLayer.layer.legendUrl = legendFullUrl;
                     }
-    
+                    var drawingSymbol = data[1].drawingInfo.renderer.symbol;
+
+                    var fillColor = '';
+                    var color = '';
+                    var fill = false;
+                    var weight = 1;
+                    //check geometrytype to determine style
+                    switch(data[1].geometryType) {
+                        case 'esriGeometryPolyline':
+                            color = _service.RGBToHex(drawingSymbol.color[0], drawingSymbol.color[1], drawingSymbol.color[2]);
+                            weight = drawingSymbol.width;
+                            break;
+                        case 'esriGeometryPolygon':
+                            fillColor = _service.RGBToHex(drawingSymbol.color[0], drawingSymbol.color[1], drawingSymbol.color[2]);
+                            color = _service.RGBToHex(drawingSymbol.outline.color[0], drawingSymbol.outline.color[1], drawingSymbol.outline.color[2]);
+                            fill = drawingSymbol.color[3] > 0 ? true : false;
+                            weight = drawingSymbol.outline.width;
+                            break;
+                        default: 
+                            break;
+                    }
+
+                    //determine polygon & polyline styling 
+                    var style = {
+                        color: color,
+                        fill: fill,
+                        weight: weight,
+                        fillColor: fillColor,
+                        fillOpacity: 1
+                    };
+
                     queryLayer.layer.mapData = L.esri.featureLayer({
                         maxZoom: 20,
                         minZoom: 0,
                         url: queryLayer.layer.baseUrl + '/' + queryLayer.layer.layerId + '/query',
                         where: query,
-                        opacity: 0.1,
                         continuousWorld: true,
                         useCors: false,
                         f: 'image',
+                        style: (feature, layer) => {
+                            //is used to style polygon and polyline
+                            return style;
+                        },
                         pointToLayer: (geoJson, latlng) => {
-                            return MapData.CreateFeatureLayerMarker(latlng, legendFullUrl);
+                            //is usesd to style points
+                            return MapData.CreateFeatureLayerMarker(latlng, queryLayer.layer.legendUrl);
                         },
                     }).addTo(map);
         
@@ -256,6 +294,15 @@
             });
             MapData.CleanSearch();
         };
+
+        _service.RGBToHex = function(red, green, blue) {
+            return "#" + _service.ComponentToHex(red) + _service.ComponentToHex(green) + _service.ComponentToHex(blue);
+        }
+
+        _service.ComponentToHex = function (c) {
+            var hex = c.toString(16);
+            return hex.length == 1 ? "0" + hex : hex;
+        }
 
 
 

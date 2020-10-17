@@ -235,6 +235,21 @@
                 });
             return prom.promise;
         };
+
+        _service.GetLayerSpecification = function(layerUrl) {
+            var prom = $q.defer()
+            var url = `${layerUrl}?f=pjson`;
+
+            $http.get(url, generateOptionsBasedOnUrl(url))
+                .success(function(data, status, headers, config) {
+                    // data = GisHelperService.UnwrapProxiedData(data);
+                    prom.resolve(data);
+                }).error(function(data, status, headers, config) {
+                    prom.reject(null);
+                    PopupService.ErrorFromHttp(data, status, url);
+                });
+            return prom.promise;
+        }
         _service.GetAditionalLayerInfo = function(theme) {
 
             var promLegend = _service.GetLegendData(theme.cleanUrl);
