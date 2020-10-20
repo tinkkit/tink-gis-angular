@@ -8362,7 +8362,7 @@ L.drawLocal = {
     "<img class=layer-icon ng-if=\"lyrctrl.layer.theme.Type=='esri' && lyrctrl.layer.legend.length===1\" class=layer-icon ng-src=\"{{lyrctrl.layer.legend[0].fullurl}} \">\n" +
     "<div class=can-open ng-class=\"{'open': showLayer2 || showMultiLegend}\">\n" +
     "<input class=\"visible-box hidden-print\" type=checkbox ng-model=lyrctrl.layer.visible ng-change=layercheckboxchange(lyrctrl.layer.theme) id={{lyrctrl.layer.name}}{{lyrctrl.layer.id}}{{lyrctrl.layer.theme.Naam}}>\n" +
-    "<label ng-class=\"{ 'greytext': lyrctrl.layer.displayed==true} \" for={{lyrctrl.layer.name}}{{lyrctrl.layer.id}}{{lyrctrl.layer.theme.Naam}} title={{lyrctrl.layer.title}}>{{lyrctrl.layer.title}}\n" +
+    "<label ng-class=\"{ 'greytext': lyrctrl.layer.displayed==false} \" for={{lyrctrl.layer.name}}{{lyrctrl.layer.id}}{{lyrctrl.layer.theme.Naam}} title={{lyrctrl.layer.title}}>{{lyrctrl.layer.title}}\n" +
     "<span class=\"hidden-print greytext\" ng-show=\"lyrctrl.layer.theme.Type=='wms' && lyrctrl.layer.queryable\"> <i class=\"fa fa-info\"></i></span>\n" +
     "</label>\n" +
     "<span style=color:#76b9f4 class=show-layer ng-show=\"lyrctrl.layer.theme.Type=='wms'\" ng-click=\"showLayer2 = !showLayer2\"></span>\n" +
