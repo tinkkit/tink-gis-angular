@@ -63,15 +63,17 @@
             exportObject.extent = map.getBounds();
             exportObject.isKaart = true;
 
-            exportObject.QueryLayers = MapData.QueryLayers.map(queryLayer => {
-                return {
-                    LayerId: queryLayer.layer.layerId,
-                    Name: queryLayer.layer.name,
-                    BaseUrl: queryLayer.layer.baseUrl,
-                    Where: queryLayer.layer.query
-                };
-            });
-
+            if (MapData.QueryLayers) {
+                exportObject.QueryLayers = MapData.QueryLayers.map(queryLayer => {
+                    return {
+                        LayerId: queryLayer.layer.layerId,
+                        Name: queryLayer.layer.name,
+                        BaseUrl: queryLayer.layer.baseUrl,
+                        Where: queryLayer.layer.query
+                    };
+                });    
+            }
+            
             return exportObject;
         };
 
@@ -123,7 +125,7 @@
             });
 
             // import selected query layers
-            project.queryLayers.forEach(queryLayer => {
+            _.each(project.queryLayers, function(queryLayer) {
                 let queryLayerTheme = {
                     cleanUrl: queryLayer.baseUrl,
                     naam:'QueryLayer',
