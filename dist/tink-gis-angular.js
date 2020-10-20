@@ -5608,7 +5608,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 } else {
                     var promise = new Promise(function (resolve, reject) {
                         ResultsData.RequestStarted++;
-                        layer.theme.MapData.query().layer(layer.id).where(query).returnGeometry(false).fields(field.name).limit(20).run(function (error, featureCollection, response) {
+                        layer.theme.MapData.query().layer(layer.id).where(query).returnGeometry(false).fields(field.name).distinct().run(function (error, featureCollection, response) {
                             ResultsData.RequestCompleted++;
                             resolve({ error: error, featureCollection: featureCollection, response: response });
                         });
