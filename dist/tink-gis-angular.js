@@ -8143,7 +8143,7 @@ L.drawLocal = {
     "<div class=\"row margin-top margin-bottom\">\n" +
     "<div class=\"col-xs-12 col-sm-6\">\n" +
     "<form>\n" +
-    "<input auto-focus type=search ng-keydown=\"$event.keyCode === 13 && enterPressed()\" ng-model=searchTerm ng-change=searchChanged() ng-model-options=\"{debounce: 100}\" placeholder=\"Geef een trefwoord in (minimum 3 tekens)\">\n" +
+    "<input auto-focus type=search ng-keydown=\"$event.keyCode === 13 && enterPressed()\" ng-model=searchTerm ng-change=searchChanged() ng-model-options=\"{debounce: 500}\" placeholder=\"Geef een trefwoord in (minimum 3 tekens)\">\n" +
     "</form>\n" +
     "</div>\n" +
     "</div>\n" +
