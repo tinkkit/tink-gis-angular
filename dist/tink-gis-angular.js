@@ -2173,10 +2173,15 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         };
         $scope.laadUrl = function () {
             $scope.url = $scope.url.trim().replace('?', '');
-            createWMS($scope.url);
+            $scope.clearPreview();
+            if ($scope.url.toLowerCase().endsWith("mapserver")) {
+                createTheme($scope.url);
+            } else {
+                createWMS($scope.url);
+            }
         };
         var createWMS = function createWMS(url) {
-            $scope.clearPreview();
+
             var wms = MapData.Themes.find(function (x) {
                 return x.cleanUrl == url;
             });
@@ -2198,6 +2203,34 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 });
             } else {
                 $scope.previewTheme(wms);
+            }
+        };
+        var createTheme = function createTheme(url) {
+            var gisTheme = MapData.Themes.find(function (x) {
+                return x.cleanUrl === url;
+            });
+            if (!gisTheme) {
+                var getGisTheme = GISService.GetThemeData(url);
+                $scope.themeloading = true;
+                getGisTheme.then(function (data) {
+                    $scope.themeloading = false;
+                    if (data) {
+                        var themeData = {
+                            cleanUrl: url,
+                            opacity: 1
+                        };
+                        var gisTheme = ThemeCreater.createARCGISThemeFromJson(data, themeData);
+                        $scope.previewTheme(gisTheme);
+                    } else {
+                        $scope.error = "Fout bij het laden van Mapserver.";
+                        PopupService.Error("Ongeldige Mapserver", "De opgegeven url is geen geldige Mapserver url. (" + url + ")");
+                    }
+                }, function (reason) {
+                    $scope.error = "Fout bij het laden van Mapserver.";
+                    $scope.themeloading = false;
+                });
+            } else {
+                $scope.previewTheme(gisTheme);
             }
         };
         $scope.selectedTheme = null;
@@ -8279,7 +8312,7 @@ L.drawLocal = {
     "<div class=\"themeUrlTemplate row relative-container\">\n" +
     "<div class=\"col-xs-6 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
     "<div>\n" +
-    "<input class=searchbox ng-model=url ng-change=urlChanged() placeholder=\"Geef een wms url in\" style=width:100%>\n" +
+    "<input class=searchbox ng-model=url ng-change=urlChanged() placeholder=\"Geef een url in(wms/mapserver)\" style=width:100%>\n" +
     "</div>\n" +
     "</div>\n" +
     "<div class=\"col-xs-6 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
