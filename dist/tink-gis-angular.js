@@ -3549,10 +3549,7 @@ var esri2geo = {};
         _externService.Import = function (project) {
             console.log(project);
             _externService.setExtent(project.extent);
-            _.each(MapData.QueryLayers, function (queryLayer) {
-                //remove all querylayers, foreach remove the first index
-                ThemeService.DeleteQueryLayer(0);
-            });
+            ThemeService.DeleteAllQueryLayers();
 
             var themesArray = [];
             var promises = [];
@@ -3720,6 +3717,7 @@ var esri2geo = {};
         _externService.CleanMapAndThemes = function () {
             MapData.CleanMap();
             ThemeService.CleanThemes();
+            ThemeService.DeleteAllQueryLayers();
         };
         _externService.LoadConfig = function (config) {
             Gis.GeometryUrl = config.Gis.GeometryUrl;
@@ -6189,6 +6187,13 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                     MapData.QueryLayers.push(queryLayer);
                 });
             }
+        };
+
+        _service.DeleteAllQueryLayers = function () {
+            _.each(MapData.QueryLayers, function (queryLayer) {
+                //remove all querylayers, foreach remove the first index
+                _service.DeleteQueryLayer(0);
+            });
         };
 
         _service.DeleteQueryLayer = function (index) {

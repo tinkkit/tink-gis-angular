@@ -80,10 +80,7 @@
         _externService.Import = function(project) {
             console.log(project);
             _externService.setExtent(project.extent);
-            _.each(MapData.QueryLayers, function(queryLayer)  {
-                //remove all querylayers, foreach remove the first index
-                ThemeService.DeleteQueryLayer(0);
-            });
+            ThemeService.DeleteAllQueryLayers();
 
             let themesArray = [];
             let promises = [];
@@ -250,6 +247,7 @@
         _externService.CleanMapAndThemes = function() {
             MapData.CleanMap();
             ThemeService.CleanThemes();
+            ThemeService.DeleteAllQueryLayers();
         };
         _externService.LoadConfig = function(config) {
             Gis.GeometryUrl = config.Gis.GeometryUrl;
