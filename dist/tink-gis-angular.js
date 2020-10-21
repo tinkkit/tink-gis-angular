@@ -2159,7 +2159,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
     } catch (e) {
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
     }
-    module.controller('wmsUrlController', ['$scope', 'ThemeCreater', '$q', 'MapService', 'MapData', 'GISService', 'LayerManagementService', 'WMSService', '$window', '$http', 'GeopuntService', 'PopupService', function ($scope, ThemeCreater, $q, MapService, MapData, GISService, LayerManagementService, WMSService, $window, $http, GeopuntService, PopupService) {
+    module.controller('themeUrlController', ['$scope', 'ThemeCreater', '$q', 'MapService', 'MapData', 'GISService', 'LayerManagementService', 'WMSService', '$window', '$http', 'GeopuntService', 'PopupService', function ($scope, ThemeCreater, $q, MapService, MapData, GISService, LayerManagementService, WMSService, $window, $http, GeopuntService, PopupService) {
         $scope.urlIsValid = false;
 
         $scope.themeloading = false;
@@ -2173,10 +2173,15 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         };
         $scope.laadUrl = function () {
             $scope.url = $scope.url.trim().replace('?', '');
-            createWMS($scope.url);
+            $scope.clearPreview();
+            if ($scope.url.toLowerCase().endsWith("mapserver")) {
+                createTheme($scope.url);
+            } else {
+                createWMS($scope.url);
+            }
         };
         var createWMS = function createWMS(url) {
-            $scope.clearPreview();
+
             var wms = MapData.Themes.find(function (x) {
                 return x.cleanUrl == url;
             });
@@ -2198,6 +2203,34 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 });
             } else {
                 $scope.previewTheme(wms);
+            }
+        };
+        var createTheme = function createTheme(url) {
+            var gisTheme = MapData.Themes.find(function (x) {
+                return x.cleanUrl === url;
+            });
+            if (!gisTheme) {
+                var getGisTheme = GISService.GetThemeData(url);
+                $scope.themeloading = true;
+                getGisTheme.then(function (data) {
+                    $scope.themeloading = false;
+                    if (data) {
+                        var themeData = {
+                            cleanUrl: url,
+                            opacity: 1
+                        };
+                        var gisTheme = ThemeCreater.createARCGISThemeFromJson(data, themeData);
+                        $scope.previewTheme(gisTheme);
+                    } else {
+                        $scope.error = "Fout bij het laden van Mapserver.";
+                        PopupService.Error("Ongeldige Mapserver", "De opgegeven url is geen geldige Mapserver url. (" + url + ")");
+                    }
+                }, function (reason) {
+                    $scope.error = "Fout bij het laden van Mapserver.";
+                    $scope.themeloading = false;
+                });
+            } else {
+                $scope.previewTheme(gisTheme);
             }
         };
         $scope.selectedTheme = null;
@@ -2311,15 +2344,15 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
 
 (function (module) {
     module = angular.module('tink.gis');
-    module.directive('wmsUrl', function () {
+    module.directive('themeUrl', function () {
         return {
             replace: true,
             scope: {
                 layer: '='
             },
-            templateUrl: 'templates/layermanagement/wmsUrlTemplate.html',
-            controller: 'wmsUrlController',
-            controllerAs: 'wmsUrlctrl'
+            templateUrl: 'templates/layermanagement/themeUrlTemplate.html',
+            controller: 'themeUrlController',
+            controllerAs: 'themeUrlctrl'
         };
     });
 })();
@@ -8155,13 +8188,13 @@ L.drawLocal = {
     "<li role=presentation ng-class=\"{'active': active=='solr'}\"><a href=\"\" ng-click=\"active='solr'\">Stad <span ng-if=\"solrLoading==true\" class=loader></span><span ng-if=\"solrLoading==false && solrCount != null\">({{solrCount}})</span></a></li>\n" +
     "<li ng-show=!mobile role=presentation ng-class=\"{'active': active=='geopunt'}\"><a href=\"\" ng-click=\"active='geopunt'\">GeoPunt <span ng-if=\"geopuntLoading==true\" class=loader></span><span ng-if=\"geopuntLoading==false && geopuntCount != null\">({{geopuntCount}})</span></a></li>\n" +
     "<li role=presentation class=pull-right ng-class=\"{'active': active=='beheer'}\"><a href=\"\" ng-click=\"active='beheer'\">Lagenbeheer</a></li>\n" +
-    "<li ng-show=!mobile role=presentation class=pull-right ng-class=\"{'active': active=='wmsurl'}\"><a href=\"\" ng-click=\"active='wmsurl'\">URL ingeven</a></li>\n" +
+    "<li ng-show=!mobile role=presentation class=pull-right ng-class=\"{'active': active=='themeurl'}\"><a href=\"\" ng-click=\"active='themeurl'\">URL ingeven</a></li>\n" +
     "</ul>\n" +
     "</div>\n" +
     "</div>\n" +
     "<solr-gis ng-show=\"active=='solr'\"></solr-gis>\n" +
     "<geo-punt ng-show=\"active=='geopunt'\"></geo-punt>\n" +
-    "<wms-url ng-show=\"active=='wmsurl'\"></wms-url>\n" +
+    "<theme-url ng-show=\"active=='themeurl'\"></theme-url>\n" +
     "<layers-management ng-if=\"active=='beheer'\"></layers-management></div>"
   );
 
@@ -8275,11 +8308,11 @@ L.drawLocal = {
   );
 
 
-  $templateCache.put('templates/layermanagement/wmsUrlTemplate.html',
-    "<div class=\"wmsUrlTemplate row relative-container\">\n" +
+  $templateCache.put('templates/layermanagement/themeUrlTemplate.html',
+    "<div class=\"themeUrlTemplate row relative-container\">\n" +
     "<div class=\"col-xs-6 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
     "<div>\n" +
-    "<input class=searchbox ng-model=url ng-change=urlChanged() placeholder=\"Geef een wms url in\" style=width:100%>\n" +
+    "<input class=searchbox ng-model=url ng-change=urlChanged() placeholder=\"Geef een url in(wms/mapserver)\" style=width:100%>\n" +
     "</div>\n" +
     "</div>\n" +
     "<div class=\"col-xs-6 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
