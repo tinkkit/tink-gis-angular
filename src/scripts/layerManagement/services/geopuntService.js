@@ -3,7 +3,7 @@
     var module = angular.module('tink.gis');
     var service = function ($http, map, MapData, $rootScope, $q, helperService, PopupService) {
         var _service = {};
-        _service.getMetaData = function (searchterm = 'water', startpos = 1, recordsAPage = 10) {
+        _service.getMetaData = function (searchterm = 'water', startpos = 1, recordsAPage = 10, cancelProm) {
             var url = 'https://metadata.geopunt.be/zoekdienst/srv/dut/csw?' +
             'service=CSW&version=2.0.2&SortBy=title&request=GetRecords&namespace=xmlns(csw=http://www.opengis.net/cat/csw)&resultType=results&outputSchema=http://www.opengis.net/cat/csw/2.0.2&outputFormat=application/xml'+ 
             '&startPosition=' + startpos + '&maxRecords=' + recordsAPage + '&typeNames=csw:Record&elementSetName=full&constraintLanguage=CQL_TEXT&constraint_language_version=1.1.0' +
@@ -11,7 +11,7 @@
             // var url = 'https://metadata.geopunt.be/zoekdienst/srv/dut/q?fast=index&from=' + startpos + '&to=' + recordsAPage + '&any=*' + searchterm + '*&sortBy=title&sortOrder=reverse&hitsperpage=' + recordsAPage;
             var prom = $q.defer();
             var proxiedurl = helperService.CreateProxyUrl(url);
-            $http.get(proxiedurl).
+            $http.get(proxiedurl, {timeout: cancelProm}).
                 success(function (data, status, headers, config) {
                     if (data) {
                         data = helperService.UnwrapProxiedData(data);

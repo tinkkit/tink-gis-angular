@@ -1622,6 +1622,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         $scope.data = null;
         $scope.status = null;
         $scope.url = null;
+        $scope.canceller = null;
 
         $scope.pagingCount = null;
         $scope.numberofrecordsmatched = 0;
@@ -1653,7 +1654,12 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         $scope.QueryGeoPunt = function (searchTerm, page) {
             $scope.loading = true;
             $scope.clearPreview();
-            var prom = GeopuntService.getMetaData(searchTerm, (page - 1) * 5 + 1, 5);
+
+            if ($scope.canceller) {
+                $scope.canceller.resolve("cancelled");
+            }
+            $scope.canceller = $q.defer();
+            var prom = GeopuntService.getMetaData(searchTerm, (page - 1) * 5 + 1, 5, $scope.canceller.promise);
             prom.then(function (metadata) {
 
                 if ($scope.currentPage == 0) {
@@ -1666,6 +1672,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 $scope.nextrecord = metadata.nextrecord;
                 $scope.numberofrecordsmatched = metadata.numberofrecordsmatched;
                 $scope.$parent.geopuntCount = metadata.numberofrecordsmatched;
+                $scope.canceller = null;
             }, function (reason) {
                 console.log(reason);
                 $scope.$parent.geopuntLoading = false;
@@ -1675,6 +1682,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 $scope.data = reason.data;
                 $scope.status = reason.status;
                 $scope.url = reason.url;
+                $scope.canceller = null;
             });
         };
         $scope.pageChanged = function (page, recordsAPage) {
@@ -2366,12 +2374,13 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             var searchterm = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'water';
             var startpos = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
             var recordsAPage = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 10;
+            var cancelProm = arguments[3];
 
             var url = 'https://metadata.geopunt.be/zoekdienst/srv/dut/csw?' + 'service=CSW&version=2.0.2&SortBy=title&request=GetRecords&namespace=xmlns(csw=http://www.opengis.net/cat/csw)&resultType=results&outputSchema=http://www.opengis.net/cat/csw/2.0.2&outputFormat=application/xml' + '&startPosition=' + startpos + '&maxRecords=' + recordsAPage + '&typeNames=csw:Record&elementSetName=full&constraintLanguage=CQL_TEXT&constraint_language_version=1.1.0' + '&constraint=AnyText%20LIKE%20%27%' + searchterm + '%%27AND%20Type%20=%20%27service%27%20AND%20Servicetype%20=%27view%27'; //%20AND%20MetadataPointOfContact%20=%27%27'; //MetadataPointOfContact%20=%27AIV%27';            // var url = 'https://metadata.geopunt.be/zoekdienst/srv/dut/csw?service=CSW&version=2.0.2&SortBy=title&request=GetRecords&namespace=xmlns%28csw=http://www.opengis.net/cat/csw%29&resultType=results&outputSchema=http://www.opengis.net/cat/csw/2.0.2&outputFormat=application/xml&startPosition=' + startpos + '&maxRecords=' + recordsAPage + '&typeNames=csw:Record&elementSetName=full&constraintLanguage=CQL_TEXT&constraint_language_version=1.1.0&constraint=AnyText+LIKE+%27%25' + searchterm + '%25%27AND%20Type%20=%20%27service%27%20AND%20Servicetype%20=%27view%27%20AND%20MetadataPointOfContact%20=%27AIV%27';
             // var url = 'https://metadata.geopunt.be/zoekdienst/srv/dut/q?fast=index&from=' + startpos + '&to=' + recordsAPage + '&any=*' + searchterm + '*&sortBy=title&sortOrder=reverse&hitsperpage=' + recordsAPage;
             var prom = $q.defer();
             var proxiedurl = helperService.CreateProxyUrl(url);
-            $http.get(proxiedurl).success(function (data, status, headers, config) {
+            $http.get(proxiedurl, { timeout: cancelProm }).success(function (data, status, headers, config) {
                 if (data) {
                     data = helperService.UnwrapProxiedData(data);
                     var returnjson = JXON.stringToJs(data);

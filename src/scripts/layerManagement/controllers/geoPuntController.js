@@ -17,6 +17,7 @@
             $scope.data = null;
             $scope.status = null;
             $scope.url = null;
+            $scope.canceller = null;
 
             $scope.pagingCount = null;
             $scope.numberofrecordsmatched = 0;
@@ -49,7 +50,12 @@
             $scope.QueryGeoPunt = function (searchTerm, page) {
                 $scope.loading = true;
                 $scope.clearPreview();
-                var prom = GeopuntService.getMetaData(searchTerm, ((page - 1) * 5) + 1, 5);
+
+                if($scope.canceller) {
+                    $scope.canceller.resolve("cancelled");
+                }
+                $scope.canceller = $q.defer();
+                var prom = GeopuntService.getMetaData(searchTerm, ((page - 1) * 5) + 1, 5, $scope.canceller.promise);
                 prom.then(function (metadata) {
 
                     if ($scope.currentPage == 0) {
@@ -62,6 +68,7 @@
                     $scope.nextrecord = metadata.nextrecord;
                     $scope.numberofrecordsmatched = metadata.numberofrecordsmatched;
                     $scope.$parent.geopuntCount = metadata.numberofrecordsmatched;
+                    $scope.canceller = null;
                 }, function (reason) {
                     console.log(reason);
                     $scope.$parent.geopuntLoading = false;
@@ -71,6 +78,7 @@
                     $scope.data = reason.data;
                     $scope.status = reason.status;
                     $scope.url = reason.url;
+                    $scope.canceller = null;
                 });
             };
             $scope.pageChanged = function (page, recordsAPage) {
