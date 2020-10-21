@@ -263,6 +263,13 @@
             }
         }
 
+        _service.DeleteAllQueryLayers = function() {
+            _.each(MapData.QueryLayers, function(queryLayer)  {
+                //remove all querylayers, foreach remove the first index
+                _service.DeleteQueryLayer(0);
+            });
+        }
+
         _service.DeleteQueryLayer = function (index) {
             if (index > -1) {
                 let queryLayer = MapData.QueryLayers[index];
