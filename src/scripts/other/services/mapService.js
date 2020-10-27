@@ -355,7 +355,7 @@
                                 .where(query)
                                 .returnGeometry(false)
                                 .fields(field.name)
-                                .distinct()
+                                .limit(20)
                                 .run(function(error, featureCollection, response) {
                                     ResultsData.RequestCompleted++;
                                     resolve({ error, featureCollection, response });
