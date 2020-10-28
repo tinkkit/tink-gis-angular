@@ -4095,6 +4095,10 @@ var esri2geo = {};
         _service.GetThemeData = function (mapserver) {
             var prom = $q.defer();
 
+            if (mapserver.contains("http://")) {
+                mapserver = mapserver.replace("http://", "https://");
+            }
+
             var url = completeUrl(mapserver) + '?f=pjson';
             console.log("ZZZZZ");
 
@@ -9110,8 +9114,10 @@ var TinkGis;
 
             var _this2 = _possibleConstructorReturn(this, (ArcGIStheme.__proto__ || Object.getPrototypeOf(ArcGIStheme)).call(this));
 
+            var urlParts = themeData.cleanUrl.split("/");
+            var nameFromUrl = urlParts.length > 2 ? urlParts[urlParts.length - 2] : "";
             var rawlayers = rawdata.layers;
-            _this2.name = _this2.Naam = rawdata.documentInfo.Title;
+            _this2.name = _this2.Naam = rawdata.documentInfo.Title === "" ? nameFromUrl : rawdata.documentInfo.Title;
             _this2.Description = rawdata.documentInfo.Subject;
             _this2.cleanUrl = themeData.cleanUrl;
             _this2.Opacity = themeData.opacity;
