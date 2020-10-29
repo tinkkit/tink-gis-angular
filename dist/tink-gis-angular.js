@@ -8330,7 +8330,7 @@ L.drawLocal = {
     "<div class=\"themeUrlTemplate row relative-container\">\n" +
     "<div class=\"col-xs-6 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
     "<div>\n" +
-    "<input class=searchbox ng-model=url ng-change=urlChanged() placeholder=\"Geef een url in(wms/mapserver)\" style=width:100%>\n" +
+    "<input class=searchbox ng-model=url ng-change=urlChanged() placeholder=\"Geef een URL in van een webmapservice (wms) of ArcGIS mapservice (enkel arcgissql)\" style=width:100%>\n" +
     "</div>\n" +
     "</div>\n" +
     "<div class=\"col-xs-6 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
