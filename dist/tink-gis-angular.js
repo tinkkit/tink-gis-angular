@@ -6718,7 +6718,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             if (!$scope.editor) {
                 SearchAdvancedService.BuildQuery($scope.selectedLayer);
                 var query = SearchAdvancedService.TranslateOperations($scope.operations);
-                if (!query === '') {
+                if (query !== '') {
                     var result = SearchAdvancedService.ExecuteQuery($scope.selectedLayer, query);
                 }
             } else {
