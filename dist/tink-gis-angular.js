@@ -2214,6 +2214,10 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             }
         };
         var createTheme = function createTheme(url) {
+            if (url.contains("http://")) {
+                url = url.replace("http://", "https://");
+            }
+
             var gisTheme = MapData.Themes.find(function (x) {
                 return x.cleanUrl === url;
             });
@@ -4094,10 +4098,6 @@ var esri2geo = {};
         };
         _service.GetThemeData = function (mapserver) {
             var prom = $q.defer();
-
-            if (mapserver.contains("http://")) {
-                mapserver = mapserver.replace("http://", "https://");
-            }
 
             var url = completeUrl(mapserver) + '?f=pjson';
             console.log("ZZZZZ");

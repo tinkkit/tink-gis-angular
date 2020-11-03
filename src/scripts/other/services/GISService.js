@@ -188,10 +188,6 @@
         _service.GetThemeData = function(mapserver) {
             var prom = $q.defer();
 
-            if (mapserver.contains("http://")) {
-                mapserver = mapserver.replace("http://", "https://");
-            }
-
             var url = completeUrl(mapserver) + '?f=pjson';
             console.log("ZZZZZ");
             

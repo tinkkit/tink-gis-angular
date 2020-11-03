@@ -55,6 +55,10 @@
                 }
             };
             var createTheme = function(url) {
+                if (url.contains("http://")) {
+                    url = url.replace("http://", "https://");
+                }
+
                 var gisTheme = MapData.Themes.find(x => x.cleanUrl === url);
                 if (!gisTheme) {
                     var getGisTheme = GISService.GetThemeData(url);
