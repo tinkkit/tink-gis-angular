@@ -55,7 +55,7 @@
                         if(query.length == 3){ //FIXES BUG SIK-496
                             _typeAheadService.lastStreetNameId = null;
                         }
-                        if (numbers.length == 1 && notnumbers.length >= 1) {
+                        if (numbers.length == 1 && (notnumbers.length >= 1 && !(notnumbers.length === 1 && notnumbers[0].toUpperCase() === 'KAAINUMMER'))) {
                             var huisnummer = numbers[0];
                             var strnmid = [];
                             var count = 0;
