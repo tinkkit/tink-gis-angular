@@ -88,6 +88,7 @@
             };
 
             $scope.FilterQueriedLayer = function() {
+                var closeModal = true;
                 if (!$scope.editor) {
                     SearchAdvancedService.BuildQuery($scope.selectedLayer);
                     var query = SearchAdvancedService.TranslateOperations($scope.operations);
@@ -99,10 +100,17 @@
                     SearchAdvancedService.UpdateQuery($scope.query);
                     if ($scope.selectedLayer) {
                         ThemeService.AddQueryLayer($scope.selectedLayer.name, $scope.selectedLayer.id, rawQueryResult.query, $scope.selectedLayer.theme);                    
+                    } else {
+                        if(rawQueryResult.layer) {
+                            ThemeService.AddQueryLayer(rawQueryResult.layer.name, rawQueryResult.layer.id, rawQueryResult.query, rawQueryResult.layer.theme); 
+                        } else {
+                            closeModal = false;
+                        }   
                     }
                 }
-
-                $modalInstance.$close();
+                if (closeModal) {
+                    $modalInstance.$close();
+                }
             }
 
             if ($scope.query != null && $scope.query != ""){
