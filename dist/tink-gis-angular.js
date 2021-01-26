@@ -5729,7 +5729,16 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 });
             }
 
-            _.each(MapData.QueryLayers, function (queryLayer) {
+            var queryLayers = [];
+            //every layer
+            if (!layer || layer.id === '') {
+                queryLayers = MapData.queryLayers;
+            } else {
+                queryLayers = MapData.queryLayers.filter(function (x) {
+                    return x.layer.layerId === layer.id && x.layer.name === layer.name;
+                });
+            }
+            _.each(queryLayers, function (queryLayer) {
                 if (queryLayer.theme && queryLayer.theme.Type == ThemeType.ESRI) {
                     var prom = new Promise(function (resolve, reject) {
                         ResultsData.RequestStarted++;
