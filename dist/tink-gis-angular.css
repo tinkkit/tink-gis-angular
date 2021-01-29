@@ -417,6 +417,9 @@ button.btn.active {
           flex-grow: 1;
   min-height: 0; }
 
+.SEARCHRESULT {
+  overflow: auto; }
+
 .overflow-wrapper {
   overflow: auto; }
   .overflow-wrapper.list-selectable {
