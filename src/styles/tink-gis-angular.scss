@@ -357,6 +357,10 @@ button.btn.active {
   min-height: 0;
 }
 
+.SEARCHRESULT {
+  overflow: auto;
+}
+
 .overflow-wrapper {
   overflow: auto;
   // width: 100%; // !!perhaps not necessary?
