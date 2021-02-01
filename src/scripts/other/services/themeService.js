@@ -192,7 +192,8 @@
                         baseUrl: theme.cleanUrl,
                         name: name,
                         layerId: layerId,
-                        query: query
+                        query: query,
+                        legend: []
                     },
                     showLayer: true
                 };
@@ -204,40 +205,54 @@
 
                 allpromises.then(function(data) {
                     var layerInfo = data[0].layers.find(x => x.layerId == layerId);
-                    if (layerInfo && layerInfo.legend && layerInfo.legend[0]) {
-                        var legendFullUrl =  `data:${layerInfo.legend[0].contentType};base64, ${layerInfo.legend[0].imageData}`;
-                        queryLayer.layer.legendUrl = legendFullUrl;
+                    if (layerInfo && layerInfo.legend && layerInfo.legend.length > 0) {
+                        queryLayer.layer.legend = layerInfo.legend.map(x => {
+                            var layer = x;
+                            layer.fullurl = `data:${x.contentType};base64, ${x.imageData}`;
+                            return layer;
+                        });
                     }
-                    var drawingSymbol = data[1].drawingInfo.renderer.symbol;
+                    
+                    if (data[1].geometryType !== 'esriGeometryPoint') {
+                        queryLayer.layer.colors = data[1].drawingInfo.renderer.uniqueValueInfos.map((uniqueValue) => {
+                            let fillColor = '';
+                            let color = '';
+                            let fill = false;
+                            let weight = 1;
+                            switch(data[1].geometryType) {
+                                case 'esriGeometryPolyline':
+                                    color = _service.RGBToHex(uniqueValue.symbol.color[0], uniqueValue.symbol.color[1], uniqueValue.symbol.color[2]);
+                                    weight = uniqueValue.symbol.width;
+                                    break;
+                                case 'esriGeometryPolygon':
+                                    if (uniqueValue.symbol.color) {
+                                        fillColor = this.RGBToHex(
+                                            uniqueValue.symbol.color[0],
+                                            uniqueValue.symbol.color[1],
+                                            uniqueValue.symbol.color[2],
+                                        );
+                                        fill = uniqueValue.symbol.color[3] > 0 ? true : false;
+                                    }
+                                    color = this.RGBToHex(
+                                        uniqueValue.symbol.outline.color[0],
+                                        uniqueValue.symbol.outline.color[1],
+                                        uniqueValue.symbol.outline.color[2],
+                                    );
+                                    weight = uniqueValue.symbol.outline.width;
+                                    break;
+                                default: 
+                                    break;
+                            }
+                            return {
+                                values: uniqueValue.value.split(','),
+                                weight,
+                                color,
+                                fillColor,
+                                fill,
+                            };
+                        });
 
-                    var fillColor = '';
-                    var color = '';
-                    var fill = false;
-                    var weight = 1;
-                    //check geometrytype to determine style
-                    switch(data[1].geometryType) {
-                        case 'esriGeometryPolyline':
-                            color = _service.RGBToHex(drawingSymbol.color[0], drawingSymbol.color[1], drawingSymbol.color[2]);
-                            weight = drawingSymbol.width;
-                            break;
-                        case 'esriGeometryPolygon':
-                            fillColor = _service.RGBToHex(drawingSymbol.color[0], drawingSymbol.color[1], drawingSymbol.color[2]);
-                            color = _service.RGBToHex(drawingSymbol.outline.color[0], drawingSymbol.outline.color[1], drawingSymbol.outline.color[2]);
-                            fill = drawingSymbol.color[3] > 0 ? true : false;
-                            weight = drawingSymbol.outline.width;
-                            break;
-                        default: 
-                            break;
                     }
-
-                    //determine polygon & polyline styling 
-                    var style = {
-                        color: color,
-                        fill: fill,
-                        weight: weight,
-                        fillColor: fillColor,
-                        fillOpacity: 1
-                    };
 
                     queryLayer.layer.mapData = L.esri.featureLayer({
                         maxZoom: 20,
@@ -248,12 +263,20 @@
                         useCors: false,
                         f: 'image',
                         style: (feature, layer) => {
-                            //is used to style polygon and polyline
-                            return style;
+                            // //is used to style polygon and polyline
+                            // return style;
+                            if (queryLayer.layer.colors) {
+                                const colorValue = feature.properties[data[1].drawingInfo.renderer.field1];
+                                const colorItem = queryLayer.layer.colors.find((x) => x.values.includes(colorValue));
+                                return colorItem;
+                            }
                         },
-                        pointToLayer: (geoJson, latlng) => {
+                        pointToLayer: (feature, latlng) => {
                             //is usesd to style points
-                            return MapData.CreateFeatureLayerMarker(latlng, queryLayer.layer.legendUrl);
+                            const legendValue = feature.properties[data[1].drawingInfo.renderer.field1];
+                            const legendItem = queryLayer.layer.legend.find((x) => x.values && x.values.includes(legendValue));
+                            let iconUrl = legendItem ? legendItem.fullUrl : layer.legend[0].fullUrl;
+                            return MapData.CreateFeatureLayerMarker(latlng, iconUrl);
                         },
                     }).addTo(map);
         

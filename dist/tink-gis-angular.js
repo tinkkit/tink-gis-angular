@@ -6138,7 +6138,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                         baseUrl: theme.cleanUrl,
                         name: name,
                         layerId: layerId,
-                        query: query
+                        query: query,
+                        legend: []
                     },
                     showLayer: true
                 };
@@ -6149,43 +6150,50 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 var allpromises = $q.all([promLegend, promLayerInfo]);
 
                 allpromises.then(function (data) {
+                    var _this = this;
+
                     var layerInfo = data[0].layers.find(function (x) {
                         return x.layerId == layerId;
                     });
-                    if (layerInfo && layerInfo.legend && layerInfo.legend[0]) {
-                        var legendFullUrl = 'data:' + layerInfo.legend[0].contentType + ';base64, ' + layerInfo.legend[0].imageData;
-                        queryLayer.layer.legendUrl = legendFullUrl;
-                    }
-                    var drawingSymbol = data[1].drawingInfo.renderer.symbol;
-
-                    var fillColor = '';
-                    var color = '';
-                    var fill = false;
-                    var weight = 1;
-                    //check geometrytype to determine style
-                    switch (data[1].geometryType) {
-                        case 'esriGeometryPolyline':
-                            color = _service.RGBToHex(drawingSymbol.color[0], drawingSymbol.color[1], drawingSymbol.color[2]);
-                            weight = drawingSymbol.width;
-                            break;
-                        case 'esriGeometryPolygon':
-                            fillColor = _service.RGBToHex(drawingSymbol.color[0], drawingSymbol.color[1], drawingSymbol.color[2]);
-                            color = _service.RGBToHex(drawingSymbol.outline.color[0], drawingSymbol.outline.color[1], drawingSymbol.outline.color[2]);
-                            fill = drawingSymbol.color[3] > 0 ? true : false;
-                            weight = drawingSymbol.outline.width;
-                            break;
-                        default:
-                            break;
+                    if (layerInfo && layerInfo.legend && layerInfo.legend.length > 0) {
+                        queryLayer.layer.legend = layerInfo.legend.map(function (x) {
+                            var layer = x;
+                            layer.fullurl = 'data:' + x.contentType + ';base64, ' + x.imageData;
+                            return layer;
+                        });
                     }
 
-                    //determine polygon & polyline styling 
-                    var _style = {
-                        color: color,
-                        fill: fill,
-                        weight: weight,
-                        fillColor: fillColor,
-                        fillOpacity: 1
-                    };
+                    if (data[1].geometryType !== 'esriGeometryPoint') {
+                        queryLayer.layer.colors = data[1].drawingInfo.renderer.uniqueValueInfos.map(function (uniqueValue) {
+                            var fillColor = '';
+                            var color = '';
+                            var fill = false;
+                            var weight = 1;
+                            switch (data[1].geometryType) {
+                                case 'esriGeometryPolyline':
+                                    color = _service.RGBToHex(uniqueValue.symbol.color[0], uniqueValue.symbol.color[1], uniqueValue.symbol.color[2]);
+                                    weight = uniqueValue.symbol.width;
+                                    break;
+                                case 'esriGeometryPolygon':
+                                    if (uniqueValue.symbol.color) {
+                                        fillColor = _this.RGBToHex(uniqueValue.symbol.color[0], uniqueValue.symbol.color[1], uniqueValue.symbol.color[2]);
+                                        fill = uniqueValue.symbol.color[3] > 0 ? true : false;
+                                    }
+                                    color = _this.RGBToHex(uniqueValue.symbol.outline.color[0], uniqueValue.symbol.outline.color[1], uniqueValue.symbol.outline.color[2]);
+                                    weight = uniqueValue.symbol.outline.width;
+                                    break;
+                                default:
+                                    break;
+                            }
+                            return {
+                                values: uniqueValue.value.split(','),
+                                weight: weight,
+                                color: color,
+                                fillColor: fillColor,
+                                fill: fill
+                            };
+                        });
+                    }
 
                     queryLayer.layer.mapData = L.esri.featureLayer({
                         maxZoom: 20,
@@ -6196,12 +6204,24 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                         useCors: false,
                         f: 'image',
                         style: function style(feature, layer) {
-                            //is used to style polygon and polyline
-                            return _style;
+                            // //is used to style polygon and polyline
+                            // return style;
+                            if (queryLayer.layer.colors) {
+                                var colorValue = feature.properties[data[1].drawingInfo.renderer.field1];
+                                var colorItem = queryLayer.layer.colors.find(function (x) {
+                                    return x.values.includes(colorValue);
+                                });
+                                return colorItem;
+                            }
                         },
-                        pointToLayer: function pointToLayer(geoJson, latlng) {
+                        pointToLayer: function pointToLayer(feature, latlng) {
                             //is usesd to style points
-                            return MapData.CreateFeatureLayerMarker(latlng, queryLayer.layer.legendUrl);
+                            var legendValue = feature.properties[data[1].drawingInfo.renderer.field1];
+                            var legendItem = queryLayer.layer.legend.find(function (x) {
+                                return x.values && x.values.includes(legendValue);
+                            });
+                            var iconUrl = legendItem ? legendItem.fullUrl : layer.legend[0].fullUrl;
+                            return MapData.CreateFeatureLayerMarker(latlng, iconUrl);
                         }
                     }).addTo(map);
 
@@ -8385,13 +8405,18 @@ L.drawLocal = {
     "<label class=black-label>Query lagen:</label>\n" +
     "<span class=show-layer ng-click=\"lyrsctrl.showQueryLayers = !lyrsctrl.showQueryLayers\"></span>\n" +
     "<ul class=ul-level id=queryLayers ng-show=\"lyrsctrl.showQueryLayers && lyrsctrl.queryLayers.length > 0\">\n" +
-    "<li class=li-item ng-repeat=\"queryLayer in lyrsctrl.queryLayers track by $index\">\n" +
-    "<img class=layer-icon ng-if=queryLayer.layer.legendUrl class=layer-icon ng-src=\"{{queryLayer.layer.legendUrl}} \">\n" +
+    "<li class=\"li-item querylayer-item\" ng-repeat=\"queryLayer in lyrsctrl.queryLayers track by $index\">\n" +
+    "<div class=can-open-second ng-class=\"{'open': showMultiLegend}\">\n" +
+    "<img class=layer-icon ng-if=\"queryLayer.layer.legend.length ===1 && queryLayer.layer.legend[0].fullurl\" class=layer-icon ng-src=\"{{queryLayer.layer.legend[0].fullurl}} \">\n" +
     "<input class=\"visible-box hidden-print\" type=checkbox id=queryDataChk{{$index}} ng-model=queryLayer.showLayer ng-change=lyrsctrl.updateQueryVisibility($index)>\n" +
-    "<label for=queryDataChk{{$index}} title=\"{{ queryLayer.layer.name }}\"> {{ queryLayer.layer.name }}\n" +
+    "<label for=queryDataChk{{$index}} title=\"{{ queryLayer.layer.name }}\"> {{ queryLayer.layer.name }}</label>\n" +
+    "<span style=color:#76b9f4 class=show-layer-second ng-show=\"queryLayer.layer.legend.length>1\" ng-click=\"showMultiLegend = !showMultiLegend\"></span>\n" +
     "<span class=\"label-info hidden-print\">Query</span>\n" +
-    "</label>\n" +
     "<button style=\"flex-grow: 2\" class=\"trash hidden-print pull-right\" ng-click=lyrsctrl.deleteQueryLayer($index)></button>\n" +
+    "<ul class=querylayer-legend ng-show=\"showMultiLegend && queryLayer.layer.legend.length>1\">\n" +
+    "<li ng-repeat=\"legend in queryLayer.layer.legend\"><img class=layer-icon ng-src={{legend.fullurl}}><span>{{legend.label}}</span></li>\n" +
+    "</ul>\n" +
+    "</div>\n" +
     "</li>\n" +
     "</ul>\n" +
     "<hr>\n" +
