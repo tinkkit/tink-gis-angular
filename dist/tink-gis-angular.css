@@ -466,6 +466,23 @@ button.btn.active {
 .can-open.open .show-layer:after {
   content: "\f0d8"; }
 
+.can-open-second .show-layer-second {
+  cursor: pointer;
+  display: inline-block;
+  padding: 0 0.3571428571rem  0 0.3571428571rem ;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none; }
+  .can-open-second .show-layer-second:after {
+    content: "\f0d7";
+    font-family: FontAwesome;
+    font-style: normal;
+    font-weight: normal; }
+
+.can-open-second.open .show-layer-second:after {
+  content: "\f0d8"; }
+
 /**
  * Rightside layer menu
  */
@@ -504,6 +521,9 @@ button.trashcan {
     margin-right: 0.3571428571rem ;
     position: absolute;
     width: 1.2857142857rem ; }
+
+.querylayer-legend .layer-icon {
+  margin-right: 0.3571428571rem ; }
 
 .ui-sortable-helper {
   background-color: rgba(0, 0, 0, 0.03);
