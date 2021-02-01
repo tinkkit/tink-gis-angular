@@ -2841,6 +2841,9 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
     vm.fullExtent = function () {
       map.setView(new L.LatLng(51.2192159, 4.4028818), 16);
     };
+    vm.setCityView = function () {
+      ExternService.SetCityExtent();
+    };
     vm.IsBaseMap1 = true;
     vm.IsBaseMap2 = false;
     vm.IsBaseMapGeen = false;
@@ -8538,6 +8541,9 @@ L.drawLocal = {
     "</div>\n" +
     "<div class=map-buttons-right>\n" +
     "<div class=\"btn-group btn-group-vertical ll viewbtns\">\n" +
+    "<button type=button class=btn ng-click=mapctrl.setCityView() tink-tooltip=\"Stad weergeven\" tink-tooltip-align=left prevent-default-map>\n" +
+    "<i class=\"fa fa-home\"></i>\n" +
+    "</button>\n" +
     "<button type=button class=btn ng-click=mapctrl.zoomIn() tink-tooltip=\"Zoom in\" tink-tooltip-align=left prevent-default-map>\n" +
     "<i class=\"fa fa-plus\"></i>\n" +
     "</button>\n" +
