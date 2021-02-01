@@ -6220,7 +6220,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                             var legendItem = queryLayer.layer.legend.find(function (x) {
                                 return x.values && x.values.includes(legendValue);
                             });
-                            var iconUrl = legendItem ? legendItem.fullUrl : layer.legend[0].fullUrl;
+                            var iconUrl = legendItem ? legendItem.fullurl : layer.legend[0].fullurl;
                             return MapData.CreateFeatureLayerMarker(latlng, iconUrl);
                         }
                     }).addTo(map);

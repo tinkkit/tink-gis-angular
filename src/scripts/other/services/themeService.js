@@ -275,7 +275,7 @@
                             //is usesd to style points
                             const legendValue = feature.properties[data[1].drawingInfo.renderer.field1];
                             const legendItem = queryLayer.layer.legend.find((x) => x.values && x.values.includes(legendValue));
-                            let iconUrl = legendItem ? legendItem.fullUrl : layer.legend[0].fullUrl;
+                            let iconUrl = legendItem ? legendItem.fullurl : layer.legend[0].fullurl;
                             return MapData.CreateFeatureLayerMarker(latlng, iconUrl);
                         },
                     }).addTo(map);
