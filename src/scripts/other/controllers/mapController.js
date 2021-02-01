@@ -281,6 +281,9 @@
     vm.fullExtent = function () {
       map.setView(new L.LatLng(51.2192159, 4.4028818), 16);
     };
+    vm.setCityView = function () {
+      ExternService.SetCityExtent();
+    }
     vm.IsBaseMap1 = true;
     vm.IsBaseMap2 = false;
     vm.IsBaseMapGeen = false;
