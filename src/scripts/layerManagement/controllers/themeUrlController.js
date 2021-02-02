@@ -90,7 +90,7 @@
             $scope.copySelectedTheme = null;
             $scope.previewTheme = function (theme) {
                 $scope.selectedTheme = theme;
-                $scope.copySelectedTheme = angular.copy(theme);
+                $scope.copySelectedTheme = _.cloneDeep(theme);
             };
             $scope.clearPreview = function () {
                 $scope.selectedTheme = null;
