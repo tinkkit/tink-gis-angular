@@ -23,7 +23,8 @@
             $scope.numberofrecordsmatched = 0;
             LayerManagementService.EnabledThemes.length = 0;
             LayerManagementService.AvailableThemes.length = 0;
-            LayerManagementService.EnabledThemes = angular.copy(MapData.Themes);
+            // can throw errors with alot of data because of circular reference between theme and layer
+            LayerManagementService.EnabledThemes = _.cloneDeep(MapData.Themes);
             $scope.availableThemes = [];
             var init = function () {
                 $scope.searchTerm = '';
@@ -119,7 +120,7 @@
             $scope.copySelectedTheme = null;
             $scope.previewTheme = function (theme) {
                 $scope.selectedTheme = theme;
-                $scope.copySelectedTheme = angular.copy(theme);
+                $scope.copySelectedTheme = _.cloneDeep(theme);
             };
             $scope.clearPreview = function () {
                 $scope.selectedTheme = null;
