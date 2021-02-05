@@ -70,7 +70,7 @@
 
             $scope.QueryAPI = function () {
                 if (!$scope.editor) {
-                    SearchAdvancedService.BuildQuery($scope.selectedLayer);
+                    SearchAdvancedService.BuildQuery($scope.selectedLayer.name);
                     var query = SearchAdvancedService.TranslateOperations($scope.operations);
                     if (query !== '') {
                         var result = SearchAdvancedService.ExecuteQuery($scope.selectedLayer, query);
@@ -90,9 +90,9 @@
             $scope.FilterQueriedLayer = function() {
                 var closeModal = true;
                 if (!$scope.editor) {
-                    SearchAdvancedService.BuildQuery($scope.selectedLayer);
+                    SearchAdvancedService.BuildQuery($scope.selectedLayer.name);
                     var query = SearchAdvancedService.TranslateOperations($scope.operations);
-                    if ($scope.selectedLayer && !query === '') {
+                    if ($scope.selectedLayer && query !== '') {
                         ThemeService.AddQueryLayer($scope.selectedLayer.name, $scope.selectedLayer.id, query, $scope.selectedLayer.theme);
                     }
                 } else {
