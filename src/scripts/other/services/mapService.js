@@ -144,17 +144,19 @@
 
             });
 
+
             _.each(MapData.QueryLayers, function(queryLayer) {
-                if (queryLayer.theme.MapData) {
-                    var visanddisplayedlayers = queryLayer.layer.layerId;
-                    var layersVoorIdentify = 'all:' + visanddisplayedlayers;
-                    
+                if (queryLayer.layer.mapData) {     
                     ResultsData.RequestStarted++;
 
-                    queryLayer.theme.MapData.identify().on(map).at(event.latlng).layers(layersVoorIdentify).tolerance(tolerance).run(function(error, featureCollection) {
-                        ResultsData.RequestCompleted++;
-                        MapData.AddFeatures(featureCollection, queryLayer.theme);
-                    });
+                    queryLayer.layer.mapData.query()
+                                .where(queryLayer.layer.mapData.options.where)
+                                .layer(queryLayer.layer.layerId)
+                                .nearby(event.latlng, 10)
+                                .run(function(error, featureCollection, response) {
+                                    ResultsData.RequestCompleted++;
+                                    MapData.AddFeatures(featureCollection, queryLayer.theme, queryLayer.layer.layerId, featureCollection.length);
+                                });
                 }
             });
 
@@ -211,16 +213,23 @@
                 
             }
 
-            _.each(MapData.QueryLayers, function(queryLayer) {
-                if (queryLayer.theme.MapData) {
-                    var visanddisplayedlayers = queryLayer.layer.layerId;
-                    var layersVoorIdentify = 'all:' + visanddisplayedlayers;
-                    
-                    ResultsData.RequestStarted++;
-                    queryLayer.theme.MapData.identify().on(map).at(event.latlng).layers(layersVoorIdentify).run(function(error, featureCollection) {
-                        ResultsData.RequestCompleted++;
-                        MapData.AddFeatures(featureCollection, queryLayer.theme);
-                    });
+            var queryLayers = [];
+            if (MapData.SelectedLayer.id === '') {
+                queryLayers = MapData.QueryLayers;
+            } else {
+                queryLayers = MapData.QueryLayers.filter(x => x.layer.layerId === MapData.SelectedLayer.id)
+            }
+
+            _.each(queryLayers, function(queryLayer) {
+                if (queryLayer.layer.mapData) {
+                    queryLayer.layer.mapData.query()
+                                .where(queryLayer.layer.mapData.options.where)
+                                .layer(queryLayer.layer.layerId)
+                                .nearby(event.latlng, 10)
+                                .run(function(error, featureCollection, response) {
+                                    ResultsData.RequestCompleted++;
+                                    MapData.AddFeatures(featureCollection, queryLayer.theme, queryLayer.layer.layerId, featureCollection.length);
+                                });
                 }
             });
 
@@ -438,9 +447,9 @@
             var queryLayers = [];
             //every layer
             if (!layer || layer.id === '') {
-                queryLayers = MapData.queryLayers;
+                queryLayers = MapData.QueryLayers;
             } else {
-                queryLayers = MapData.queryLayers.filter(x => x.layer.layerId === layer.id && x.layer.name === layer.name)
+                queryLayers = MapData.QueryLayers.filter(x => x.layer.layerId === layer.id && x.layer.name === layer.name)
             }
             _.each(queryLayers, function(queryLayer) {
                 if (queryLayer.theme && queryLayer.theme.Type == ThemeType.ESRI)

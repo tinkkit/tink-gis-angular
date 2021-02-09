@@ -360,22 +360,13 @@
                 );
                 let iconUrl = legendItem
                   ? legendItem.fullurl
-                  : layer.legend[0].fullurl;
+                  : queryLayer.layer.legend[0].fullurl;
                 return MapData.CreateFeatureLayerMarker(latlng, iconUrl);
               },
             })
             .addTo(map);
 
-          queryLayer.MapData = L.esri.dynamicMapLayer({
-            maxZoom: 20,
-            minZoom: 0,
-            url: theme.cleanUrl,
-            opacity: theme.Opacity,
-            layers: layerId,
-            continuousWorld: true,
-            useCors: false,
-            f: "image",
-          });
+          queryLayer.theme = theme;
           MapData.QueryLayers.push(queryLayer);
         });
       }

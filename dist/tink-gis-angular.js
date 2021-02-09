@@ -5476,15 +5476,12 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             });
 
             _.each(MapData.QueryLayers, function (queryLayer) {
-                if (queryLayer.theme.MapData) {
-                    var visanddisplayedlayers = queryLayer.layer.layerId;
-                    var layersVoorIdentify = 'all:' + visanddisplayedlayers;
-
+                if (queryLayer.layer.mapData) {
                     ResultsData.RequestStarted++;
 
-                    queryLayer.theme.MapData.identify().on(map).at(event.latlng).layers(layersVoorIdentify).tolerance(tolerance).run(function (error, featureCollection) {
+                    queryLayer.layer.mapData.query().where(queryLayer.layer.mapData.options.where).layer(queryLayer.layer.layerId).nearby(event.latlng, 10).run(function (error, featureCollection, response) {
                         ResultsData.RequestCompleted++;
-                        MapData.AddFeatures(featureCollection, queryLayer.theme);
+                        MapData.AddFeatures(featureCollection, queryLayer.theme, queryLayer.layer.layerId, featureCollection.length);
                     });
                 }
             });
@@ -5536,15 +5533,20 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 });
             }
 
-            _.each(MapData.QueryLayers, function (queryLayer) {
-                if (queryLayer.theme.MapData) {
-                    var visanddisplayedlayers = queryLayer.layer.layerId;
-                    var layersVoorIdentify = 'all:' + visanddisplayedlayers;
+            var queryLayers = [];
+            if (MapData.SelectedLayer.id === '') {
+                queryLayers = MapData.QueryLayers;
+            } else {
+                queryLayers = MapData.QueryLayers.filter(function (x) {
+                    return x.layer.layerId === MapData.SelectedLayer.id;
+                });
+            }
 
-                    ResultsData.RequestStarted++;
-                    queryLayer.theme.MapData.identify().on(map).at(event.latlng).layers(layersVoorIdentify).run(function (error, featureCollection) {
+            _.each(queryLayers, function (queryLayer) {
+                if (queryLayer.layer.mapData) {
+                    queryLayer.layer.mapData.query().where(queryLayer.layer.mapData.options.where).layer(queryLayer.layer.layerId).nearby(event.latlng, 10).run(function (error, featureCollection, response) {
                         ResultsData.RequestCompleted++;
-                        MapData.AddFeatures(featureCollection, queryLayer.theme);
+                        MapData.AddFeatures(featureCollection, queryLayer.theme, queryLayer.layer.layerId, featureCollection.length);
                     });
                 }
             });
@@ -5736,9 +5738,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             var queryLayers = [];
             //every layer
             if (!layer || layer.id === '') {
-                queryLayers = MapData.queryLayers;
+                queryLayers = MapData.QueryLayers;
             } else {
-                queryLayers = MapData.queryLayers.filter(function (x) {
+                queryLayers = MapData.QueryLayers.filter(function (x) {
                     return x.layer.layerId === layer.id && x.layer.name === layer.name;
                 });
             }
@@ -6264,21 +6266,12 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
               var legendItem = queryLayer.layer.legend.find(function (x) {
                 return x.values && x.values.includes(legendValue);
               });
-              var iconUrl = legendItem ? legendItem.fullurl : layer.legend[0].fullurl;
+              var iconUrl = legendItem ? legendItem.fullurl : queryLayer.layer.legend[0].fullurl;
               return MapData.CreateFeatureLayerMarker(latlng, iconUrl);
             }
           }).addTo(map);
 
-          queryLayer.MapData = L.esri.dynamicMapLayer({
-            maxZoom: 20,
-            minZoom: 0,
-            url: theme.cleanUrl,
-            opacity: theme.Opacity,
-            layers: layerId,
-            continuousWorld: true,
-            useCors: false,
-            f: "image"
-          });
+          queryLayer.theme = theme;
           MapData.QueryLayers.push(queryLayer);
         });
       }
