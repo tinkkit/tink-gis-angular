@@ -6229,7 +6229,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                     case 'esriGeometryPolygon':
                       fillColor = _service.RGBToHex(drawingSymbol.color[0], drawingSymbol.color[1], drawingSymbol.color[2]);
                       color = _service.RGBToHex(drawingSymbol.outline.color[0], drawingSymbol.outline.color[1], drawingSymbol.outline.color[2]);
-                      fill = drawingSymbol.color[3] > 0 ? true : false;
+                      fill = drawingSymbol.color[0] > 0 || drawingSymbol.color[1] > 0 || drawingSymbol.color[2] > 0 ? true : false;
                       weight = drawingSymbol.outline.width;
                       break;
                     default:
@@ -6241,7 +6241,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                     weight: weight,
                     color: color,
                     fillColor: fillColor,
-                    fill: fill
+                    fill: fill,
+                    fillOpacity: 1
                   }];
                 }
               }
