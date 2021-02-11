@@ -1795,6 +1795,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         $scope.pagingCount = null;
         $scope.numberofrecordsmatched = 0;
         $scope.availableThemes = MapData.Themes;
+        $scope.queryLayers = MapData.QueryLayers;
         $scope.allThemes = [];
 
         $scope.searchChanged = function () {};
@@ -1805,6 +1806,8 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         };
         $scope.selectedTheme = null;
         $scope.copySelectedTheme = null;
+        $scope.query = '';
+        $scope.selectedQueryLayer = null;
         $scope.previewTheme = function (theme) {
             console.log('themeChanged');
             console.log(theme);
@@ -1820,8 +1823,10 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         $scope.clearPreview = function () {
             $scope.selectedTheme = null;
             $scope.copySelectedTheme = null;
+            $scope.selectedQueryLayer = null;
         };
         $scope.ThemeChanged = function (theme) {
+            $scope.selectedQueryLayer = null;
             $scope.previewTheme(theme);
             // added to give the selected theme an Active class
             $scope.selected = theme;
@@ -1830,10 +1835,32 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             };
         };
 
+        $scope.QueryLayerChanged = function (queryLayer) {
+            $scope.selectedTheme = null;
+            $scope.copySelectedTheme = null;
+            $scope.selected = null;
+            $scope.selectedQueryLayer = queryLayer;
+            $scope.query = 'FROM ' + queryLayer.layer.name + ' WHERE ' + queryLayer.layer.query;
+
+            $scope.isActiveQueryLayer = function (queryLayer) {
+                return $scope.selectedQueryLayer === queryLayer;
+            };
+        };
+
         $scope.AddOrUpdateTheme = function () {
             PopupService.Success("Data is bijgewerkt.", null, null, { timeOut: 1000 });
             LayerManagementService.AddOrUpdateTheme($scope.selectedTheme, $scope.copySelectedTheme);
             $scope.clearPreview();
+        };
+
+        $scope.delQueryLayer = function (queryLayer) {
+            if ($scope.selectedQueryLayer === queryLayer) {
+                $scope.clearPreview();
+            }
+            var index = $scope.queryLayers.indexOf(queryLayer);
+            if (index !== -1) {
+                ThemeService.DeleteQueryLayer(index);
+            }
         };
         $scope.delTheme = function (theme) {
             if ($scope.selectedTheme == theme) {
@@ -1902,6 +1929,17 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             $scope.addorupdatefunc();
         };
     }]);
+})();
+;'use strict';
+
+(function (module) {
+    var module;
+    try {
+        module = angular.module('tink.gis');
+    } catch (e) {
+        module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']);
+    }
+    module.controller('previewQueryLayerController', ['$scope', function ($scope) {}]);
 })();
 ;'use strict';
 
@@ -2341,6 +2379,23 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
 
 (function (module) {
     module = angular.module('tink.gis');
+    module.directive('previewQueryLayer', function () {
+        return {
+            replace: true,
+            scope: {
+                querylayer: '=',
+                query: '='
+            },
+            templateUrl: 'templates/layermanagement/previewQueryLayerTemplate.html',
+            controller: 'previewQueryLayerController',
+            controllerAs: 'previewQueryCtrl'
+        };
+    });
+})();
+;'use strict';
+
+(function (module) {
+    module = angular.module('tink.gis');
     module.directive('solrGis', function () {
         return {
             replace: true,
@@ -2635,7 +2690,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
     var init = function () {
       console.log("Tink-Gis-Angular component init!!!!!!!!!");
       if (window.location.href.startsWith("http://localhost:9000/")) {
-        var externproj = JSON.parse('{"themes":[{"Naam":"Planon","cleanUrl":"https://geoint.antwerpen.be/arcgissql/rest/services/P_Planon/planon/MapServer","type":"esri","visible":true,"layers":[{"visible":true,"name":"PLANON_DOSSIER","id":1},{"visible":true,"name":"perceel","id":4}]},{"Naam":"Patrimonium","cleanUrl":"https://geoint.antwerpen.be/arcgis/rest/services/P_Sik/Patrimonium/MapServer","type":"esri","visible":true,"layers":[{"visible":true,"name":"KAVIA","id":17}]}],"extent":{"_southWest":{"lat":51.20536146014249,"lng":4.409578736245564},"_northEast":{"lat":51.206417795952646,"lng":4.411724381984817}},"isKaart":true}');
+        var externproj = JSON.parse('{"naam":"sorteerstraat 2","extent":{"_northEast":{"lat":"51.2302167641279","lng":"4.42211298202784"},"_southWest":{"lat":"51.2296967607896","lng":"4.42029424518419"}},"guid":"376edeed-60e1-44cc-93ff-4e149cc4d4bc","extentString":"51.2302167641279,4.42211298202784,51.2296967607896,4.42029424518419","isKaart":true,"uniqId":202,"creatorId":38,"creator":null,"createDate":"2021-02-09T10:33:01.774872","updaterId":38,"updater":null,"lastUpdated":"2021-02-09T10:33:01.774872","themes":[{"cleanUrl":"https://geoint.antwerpen.be/arcgissql/rest/services/P_Stad/Afval/Mapserver","naam":"Afval","type":"esri","visible":true,"layers":[{"id":"5","name":"sorteerstraat_ondergronds","visible":true},{"id":"2","name":"papiermand","visible":false},{"id":"0","name":"Afval-inzameling","visible":true}],"opacity":1}],"queryLayers":[{"layerId":5,"name":"sorteerstraat_ondergronds","baseUrl":"https://geoint.antwerpen.be/arcgissql/rest/services/P_Stad/Afval/Mapserver","where":"OBJECTID = \'20\' "}],"isReadOnly":false}');
         ExternService.Import(externproj);
 
         PopupService.Success("Dev autoload", "Velo en fietspad loaded because you are in DEV.", function () {
@@ -8327,6 +8382,13 @@ L.drawLocal = {
     "<div class=\"layersManagementTemplate row relative-container flex-grow-1\">\n" +
     "<div class=\"col-xs-4 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
     "<div class=\"overflow-wrapper flex-grow-1 list-selectable margin-top margin-bottom border-right\">\n" +
+    "<div ng-repeat=\"queryLayer in queryLayers\">\n" +
+    "<dl ng-class=\"{active: isActiveQueryLayer(queryLayer)}\">\n" +
+    "<a href=# class=theme-layer ng-click=QueryLayerChanged(queryLayer)>\n" +
+    "<dt>{{queryLayer.layer.name}} (query)<button class=\"trash pull-right\" prevent-default ng-click=delQueryLayer(queryLayer)></button></dt>\n" +
+    "</a>\n" +
+    "</dl>\n" +
+    "</div>\n" +
     "<div ng-repeat=\"theme in availableThemes | filter:{name: searchTerm}\">\n" +
     "<dl ng-class=\"{active: isActive(theme)}\">\n" +
     "<a href=# class=theme-layer ng-click=ThemeChanged(theme)>\n" +
@@ -8338,6 +8400,7 @@ L.drawLocal = {
     "</div>\n" +
     "</div>\n" +
     "<div class=\"col-xs-8 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
+    "<preview-query-layer ng-if=selectedQueryLayer querylayer=selectedQueryLayer query=query></preview-query-layer>\n" +
     "<preview-layer ng-if=copySelectedTheme theme=copySelectedTheme addorupdatefunc=AddOrUpdateTheme()>\n" +
     "</preview-layer>\n" +
     "</div>\n" +
@@ -8387,6 +8450,17 @@ L.drawLocal = {
     "<button class=btn-sm ng-if=\"theme.Added != false\" ng-click=delTheme()>Verwijderen</button>\n" +
     "</div>\n" +
     "</div>\n"
+  );
+
+
+  $templateCache.put('templates/layermanagement/previewQueryLayerTemplate.html',
+    "<div class=\"flex-column flex-grow-1\">\n" +
+    "<div class=margin-top>\n" +
+    "<p>Laag: {{querylayer.layer.name}}</p>\n" +
+    "<p><small>Query laag opgemaakt op basis van onderstaande query</small></p>\n" +
+    "<textarea ng-disabled=true rows=4>{{query}}</textarea>\n" +
+    "</div>\n" +
+    "</div>"
   );
 
 
