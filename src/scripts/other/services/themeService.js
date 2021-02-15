@@ -189,7 +189,7 @@
       }
     };
 
-    _service.AddQueryLayerFromImport = function (name, layerId, query, theme) {
+    _service.AddQueryLayerFromImport = function (name, layerId, query, layerName, theme) {
       // only gets called from externservice.import ==> extra mapData object is necessary to use identify call on dynamicmaplayer, is not available on featurelayer
       theme.MapData = L.esri.dynamicMapLayer({
         maxZoom: 20,
@@ -201,17 +201,35 @@
         useCors: false,
         f: "image",
       });
-      _service.AddQueryLayer(name, layerId, query, theme, false);
+      _service.AddQueryLayer(name, layerId, query, layerName, theme, false);
     };
 
-    _service.AddQueryLayer = function (name, layerId, query, theme, count = true) {
-      let existingQueryLayer = MapData.QueryLayers.find(
+    _service.CheckIfQueryLayerExists = function(themeUrl, layerId, name) {
+      return MapData.QueryLayers.find(
         (queryLayer) =>
-          queryLayer.layer.baseUrl === theme.cleanUrl &&
-          queryLayer.layer.layerId === layerId
+          queryLayer.layer.baseUrl === themeUrl &&
+          queryLayer.layer.layerId === layerId &&
+          queryLayer.layer.name === name
       );
+    }
+
+    _service.AddQueryLayer = function (name, layerId, query, layerName, theme, count = true) {
+      let existingQueryLayer = _service.CheckIfQueryLayerExists(theme.cleanUrl, layerId, name)
+        
       // currently only allowed to add 1 querylayer for a specific layer
       if (existingQueryLayer) {
+        swal({
+          title: 'Updaten querylaag',
+          text: `U staat op het punt bestaande querylaag ${existingQueryLayer.layer.name} bij te werken.`,
+          type: 'warning',
+          showCancelButton: true,
+          cancelButtonText: "Annuleer",
+          confirmButtonColor: '#149142',
+          confirmButtonText: 'Update',
+          closeOnConfirm: true,
+          reverseButtons: false
+          
+      }, function (isConfirm) { 
         if (existingQueryLayer.layer.mapData) {
           if (count) {
             _service.QueryLayerCount(theme, layerId, query)
@@ -219,6 +237,7 @@
           existingQueryLayer.layer.mapData.setWhere(query);
           existingQueryLayer.layer.query = query;
         }
+      })
       } else {
         //maximum number of queryLayers for performance reasons is 5
         if (MapData.QueryLayers.length === 5) {
@@ -231,6 +250,7 @@
             layer: {
               baseUrl: theme.cleanUrl,
               name: name,
+              layerName: layerName,
               layerId: layerId,
               query: query,
               legend: [],

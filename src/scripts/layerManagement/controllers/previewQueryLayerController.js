@@ -8,5 +8,6 @@
     }
     module.controller('previewQueryLayerController', ['$scope', 
     function ($scope) {
+        console.log($scope);
     }]);
 })();

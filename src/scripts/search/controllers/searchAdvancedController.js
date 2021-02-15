@@ -11,6 +11,7 @@
             $scope.editor = false;
             $scope.selectedLayer = null;
             $scope.operations = [];
+            $scope.queryLayerName = '';
             if ($scope.query == undefined) $scope.query = null;
 
             $scope.openQueryEditor = function () {
@@ -23,15 +24,26 @@
             $scope.SelectedLayers = function () {
                 //display only usable layers
                 var layers = MapData.VisibleLayers.filter(data => data.name !== "Alle lagen" && data.fields);
-                if (layers.length == 1){
-                    $scope.selectedLayer = layers[0];
-                    SearchAdvancedService.UpdateFields($scope.selectedLayer);
+                if (layers.length === 1){
+                    if ($scope.selectedLayer) {
+                        $scope.selectedLayer = layers[0];
+                        SearchAdvancedService.UpdateFields($scope.selectedLayer);
+                    } else {
+                        $scope.selectedLayer = layers[0];
+                        $scope.updateFields();
+                    }
                 }
                 return layers;
             }
 
             $scope.updateFields = function() {
                 if ($scope.selectedLayer != null && $scope.selectedLayer != undefined){
+                    const numberOfQueryLayers = MapData.QueryLayers.filter(x => x.layer.layerId === $scope.selectedLayer.id && x.layer.layerName === $scope.selectedLayer.name).length;
+                    if (numberOfQueryLayers > 0) {
+                        $scope.queryLayerName = `${$scope.selectedLayer.name} (${numberOfQueryLayers})`;
+                    } else {
+                        $scope.queryLayerName = $scope.selectedLayer.name;
+                    }
                     SearchAdvancedService.UpdateFields($scope.selectedLayer);
                 }
             }
@@ -93,16 +105,16 @@
                     SearchAdvancedService.BuildQuery($scope.selectedLayer.name);
                     var query = SearchAdvancedService.TranslateOperations($scope.operations);
                     if ($scope.selectedLayer && query !== '') {
-                        ThemeService.AddQueryLayer($scope.selectedLayer.name, $scope.selectedLayer.id, query, $scope.selectedLayer.theme);
+                        ThemeService.AddQueryLayer($scope.queryLayerName, $scope.selectedLayer.id, query, $scope.selectedLayer.name, $scope.selectedLayer.theme);
                     }
                 } else {
                     var rawQueryResult = SearchAdvancedService.MakeNewRawQuery($scope.query);
                     SearchAdvancedService.UpdateQuery($scope.query);
                     if ($scope.selectedLayer) {
-                        ThemeService.AddQueryLayer($scope.selectedLayer.name, $scope.selectedLayer.id, rawQueryResult.query, $scope.selectedLayer.theme);                    
+                        ThemeService.AddQueryLayer($scope.queryLayerName, $scope.selectedLayer.id, rawQueryResult.query, $scope.selectedLayer.name, $scope.selectedLayer.theme);                    
                     } else {
                         if(rawQueryResult.layer) {
-                            ThemeService.AddQueryLayer(rawQueryResult.layer.name, rawQueryResult.layer.id, rawQueryResult.query, rawQueryResult.layer.theme); 
+                            ThemeService.AddQueryLayer($scope.queryLayerName, rawQueryResult.layer.id, rawQueryResult.query, rawQueryResult.layer.name, rawQueryResult.layer.theme); 
                         } else {
                             closeModal = false;
                         }   

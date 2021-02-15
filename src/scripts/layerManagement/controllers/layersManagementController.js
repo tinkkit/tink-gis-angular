@@ -56,7 +56,7 @@
                 $scope.copySelectedTheme = null;
                 $scope.selected = null;
                 $scope.selectedQueryLayer = queryLayer;
-                $scope.query = `FROM ${queryLayer.layer.name} WHERE ${queryLayer.layer.query}`;
+                $scope.query = `FROM ${queryLayer.layer.layerName} WHERE ${queryLayer.layer.query}`;
 
                 $scope.isActiveQueryLayer = function (queryLayer) {
                     return $scope.selectedQueryLayer === queryLayer;
