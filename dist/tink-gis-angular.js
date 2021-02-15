@@ -1840,7 +1840,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             $scope.copySelectedTheme = null;
             $scope.selected = null;
             $scope.selectedQueryLayer = queryLayer;
-            $scope.query = 'FROM ' + queryLayer.layer.name + ' WHERE ' + queryLayer.layer.query;
+            $scope.query = 'FROM ' + queryLayer.layer.layerName + ' WHERE ' + queryLayer.layer.query;
 
             $scope.isActiveQueryLayer = function (queryLayer) {
                 return $scope.selectedQueryLayer === queryLayer;
@@ -1939,7 +1939,9 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
     } catch (e) {
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']);
     }
-    module.controller('previewQueryLayerController', ['$scope', function ($scope) {}]);
+    module.controller('previewQueryLayerController', ['$scope', function ($scope) {
+        console.log($scope);
+    }]);
 })();
 ;'use strict';
 
@@ -3610,7 +3612,8 @@ var esri2geo = {};
                         LayerId: queryLayer.layer.layerId,
                         Name: queryLayer.layer.name,
                         BaseUrl: queryLayer.layer.baseUrl,
-                        Where: queryLayer.layer.query
+                        Where: queryLayer.layer.query,
+                        LayerName: queryLayer.layer.layerName
                     };
                 });
             }
@@ -3677,7 +3680,11 @@ var esri2geo = {};
                         if (!data.error) {
                             var arcgistheme = ThemeCreater.createARCGISThemeFromJson(data, queryLayerTheme);
                             GISService.GetAditionalLayerInfo(arcgistheme);
-                            ThemeService.AddQueryLayerFromImport(queryLayer.name, queryLayer.layerId, queryLayer.where, arcgistheme);
+                            var layerName = queryLayer.name;
+                            if (queryLayer.layerName && queryLayer.layerName.match(/^ *$/) !== null) {
+                                layerName = queryLayer.layerName;
+                            }
+                            ThemeService.AddQueryLayerFromImport(queryLayer.name, queryLayer.layerId, queryLayer.where, layerName, arcgistheme);
                         } else {
                             PopupService.ErrorWithException("Fout bij laden van mapservice", "Kan mapservice met volgende url niet laden: " + queryLayerTheme.cleanUrl, data.error);
                         }
@@ -6168,7 +6175,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
       }
     };
 
-    _service.AddQueryLayerFromImport = function (name, layerId, query, theme) {
+    _service.AddQueryLayerFromImport = function (name, layerId, query, layerName, theme) {
       // only gets called from externservice.import ==> extra mapData object is necessary to use identify call on dynamicmaplayer, is not available on featurelayer
       theme.MapData = L.esri.dynamicMapLayer({
         maxZoom: 20,
@@ -6180,17 +6187,33 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         useCors: false,
         f: "image"
       });
-      _service.AddQueryLayer(name, layerId, query, theme, false);
+      _service.AddQueryLayer(name, layerId, query, layerName, theme, false);
     };
 
-    _service.AddQueryLayer = function (name, layerId, query, theme) {
-      var count = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : true;
-
-      var existingQueryLayer = MapData.QueryLayers.find(function (queryLayer) {
-        return queryLayer.layer.baseUrl === theme.cleanUrl && queryLayer.layer.layerId === layerId;
+    _service.CheckIfQueryLayerExists = function (themeUrl, layerId, name) {
+      return MapData.QueryLayers.find(function (queryLayer) {
+        return queryLayer.layer.baseUrl === themeUrl && queryLayer.layer.layerId === layerId && queryLayer.layer.name === name;
       });
+    };
+
+    _service.AddQueryLayer = function (name, layerId, query, layerName, theme) {
+      var count = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : true;
+
+      var existingQueryLayer = _service.CheckIfQueryLayerExists(theme.cleanUrl, layerId, name);
+
       // currently only allowed to add 1 querylayer for a specific layer
       if (existingQueryLayer) {
+        swal({
+          title: dialogtext,
+          cancelButtonText: 'Ja',
+          confirmButtonText: 'Nee',
+          showCancelButton: true,
+          confirmButtonColor: '#b9b9b9',
+          customClass: 'leftsidemodal',
+          closeOnConfirm: true
+        }, function (isConfirm) {
+          alert('test');
+        });
         if (existingQueryLayer.layer.mapData) {
           if (count) {
             _service.QueryLayerCount(theme, layerId, query);
@@ -6210,6 +6233,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             layer: {
               baseUrl: theme.cleanUrl,
               name: name,
+              layerName: layerName,
               layerId: layerId,
               query: query,
               legend: []
@@ -6808,6 +6832,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         $scope.editor = false;
         $scope.selectedLayer = null;
         $scope.operations = [];
+        $scope.queryLayerName = '';
         if ($scope.query == undefined) $scope.query = null;
 
         $scope.openQueryEditor = function () {
@@ -6822,15 +6847,28 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             var layers = MapData.VisibleLayers.filter(function (data) {
                 return data.name !== "Alle lagen" && data.fields;
             });
-            if (layers.length == 1) {
-                $scope.selectedLayer = layers[0];
-                SearchAdvancedService.UpdateFields($scope.selectedLayer);
+            if (layers.length === 1) {
+                if ($scope.selectedLayer) {
+                    $scope.selectedLayer = layers[0];
+                    SearchAdvancedService.UpdateFields($scope.selectedLayer);
+                } else {
+                    $scope.selectedLayer = layers[0];
+                    $scope.updateFields();
+                }
             }
             return layers;
         };
 
         $scope.updateFields = function () {
             if ($scope.selectedLayer != null && $scope.selectedLayer != undefined) {
+                var numberOfQueryLayers = MapData.QueryLayers.filter(function (x) {
+                    return x.layer.layerId === $scope.selectedLayer.id && x.layer.layerName === $scope.selectedLayer.name;
+                }).length;
+                if (numberOfQueryLayers > 0) {
+                    $scope.queryLayerName = $scope.selectedLayer.name + ' (' + numberOfQueryLayers + ')';
+                } else {
+                    $scope.queryLayerName = $scope.selectedLayer.name;
+                }
                 SearchAdvancedService.UpdateFields($scope.selectedLayer);
             }
         };
@@ -6892,16 +6930,16 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 SearchAdvancedService.BuildQuery($scope.selectedLayer.name);
                 var query = SearchAdvancedService.TranslateOperations($scope.operations);
                 if ($scope.selectedLayer && query !== '') {
-                    ThemeService.AddQueryLayer($scope.selectedLayer.name, $scope.selectedLayer.id, query, $scope.selectedLayer.theme);
+                    ThemeService.AddQueryLayer($scope.queryLayerName, $scope.selectedLayer.id, query, $scope.selectedLayer.name, $scope.selectedLayer.theme);
                 }
             } else {
                 var rawQueryResult = SearchAdvancedService.MakeNewRawQuery($scope.query);
                 SearchAdvancedService.UpdateQuery($scope.query);
                 if ($scope.selectedLayer) {
-                    ThemeService.AddQueryLayer($scope.selectedLayer.name, $scope.selectedLayer.id, rawQueryResult.query, $scope.selectedLayer.theme);
+                    ThemeService.AddQueryLayer($scope.queryLayerName, $scope.selectedLayer.id, rawQueryResult.query, $scope.selectedLayer.name, $scope.selectedLayer.theme);
                 } else {
                     if (rawQueryResult.layer) {
-                        ThemeService.AddQueryLayer(rawQueryResult.layer.name, rawQueryResult.layer.id, rawQueryResult.query, rawQueryResult.layer.theme);
+                        ThemeService.AddQueryLayer($scope.queryLayerName, rawQueryResult.layer.id, rawQueryResult.query, rawQueryResult.layer.name, rawQueryResult.layer.theme);
                     } else {
                         closeModal = false;
                     }
@@ -8456,7 +8494,8 @@ L.drawLocal = {
   $templateCache.put('templates/layermanagement/previewQueryLayerTemplate.html',
     "<div class=\"flex-column flex-grow-1\">\n" +
     "<div class=margin-top>\n" +
-    "<p>Laag: {{querylayer.layer.name}}</p>\n" +
+    "<h4>{{querylayer.layer.name}}</h4>\n" +
+    "<p>Laag: {{querylayer.layer.layerName}}</p>\n" +
     "<p><small>Query laag opgemaakt op basis van onderstaande query</small></p>\n" +
     "<textarea ng-disabled=true rows=4>{{query}}</textarea>\n" +
     "</div>\n" +
@@ -8856,10 +8895,12 @@ L.drawLocal = {
     "</div>\n" +
     "</div>\n" +
     "<div class=\"searchAdvancedTemplate modal-footer\">\n" +
-    "<div class=margin-top>\n" +
+    "<div class=\"margin-top row\">\n" +
     "<button type=button class=\"btn btn-info\" ng-click=QueryAPI()>Pas toe</button>\n" +
     "<button type=button class=btn ng-click=cancel()> Annuleer</button>\n" +
     "<button type=button class=\"btn btn-info\" ng-click=FilterQueriedLayer()>Query laag maken/bijwerken</button>\n" +
+    "<label for=queryLayerName class=\"margin-left black-label\">Query laag naam:</label>\n" +
+    "<input class=small-input id=queryLayerName ng-model=queryLayerName>\n" +
     "</div>\n" +
     "</div>"
   );

@@ -701,6 +701,10 @@ input.typeahead.tt-hint-querybuild {
   background-color: #fff;
   width: 100%; }
 
+input[type="text"].small-input {
+  display: inline;
+  width: 20rem; }
+
 .tt-suggestion + .tt-suggestion {
   border-top: 1px solid #eaeaea; }
 
