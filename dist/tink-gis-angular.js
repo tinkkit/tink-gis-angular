@@ -5144,6 +5144,10 @@ L.control.typeahead = function (args) {
                         }
                     };
                     checkforitem();
+                    // set displayfieldvalue for raster layer
+                    if (featureItem.properties["Pixel Value"]) {
+                        featureItem.displayValue = featureItem.properties["Pixel Value"];
+                    }
                     var thestyle = Style.DEFAULT;
                     if (_data.ExtendedType == "add") {
                         thestyle = Style.ADD;
@@ -6204,23 +6208,25 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
       // currently only allowed to add 1 querylayer for a specific layer
       if (existingQueryLayer) {
         swal({
-          title: dialogtext,
-          cancelButtonText: 'Ja',
-          confirmButtonText: 'Nee',
+          title: 'Updaten querylaag',
+          text: "U staat op het punt bestaande querylaag " + existingQueryLayer.layer.name + " bij te werken.",
+          type: 'warning',
           showCancelButton: true,
-          confirmButtonColor: '#b9b9b9',
-          customClass: 'leftsidemodal',
-          closeOnConfirm: true
+          cancelButtonText: "Annuleer",
+          confirmButtonColor: '#149142',
+          confirmButtonText: 'Update',
+          closeOnConfirm: true,
+          reverseButtons: false
+
         }, function (isConfirm) {
-          alert('test');
-        });
-        if (existingQueryLayer.layer.mapData) {
-          if (count) {
-            _service.QueryLayerCount(theme, layerId, query);
+          if (existingQueryLayer.layer.mapData) {
+            if (count) {
+              _service.QueryLayerCount(theme, layerId, query);
+            }
+            existingQueryLayer.layer.mapData.setWhere(query);
+            existingQueryLayer.layer.query = query;
           }
-          existingQueryLayer.layer.mapData.setWhere(query);
-          existingQueryLayer.layer.query = query;
-        }
+        });
       } else {
         //maximum number of queryLayers for performance reasons is 5
         if (MapData.QueryLayers.length === 5) {
