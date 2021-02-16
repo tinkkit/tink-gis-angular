@@ -563,6 +563,10 @@
                         }
                     }
                     checkforitem();
+                    // set displayfieldvalue for raster layer
+                    if (featureItem.properties["Pixel Value"]) {
+                        featureItem.displayValue = featureItem.properties["Pixel Value"];
+                    }
                     var thestyle = Style.DEFAULT;
                     if (_data.ExtendedType == "add") {
                         thestyle = Style.ADD;
