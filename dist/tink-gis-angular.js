@@ -4648,6 +4648,18 @@ L.control.typeahead = function (args) {
             } else {
                 _data.SelectedLayer = _data.defaultlayer;
             }
+            _data.AddQueryLayersToVisibleLayers();
+        };
+        _data.AddQueryLayersToVisibleLayers = function () {
+            _data.QueryLayers.filter(function (x) {
+                return x.showLayer === true;
+            }).forEach(function (q) {
+                _data.VisibleLayers = _data.VisibleLayers.concat({
+                    name: q.layer.name + ' (query)',
+                    isQueryLayer: true,
+                    layer: q
+                });
+            });
         };
         _data.ActiveInteractieKnop = ActiveInteractieButton.NIETS;
         _data.DrawingType = DrawingOption.NIETS;
@@ -5541,7 +5553,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 }
             });
 
-            _.each(MapData.QueryLayers, function (queryLayer) {
+            _.each(MapData.QueryLayers.filter(function (x) {
+                return x.showLayer === true;
+            }), function (queryLayer) {
                 if (queryLayer.layer.mapData) {
                     ResultsData.RequestStarted++;
 
@@ -5565,6 +5579,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         };
         _mapService.Select = function (event) {
             // MapData.CleanSearch();
+            var queryLayers = MapData.QueryLayers;
             console.log(event);
             if (MapData.SelectedLayer.id === '') {
                 // alle layers selected
@@ -5589,27 +5604,25 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 }
             } else {
                 ResultsData.RequestStarted++;
-                MapData.SelectedLayer.theme.MapData.identify().on(map).at(event.latlng).layers('visible: ' + MapData.SelectedLayer.id).run(function (error, featureCollection) {
-                    ResultsData.RequestCompleted++;
-                    MapData.AddFeatures(featureCollection, MapData.SelectedLayer.theme);
-                    if (MapData.ExtendedType != null) {
-                        MapData.ConfirmExtendDialog(MapData.processedFeatureArray);
-                        MapData.processedFeatureArray = [];
-                    }
-                });
-            }
-
-            var queryLayers = [];
-            if (MapData.SelectedLayer.id === '') {
-                queryLayers = MapData.QueryLayers;
-            } else {
-                queryLayers = MapData.QueryLayers.filter(function (x) {
-                    return x.layer.layerId === MapData.SelectedLayer.id;
-                });
+                if (MapData.SelectedLayer.isQueryLayer === true) {
+                    queryLayers = [MapData.QueryLayers.find(function (x) {
+                        return x === MapData.SelectedLayer.layer;
+                    })];
+                } else {
+                    queryLayers = [];
+                    MapData.SelectedLayer.theme.MapData.identify().on(map).at(event.latlng).layers('visible: ' + MapData.SelectedLayer.id).run(function (error, featureCollection) {
+                        ResultsData.RequestCompleted++;
+                        MapData.AddFeatures(featureCollection, MapData.SelectedLayer.theme);
+                        if (MapData.ExtendedType != null) {
+                            MapData.ConfirmExtendDialog(MapData.processedFeatureArray);
+                            MapData.processedFeatureArray = [];
+                        }
+                    });
+                }
             }
 
             _.each(queryLayers, function (queryLayer) {
-                if (queryLayer.layer.mapData) {
+                if (queryLayer.layer.mapData && queryLayer.showLayer === true) {
                     queryLayer.layer.mapData.query().where(queryLayer.layer.mapData.options.where).layer(queryLayer.layer.layerId).nearby(event.latlng, 10).run(function (error, featureCollection, response) {
                         ResultsData.RequestCompleted++;
                         MapData.AddFeatures(featureCollection, queryLayer.theme, queryLayer.layer.layerId, featureCollection.length);
@@ -5784,32 +5797,39 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                         });
                     }
                 });
+                //handle queryLayers query
+                _mapService.QueryQueryLayer(MapData.QueryLayers.filter(function (x) {
+                    return x.showLayer === true;
+                }), box);
             } else {
-                var prom = _mapService.LayerQueryCount(layer.theme, layer.id, box);
-                prom.then(function (arg) {
-                    if (arg.count > _mapService.MaxFeatures) {
-                        PopupService.Warning("U selecteerde " + arg.count + " resultaten.", "Bij meer dan " + _mapService.MaxFeatures + " resultaten kan het laden wat langer duren en zijn de resultaten niet zichtbaar op de kaart en in de lijst. Exporteren naar CSV blijft mogelijk.");
-                    }
-                    var prom = _mapService.LayerQuery(layer.theme, layer.id, box);
-                    prom.then(function (arg) {
-                        MapData.AddFeatures(arg.featureCollection, layer.theme, layer.id, arg.featureCollection.length);
-                        if (MapData.ExtendedType != null) {
-                            MapData.ConfirmExtendDialog(MapData.processedFeatureArray);
-                            MapData.processedFeatureArray = [];
-                        }
+                //check if 
+                if (layer.isQueryLayer) {
+                    var queryLayer = MapData.QueryLayers.find(function (queryLayer) {
+                        return queryLayer.layer.baseUrl === layer.layer.layer.baseUrl && queryLayer.layer.layerId === layer.layer.layer.layerId && queryLayer.layer.name === layer.layer.layer.name;
                     });
-                });
+                    if (queryLayer) {
+                        _mapService.QueryQueryLayer([queryLayer], box);
+                    }
+                } else {
+                    var prom = _mapService.LayerQueryCount(layer.theme, layer.id, box);
+                    prom.then(function (arg) {
+                        if (arg.count > _mapService.MaxFeatures) {
+                            PopupService.Warning("U selecteerde " + arg.count + " resultaten.", "Bij meer dan " + _mapService.MaxFeatures + " resultaten kan het laden wat langer duren en zijn de resultaten niet zichtbaar op de kaart en in de lijst. Exporteren naar CSV blijft mogelijk.");
+                        }
+                        var prom = _mapService.LayerQuery(layer.theme, layer.id, box);
+                        prom.then(function (arg) {
+                            MapData.AddFeatures(arg.featureCollection, layer.theme, layer.id, arg.featureCollection.length);
+                            if (MapData.ExtendedType != null) {
+                                MapData.ConfirmExtendDialog(MapData.processedFeatureArray);
+                                MapData.processedFeatureArray = [];
+                            }
+                        });
+                    });
+                }
             }
+        };
 
-            var queryLayers = [];
-            //every layer
-            if (!layer || layer.id === '') {
-                queryLayers = MapData.QueryLayers;
-            } else {
-                queryLayers = MapData.QueryLayers.filter(function (x) {
-                    return x.layer.layerId === layer.id && x.layer.name === layer.name;
-                });
-            }
+        _mapService.QueryQueryLayer = function (queryLayers, box) {
             _.each(queryLayers, function (queryLayer) {
                 if (queryLayer.theme && queryLayer.theme.Type == ThemeType.ESRI) {
                     var prom = new Promise(function (resolve, reject) {
@@ -5818,7 +5838,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                             box = box.mapItem;
                         }
 
-                        queryLayer.layer.mapData.query().where(queryLayer.layer.mapData.options.where).layer(queryLayer.layer.layerId).intersects(box).run(function (error, featureCollection, response) {
+                        queryLayer.theme.MapDataWithCors.query().layer(queryLayer.layer.layerId).where(queryLayer.layer.mapData.options.where).intersects(box).run(function (error, featureCollection, response) {
                             ResultsData.RequestCompleted++;
                             resolve({ error: error, featureCollection: featureCollection, response: response });
                         });
@@ -6070,6 +6090,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
       } else {
         map.removeLayer(queryLayer.layer.mapData);
       }
+
+      //updates the visible layers
+      MapData.ResetVisibleLayers();
     };
     _service.UpdateTheme = function (updatedTheme, existingTheme) {
       //lets update the existingTheme
@@ -6181,14 +6204,14 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
     _service.AddQueryLayerFromImport = function (name, layerId, query, layerName, theme) {
       // only gets called from externservice.import ==> extra mapData object is necessary to use identify call on dynamicmaplayer, is not available on featurelayer
-      theme.MapData = L.esri.dynamicMapLayer({
+      theme.MapDataWithCors = L.esri.dynamicMapLayer({
         maxZoom: 20,
         minZoom: 0,
         url: theme.cleanUrl,
         opacity: theme.Opacity,
         layers: layerId,
         continuousWorld: true,
-        useCors: false,
+        useCors: true,
         f: "image"
       });
       _service.AddQueryLayer(name, layerId, query, layerName, theme, false);
@@ -6371,6 +6394,11 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
             queryLayer.theme = theme;
             MapData.QueryLayers.push(queryLayer);
+            MapData.VisibleLayers = MapData.VisibleLayers.concat({
+              name: queryLayer.layer.name + " (query)",
+              isQueryLayer: true,
+              layer: queryLayer
+            });
           });
         }
       }
@@ -6389,6 +6417,13 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         if (queryLayer) {
           map.removeLayer(queryLayer.layer.mapData);
           MapData.QueryLayers.splice(index, 1);
+          //remove querylayer from visiblelayers
+          var visLayer = MapData.VisibleLayers.find(function (x) {
+            return x.isQueryLayer === true & x.layer === queryLayer;
+          });
+          if (visLayer) {
+            MapData.VisibleLayers.splice(MapData.VisibleLayers.indexOf(visLayer), 1);
+          }
         }
       }
     };

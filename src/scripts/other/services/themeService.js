@@ -55,6 +55,9 @@
       } else {
         map.removeLayer(queryLayer.layer.mapData);
       }
+
+      //updates the visible layers
+      MapData.ResetVisibleLayers();
     };
     _service.UpdateTheme = function (updatedTheme, existingTheme) {
       //lets update the existingTheme
@@ -191,14 +194,14 @@
 
     _service.AddQueryLayerFromImport = function (name, layerId, query, layerName, theme) {
       // only gets called from externservice.import ==> extra mapData object is necessary to use identify call on dynamicmaplayer, is not available on featurelayer
-      theme.MapData = L.esri.dynamicMapLayer({
+      theme.MapDataWithCors = L.esri.dynamicMapLayer({
         maxZoom: 20,
         minZoom: 0,
         url: theme.cleanUrl,
         opacity: theme.Opacity,
         layers: layerId,
         continuousWorld: true,
-        useCors: false,
+        useCors: true,
         f: "image",
       });
       _service.AddQueryLayer(name, layerId, query, layerName, theme, false);
@@ -360,11 +363,7 @@
               .featureLayer({
                 maxZoom: 20,
                 minZoom: 0,
-                url:
-                  queryLayer.layer.baseUrl +
-                  "/" +
-                  queryLayer.layer.layerId +
-                  "/query",
+                url: `${queryLayer.layer.baseUrl}/${queryLayer.layer.layerId}/query`,
                 where: query,
                 continuousWorld: true,
                 useCors: false,
@@ -399,6 +398,13 @@
   
             queryLayer.theme = theme;
             MapData.QueryLayers.push(queryLayer);
+            MapData.VisibleLayers = MapData.VisibleLayers.concat(
+              {
+                name: `${queryLayer.layer.name} (query)`,
+                isQueryLayer: true,
+                layer: queryLayer
+              }
+            );
           });
         }
       }
@@ -417,6 +423,11 @@
         if (queryLayer) {
           map.removeLayer(queryLayer.layer.mapData);
           MapData.QueryLayers.splice(index, 1);
+          //remove querylayer from visiblelayers
+          var visLayer = MapData.VisibleLayers.find(x => x.isQueryLayer === true & x.layer === queryLayer);
+          if (visLayer) {
+            MapData.VisibleLayers.splice(MapData.VisibleLayers.indexOf(visLayer), 1);
+          }
         }
       }
     };
