@@ -144,8 +144,7 @@
 
             });
 
-
-            _.each(MapData.QueryLayers, function(queryLayer) {
+            _.each(MapData.QueryLayers.filter(x => x.showLayer === true), function(queryLayer) {
                 if (queryLayer.layer.mapData) {     
                     ResultsData.RequestStarted++;
 
@@ -179,6 +178,7 @@
         };
         _mapService.Select = function(event) {
             // MapData.CleanSearch();
+            var queryLayers = MapData.QueryLayers;
             console.log(event);
             if (MapData.SelectedLayer.id === '') { // alle layers selected
                 var allproms = [];
@@ -202,26 +202,23 @@
 
             } else {
                 ResultsData.RequestStarted++;
-                MapData.SelectedLayer.theme.MapData.identify().on(map).at(event.latlng).layers('visible: ' + MapData.SelectedLayer.id).run(function(error, featureCollection) {
-                    ResultsData.RequestCompleted++;
-                    MapData.AddFeatures(featureCollection, MapData.SelectedLayer.theme);
-                    if (MapData.ExtendedType != null) {
-                        MapData.ConfirmExtendDialog(MapData.processedFeatureArray);
-                        MapData.processedFeatureArray = [];
-                    }
-                });
-                
-            }
-
-            var queryLayers = [];
-            if (MapData.SelectedLayer.id === '') {
-                queryLayers = MapData.QueryLayers;
-            } else {
-                queryLayers = MapData.QueryLayers.filter(x => x.layer.layerId === MapData.SelectedLayer.id)
+                if (MapData.SelectedLayer.isQueryLayer === true) {
+                    queryLayers = [MapData.QueryLayers.find(x => x === MapData.SelectedLayer.layer)];
+                } else {
+                    queryLayers = [];
+                    MapData.SelectedLayer.theme.MapData.identify().on(map).at(event.latlng).layers('visible: ' + MapData.SelectedLayer.id).run(function(error, featureCollection) {
+                        ResultsData.RequestCompleted++;
+                        MapData.AddFeatures(featureCollection, MapData.SelectedLayer.theme);
+                        if (MapData.ExtendedType != null) {
+                            MapData.ConfirmExtendDialog(MapData.processedFeatureArray);
+                            MapData.processedFeatureArray = [];
+                        }
+                    });
+                }             
             }
 
             _.each(queryLayers, function(queryLayer) {
-                if (queryLayer.layer.mapData) {
+                if (queryLayer.layer.mapData && queryLayer.showLayer === true) {
                     queryLayer.layer.mapData.query()
                                 .where(queryLayer.layer.mapData.options.where)
                                 .layer(queryLayer.layer.layerId)
@@ -424,11 +421,23 @@
                             });
                         }
                 });
-                
+                //handle queryLayers query
+                _mapService.QueryQueryLayer(MapData.QueryLayers.filter(x => x.showLayer === true), box);
 
             } else {
-                var prom = _mapService.LayerQueryCount(layer.theme, layer.id, box);
-                prom.then(function(arg) {
+                //check if 
+                if (layer.isQueryLayer) {
+                    var queryLayer = MapData.QueryLayers.find((queryLayer) =>
+                          queryLayer.layer.baseUrl === layer.layer.layer.baseUrl &&
+                          queryLayer.layer.layerId === layer.layer.layer.layerId &&
+                          queryLayer.layer.name === layer.layer.layer.name
+                      );
+                    if (queryLayer) {
+                        _mapService.QueryQueryLayer([queryLayer], box);
+                    }
+                } else {
+                    var prom = _mapService.LayerQueryCount(layer.theme, layer.id, box);
+                    prom.then(function(arg) {
                     if (arg.count > _mapService.MaxFeatures) {
                         PopupService.Warning("U selecteerde " + arg.count + " resultaten.", "Bij meer dan " + _mapService.MaxFeatures + " resultaten kan het laden wat langer duren en zijn de resultaten niet zichtbaar op de kaart en in de lijst. Exporteren naar CSV blijft mogelijk.");
                     }
@@ -441,16 +450,12 @@
                             }
                         });
                 });
-
+                }
             }
 
-            var queryLayers = [];
-            //every layer
-            if (!layer || layer.id === '') {
-                queryLayers = MapData.QueryLayers;
-            } else {
-                queryLayers = MapData.QueryLayers.filter(x => x.layer.layerId === layer.id && x.layer.name === layer.name)
-            }
+        };
+
+        _mapService.QueryQueryLayer = function(queryLayers, box) {
             _.each(queryLayers, function(queryLayer) {
                 if (queryLayer.theme && queryLayer.theme.Type == ThemeType.ESRI)
                 {
@@ -462,9 +467,9 @@
                                 box = box.mapItem;
                             }
 
-                            queryLayer.layer.mapData.query()
-                                .where(queryLayer.layer.mapData.options.where)
+                            queryLayer.theme.MapDataWithCors.query()
                                 .layer(queryLayer.layer.layerId)
+                                .where(queryLayer.layer.mapData.options.where)
                                 .intersects(box)
                                 .run(function(error, featureCollection, response) {
                                     ResultsData.RequestCompleted++;
@@ -478,8 +483,7 @@
                         });
                 }
             });
-
-        };
+        }
         _mapService.WatIsHier = function(event) {
             var prom = GISService.ReverseGeocode(event);
             prom.success(function(data, status, headers, config) {

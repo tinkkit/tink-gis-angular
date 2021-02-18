@@ -33,6 +33,18 @@
             else {
                 _data.SelectedLayer = _data.defaultlayer;
             }
+            _data.AddQueryLayersToVisibleLayers();
+        }
+        _data.AddQueryLayersToVisibleLayers = function () {
+            _data.QueryLayers.filter(x => x.showLayer === true).forEach(q => {
+                _data.VisibleLayers = _data.VisibleLayers.concat(
+                    {
+                      name: `${q.layer.name} (query)`,
+                      isQueryLayer: true,
+                      layer: q
+                    }
+                  );
+            });
         }
         _data.ActiveInteractieKnop = ActiveInteractieButton.NIETS;
         _data.DrawingType = DrawingOption.NIETS;
