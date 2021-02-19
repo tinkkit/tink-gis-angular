@@ -6385,7 +6385,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 //is usesd to style points
                 var legendValue = feature.properties[data[1].drawingInfo.renderer.field1];
                 var legendItem = queryLayer.layer.legend.find(function (x) {
-                  return x.values && x.values.includes(legendValue);
+                  return x.values && x.values.map(function (x) {
+                    return x.toLowerCase();
+                  }).includes(legendValue.toLowerCase());
                 });
                 var iconUrl = legendItem ? legendItem.fullurl : queryLayer.layer.legend[0].fullurl;
                 return MapData.CreateFeatureLayerMarker(latlng, iconUrl);

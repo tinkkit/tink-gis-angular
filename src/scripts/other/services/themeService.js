@@ -386,7 +386,7 @@
                   const legendValue =
                     feature.properties[data[1].drawingInfo.renderer.field1];
                   const legendItem = queryLayer.layer.legend.find(
-                    (x) => x.values && x.values.includes(legendValue)
+                    (x) => x.values && x.values.map(x => x.toLowerCase()).includes(legendValue.toLowerCase())
                   );
                   let iconUrl = legendItem
                     ? legendItem.fullurl
