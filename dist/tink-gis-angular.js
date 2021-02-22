@@ -6182,6 +6182,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             transparent: true,
             continuousWorld: true,
             useCors: true
+            // version: theme.Version
           }).addTo(map);
 
           theme.MapData.on("load", function (e) {
