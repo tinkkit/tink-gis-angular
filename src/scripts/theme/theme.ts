@@ -135,7 +135,16 @@ namespace TinkGis {
                     lays.push(layers);
                 }
                 else {
-                    lays = layers;
+                    //check if layers have child layers and add these
+                    let tempLayers = [];
+                    layers.forEach(element => {
+                        if (element.layer) {
+                            tempLayers = [...tempLayers, ...element.layer];
+                        } else {
+                            tempLayers.push(element);
+                        }
+                    });
+                    lays = tempLayers;
                 }
             } else {
                 lays.push(data.capability.layer);
