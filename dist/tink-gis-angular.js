@@ -8540,7 +8540,7 @@ L.drawLocal = {
     "<h4>{{querylayer.layer.name}}</h4>\n" +
     "<p>Laag: {{querylayer.layer.layerName}}</p>\n" +
     "<p><small>Query laag opgemaakt op basis van onderstaande query</small></p>\n" +
-    "<textarea ng-disabled=true rows=4>{{query}}</textarea>\n" +
+    "<textarea ng-readonly=true class=text-cursor rows=4>{{query}}</textarea>\n" +
     "</div>\n" +
     "</div>"
   );
