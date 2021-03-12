@@ -22,7 +22,7 @@
     "angular-touch": "~1.4.3",
     "angular-route": "~1.4.3",
     "jquery": "~3.3.1",
-    "ng-lodash": "acezard/ng-lodash#^0.5.0",
+    "ng-lodash": "bravethrasher/ng-lodash#~0.2.0",
     "tink-core": "latest",
     "tink-navigation-angular": "^2.0.1",
     "angular-logger": "~1.4.0",
@@ -63,7 +63,6 @@
     "angular-resource": "~1.4.3",
     "proj4": "^2.3.12",
     "esri-leaflet": "2.5.1",
-    "ng-lodash": "^0.5.0",
     "jsts": "^1.1.2",
     "jquery": "~3.3.1"
   }
