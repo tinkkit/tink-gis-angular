@@ -70,7 +70,8 @@
                         Name: queryLayer.layer.name,
                         BaseUrl: queryLayer.layer.baseUrl,
                         Where: queryLayer.layer.query,
-                        LayerName: queryLayer.layer.layerName
+                        LayerName: queryLayer.layer.layerName,
+                        Visible: queryLayer.showLayer
                     };
                 });    
             }
@@ -142,7 +143,7 @@
                                 if (queryLayer.layerName && queryLayer.layerName.match(/^ *$/) !== null) {
                                     layerName = queryLayer.layerName;
                                 }
-                                ThemeService.AddQueryLayerFromImport(queryLayer.name, queryLayer.layerId , queryLayer.where, layerName, arcgistheme);
+                                ThemeService.AddQueryLayerFromImport(queryLayer.name, queryLayer.layerId , queryLayer.where, layerName, queryLayer.visible, arcgistheme);
                             } else {
                                 PopupService.ErrorWithException("Fout bij laden van mapservice", "Kan mapservice met volgende url niet laden: " + queryLayerTheme.cleanUrl, data.error);
                             }

@@ -192,7 +192,7 @@
       }
     };
 
-    _service.AddQueryLayerFromImport = function (name, layerId, query, layerName, theme) {
+    _service.AddQueryLayerFromImport = function (name, layerId, query, layerName, visible, theme) {
       // only gets called from externservice.import ==> extra mapData object is necessary to use identify call on dynamicmaplayer, is not available on featurelayer
       theme.MapDataWithCors = L.esri.dynamicMapLayer({
         maxZoom: 20,
@@ -204,7 +204,7 @@
         useCors: true,
         f: "image",
       });
-      _service.AddQueryLayer(name, layerId, query, layerName, theme, false);
+      _service.AddQueryLayer(name, layerId, query, layerName, visible, theme, false);
     };
 
     _service.CheckIfQueryLayerExists = function(themeUrl, layerId, name) {
@@ -216,7 +216,7 @@
       );
     }
 
-    _service.AddQueryLayer = function (name, layerId, query, layerName, theme, count = true) {
+    _service.AddQueryLayer = function (name, layerId, query, layerName, visible, theme, count = true) {
       let existingQueryLayer = _service.CheckIfQueryLayerExists(theme.cleanUrl, layerId, name)
         
       // currently only allowed to add 1 querylayer for a specific layer
@@ -258,7 +258,7 @@
               query: query,
               legend: [],
             },
-            showLayer: true,
+            showLayer: visible,
           };
   
           var promLegend = GISService.GetLegendData(queryLayer.layer.baseUrl);

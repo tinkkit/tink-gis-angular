@@ -3613,7 +3613,8 @@ var esri2geo = {};
                         Name: queryLayer.layer.name,
                         BaseUrl: queryLayer.layer.baseUrl,
                         Where: queryLayer.layer.query,
-                        LayerName: queryLayer.layer.layerName
+                        LayerName: queryLayer.layer.layerName,
+                        Visible: queryLayer.showLayer
                     };
                 });
             }
@@ -3684,7 +3685,7 @@ var esri2geo = {};
                             if (queryLayer.layerName && queryLayer.layerName.match(/^ *$/) !== null) {
                                 layerName = queryLayer.layerName;
                             }
-                            ThemeService.AddQueryLayerFromImport(queryLayer.name, queryLayer.layerId, queryLayer.where, layerName, arcgistheme);
+                            ThemeService.AddQueryLayerFromImport(queryLayer.name, queryLayer.layerId, queryLayer.where, layerName, queryLayer.visible, arcgistheme);
                         } else {
                             PopupService.ErrorWithException("Fout bij laden van mapservice", "Kan mapservice met volgende url niet laden: " + queryLayerTheme.cleanUrl, data.error);
                         }
@@ -6202,7 +6203,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
       }
     };
 
-    _service.AddQueryLayerFromImport = function (name, layerId, query, layerName, theme) {
+    _service.AddQueryLayerFromImport = function (name, layerId, query, layerName, visible, theme) {
       // only gets called from externservice.import ==> extra mapData object is necessary to use identify call on dynamicmaplayer, is not available on featurelayer
       theme.MapDataWithCors = L.esri.dynamicMapLayer({
         maxZoom: 20,
@@ -6214,7 +6215,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         useCors: true,
         f: "image"
       });
-      _service.AddQueryLayer(name, layerId, query, layerName, theme, false);
+      _service.AddQueryLayer(name, layerId, query, layerName, visible, theme, false);
     };
 
     _service.CheckIfQueryLayerExists = function (themeUrl, layerId, name) {
@@ -6223,8 +6224,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
       });
     };
 
-    _service.AddQueryLayer = function (name, layerId, query, layerName, theme) {
-      var count = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : true;
+    _service.AddQueryLayer = function (name, layerId, query, layerName, visible, theme) {
+      var count = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : true;
 
       var existingQueryLayer = _service.CheckIfQueryLayerExists(theme.cleanUrl, layerId, name);
 
@@ -6267,7 +6268,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
               query: query,
               legend: []
             },
-            showLayer: true
+            showLayer: visible
           };
 
           var promLegend = GISService.GetLegendData(queryLayer.layer.baseUrl);
@@ -6973,16 +6974,16 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 SearchAdvancedService.BuildQuery($scope.selectedLayer.name);
                 var query = SearchAdvancedService.TranslateOperations($scope.operations);
                 if ($scope.selectedLayer && query !== '') {
-                    ThemeService.AddQueryLayer($scope.queryLayerName, $scope.selectedLayer.id, query, $scope.selectedLayer.name, $scope.selectedLayer.theme);
+                    ThemeService.AddQueryLayer($scope.queryLayerName, $scope.selectedLayer.id, query, $scope.selectedLayer.name, true, $scope.selectedLayer.theme);
                 }
             } else {
                 var rawQueryResult = SearchAdvancedService.MakeNewRawQuery($scope.query);
                 SearchAdvancedService.UpdateQuery($scope.query);
                 if ($scope.selectedLayer) {
-                    ThemeService.AddQueryLayer($scope.queryLayerName, $scope.selectedLayer.id, rawQueryResult.query, $scope.selectedLayer.name, $scope.selectedLayer.theme);
+                    ThemeService.AddQueryLayer($scope.queryLayerName, $scope.selectedLayer.id, rawQueryResult.query, $scope.selectedLayer.name, true, $scope.selectedLayer.theme);
                 } else {
                     if (rawQueryResult.layer) {
-                        ThemeService.AddQueryLayer($scope.queryLayerName, rawQueryResult.layer.id, rawQueryResult.query, rawQueryResult.layer.name, rawQueryResult.layer.theme);
+                        ThemeService.AddQueryLayer($scope.queryLayerName, rawQueryResult.layer.id, rawQueryResult.query, rawQueryResult.layer.name, true, rawQueryResult.layer.theme);
                     } else {
                         closeModal = false;
                     }
