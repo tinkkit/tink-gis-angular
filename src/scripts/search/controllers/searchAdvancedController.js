@@ -105,16 +105,16 @@
                     SearchAdvancedService.BuildQuery($scope.selectedLayer.name);
                     var query = SearchAdvancedService.TranslateOperations($scope.operations);
                     if ($scope.selectedLayer && query !== '') {
-                        ThemeService.AddQueryLayer($scope.queryLayerName, $scope.selectedLayer.id, query, $scope.selectedLayer.name, $scope.selectedLayer.theme);
+                        ThemeService.AddQueryLayer($scope.queryLayerName, $scope.selectedLayer.id, query, $scope.selectedLayer.name, true, $scope.selectedLayer.theme);
                     }
                 } else {
                     var rawQueryResult = SearchAdvancedService.MakeNewRawQuery($scope.query);
                     SearchAdvancedService.UpdateQuery($scope.query);
                     if ($scope.selectedLayer) {
-                        ThemeService.AddQueryLayer($scope.queryLayerName, $scope.selectedLayer.id, rawQueryResult.query, $scope.selectedLayer.name, $scope.selectedLayer.theme);                    
+                        ThemeService.AddQueryLayer($scope.queryLayerName, $scope.selectedLayer.id, rawQueryResult.query, $scope.selectedLayer.name, true, $scope.selectedLayer.theme);                    
                     } else {
                         if(rawQueryResult.layer) {
-                            ThemeService.AddQueryLayer($scope.queryLayerName, rawQueryResult.layer.id, rawQueryResult.query, rawQueryResult.layer.name, rawQueryResult.layer.theme); 
+                            ThemeService.AddQueryLayer($scope.queryLayerName, rawQueryResult.layer.id, rawQueryResult.query, rawQueryResult.layer.name, true, rawQueryResult.layer.theme); 
                         } else {
                             closeModal = false;
                         }   
