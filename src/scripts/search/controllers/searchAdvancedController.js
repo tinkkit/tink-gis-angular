@@ -6,8 +6,8 @@
     } catch (e) {
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
     }
-    var theController = module.controller('searchAdvancedController', ['$scope', '$modalInstance', 'SearchAdvancedService', 'MapData', 'GISService', 'UIService', 'ResultsData', 'ThemeService',
-        function ($scope, $modalInstance, SearchAdvancedService, MapData, GISService, UIService, ResultsData, ThemeService) {
+    var theController = module.controller('searchAdvancedController', ['$scope', '$modalInstance', 'SearchAdvancedService', 'MapData', 'GISService', 'UIService', 'ResultsData', 'ThemeService', 'PopupService',
+        function ($scope, $modalInstance, SearchAdvancedService, MapData, GISService, UIService, ResultsData, ThemeService, PopupService) {
             $scope.editor = false;
             $scope.selectedLayer = null;
             $scope.operations = [];
@@ -101,6 +101,12 @@
 
             $scope.FilterQueriedLayer = function() {
                 var closeModal = true;
+
+                if ($scope.queryLayerName === '') {
+                    PopupService.Warning('Query laag naam leeg', 'Gelieve een querylaagnaam in te geven.');
+                    return;
+                }
+
                 if (!$scope.editor) {
                     SearchAdvancedService.BuildQuery($scope.selectedLayer.name);
                     var query = SearchAdvancedService.TranslateOperations($scope.operations);
