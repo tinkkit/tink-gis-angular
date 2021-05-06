@@ -5498,7 +5498,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                                         if (data) {
                                             data = GisHelperService.UnwrapProxiedData(data);
                                         }
-                                        ResultsData.RequestCompleted++;
                                         var processedjson = null;
                                         switch (theme.GetFeatureInfoType) {
                                             case "text/xml":
