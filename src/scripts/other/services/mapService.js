@@ -84,7 +84,6 @@
                                         if (data) {
                                             data = GisHelperService.UnwrapProxiedData(data);
                                         }
-                                        ResultsData.RequestCompleted++;
                                         var processedjson = null;
                                         switch (theme.GetFeatureInfoType) {
                                             case "text/xml":
