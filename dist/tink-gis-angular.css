@@ -508,7 +508,8 @@ button.trashcan {
 .toc-item-without-icon {
   display: -webkit-inline-flex;
   display: -ms-inline-flexbox;
-  display: inline-flex; }
+  display: inline-flex;
+  position: relative; }
 
 .toc-item-with-icon {
   display: -webkit-inline-flex;
