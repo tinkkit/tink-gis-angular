@@ -8853,7 +8853,7 @@ L.drawLocal = {
 
   $templateCache.put('templates/other/themeTemplate.html',
     "<div>\n" +
-    "<div style=display:flex>\n" +
+    "<div style=\"display:flex; position: relative\">\n" +
     "<input class=\"visible-box hidden-print\" type=checkbox id=chk{{thmctrl.theme.Naam}} ng-model=thmctrl.theme.Visible ng-change=layercheckboxchange(thmctrl.theme)>\n" +
     "<label for=chk{{thmctrl.theme.Naam}} title={{thmctrl.theme.Naam}}> {{thmctrl.theme.Naam}}\n" +
     "<span class=\"label-info hidden-print\" ng-show=\"thmctrl.theme.Type=='esri'\">ArcGIS</span>\n" +

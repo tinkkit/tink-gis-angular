@@ -503,6 +503,7 @@ button.trashcan {
 
 .toc-item-without-icon {
   display: inline-flex; //set as inline-level flex container
+  position: relative;
 }
 
 .toc-item-with-icon {
