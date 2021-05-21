@@ -2446,30 +2446,38 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 if (data) {
                     data = helperService.UnwrapProxiedData(data);
                     var returnjson = JXON.stringToJs(data);
-                    var getResults = returnjson['csw:getrecordsresponse']['csw:searchresults'];
-                    var returnObject = {};
-                    returnObject.results = [];
-                    returnObject.searchTerm = searchterm;
-                    returnObject.currentrecord = startpos;
-                    returnObject.recordsAPage = recordsAPage;
-                    returnObject.nextrecord = getResults.nextrecord;
-                    returnObject.numberofrecordsmatched = getResults.numberofrecordsmatched;
-                    returnObject.numberofrecordsreturned = getResults.numberofrecordsreturned;
-                    if (returnObject.numberofrecordsmatched != 0) {
-                        // only foreach when there are items
-                        var themeArr = [];
-                        if (getResults['csw:record'].constructor === Array) {
-                            themeArr = getResults['csw:record'];
-                        } else {
-                            themeArr.push(getResults['csw:record']);
+                    if (returnjson['csw:getrecordsresponse'] && ['csw:searchresults']) {
+                        var getResults = returnjson['csw:getrecordsresponse']['csw:searchresults'];
+                        var returnObject = {};
+                        returnObject.results = [];
+                        returnObject.searchTerm = searchterm;
+                        returnObject.currentrecord = startpos;
+                        returnObject.recordsAPage = recordsAPage;
+                        returnObject.nextrecord = getResults.nextrecord;
+                        returnObject.numberofrecordsmatched = getResults.numberofrecordsmatched;
+                        returnObject.numberofrecordsreturned = getResults.numberofrecordsreturned;
+                        if (returnObject.numberofrecordsmatched != 0) {
+                            // only foreach when there are items
+                            var themeArr = [];
+                            if (getResults['csw:record'].constructor === Array) {
+                                themeArr = getResults['csw:record'];
+                            } else {
+                                themeArr.push(getResults['csw:record']);
+                            }
+                            themeArr.forEach(function (record) {
+                                var processedTheme = procesTheme(record);
+                                returnObject.results.push(processedTheme);
+                            });
                         }
-                        themeArr.forEach(function (record) {
-                            var processedTheme = procesTheme(record);
-                            returnObject.results.push(processedTheme);
-                        });
+                        prom.resolve(returnObject);
+                        // console.log(getResults['csw:record']);
+                    } else {
+                        var rejectdata = [];
+                        rejectdata.data = data;
+                        rejectdata.status = status;
+                        rejectdata.url = url;
+                        prom.reject(rejectdata);
                     }
-                    prom.resolve(returnObject);
-                    // console.log(getResults['csw:record']);
                 } else {
                     prom.reject(null);
                     console.log('EMPTY RESULT');
