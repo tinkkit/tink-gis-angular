@@ -1552,7 +1552,8 @@ var Solr = {
     BaseUrl: 'https://esb-app1-o.antwerpen.be/v1/'
 };
 var LocationPicker = {
-    BaseUrl: 'https://locationpicker-app1-o.antwerpen.be/api/v2/'
+    BaseUrl: 'https://api-gw-o.antwerpen.be/gis/locationpicker/v2/',
+    ApiKey: '04c0f399-9e6a-4655-9b9b-a1b3f567c877'
 };
 var DrawingOption = {
     GEEN: 'geen',
@@ -4118,8 +4119,15 @@ var esri2geo = {};
         };
         _service.QueryLocationPickerLocation = function (search) {
             var prom = $q.defer();
-            var url = LocationPicker.BaseUrl + 'locations?search=' + search + '&sort=name&limit=50&layers=all&prioritizelayer=district,straatnaam';
-            $http.get(url).success(function (data, status, headers, config) {
+            var req = $http({
+                method: 'GET',
+                url: LocationPicker.BaseUrl + 'locations?search=' + search + '&sort=name&limit=50&layers=all&prioritizelayer=district,straatnaam',
+                headers: {
+                    'apikey': LocationPicker.ApiKey
+                }
+            });
+
+            req.success(function (data, status, headers, config) {
                 // data = GisHelperService.UnwrapProxiedData(data);
                 prom.resolve(data);
             }).error(function (data, status, headers, config) {
@@ -4130,9 +4138,15 @@ var esri2geo = {};
         };
         _service.QueryLocationPickerAddress = function (streetName, houseNumber) {
             var prom = $q.defer();
-            var url = LocationPicker.BaseUrl + 'addresses?streetname=' + streetName + '&housenumber=' + houseNumber;
+            var req = $http({
+                method: 'GET',
+                url: LocationPicker.BaseUrl + 'addresses?streetname=' + streetName + '&housenumber=' + houseNumber,
+                headers: {
+                    'apikey': LocationPicker.ApiKey
+                }
+            });
 
-            $http.get(url).success(function (data, status, headers, config) {
+            req.success(function (data, status, headers, config) {
                 prom.resolve(data);
             }).error(function (data, status, headers, config) {
                 prom.reject(null);

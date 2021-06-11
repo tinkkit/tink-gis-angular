@@ -128,9 +128,15 @@
         };
         _service.QueryLocationPickerLocation = function(search) {
             var prom = $q.defer();
-            var url = LocationPicker.BaseUrl + 'locations?search=' + search + '&sort=name&limit=50&layers=all&prioritizelayer=district,straatnaam';
-            $http.get(url)
-                .success(function(data, status, headers, config) {
+            var req = $http({
+                method: 'GET',
+                url: LocationPicker.BaseUrl + 'locations?search=' + search + '&sort=name&limit=50&layers=all&prioritizelayer=district,straatnaam',
+                headers: {
+                    'apikey': LocationPicker.ApiKey
+                }
+            });
+           
+            req.success(function(data, status, headers, config) {
                     // data = GisHelperService.UnwrapProxiedData(data);
                     prom.resolve(data);
                 }).error(function(data, status, headers, config) {
@@ -141,10 +147,15 @@
         }
         _service.QueryLocationPickerAddress = function( streetName, houseNumber) {
             var prom = $q.defer();
-            var url = LocationPicker.BaseUrl + 'addresses?streetname=' + streetName + '&housenumber=' + houseNumber;
+            var req = $http({
+                method: 'GET',
+                url: LocationPicker.BaseUrl + 'addresses?streetname=' + streetName + '&housenumber=' + houseNumber,
+                headers: {
+                    'apikey': LocationPicker.ApiKey
+                }
+            });
 
-            $http.get(url)
-                .success(function(data, status, headers, config)
+            req.success(function(data, status, headers, config)
                 {
                     prom.resolve(data);
                 }).error(function(data, status, headers, config){

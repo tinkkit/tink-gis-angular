@@ -35,7 +35,8 @@ var Solr = {
     BaseUrl: 'https://esb-app1-o.antwerpen.be/v1/'
 }
 var LocationPicker = {
-    BaseUrl: 'https://locationpicker-app1-o.antwerpen.be/api/v2/'
+    BaseUrl: 'https://api-gw-o.antwerpen.be/gis/locationpicker/v2/',
+    ApiKey: '04c0f399-9e6a-4655-9b9b-a1b3f567c877'
 }
 const DrawingOption = {
     GEEN: 'geen',
