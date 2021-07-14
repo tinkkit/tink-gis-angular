@@ -9095,6 +9095,7 @@ L.drawLocal = {
     "<dt>{{ prop.key}}</dt>\n" +
     "<div ng-if=\"prop.value.toLowerCase() != 'null'\">\n" +
     "<a ng-if=\"prop.value.indexOf('https://')==0 || prop.value.indexOf( 'http://')==0 \" ng-href={{prop.value}} target=_blank>% Link</a>\n" +
+    "<a ng-if=\"prop.value.indexOf('file://')==0\" ng-href={{prop.value}} target=_blank>{{prop.value}}</a>\n" +
     "<dd ng-if=\"prop.value.indexOf('https://') !=0 && prop.value.indexOf( 'http://') !=0 \"><pre>{{ prop.value }}</pre></dd>\n" +
     "</div>\n" +
     "</dl>\n" +
