@@ -10,7 +10,7 @@
         function ($scope, $modalInstance, MapData) {
             var vm = this;
             $scope.buffer = MapData.LastBufferedDistance;
-            $scope.SelectableLayers = angular.copy(MapData.VisibleLayers);
+            $scope.SelectableLayers = _.cloneDeep(MapData.VisibleLayers);
             $scope.SelectableLayers.shift(); // remove the alllayers for buffer
             var bufferDefault = MapData.LastBufferedLayer || MapData.DefaultLayer;
             if (bufferDefault) {

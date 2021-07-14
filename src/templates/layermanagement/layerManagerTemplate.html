@@ -12,7 +12,7 @@
     <div class="row margin-top margin-bottom">
         <div class="col-xs-12 col-sm-6">
             <form>
-                <input auto-focus type="search"  ng-keydown="$event.keyCode === 13 && enterPressed()" ng-model="searchTerm" ng-change="searchChanged()" ng-model-options="{debounce: 100}" placeholder="Geef een trefwoord in (minimum 3 tekens)">
+                <input auto-focus type="search"  ng-keydown="$event.keyCode === 13 && enterPressed()" ng-model="searchTerm" ng-change="searchChanged()" ng-model-options="{debounce: 500}" placeholder="Geef een trefwoord in (minimum 3 tekens)">
             </form>
         </div>
     </div>
@@ -22,11 +22,11 @@
                 <li role="presentation" ng-class="{'active': active=='solr'}"><a href="" ng-click="active='solr'">Stad <span ng-if="solrLoading==true" class="loader"></span><span ng-if="solrLoading==false && solrCount != null">({{solrCount}})</span></a></li>
                 <li ng-show="!mobile" role="presentation" ng-class="{'active': active=='geopunt'}"><a href="" ng-click="active='geopunt'">GeoPunt <span ng-if="geopuntLoading==true" class="loader"></span><span ng-if="geopuntLoading==false && geopuntCount != null">({{geopuntCount}})</span></a></li>
                 <li role="presentation" class="pull-right" ng-class="{'active': active=='beheer'}"><a href="" ng-click="active='beheer'">Lagenbeheer</a></li>
-                <li ng-show="!mobile" role="presentation" class="pull-right" ng-class="{'active': active=='wmsurl'}"><a href="" ng-click="active='wmsurl'">URL ingeven</a></li>
+                <li ng-show="!mobile" role="presentation" class="pull-right" ng-class="{'active': active=='themeurl'}"><a href="" ng-click="active='themeurl'">URL ingeven</a></li>
             </ul>
         </div>
     </div>
     <solr-gis ng-show="active=='solr'"></solr-gis>
     <geo-punt ng-show="active=='geopunt'"></geo-punt>
-    <wms-url ng-show="active=='wmsurl'"></wms-url>
+    <theme-url ng-show="active=='themeurl'"></theme-url>
     <layers-management ng-if="active=='beheer'"></layers-management>

@@ -417,6 +417,9 @@ button.btn.active {
           flex-grow: 1;
   min-height: 0; }
 
+.SEARCHRESULT {
+  overflow: auto; }
+
 .overflow-wrapper {
   overflow: auto; }
   .overflow-wrapper.list-selectable {
@@ -463,6 +466,23 @@ button.btn.active {
 .can-open.open .show-layer:after {
   content: "\f0d8"; }
 
+.can-open-second .show-layer-second {
+  cursor: pointer;
+  display: inline-block;
+  padding: 0 0.3571428571rem  0 0.3571428571rem ;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none; }
+  .can-open-second .show-layer-second:after {
+    content: "\f0d7";
+    font-family: FontAwesome;
+    font-style: normal;
+    font-weight: normal; }
+
+.can-open-second.open .show-layer-second:after {
+  content: "\f0d8"; }
+
 /**
  * Rightside layer menu
  */
@@ -488,7 +508,8 @@ button.trashcan {
 .toc-item-without-icon {
   display: -webkit-inline-flex;
   display: -ms-inline-flexbox;
-  display: inline-flex; }
+  display: inline-flex;
+  position: relative; }
 
 .toc-item-with-icon {
   display: -webkit-inline-flex;
@@ -501,6 +522,9 @@ button.trashcan {
     margin-right: 0.3571428571rem ;
     position: absolute;
     width: 1.2857142857rem ; }
+
+.querylayer-legend .layer-icon {
+  margin-right: 0.3571428571rem ; }
 
 .ui-sortable-helper {
   background-color: rgba(0, 0, 0, 0.03);
@@ -677,6 +701,10 @@ input.typeahead.tt-input-querybuild {
 input.typeahead.tt-hint-querybuild {
   background-color: #fff;
   width: 100%; }
+
+input#queryLayerName {
+  display: inline;
+  width: 20rem; }
 
 .tt-suggestion + .tt-suggestion {
   border-top: 1px solid #eaeaea; }
@@ -992,6 +1020,10 @@ html.print.landscape .print-map {
   display: inline-block;
   cursor: pointer; }
 
+.coordinate-pointer {
+  display: inline-block;
+  cursor: pointer; }
+
 /**
  * Full page loader
  */
@@ -1173,3 +1205,13 @@ body.stop-scrolling {
 
 .custom-slider.rzslider .rz-tick.rz-selected {
   background: #347ea6; }
+
+.black-label {
+  color: #333;
+  font-weight: normal;
+  min-height: 1.7142857143rem;
+  padding: 0rem 0rem 0rem 0.5rem;
+  position: relative; }
+
+.text-cursor {
+  cursor: text !important; }

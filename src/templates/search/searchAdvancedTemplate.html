@@ -36,8 +36,11 @@
     </div>
 </div>
 <div class="searchAdvancedTemplate modal-footer">
-    <div class="margin-top">
+    <div class="margin-top row">
         <button type="button" class="btn btn-info" ng-click="QueryAPI()">Pas toe</button>
         <button type="button" class="btn" ng-click="cancel()"> Annuleer</button>
+        <button type="button" class="btn btn-info" ng-click="FilterQueriedLayer()">Query laag maken/bijwerken</button>
+        <label for="queryLayerName" class="margin-left black-label">Query laag naam:</label>
+        <input type="text" class="small-input" id="queryLayerName" ng-model="queryLayerName"/>
     </div>
 </div>

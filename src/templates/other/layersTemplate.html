@@ -13,6 +13,26 @@
                 </div>
             </div>
             <div class="overflow-wrapper flex-grow-1 extra-padding">
+                <div class="can-open margin-bottom" ng-show="lyrsctrl.queryLayers.length > 0" ng-class="{'open': lyrsctrl.showQueryLayers}">
+                    <label class="black-label">Query lagen:</label>
+                    <span class="show-layer" ng-click="lyrsctrl.showQueryLayers = !lyrsctrl.showQueryLayers"></span>
+                    <ul class="ul-level" id="queryLayers" ng-show="lyrsctrl.showQueryLayers && lyrsctrl.queryLayers.length > 0" >
+                        <li class="li-item querylayer-item" ng-repeat="queryLayer in lyrsctrl.queryLayers track by $index">
+                            <div class="can-open-second" ng-class="{'open': showMultiLegend}">
+                                <img class="layer-icon" ng-if="queryLayer.layer.legend.length ===1 && queryLayer.layer.legend[0].fullurl" class="layer-icon" ng-src="{{queryLayer.layer.legend[0].fullurl}} "></img>
+                                <input class="visible-box hidden-print" type="checkbox" id="queryDataChk{{$index}}" ng-model="queryLayer.showLayer" ng-change="lyrsctrl.updateQueryVisibility($index)">
+                                <label for="queryDataChk{{$index}}" title="{{ queryLayer.layer.name }}"> {{ queryLayer.layer.name }}</label>
+                                <span style="color:#76b9f4" class="show-layer-second" ng-show="queryLayer.layer.legend.length>1" ng-click="showMultiLegend = !showMultiLegend"></span>
+                                <span class="label-info hidden-print">Query</span>
+                                <button style="flex-grow: 2" class="trash hidden-print pull-right" ng-click="lyrsctrl.deleteQueryLayer($index)"></button>
+                                <ul class="querylayer-legend" ng-show="showMultiLegend && queryLayer.layer.legend.length>1">
+                                <li ng-repeat="legend in queryLayer.layer.legend"><img class="layer-icon" ng-src="{{legend.fullurl}}"></img><span>{{legend.label}}</span></li>
+                            </ul>
+                            </div>
+                        </li>
+                    </ul>
+                    <hr>
+                </div>
                 <ul class="ul-level" id="sortableThemes" ui-sortable="lyrsctrl.sortableOptions" ng-model="lyrsctrl.themes">
                     <li class="li-item" ng-repeat="theme in lyrsctrl.themes">
                         <tink-Theme theme="theme" layercheckboxchange="lyrsctrl.updatethemevisibility(theme)" hidedelete="!lyrsctrl.deleteLayerButtonIsEnabled">

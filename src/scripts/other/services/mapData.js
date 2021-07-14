@@ -15,6 +15,7 @@
         _data.SelectedLayer = _data.defaultlayer;
         _data.DrawLayer = null;
         _data.DefaultLayer = null; // can be set from the featureservice
+        _data.QueryLayers = [];
         _data.SelectedFindLayer = _data.defaultlayer;
         _data.ResetVisibleLayers = function () {
             console.log("RestVisLayers");
@@ -32,10 +33,23 @@
             else {
                 _data.SelectedLayer = _data.defaultlayer;
             }
+            _data.AddQueryLayersToVisibleLayers();
+        }
+        _data.AddQueryLayersToVisibleLayers = function () {
+            _data.QueryLayers.filter(x => x.showLayer === true).forEach(q => {
+                _data.VisibleLayers = _data.VisibleLayers.concat(
+                    {
+                      name: `${q.layer.name} (query)`,
+                      isQueryLayer: true,
+                      layer: q
+                    }
+                  );
+            });
         }
         _data.ActiveInteractieKnop = ActiveInteractieButton.NIETS;
         _data.DrawingType = DrawingOption.NIETS;
         _data.ShowDrawControls = false;
+        _data.RemovedUnfinishedDrawings = false;
         _data.ShowMetenControls = false;
         _data.LastBufferedLayer = null;
         _data.LastBufferedDistance = 50;
@@ -199,10 +213,10 @@
                     '<img tink-tooltip="Ga naar streetview" tink-tooltip-align="bottom" src="https://seeklogo.com/images/G/google-street-view-logo-665165D1A8-seeklogo.com.png" width="70%" height="70%" />' +
                     '</a>' +
                     '</div>' +
-                    '<div class="col-sm-8 mouse-over">' +
+                    '<div class="col-sm-8">' +
                     '<div class="col-sm-12"><b>' + straatNaam + '</b></div>' +
-                    '<div class="col-sm-3">WGS84:</div><div id="wgs" class="col-sm-8" style="text-align: left;">{{WGS84LatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o mouse-over-toshow" ng-click="CopyWGS()"  tink-tooltip="Coördinaten kopieren naar het klembord" tink-tooltip-align="bottom"  ></i></div>' +
-                    '<div class="col-sm-3">Lambert:</div><div id="lambert" class="col-sm-8" style="text-align: left;">{{LambertLatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o mouse-over-toshow"  ng-click="CopyLambert()" tink-tooltip="Coördinaten kopieren naar het klembord" tink-tooltip-align="bottom"></i></div>' +
+                    '<div class="col-sm-3">WGS84:</div><div id="wgs" class="col-sm-8" style="text-align: left;">{{WGS84LatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o coordinate-pointer" ng-click="CopyWGS()"  tink-tooltip="Coördinaten kopieren naar het klembord" tink-tooltip-align="bottom"  ></i></div>' +
+                    '<div class="col-sm-3">Lambert:</div><div id="lambert" class="col-sm-8" style="text-align: left;">{{LambertLatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o coordinate-pointer"  ng-click="CopyLambert()" tink-tooltip="Coördinaten kopieren naar het klembord" tink-tooltip-align="bottom"></i></div>' +
                     '</div>' +
                     '</div>' +
                     '</div>';
@@ -225,9 +239,9 @@
                     '<img tink-tooltip="Ga naar streetview" tink-tooltip-align="bottom" src="https://seeklogo.com/images/G/google-street-view-logo-665165D1A8-seeklogo.com.png" width="70%" height="70%" />' +
                      '</a>' +
                      '</div>' +
-                     '<div class="col-sm-8 mouse-over">' +
-                     '<div class="col-sm-3">WGS84:</div><div id="wgs" class="col-sm-8" style="text-align: left;">{{WGS84LatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o mouse-over-toshow" ng-click="CopyWGS()"  tink-tooltip="Coördinaten kopieren naar het klembord" tink-tooltip-align="bottom"  ></i></div>' +
-                     '<div class="col-sm-3">Lambert:</div><div id="lambert" class="col-sm-8" style="text-align: left;">{{LambertLatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o mouse-over-toshow"  ng-click="CopyLambert()" tink-tooltip="Coördinaten kopieren naar het klembord" tink-tooltip-align="bottom"></i></div>' +
+                     '<div class="col-sm-8">' +
+                     '<div class="col-sm-3">WGS84:</div><div id="wgs" class="col-sm-8" style="text-align: left;">{{WGS84LatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o coordinate-pointer" ng-click="CopyWGS()"  tink-tooltip="Coördinaten kopieren naar het klembord" tink-tooltip-align="bottom"  ></i></div>' +
+                     '<div class="col-sm-3">Lambert:</div><div id="lambert" class="col-sm-8" style="text-align: left;">{{LambertLatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o coordinate-pointer"  ng-click="CopyLambert()" tink-tooltip="Coördinaten kopieren naar het klembord" tink-tooltip-align="bottom"></i></div>' +
                      '</div>' +
                      '</div>' +
                      '</div>';
@@ -258,6 +272,61 @@
             document.execCommand("copy");
             $temp.remove();
         }
+        _data.CreatePerimeterMarker = function(perimeter, surfaceArea, e)  {
+            var html =                        
+            '<div class="container container-low-padding">' +
+            '<div class="row row-no-padding">' +
+            '<div class="col-sm-5">Opp (m<sup>2</sup>):</div><div id="surfacearea" class= "col-sm-6" style="text-align: left">' + surfaceArea + '</div><div class="col-sm-1"><i class="fa fa-files-o coordinate-pointer"  ng-click="CopySurfaceArea()" tink-tooltip="Oppervlakte kopieren naar het klembord" tink-tooltip-align="bottom"></i></div>' +
+            '</div>' +
+            '<div class="row row-no-padding">' +
+            '<div class="col-sm-5">Omtrek (m):</div><div id="perimeter" class= "col-sm-6" style="text-align: left">' + perimeter + '</div><div class="col-sm-1"><i class="fa fa-files-o coordinate-pointer"  ng-click="CopyPerimeter()" tink-tooltip="Omtrek kopieren naar het klembord" tink-tooltip-align="bottom"></i></div>' +
+            '</div>' +
+            '</div>';
+
+            var linkFunction = $compile(html);
+            var newScope = $rootScope.$new();
+
+            newScope.CopySurfaceArea = function () {
+                copyToClipboard('#surfacearea');
+            };
+            newScope.CopyPerimeter = function () {
+                copyToClipboard('#perimeter');
+            };
+            var domele = linkFunction(newScope)[0];
+
+            var popup = e.layer.bindPopup(domele, { minWidth: 150, closeButton: true});
+            popup.on('popupclose', function (event) {
+                map.removeLayer(e.layer);
+                // MapData.CleanDrawings();
+                // MapData.CleanMap();
+            });
+            e.layer.openPopup();
+        };
+        _data.CreateDistanceMarker = function(distance, e) {
+            var html =                        
+            '<div class="container container-low-padding">' +
+            '<div class="row row-no-padding">' +
+            '<div class="col-sm-5">Afstand (m):</div><div id="distance" class= "col-sm-6" style="text-align: center">' + distance + '</div><div class="col-sm-1"><i class="fa fa-files-o coordinate-pointer"  ng-click="CopyDistance()" tink-tooltip="Afstand kopieren naar het klembord" tink-tooltip-align="bottom"></i></div>' +
+            '</div>' +
+            '</div>';
+
+            var linkFunction = $compile(html);
+            var newScope = $rootScope.$new();
+
+            newScope.CopyDistance = function () {
+                copyToClipboard('#distance');
+            };
+
+            var domele = linkFunction(newScope)[0];
+
+            var popup = e.layer.bindPopup(domele, { minWidth: 150, closeButton: true});
+            popup.on('popupclose', function (event) {
+                map.removeLayer(e.layer);
+                // MapData.CleanDrawings();
+                // MapData.CleanMap();
+            });
+            e.layer.openPopup();
+        };
         _data.CreateDot = function (loc) {
             _data.CleanWatIsHier();
             var dotIcon = L.icon({
@@ -265,6 +334,14 @@
                 iconSize: [24, 24]
             });
             WatIsHierMarker = L.marker([loc.x, loc.y], { icon: dotIcon }).addTo(map);
+        }
+
+        _data.CreateFeatureLayerMarker = function (loc, iconUrl) {
+            var icon = L.icon({
+                iconUrl: iconUrl,
+                iconAnchor: [10, 10],
+            });
+            return L.marker(loc, { icon: icon});
         }
         _data.CleanSearch = function () {
             ResultsData.CleanSearch();
@@ -342,7 +419,10 @@
                 }
                 if (_data.ExtendedType == null) { // else we don t have to clean the map!
                     featureArray.forEach(featureItem => {
-                        ResultsData.JsonFeatures.push(featureItem);
+                        var selectedFeature = ResultsData.JsonFeatures.filter(x => x.id == featureItem.id);
+                        if (selectedFeature.length === 0) {
+                            ResultsData.JsonFeatures.push(featureItem);
+                        }
                     });
                 } else {
                     _data.processedFeatureArray = featureArray.concat(_data.processedFeatureArray);
@@ -495,6 +575,10 @@
                         }
                     }
                     checkforitem();
+                    // set displayfieldvalue for raster layer
+                    if (featureItem.properties["Pixel Value"]) {
+                        featureItem.displayValue = featureItem.properties["Pixel Value"];
+                    }
                     var thestyle = Style.DEFAULT;
                     if (_data.ExtendedType == "add") {
                         thestyle = Style.ADD;

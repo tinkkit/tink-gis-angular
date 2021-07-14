@@ -11,6 +11,7 @@
             $scope.pagingCount = null;
             $scope.numberofrecordsmatched = 0;
             $scope.availableThemes = MapData.Themes;
+            $scope.queryLayers = MapData.QueryLayers;
             $scope.allThemes = [];
 
             $scope.searchChanged = function () {
@@ -23,6 +24,8 @@
             };
             $scope.selectedTheme = null;
             $scope.copySelectedTheme = null;
+            $scope.query = '';
+            $scope.selectedQueryLayer = null;
             $scope.previewTheme = function (theme) {
                 console.log('themeChanged');
                 console.log(theme);
@@ -31,13 +34,15 @@
                     theme = alreadyExistingTheme;
                 }
                 $scope.selectedTheme = theme;
-                $scope.copySelectedTheme = angular.copy(theme);
+                $scope.copySelectedTheme = _.cloneDeep(theme);
             };
             $scope.clearPreview = function () {
                 $scope.selectedTheme = null;
                 $scope.copySelectedTheme = null;
+                $scope.selectedQueryLayer = null;
             };
             $scope.ThemeChanged = function (theme) {
+                $scope.selectedQueryLayer = null;
                 $scope.previewTheme(theme);
                 // added to give the selected theme an Active class
                 $scope.selected = theme;
@@ -46,12 +51,34 @@
                 };
             };
 
+            $scope.QueryLayerChanged = function(queryLayer) {
+                $scope.selectedTheme = null;
+                $scope.copySelectedTheme = null;
+                $scope.selected = null;
+                $scope.selectedQueryLayer = queryLayer;
+                $scope.query = `FROM ${queryLayer.layer.layerName} WHERE ${queryLayer.layer.query}`;
+
+                $scope.isActiveQueryLayer = function (queryLayer) {
+                    return $scope.selectedQueryLayer === queryLayer;
+                }
+            }
+
             $scope.AddOrUpdateTheme = function () {
                 PopupService.Success("Data is bijgewerkt.", null, null, {  timeOut: 1000 });
                 LayerManagementService.AddOrUpdateTheme($scope.selectedTheme, $scope.copySelectedTheme);
                 $scope.clearPreview();
 
             };
+
+            $scope.delQueryLayer = function (queryLayer) {
+                if ($scope.selectedQueryLayer === queryLayer) {
+                    $scope.clearPreview();
+                }
+                const index = $scope.queryLayers.indexOf(queryLayer);
+                if (index !== -1) {
+                    ThemeService.DeleteQueryLayer(index);
+                }
+            }
             $scope.delTheme = function (theme) {
                 if ($scope.selectedTheme == theme) {
                     $scope.clearPreview();

@@ -62,12 +62,28 @@
             exportObject.themes = arr;
             exportObject.extent = map.getBounds();
             exportObject.isKaart = true;
+
+            if (MapData.QueryLayers) {
+                exportObject.QueryLayers = MapData.QueryLayers.map(queryLayer => {
+                    return {
+                        LayerId: queryLayer.layer.layerId,
+                        Name: queryLayer.layer.name,
+                        BaseUrl: queryLayer.layer.baseUrl,
+                        Where: queryLayer.layer.query,
+                        LayerName: queryLayer.layer.layerName,
+                        Visible: queryLayer.showLayer
+                    };
+                });    
+            }
+            
             return exportObject;
         };
 
         _externService.Import = function(project) {
             console.log(project);
             _externService.setExtent(project.extent);
+            ThemeService.DeleteAllQueryLayers();
+
             let themesArray = [];
             let promises = [];
 
@@ -107,7 +123,41 @@
                 }
             });
 
+            // import selected query layers
+            _.each(project.queryLayers, function(queryLayer) {
+                let queryLayerTheme = {
+                    cleanUrl: queryLayer.baseUrl,
+                    naam:'QueryLayer',
+                    type: ThemeType.ESRI,
+                    visible: true
+                };
 
+                let prom = GISService.GetThemeData(queryLayer.baseUrl);
+                promises.push(prom);
+                    prom.then(function(data) {
+                        if (data) {
+                            if (!data.error) {
+                                let arcgistheme = ThemeCreater.createARCGISThemeFromJson(data, queryLayerTheme);
+                                GISService.GetAditionalLayerInfo(arcgistheme);
+                                var layerName = queryLayer.name;
+                                if (queryLayer.layerName && queryLayer.layerName.match(/^ *$/) !== null) {
+                                    layerName = queryLayer.layerName;
+                                }
+                                ThemeService.AddQueryLayerFromImport(queryLayer.name, queryLayer.layerId , queryLayer.where, layerName, queryLayer.visible, arcgistheme);
+                            } else {
+                                PopupService.ErrorWithException("Fout bij laden van mapservice", "Kan mapservice met volgende url niet laden: " + queryLayerTheme.cleanUrl, data.error);
+                            }
+                        } else {
+                            var callback = function () { 
+                                var win = window.open('https://um.antwerpen.be/main.aspx', '_blank');
+                                win.focus();
+                             };
+                             var options = {};
+                             options.timeOut = 10000;
+                            PopupService.Warning("U hebt geen rechten om het thema " + queryLayerTheme.Naam  + " te raadplegen.", "Klik hier om toegang aan te vragen.", callback, options);
+                        }
+                    });
+            });
 
             var allpromises = $q.all(promises);
 
@@ -162,8 +212,9 @@
                     }
 
                 }
-
             });
+            
+            
             return allpromises;
 
         };
@@ -183,11 +234,26 @@
                 map.fitBounds(featureBounds);
             }
         };
+        
+        _externService.SetCityExtent = function() {
+            var extent = {
+                _northEast : {
+                    lat: "51.3877433490741",
+                    lng: "4.75561140002421"
+                },
+                _southWest: {
+                    lat: "51.1324947954227",
+                    lng: "3.95971169623321"
+                }
+            };
 
+            _externService.setExtent(extent);
+        }
 
         _externService.CleanMapAndThemes = function() {
             MapData.CleanMap();
             ThemeService.CleanThemes();
+            ThemeService.DeleteAllQueryLayers();
         };
         _externService.LoadConfig = function(config) {
             Gis.GeometryUrl = config.Gis.GeometryUrl;

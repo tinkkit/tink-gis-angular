@@ -41,6 +41,13 @@
                 displayKey: 'name',
                 source: function(query, syncResults, asyncResults) {
                     if (query.replace(/[^0-9]/g, '').length < 6) { // if less then 6 numbers then we just search
+                        var hasComma = query.indexOf(',');
+
+                        // if search isn't coordinates only search for the first part
+                        if (hasComma > -1) {
+                            query = query.replace(query.substr(hasComma, query.length), '');
+                        }
+
                         var splitquery = query.split(' ');
                         var numbers = splitquery.filter(x => isCharDigit(x[0]));
                         var notnumbers = splitquery.filter(x => !isCharDigit(x[0]));
@@ -48,7 +55,7 @@
                         if(query.length == 3){ //FIXES BUG SIK-496
                             _typeAheadService.lastStreetNameId = null;
                         }
-                        if (numbers.length == 1 && notnumbers.length >= 1) {
+                        if (numbers.length == 1 && (notnumbers.length >= 1 && !(notnumbers.length === 1 && notnumbers[0].toUpperCase() === 'KAAINUMMER'))) {
                             var huisnummer = numbers[0];
                             var strnmid = [];
                             var count = 0;
@@ -103,38 +110,49 @@
     
                                 });
                             } else {
-                                GISService.QueryCrabName(straatnaam, huisnummer).then(function(data) {
-                                    console.log(data);
-                                    var features = data.features.map(function(feature) {
+                                GISService.QueryLocationPickerAddress(straatnaam, huisnummer).then(function(data) {
+                                    var features = data.map(function(feature) {
                                         var obj = {};
-                                        obj.straatnaam = feature.attributes.STRAATNM;
-                                        obj.huisnummer = feature.attributes.HUISNR;
-                                        // obj.busnummer = feature.attributes.BUSNR;
-                                        obj.id = feature.attributes.OBJECTID;
-                                        obj.x = feature.geometry.x;
-                                        obj.y = feature.geometry.y;
-                                        obj.name = (obj.straatnaam.split('_')[0] + " " + obj.huisnummer).trim();
-                                        obj.postcode = feature.attributes.POSTCODE;
-                                        _typeAheadService.districts.forEach(district => {
-                                            if(district.postcode == obj.postcode){
-                                                obj.district = district.district;
-                                            }
-                                        });
-                                        if (obj.straatnaam.split('_')[1]){
-                                            obj.name = (obj.straatnaam.split('_')[0] + " " + obj.huisnummer + ", " + obj.postcode + " " + obj.district);
-                                        }else{
-                                            obj.name = obj.straatnaam + " " + obj.huisnummer + ", " + obj.postcode + " " + obj.district;
-                                        }
+                                        obj.straatnaam = feature.street.streetName;
+                                        obj.huisnummer = feature.houseNumber.houseNumber;
+                                        obj.id = feature.id;
+                                        obj.x = feature.addressPosition.lambert72.x;
+                                        obj.y = feature.addressPosition.lambert72.y;
+                                        obj.name = feature.formattedAddress;
+                                        obj.postcode = feature.municipalityPost.postCode;
+                                        obj.district = feature.municipalityPost.antwerpDistrict;
                                         return obj;
-                                    }).slice(0, 10);
+                                    }).slice (0,10);
+
                                     asyncResults(features);
-    
                                 });
                             }
                             
                         } else {
-                            GISService.QuerySOLRLocatie(query.trim()).then(function(data) {
-                                var arr = data.response.docs;
+                            GISService.QueryLocationPickerLocation(query.trim()).then(function(data) {
+                                var arr = data.map(function(feature) {
+                                    var obj = {};
+                                    obj.key = feature.id;
+                                    obj.id = feature.fullId;
+                                    obj.name = feature.name;
+                                    obj.layer = feature.layer;
+                                    obj.layerString = feature.layer;
+                                    if (feature.antwerpDistrict !== null && feature.antwerpDistrict.match(/^ *$/) === null) {
+                                        obj.districts = [feature.antwerpDistrict]
+                                    }
+                                    if (feature.position) {
+                                        if (feature.position.geometry) {
+                                            obj.geometry = feature.position.geometry;
+                                        }
+                                        if (feature.position.lambert72) {
+                                            obj.x = feature.position.lambert72.x;
+                                            obj.y = feature.position.lambert72.y;
+                                        }
+                                    }
+
+
+                                    return obj;
+                                });
                                 _typeAheadService.lastData = arr;
                                 asyncResults(arr);
                             });
@@ -169,9 +187,11 @@
                         var xyWGS84 = GisHelperService.ConvertLambert72ToWSG84(cors);
                         setViewAndPutDot(xyWGS84);
                     } else {
-                        var idsplitted = suggestion.id.split("/");
-                        var layerid = idsplitted[3];
-                        QueryForTempFeatures(layerid, 'ObjectID=' + suggestion.key);
+                        if (suggestion.id) {
+                            var idsplitted = suggestion.id.split("/");
+                            var layerid = idsplitted[3];
+                            QueryForTempFeatures(layerid, 'ObjectID=' + suggestion.key);
+                        }
 
                     }
                 }

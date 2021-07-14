@@ -64,8 +64,10 @@ namespace TinkGis {
         // suffixUrl: string;
         constructor(rawdata: any, themeData: any) {
             super();
+            const urlParts = themeData.cleanUrl.split("/");
+            const nameFromUrl = urlParts.length > 2 ? urlParts[urlParts.length - 2] : "";
             let rawlayers: any[] = rawdata.layers;
-            this.name = this.Naam = rawdata.documentInfo.Title;
+            this.name = this.Naam = rawdata.documentInfo.Title === "" ? nameFromUrl : rawdata.documentInfo.Title;
             this.Description = rawdata.documentInfo.Subject;
             this.cleanUrl = themeData.cleanUrl;
             this.Opacity = themeData.opacity;
@@ -133,7 +135,16 @@ namespace TinkGis {
                     lays.push(layers);
                 }
                 else {
-                    lays = layers;
+                    //check if layers have child layers and add these
+                    let tempLayers = [];
+                    layers.forEach(element => {
+                        if (element.layer) {
+                            tempLayers = [...tempLayers, ...element.layer];
+                        } else {
+                            tempLayers.push(element);
+                        }
+                    });
+                    lays = tempLayers;
                 }
             } else {
                 lays.push(data.capability.layer);

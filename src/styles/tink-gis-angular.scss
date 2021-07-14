@@ -357,6 +357,10 @@ button.btn.active {
   min-height: 0;
 }
 
+.SEARCHRESULT {
+  overflow: auto;
+}
+
 .overflow-wrapper {
   overflow: auto;
   // width: 100%; // !!perhaps not necessary?
@@ -435,6 +439,33 @@ button.btn.active {
   }
 }
 
+.can-open-second {
+
+  .show-layer-second {
+    cursor: pointer;
+    display: inline-block;
+    padding: 0 rem(5) 0 rem(5);
+    user-select: none;
+
+    &:after {
+      content: "\f0d7";
+      font-family: FontAwesome;
+      font-style: normal;
+      font-weight: normal;
+      // transition: color $animation-speed linear, transform $animation-speed linear; // doesn't work right now
+    }
+  }
+
+  &.open {
+    .show-layer-second {
+      &:after {
+        content: "\f0d8";
+        // transform: rotate(180deg); // doesn't work right now
+      }
+    }
+  }
+}
+
 /**
  * Rightside layer menu
  */
@@ -472,6 +503,7 @@ button.trashcan {
 
 .toc-item-without-icon {
   display: inline-flex; //set as inline-level flex container
+  position: relative;
 }
 
 .toc-item-with-icon {
@@ -486,6 +518,11 @@ button.trashcan {
   }
 }
 
+.querylayer-legend {
+  .layer-icon {
+    margin-right: rem(5);
+  }
+}
 // indentingwise more correct but visually not better
 // .li-item {
 //   position: relative;
@@ -756,6 +793,11 @@ input.typeahead.tt-input-querybuild {
 input.typeahead.tt-hint-querybuild{
   background-color: #fff;
   width: 100%;
+}
+
+input#queryLayerName {
+  display: inline;
+  width: 20rem;
 }
 
 .tt-suggestion + .tt-suggestion {
@@ -1232,6 +1274,11 @@ html.print.landscape {
   }
 }
 
+.coordinate-pointer {
+  display: inline-block;
+  cursor: pointer;
+}
+
 
 
 // @media print {
@@ -1481,4 +1528,16 @@ button.disabled {
 
 .custom-slider.rzslider .rz-tick.rz-selected {
   background:#347ea6 ;
+}
+
+.black-label {
+  color: #333;
+  font-weight: normal;
+  min-height: 1.7142857143rem;
+  padding: 0rem 0rem 0rem 0.5rem;
+  position: relative;
+}
+
+.text-cursor {
+  cursor: text !important;
 }

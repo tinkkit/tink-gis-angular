@@ -1551,6 +1551,10 @@ Gis.Arcgissql = Gis.BaseUrl + 'arcgissql/rest/';
 var Solr = {
     BaseUrl: 'https://esb-app1-o.antwerpen.be/v1/'
 };
+var LocationPicker = {
+    BaseUrl: 'https://api-gw-o.antwerpen.be/gis/locationpicker/v2/',
+    ApiKey: '04c0f399-9e6a-4655-9b9b-a1b3f567c877'
+};
 var DrawingOption = {
     GEEN: 'geen',
     NIETS: '',
@@ -1619,12 +1623,14 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         $scope.data = null;
         $scope.status = null;
         $scope.url = null;
+        $scope.canceller = null;
 
         $scope.pagingCount = null;
         $scope.numberofrecordsmatched = 0;
         LayerManagementService.EnabledThemes.length = 0;
         LayerManagementService.AvailableThemes.length = 0;
-        LayerManagementService.EnabledThemes = angular.copy(MapData.Themes);
+        // can throw errors with alot of data because of circular reference between theme and layer
+        LayerManagementService.EnabledThemes = _.cloneDeep(MapData.Themes);
         $scope.availableThemes = [];
         var init = function () {
             $scope.searchTerm = '';
@@ -1650,7 +1656,12 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         $scope.QueryGeoPunt = function (searchTerm, page) {
             $scope.loading = true;
             $scope.clearPreview();
-            var prom = GeopuntService.getMetaData(searchTerm, (page - 1) * 5 + 1, 5);
+
+            if ($scope.canceller) {
+                $scope.canceller.resolve("cancelled");
+            }
+            $scope.canceller = $q.defer();
+            var prom = GeopuntService.getMetaData(searchTerm, (page - 1) * 5 + 1, 5, $scope.canceller.promise);
             prom.then(function (metadata) {
 
                 if ($scope.currentPage == 0) {
@@ -1663,6 +1674,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 $scope.nextrecord = metadata.nextrecord;
                 $scope.numberofrecordsmatched = metadata.numberofrecordsmatched;
                 $scope.$parent.geopuntCount = metadata.numberofrecordsmatched;
+                $scope.canceller = null;
             }, function (reason) {
                 console.log(reason);
                 $scope.$parent.geopuntLoading = false;
@@ -1672,6 +1684,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 $scope.data = reason.data;
                 $scope.status = reason.status;
                 $scope.url = reason.url;
+                $scope.canceller = null;
             });
         };
         $scope.pageChanged = function (page, recordsAPage) {
@@ -1714,7 +1727,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         $scope.copySelectedTheme = null;
         $scope.previewTheme = function (theme) {
             $scope.selectedTheme = theme;
-            $scope.copySelectedTheme = angular.copy(theme);
+            $scope.copySelectedTheme = _.cloneDeep(theme);
         };
         $scope.clearPreview = function () {
             $scope.selectedTheme = null;
@@ -1783,6 +1796,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         $scope.pagingCount = null;
         $scope.numberofrecordsmatched = 0;
         $scope.availableThemes = MapData.Themes;
+        $scope.queryLayers = MapData.QueryLayers;
         $scope.allThemes = [];
 
         $scope.searchChanged = function () {};
@@ -1793,6 +1807,8 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         };
         $scope.selectedTheme = null;
         $scope.copySelectedTheme = null;
+        $scope.query = '';
+        $scope.selectedQueryLayer = null;
         $scope.previewTheme = function (theme) {
             console.log('themeChanged');
             console.log(theme);
@@ -1803,13 +1819,15 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 theme = alreadyExistingTheme;
             }
             $scope.selectedTheme = theme;
-            $scope.copySelectedTheme = angular.copy(theme);
+            $scope.copySelectedTheme = _.cloneDeep(theme);
         };
         $scope.clearPreview = function () {
             $scope.selectedTheme = null;
             $scope.copySelectedTheme = null;
+            $scope.selectedQueryLayer = null;
         };
         $scope.ThemeChanged = function (theme) {
+            $scope.selectedQueryLayer = null;
             $scope.previewTheme(theme);
             // added to give the selected theme an Active class
             $scope.selected = theme;
@@ -1818,10 +1836,32 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             };
         };
 
+        $scope.QueryLayerChanged = function (queryLayer) {
+            $scope.selectedTheme = null;
+            $scope.copySelectedTheme = null;
+            $scope.selected = null;
+            $scope.selectedQueryLayer = queryLayer;
+            $scope.query = 'FROM ' + queryLayer.layer.layerName + ' WHERE ' + queryLayer.layer.query;
+
+            $scope.isActiveQueryLayer = function (queryLayer) {
+                return $scope.selectedQueryLayer === queryLayer;
+            };
+        };
+
         $scope.AddOrUpdateTheme = function () {
             PopupService.Success("Data is bijgewerkt.", null, null, { timeOut: 1000 });
             LayerManagementService.AddOrUpdateTheme($scope.selectedTheme, $scope.copySelectedTheme);
             $scope.clearPreview();
+        };
+
+        $scope.delQueryLayer = function (queryLayer) {
+            if ($scope.selectedQueryLayer === queryLayer) {
+                $scope.clearPreview();
+            }
+            var index = $scope.queryLayers.indexOf(queryLayer);
+            if (index !== -1) {
+                ThemeService.DeleteQueryLayer(index);
+            }
         };
         $scope.delTheme = function (theme) {
             if ($scope.selectedTheme == theme) {
@@ -1889,6 +1929,19 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             });
             $scope.addorupdatefunc();
         };
+    }]);
+})();
+;'use strict';
+
+(function (module) {
+    var module;
+    try {
+        module = angular.module('tink.gis');
+    } catch (e) {
+        module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']);
+    }
+    module.controller('previewQueryLayerController', ['$scope', function ($scope) {
+        console.log($scope);
     }]);
 })();
 ;'use strict';
@@ -2082,13 +2135,11 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                     layer.AllLayers.forEach(function (x) {
                         return x.enabled = true;
                     });
-                    if (layer.parent) {
-                        layer.parent.enabled = true;
-                    }
+                    $scope.CheckAndSetParentEnabled(layer);
                 }
             }
             $scope.selectedTheme = theme;
-            $scope.copySelectedTheme = angular.copy(theme);
+            $scope.copySelectedTheme = _.cloneDeep(theme);
         };
         $scope.clearPreview = function () {
             $scope.selectedTheme = null;
@@ -2134,6 +2185,13 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             LayerManagementService.AddOrUpdateTheme($scope.selectedTheme, $scope.copySelectedTheme);
             $scope.clearPreview();
         };
+        $scope.CheckAndSetParentEnabled = function (layer) {
+            if (layer.parent) {
+                layer.parent.enabled = true;
+                $scope.CheckAndSetParentEnabled(layer.parent);
+            }
+        };
+
         $scope.ok = function () {
             $modalInstance.$close();
         };
@@ -2151,7 +2209,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
     } catch (e) {
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
     }
-    module.controller('wmsUrlController', ['$scope', 'ThemeCreater', '$q', 'MapService', 'MapData', 'GISService', 'LayerManagementService', 'WMSService', '$window', '$http', 'GeopuntService', 'PopupService', function ($scope, ThemeCreater, $q, MapService, MapData, GISService, LayerManagementService, WMSService, $window, $http, GeopuntService, PopupService) {
+    module.controller('themeUrlController', ['$scope', 'ThemeCreater', '$q', 'MapService', 'MapData', 'GISService', 'LayerManagementService', 'WMSService', '$window', '$http', 'GeopuntService', 'PopupService', function ($scope, ThemeCreater, $q, MapService, MapData, GISService, LayerManagementService, WMSService, $window, $http, GeopuntService, PopupService) {
         $scope.urlIsValid = false;
 
         $scope.themeloading = false;
@@ -2165,10 +2223,15 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         };
         $scope.laadUrl = function () {
             $scope.url = $scope.url.trim().replace('?', '');
-            createWMS($scope.url);
+            $scope.clearPreview();
+            if ($scope.url.toLowerCase().endsWith("mapserver")) {
+                createTheme($scope.url);
+            } else {
+                createWMS($scope.url);
+            }
         };
         var createWMS = function createWMS(url) {
-            $scope.clearPreview();
+
             var wms = MapData.Themes.find(function (x) {
                 return x.cleanUrl == url;
             });
@@ -2192,11 +2255,43 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 $scope.previewTheme(wms);
             }
         };
+        var createTheme = function createTheme(url) {
+            if (url.contains("http://")) {
+                url = url.replace("http://", "https://");
+            }
+
+            var gisTheme = MapData.Themes.find(function (x) {
+                return x.cleanUrl === url;
+            });
+            if (!gisTheme) {
+                var getGisTheme = GISService.GetThemeData(url);
+                $scope.themeloading = true;
+                getGisTheme.then(function (data) {
+                    $scope.themeloading = false;
+                    if (data) {
+                        var themeData = {
+                            cleanUrl: url,
+                            opacity: 1
+                        };
+                        var gisTheme = ThemeCreater.createARCGISThemeFromJson(data, themeData);
+                        $scope.previewTheme(gisTheme);
+                    } else {
+                        $scope.error = "Fout bij het laden van Mapserver.";
+                        PopupService.Error("Ongeldige Mapserver", "De opgegeven url is geen geldige Mapserver url. (" + url + ")");
+                    }
+                }, function (reason) {
+                    $scope.error = "Fout bij het laden van Mapserver.";
+                    $scope.themeloading = false;
+                });
+            } else {
+                $scope.previewTheme(gisTheme);
+            }
+        };
         $scope.selectedTheme = null;
         $scope.copySelectedTheme = null;
         $scope.previewTheme = function (theme) {
             $scope.selectedTheme = theme;
-            $scope.copySelectedTheme = angular.copy(theme);
+            $scope.copySelectedTheme = _.cloneDeep(theme);
         };
         $scope.clearPreview = function () {
             $scope.selectedTheme = null;
@@ -2287,6 +2382,23 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
 
 (function (module) {
     module = angular.module('tink.gis');
+    module.directive('previewQueryLayer', function () {
+        return {
+            replace: true,
+            scope: {
+                querylayer: '=',
+                query: '='
+            },
+            templateUrl: 'templates/layermanagement/previewQueryLayerTemplate.html',
+            controller: 'previewQueryLayerController',
+            controllerAs: 'previewQueryCtrl'
+        };
+    });
+})();
+;'use strict';
+
+(function (module) {
+    module = angular.module('tink.gis');
     module.directive('solrGis', function () {
         return {
             replace: true,
@@ -2303,15 +2415,15 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
 
 (function (module) {
     module = angular.module('tink.gis');
-    module.directive('wmsUrl', function () {
+    module.directive('themeUrl', function () {
         return {
             replace: true,
             scope: {
                 layer: '='
             },
-            templateUrl: 'templates/layermanagement/wmsUrlTemplate.html',
-            controller: 'wmsUrlController',
-            controllerAs: 'wmsUrlctrl'
+            templateUrl: 'templates/layermanagement/themeUrlTemplate.html',
+            controller: 'themeUrlController',
+            controllerAs: 'themeUrlctrl'
         };
     });
 })();
@@ -2325,39 +2437,48 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
             var searchterm = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'water';
             var startpos = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
             var recordsAPage = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 10;
+            var cancelProm = arguments[3];
 
-            var url = 'https://metadata.geopunt.be/zoekdienst/srv/dut/csw?' + 'service=CSW&version=2.0.2&SortBy=title&request=GetRecords&namespace=xmlns(csw=http://www.opengis.net/cat/csw)&resultType=results&outputSchema=http://www.opengis.net/cat/csw/2.0.2&outputFormat=application/xml' + '&startPosition=' + startpos + '&maxRecords=' + recordsAPage + '&typeNames=csw:Record&elementSetName=full&constraintLanguage=CQL_TEXT&constraint_language_version=1.1.0' + '&constraint=AnyText%20LIKE%20%27%' + searchterm + '%%27AND%20Type%20=%20%27service%27%20AND%20Servicetype%20=%27view%27'; //%20AND%20MetadataPointOfContact%20=%27%27'; //MetadataPointOfContact%20=%27AIV%27';            // var url = 'https://metadata.geopunt.be/zoekdienst/srv/dut/csw?service=CSW&version=2.0.2&SortBy=title&request=GetRecords&namespace=xmlns%28csw=http://www.opengis.net/cat/csw%29&resultType=results&outputSchema=http://www.opengis.net/cat/csw/2.0.2&outputFormat=application/xml&startPosition=' + startpos + '&maxRecords=' + recordsAPage + '&typeNames=csw:Record&elementSetName=full&constraintLanguage=CQL_TEXT&constraint_language_version=1.1.0&constraint=AnyText+LIKE+%27%25' + searchterm + '%25%27AND%20Type%20=%20%27service%27%20AND%20Servicetype%20=%27view%27%20AND%20MetadataPointOfContact%20=%27AIV%27';
+            var url = 'https://metadata.vlaanderen.be/srv/dut/csw?' + 'service=CSW&version=2.0.2&SortBy=title&request=GetRecords&namespace=xmlns(csw=http://www.opengis.net/cat/csw)&resultType=results&outputSchema=http://www.opengis.net/cat/csw/2.0.2&outputFormat=application/xml' + '&startPosition=' + startpos + '&maxRecords=' + recordsAPage + '&typeNames=csw:Record&elementSetName=full&constraintLanguage=CQL_TEXT&constraint_language_version=1.1.0' + '&constraint=AnyText%20LIKE%20%27%' + searchterm + '%%27AND%20Type%20=%20%27service%27%20AND%20Servicetype%20=%27view%27'; //%20AND%20MetadataPointOfContact%20=%27%27'; //MetadataPointOfContact%20=%27AIV%27';            // var url = 'https://metadata.geopunt.be/zoekdienst/srv/dut/csw?service=CSW&version=2.0.2&SortBy=title&request=GetRecords&namespace=xmlns%28csw=http://www.opengis.net/cat/csw%29&resultType=results&outputSchema=http://www.opengis.net/cat/csw/2.0.2&outputFormat=application/xml&startPosition=' + startpos + '&maxRecords=' + recordsAPage + '&typeNames=csw:Record&elementSetName=full&constraintLanguage=CQL_TEXT&constraint_language_version=1.1.0&constraint=AnyText+LIKE+%27%25' + searchterm + '%25%27AND%20Type%20=%20%27service%27%20AND%20Servicetype%20=%27view%27%20AND%20MetadataPointOfContact%20=%27AIV%27';
             // var url = 'https://metadata.geopunt.be/zoekdienst/srv/dut/q?fast=index&from=' + startpos + '&to=' + recordsAPage + '&any=*' + searchterm + '*&sortBy=title&sortOrder=reverse&hitsperpage=' + recordsAPage;
             var prom = $q.defer();
             var proxiedurl = helperService.CreateProxyUrl(url);
-            $http.get(proxiedurl).success(function (data, status, headers, config) {
+            $http.get(proxiedurl, { timeout: cancelProm }).success(function (data, status, headers, config) {
                 if (data) {
                     data = helperService.UnwrapProxiedData(data);
                     var returnjson = JXON.stringToJs(data);
-                    var getResults = returnjson['csw:getrecordsresponse']['csw:searchresults'];
-                    var returnObject = {};
-                    returnObject.results = [];
-                    returnObject.searchTerm = searchterm;
-                    returnObject.currentrecord = startpos;
-                    returnObject.recordsAPage = recordsAPage;
-                    returnObject.nextrecord = getResults.nextrecord;
-                    returnObject.numberofrecordsmatched = getResults.numberofrecordsmatched;
-                    returnObject.numberofrecordsreturned = getResults.numberofrecordsreturned;
-                    if (returnObject.numberofrecordsmatched != 0) {
-                        // only foreach when there are items
-                        var themeArr = [];
-                        if (getResults['csw:record'].constructor === Array) {
-                            themeArr = getResults['csw:record'];
-                        } else {
-                            themeArr.push(getResults['csw:record']);
+                    if (returnjson['csw:getrecordsresponse'] && ['csw:searchresults']) {
+                        var getResults = returnjson['csw:getrecordsresponse']['csw:searchresults'];
+                        var returnObject = {};
+                        returnObject.results = [];
+                        returnObject.searchTerm = searchterm;
+                        returnObject.currentrecord = startpos;
+                        returnObject.recordsAPage = recordsAPage;
+                        returnObject.nextrecord = getResults.nextrecord;
+                        returnObject.numberofrecordsmatched = getResults.numberofrecordsmatched;
+                        returnObject.numberofrecordsreturned = getResults.numberofrecordsreturned;
+                        if (returnObject.numberofrecordsmatched != 0) {
+                            // only foreach when there are items
+                            var themeArr = [];
+                            if (getResults['csw:record'].constructor === Array) {
+                                themeArr = getResults['csw:record'];
+                            } else {
+                                themeArr.push(getResults['csw:record']);
+                            }
+                            themeArr.forEach(function (record) {
+                                var processedTheme = procesTheme(record);
+                                returnObject.results.push(processedTheme);
+                            });
                         }
-                        themeArr.forEach(function (record) {
-                            var processedTheme = procesTheme(record);
-                            returnObject.results.push(processedTheme);
-                        });
+                        prom.resolve(returnObject);
+                        // console.log(getResults['csw:record']);
+                    } else {
+                        var rejectdata = [];
+                        rejectdata.data = data;
+                        rejectdata.status = status;
+                        rejectdata.url = url;
+                        prom.reject(rejectdata);
                     }
-                    prom.resolve(returnObject);
-                    // console.log(getResults['csw:record']);
                 } else {
                     prom.reject(null);
                     console.log('EMPTY RESULT');
@@ -2497,7 +2618,9 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
     var theController = module.controller('layersController', function ($scope, MapData, map, ThemeService, $modal, FeatureService) {
         var vm = this;
         vm.themes = MapData.Themes;
+        vm.queryLayers = MapData.QueryLayers;
         vm.selectedLayers = [];
+        vm.showQueryLayers = true;
 
         vm.sortableOptions = {
             stop: function stop(e, ui) {
@@ -2532,6 +2655,12 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
         });
         vm.updatethemevisibility = function (theme) {
             ThemeService.UpdateThemeVisibleLayers(theme);
+        };
+        vm.updateQueryVisibility = function (index) {
+            ThemeService.updateQueryVisibility(index);
+        };
+        vm.deleteQueryLayer = function (index) {
+            ThemeService.DeleteQueryLayer(index);
         };
         vm.Lagenbeheer = function () {
             var addLayerInstance = $modal.open({
@@ -2572,7 +2701,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
     var init = function () {
       console.log("Tink-Gis-Angular component init!!!!!!!!!");
       if (window.location.href.startsWith("http://localhost:9000/")) {
-        var externproj = JSON.parse('{"themes":[{"Naam":"Planon","cleanUrl":"https://geoint.antwerpen.be/arcgissql/rest/services/P_Planon/planon/MapServer","type":"esri","visible":true,"layers":[{"visible":true,"name":"PLANON_DOSSIER","id":1},{"visible":true,"name":"perceel","id":4}]},{"Naam":"Patrimonium","cleanUrl":"https://geoint.antwerpen.be/arcgis/rest/services/P_Sik/Patrimonium/MapServer","type":"esri","visible":true,"layers":[{"visible":true,"name":"KAVIA","id":17}]}],"extent":{"_southWest":{"lat":51.20536146014249,"lng":4.409578736245564},"_northEast":{"lat":51.206417795952646,"lng":4.411724381984817}},"isKaart":true}');
+        var externproj = JSON.parse('{"naam":"sorteerstraat 2","extent":{"_northEast":{"lat":"51.2302167641279","lng":"4.42211298202784"},"_southWest":{"lat":"51.2296967607896","lng":"4.42029424518419"}},"guid":"376edeed-60e1-44cc-93ff-4e149cc4d4bc","extentString":"51.2302167641279,4.42211298202784,51.2296967607896,4.42029424518419","isKaart":true,"uniqId":202,"creatorId":38,"creator":null,"createDate":"2021-02-09T10:33:01.774872","updaterId":38,"updater":null,"lastUpdated":"2021-02-09T10:33:01.774872","themes":[{"cleanUrl":"https://geoint.antwerpen.be/arcgissql/rest/services/P_Stad/Afval/Mapserver","naam":"Afval","type":"esri","visible":true,"layers":[{"id":"5","name":"sorteerstraat_ondergronds","visible":true},{"id":"2","name":"papiermand","visible":false},{"id":"0","name":"Afval-inzameling","visible":true}],"opacity":1}],"queryLayers":[{"layerId":5,"name":"sorteerstraat_ondergronds","baseUrl":"https://geoint.antwerpen.be/arcgissql/rest/services/P_Stad/Afval/Mapserver","where":"OBJECTID = \'20\' "}],"isReadOnly":false}');
         ExternService.Import(externproj);
 
         PopupService.Success("Dev autoload", "Velo en fietspad loaded because you are in DEV.", function () {
@@ -2702,6 +2831,13 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
       }
     };
     vm.drawingButtonChanged = function (drawOption) {
+      MapData.RemovedUnfinishedDrawings = false;
+      // if there is an unfinished intake, remove first before starting new intake
+      if (MapData.DrawingObject && MapData.DrawingObject._enabled) {
+        MapData.RemovedUnfinishedDrawings = true;
+        MapData.CleanDrawings();
+      }
+
       if (MapData.ExtendedType == null) {
         // else we don t have to clean the map!
 
@@ -2771,6 +2907,9 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
     };
     vm.fullExtent = function () {
       map.setView(new L.LatLng(51.2192159, 4.4028818), 16);
+    };
+    vm.setCityView = function () {
+      ExternService.SetCityExtent();
     };
     vm.IsBaseMap1 = true;
     vm.IsBaseMap2 = false;
@@ -3021,30 +3160,29 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
 
                     // Watch the children for changes
                     scope.$watch(watchChildrenListWithProperty, function (newValue, oldValue) {
-                        if (newValue !== oldValue) {
-                            var hasChecked = false;
-                            var hasUnchecked = false;
-                            // Loop through the children
-                            angular.forEach(newValue, function (child) {
-                                if (child) {
-                                    hasChecked = true;
-                                } else {
-                                    hasUnchecked = true;
-                                }
-                            });
-                            // Determine which state to put the checkbox in
-                            if (hasChecked && hasUnchecked) {
-                                element.prop('checked', true);
-                                element.prop('indeterminate', true);
-                                if (modelCtrl) {
-                                    modelCtrl.$setViewValue(true);
-                                }
+
+                        var hasChecked = false;
+                        var hasUnchecked = false;
+                        // Loop through the children
+                        angular.forEach(newValue, function (child) {
+                            if (child) {
+                                hasChecked = true;
                             } else {
-                                element.prop('checked', hasChecked);
-                                element.prop('indeterminate', false);
-                                if (modelCtrl) {
-                                    modelCtrl.$setViewValue(hasChecked);
-                                }
+                                hasUnchecked = true;
+                            }
+                        });
+                        // Determine which state to put the checkbox in
+                        if (hasChecked && hasUnchecked) {
+                            element.prop('checked', true);
+                            element.prop('indeterminate', true);
+                            if (modelCtrl) {
+                                modelCtrl.$setViewValue(true);
+                            }
+                        } else {
+                            element.prop('checked', hasChecked);
+                            element.prop('indeterminate', false);
+                            if (modelCtrl) {
+                                modelCtrl.$setViewValue(hasChecked);
                             }
                         }
                     }, true);
@@ -3476,12 +3614,28 @@ var esri2geo = {};
             exportObject.themes = arr;
             exportObject.extent = map.getBounds();
             exportObject.isKaart = true;
+
+            if (MapData.QueryLayers) {
+                exportObject.QueryLayers = MapData.QueryLayers.map(function (queryLayer) {
+                    return {
+                        LayerId: queryLayer.layer.layerId,
+                        Name: queryLayer.layer.name,
+                        BaseUrl: queryLayer.layer.baseUrl,
+                        Where: queryLayer.layer.query,
+                        LayerName: queryLayer.layer.layerName,
+                        Visible: queryLayer.showLayer
+                    };
+                });
+            }
+
             return exportObject;
         };
 
         _externService.Import = function (project) {
             console.log(project);
             _externService.setExtent(project.extent);
+            ThemeService.DeleteAllQueryLayers();
+
             var themesArray = [];
             var promises = [];
 
@@ -3518,6 +3672,42 @@ var esri2geo = {};
                         console.log('error!!!!!!!', data, status, headers, config);
                     });
                 }
+            });
+
+            // import selected query layers
+            _.each(project.queryLayers, function (queryLayer) {
+                var queryLayerTheme = {
+                    cleanUrl: queryLayer.baseUrl,
+                    naam: 'QueryLayer',
+                    type: ThemeType.ESRI,
+                    visible: true
+                };
+
+                var prom = GISService.GetThemeData(queryLayer.baseUrl);
+                promises.push(prom);
+                prom.then(function (data) {
+                    if (data) {
+                        if (!data.error) {
+                            var arcgistheme = ThemeCreater.createARCGISThemeFromJson(data, queryLayerTheme);
+                            GISService.GetAditionalLayerInfo(arcgistheme);
+                            var layerName = queryLayer.name;
+                            if (queryLayer.layerName && queryLayer.layerName.match(/^ *$/) !== null) {
+                                layerName = queryLayer.layerName;
+                            }
+                            ThemeService.AddQueryLayerFromImport(queryLayer.name, queryLayer.layerId, queryLayer.where, layerName, queryLayer.visible, arcgistheme);
+                        } else {
+                            PopupService.ErrorWithException("Fout bij laden van mapservice", "Kan mapservice met volgende url niet laden: " + queryLayerTheme.cleanUrl, data.error);
+                        }
+                    } else {
+                        var callback = function callback() {
+                            var win = window.open('https://um.antwerpen.be/main.aspx', '_blank');
+                            win.focus();
+                        };
+                        var options = {};
+                        options.timeOut = 10000;
+                        PopupService.Warning("U hebt geen rechten om het thema " + queryLayerTheme.Naam + " te raadplegen.", "Klik hier om toegang aan te vragen.", callback, options);
+                    }
+                });
             });
 
             var allpromises = $q.all(promises);
@@ -3581,6 +3771,7 @@ var esri2geo = {};
                     }
                 }
             });
+
             return allpromises;
         };
         _externService.setExtent = function (extent) {
@@ -3597,9 +3788,25 @@ var esri2geo = {};
             }
         };
 
+        _externService.SetCityExtent = function () {
+            var extent = {
+                _northEast: {
+                    lat: "51.3877433490741",
+                    lng: "4.75561140002421"
+                },
+                _southWest: {
+                    lat: "51.1324947954227",
+                    lng: "3.95971169623321"
+                }
+            };
+
+            _externService.setExtent(extent);
+        };
+
         _externService.CleanMapAndThemes = function () {
             MapData.CleanMap();
             ThemeService.CleanThemes();
+            ThemeService.DeleteAllQueryLayers();
         };
         _externService.LoadConfig = function (config) {
             Gis.GeometryUrl = config.Gis.GeometryUrl;
@@ -3635,11 +3842,26 @@ var esri2geo = {};
                 _featureService.extraResultButtonConditionCallBack = conditioncallback;
             }
         };
+        _featureService.ConfigSecondResultButton = function (isEnabled, text, callback, conditioncallback) {
+            _featureService.secondResultButtonText = text;
+            _featureService.secondResultButtonIsEnabled = isEnabled;
+            if (callback) {
+                _featureService.secondResultButtonCallBack = callback;
+            }
+            if (conditioncallback) {
+                _featureService.secondResultButtonConditionCallBack = conditioncallback;
+            }
+        };
         _featureService.extraResultButtonIsEnabled = false;
+        _featureService.secondResultButtonIsEnabled = false;
         _featureService.resultButtonText = 'extra knop text';
+        _featureService.secondResultButtonText = 'extra knop text';
         _featureService.extraResultButtonCallBack = function () {};
         _featureService.extraResultButtonConditionCallBack = function () {
             return _featureService.extraResultButtonIsEnabled;
+        };
+        _featureService.secondResultButtonConditionCallBack = function () {
+            return _featureService.secondResultButtonIsEnabled;
         };
         return _featureService;
     };
@@ -3895,6 +4117,43 @@ var esri2geo = {};
             });
             return prom.promise;
         };
+        _service.QueryLocationPickerLocation = function (search) {
+            var prom = $q.defer();
+            var req = $http({
+                method: 'GET',
+                url: LocationPicker.BaseUrl + 'locations?search=' + search + '&sort=name&limit=50&layers=all&prioritizelayer=district,straatnaam',
+                headers: {
+                    'apikey': LocationPicker.ApiKey
+                }
+            });
+
+            req.success(function (data, status, headers, config) {
+                // data = GisHelperService.UnwrapProxiedData(data);
+                prom.resolve(data);
+            }).error(function (data, status, headers, config) {
+                prom.reject(null);
+                PopupService.ErrorFromHttp(data, status, url);
+            });
+            return prom.promise;
+        };
+        _service.QueryLocationPickerAddress = function (streetName, houseNumber) {
+            var prom = $q.defer();
+            var req = $http({
+                method: 'GET',
+                url: LocationPicker.BaseUrl + 'addresses?streetname=' + streetName + '&housenumber=' + houseNumber,
+                headers: {
+                    'apikey': LocationPicker.ApiKey
+                }
+            });
+
+            req.success(function (data, status, headers, config) {
+                prom.resolve(data);
+            }).error(function (data, status, headers, config) {
+                prom.reject(null);
+                PopupService.ErrorFromHttp(data, status, url);
+            });
+            return prom.promise;
+        };
         _service.QuerySOLRLocatie = function (search) {
             var prom = $q.defer();
             var url = Solr.BaseUrl + 'giszoek/solr/search?q=*' + search + '*&wt=json&indent=true&rows=50&solrtype=gislocaties&dismax=true&bq=exactName:DISTRICT^20000.0&bq=layer:straatnaam^20000.0';
@@ -3963,6 +4222,20 @@ var esri2geo = {};
             var prom = $q.defer();
 
             var url = completeUrl(cleanurl) + '/legend?f=pjson';
+            $http.get(url, generateOptionsBasedOnUrl(url)).success(function (data, status, headers, config) {
+                // data = GisHelperService.UnwrapProxiedData(data);
+                prom.resolve(data);
+            }).error(function (data, status, headers, config) {
+                prom.reject(null);
+                PopupService.ErrorFromHttp(data, status, url);
+            });
+            return prom.promise;
+        };
+
+        _service.GetLayerSpecification = function (layerUrl) {
+            var prom = $q.defer();
+            var url = layerUrl + '?f=pjson';
+
             $http.get(url, generateOptionsBasedOnUrl(url)).success(function (data, status, headers, config) {
                 // data = GisHelperService.UnwrapProxiedData(data);
                 prom.resolve(data);
@@ -4375,6 +4648,7 @@ L.control.typeahead = function (args) {
         _data.SelectedLayer = _data.defaultlayer;
         _data.DrawLayer = null;
         _data.DefaultLayer = null; // can be set from the featureservice
+        _data.QueryLayers = [];
         _data.SelectedFindLayer = _data.defaultlayer;
         _data.ResetVisibleLayers = function () {
             console.log("RestVisLayers");
@@ -4397,10 +4671,23 @@ L.control.typeahead = function (args) {
             } else {
                 _data.SelectedLayer = _data.defaultlayer;
             }
+            _data.AddQueryLayersToVisibleLayers();
+        };
+        _data.AddQueryLayersToVisibleLayers = function () {
+            _data.QueryLayers.filter(function (x) {
+                return x.showLayer === true;
+            }).forEach(function (q) {
+                _data.VisibleLayers = _data.VisibleLayers.concat({
+                    name: q.layer.name + ' (query)',
+                    isQueryLayer: true,
+                    layer: q
+                });
+            });
         };
         _data.ActiveInteractieKnop = ActiveInteractieButton.NIETS;
         _data.DrawingType = DrawingOption.NIETS;
         _data.ShowDrawControls = false;
+        _data.RemovedUnfinishedDrawings = false;
         _data.ShowMetenControls = false;
         _data.LastBufferedLayer = null;
         _data.LastBufferedDistance = 50;
@@ -4560,7 +4847,7 @@ L.control.typeahead = function (args) {
             if (straatNaam) {
                 html = '<div class="container container-low-padding">' + '<div class="row row-no-padding">' + '<div class="col-sm-3" align="center" >' + '<a href="http://maps.google.com/maps?q=&layer=c&cbll=' + latlng.lat + ',' + latlng.lng + '" + target="_blank" >' +
                 // '<img tink-tooltip="Ga naar streetview" tink-tooltip-align="bottom" src="https://maps.googleapis.com/maps/api/streetview?size=100x50&location=' + latlng.lat + ',' + latlng.lng + '&pitch=-0.76" />' +
-                '<img tink-tooltip="Ga naar streetview" tink-tooltip-align="bottom" src="https://seeklogo.com/images/G/google-street-view-logo-665165D1A8-seeklogo.com.png" width="70%" height="70%" />' + '</a>' + '</div>' + '<div class="col-sm-8 mouse-over">' + '<div class="col-sm-12"><b>' + straatNaam + '</b></div>' + '<div class="col-sm-3">WGS84:</div><div id="wgs" class="col-sm-8" style="text-align: left;">{{WGS84LatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o mouse-over-toshow" ng-click="CopyWGS()"  tink-tooltip="Coördinaten kopieren naar het klembord" tink-tooltip-align="bottom"  ></i></div>' + '<div class="col-sm-3">Lambert:</div><div id="lambert" class="col-sm-8" style="text-align: left;">{{LambertLatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o mouse-over-toshow"  ng-click="CopyLambert()" tink-tooltip="Coördinaten kopieren naar het klembord" tink-tooltip-align="bottom"></i></div>' + '</div>' + '</div>' + '</div>';
+                '<img tink-tooltip="Ga naar streetview" tink-tooltip-align="bottom" src="https://seeklogo.com/images/G/google-street-view-logo-665165D1A8-seeklogo.com.png" width="70%" height="70%" />' + '</a>' + '</div>' + '<div class="col-sm-8">' + '<div class="col-sm-12"><b>' + straatNaam + '</b></div>' + '<div class="col-sm-3">WGS84:</div><div id="wgs" class="col-sm-8" style="text-align: left;">{{WGS84LatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o coordinate-pointer" ng-click="CopyWGS()"  tink-tooltip="Coördinaten kopieren naar het klembord" tink-tooltip-align="bottom"  ></i></div>' + '<div class="col-sm-3">Lambert:</div><div id="lambert" class="col-sm-8" style="text-align: left;">{{LambertLatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o coordinate-pointer"  ng-click="CopyLambert()" tink-tooltip="Coördinaten kopieren naar het klembord" tink-tooltip-align="bottom"></i></div>' + '</div>' + '</div>' + '</div>';
                 minwidth = 300;
             } else {
                 // html =
@@ -4572,7 +4859,7 @@ L.control.typeahead = function (args) {
                 //     '</div>';
                 html = '<div class="container container-low-padding">' + '<div class="row row-no-padding">' + '<div class="col-sm-3" >' + '<a href="http://maps.google.com/maps?q=&layer=c&cbll=' + latlng.lat + ',' + latlng.lng + '" + target="_blank" >' +
                 //  '<img tink-tooltip="Ga naar streetview" tink-tooltip-align="bottom" src="https://maps.googleapis.com/maps/api/streetview?size=100x50&location=' + latlng.lat + ',' + latlng.lng + '&pitch=-0.76" />' +
-                '<img tink-tooltip="Ga naar streetview" tink-tooltip-align="bottom" src="https://seeklogo.com/images/G/google-street-view-logo-665165D1A8-seeklogo.com.png" width="70%" height="70%" />' + '</a>' + '</div>' + '<div class="col-sm-8 mouse-over">' + '<div class="col-sm-3">WGS84:</div><div id="wgs" class="col-sm-8" style="text-align: left;">{{WGS84LatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o mouse-over-toshow" ng-click="CopyWGS()"  tink-tooltip="Coördinaten kopieren naar het klembord" tink-tooltip-align="bottom"  ></i></div>' + '<div class="col-sm-3">Lambert:</div><div id="lambert" class="col-sm-8" style="text-align: left;">{{LambertLatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o mouse-over-toshow"  ng-click="CopyLambert()" tink-tooltip="Coördinaten kopieren naar het klembord" tink-tooltip-align="bottom"></i></div>' + '</div>' + '</div>' + '</div>';
+                '<img tink-tooltip="Ga naar streetview" tink-tooltip-align="bottom" src="https://seeklogo.com/images/G/google-street-view-logo-665165D1A8-seeklogo.com.png" width="70%" height="70%" />' + '</a>' + '</div>' + '<div class="col-sm-8">' + '<div class="col-sm-3">WGS84:</div><div id="wgs" class="col-sm-8" style="text-align: left;">{{WGS84LatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o coordinate-pointer" ng-click="CopyWGS()"  tink-tooltip="Coördinaten kopieren naar het klembord" tink-tooltip-align="bottom"  ></i></div>' + '<div class="col-sm-3">Lambert:</div><div id="lambert" class="col-sm-8" style="text-align: left;">{{LambertLatLng}}</div><div class="col-sm-1"><i class="fa fa-files-o coordinate-pointer"  ng-click="CopyLambert()" tink-tooltip="Coördinaten kopieren naar het klembord" tink-tooltip-align="bottom"></i></div>' + '</div>' + '</div>' + '</div>';
                 minwidth = 300;
             }
             var linkFunction = $compile(html);
@@ -4598,6 +4885,48 @@ L.control.typeahead = function (args) {
             document.execCommand("copy");
             $temp.remove();
         };
+        _data.CreatePerimeterMarker = function (perimeter, surfaceArea, e) {
+            var html = '<div class="container container-low-padding">' + '<div class="row row-no-padding">' + '<div class="col-sm-5">Opp (m<sup>2</sup>):</div><div id="surfacearea" class= "col-sm-6" style="text-align: left">' + surfaceArea + '</div><div class="col-sm-1"><i class="fa fa-files-o coordinate-pointer"  ng-click="CopySurfaceArea()" tink-tooltip="Oppervlakte kopieren naar het klembord" tink-tooltip-align="bottom"></i></div>' + '</div>' + '<div class="row row-no-padding">' + '<div class="col-sm-5">Omtrek (m):</div><div id="perimeter" class= "col-sm-6" style="text-align: left">' + perimeter + '</div><div class="col-sm-1"><i class="fa fa-files-o coordinate-pointer"  ng-click="CopyPerimeter()" tink-tooltip="Omtrek kopieren naar het klembord" tink-tooltip-align="bottom"></i></div>' + '</div>' + '</div>';
+
+            var linkFunction = $compile(html);
+            var newScope = $rootScope.$new();
+
+            newScope.CopySurfaceArea = function () {
+                copyToClipboard('#surfacearea');
+            };
+            newScope.CopyPerimeter = function () {
+                copyToClipboard('#perimeter');
+            };
+            var domele = linkFunction(newScope)[0];
+
+            var popup = e.layer.bindPopup(domele, { minWidth: 150, closeButton: true });
+            popup.on('popupclose', function (event) {
+                map.removeLayer(e.layer);
+                // MapData.CleanDrawings();
+                // MapData.CleanMap();
+            });
+            e.layer.openPopup();
+        };
+        _data.CreateDistanceMarker = function (distance, e) {
+            var html = '<div class="container container-low-padding">' + '<div class="row row-no-padding">' + '<div class="col-sm-5">Afstand (m):</div><div id="distance" class= "col-sm-6" style="text-align: center">' + distance + '</div><div class="col-sm-1"><i class="fa fa-files-o coordinate-pointer"  ng-click="CopyDistance()" tink-tooltip="Afstand kopieren naar het klembord" tink-tooltip-align="bottom"></i></div>' + '</div>' + '</div>';
+
+            var linkFunction = $compile(html);
+            var newScope = $rootScope.$new();
+
+            newScope.CopyDistance = function () {
+                copyToClipboard('#distance');
+            };
+
+            var domele = linkFunction(newScope)[0];
+
+            var popup = e.layer.bindPopup(domele, { minWidth: 150, closeButton: true });
+            popup.on('popupclose', function (event) {
+                map.removeLayer(e.layer);
+                // MapData.CleanDrawings();
+                // MapData.CleanMap();
+            });
+            e.layer.openPopup();
+        };
         _data.CreateDot = function (loc) {
             _data.CleanWatIsHier();
             var dotIcon = L.icon({
@@ -4605,6 +4934,14 @@ L.control.typeahead = function (args) {
                 iconSize: [24, 24]
             });
             WatIsHierMarker = L.marker([loc.x, loc.y], { icon: dotIcon }).addTo(map);
+        };
+
+        _data.CreateFeatureLayerMarker = function (loc, iconUrl) {
+            var icon = L.icon({
+                iconUrl: iconUrl,
+                iconAnchor: [10, 10]
+            });
+            return L.marker(loc, { icon: icon });
         };
         _data.CleanSearch = function () {
             ResultsData.CleanSearch();
@@ -4682,7 +5019,12 @@ L.control.typeahead = function (args) {
                 if (_data.ExtendedType == null) {
                     // else we don t have to clean the map!
                     featureArray.forEach(function (featureItem) {
-                        ResultsData.JsonFeatures.push(featureItem);
+                        var selectedFeature = ResultsData.JsonFeatures.filter(function (x) {
+                            return x.id == featureItem.id;
+                        });
+                        if (selectedFeature.length === 0) {
+                            ResultsData.JsonFeatures.push(featureItem);
+                        }
                     });
                 } else {
                     _data.processedFeatureArray = featureArray.concat(_data.processedFeatureArray);
@@ -4837,6 +5179,10 @@ L.control.typeahead = function (args) {
                         }
                     };
                     checkforitem();
+                    // set displayfieldvalue for raster layer
+                    if (featureItem.properties["Pixel Value"]) {
+                        featureItem.displayValue = featureItem.properties["Pixel Value"];
+                    }
                     var thestyle = Style.DEFAULT;
                     if (_data.ExtendedType == "add") {
                         thestyle = Style.ADD;
@@ -4904,196 +5250,184 @@ L.control.typeahead = function (args) {
     module.$inject = ['ResultsData', 'FeatureService', 'SearchService'];
     module.factory('MapData', mapData);
 })();
-;'use strict';
+;"use strict";
 
 (function () {
-    var module = angular.module('tink.gis');
-    var mapEvents = function mapEvents(map, MapService, MapData, UIService, $rootScope) {
-        var _mapEvents = {};
-        map.on('draw:drawstart', function (event) {
-            console.log('draw started');
-            MapData.IsDrawing = true;
-            // MapData.CleanDrawings();
+  var module = angular.module("tink.gis");
+  var mapEvents = function mapEvents(map, MapService, MapData, UIService, $rootScope) {
+    var _mapEvents = {};
+    map.on("draw:drawstart", function (event) {
+      console.log("draw started");
+      MapData.IsDrawing = true;
+      // MapData.CleanDrawings();
+    });
+
+    map.on("draw:drawstop", function (event) {
+      console.log("draw stopped");
+      MapData.IsDrawing = false;
+      if (MapData.RemovedUnfinishedDrawings === false) {
+        $rootScope.$applyAsync(function () {
+          MapData.DrawingType = DrawingOption.GEEN;
         });
-
-        map.on('draw:drawstop', function (event) {
-            console.log('draw stopped');
-            MapData.IsDrawing = false;
-            $rootScope.$applyAsync(function () {
-                MapData.DrawingType = DrawingOption.GEEN;
-            });
-            // MapData.CleanDrawings();
-        });
-        var berekendAfstand = function berekendAfstand(arrayOfPoints) {
-            var totalDistance = 0.00000;
-            for (var x = 0; x != arrayOfPoints.length - 1; x++) {
-                // do min 1 because we the last point don t have to calculate distance to the next one
-                var currpoint = arrayOfPoints[x];
-                var nextpoint = arrayOfPoints[x + 1];
-                totalDistance += currpoint.distanceTo(nextpoint);
-            }
-            return totalDistance.toFixed(2);
-        };
-        var berkenOmtrek = function berkenOmtrek(arrayOfPoints) {
-            var totalDistance = 0.00000;
-            for (var x = 0; x != arrayOfPoints.length; x++) {
-                var currpoint = arrayOfPoints[x];
-                if (x == arrayOfPoints.length - 1) {
-                    var nextpoint = arrayOfPoints[0]; // if it is the last point, check the distance to the first point
-                } else {
-                    var nextpoint = arrayOfPoints[x + 1];
-                }
-                totalDistance += currpoint.distanceTo(nextpoint); // from this point to the next point the distance and sum it
-            }
-            return totalDistance.toFixed(2);
-        };
-
-        map.on('zoom', function (event) {
-            console.log('Zoomend!!!');
-            MapData.UpdateDisplayed();
-            MapData.Apply();
-        });
-        _mapEvents.removeCursorAuto = function () {
-            if ($('.leaflet-container').hasClass('cursor-auto')) {
-                $('.leaflet-container').removeClass('cursor-auto');
-            }
-        };
-        map.on('click', function (event) {
-            if (event.originalEvent instanceof MouseEvent) {
-                console.log('click op map! Is drawing: ' + MapData.IsDrawing);
-                if (!MapData.IsDrawing) {
-                    switch (MapData.ActiveInteractieKnop) {
-                        case ActiveInteractieButton.IDENTIFY:
-                            MapData.CleanMap();
-                            MapData.LastIdentifyBounds = map.getBounds();
-                            MapService.Identify(event, 3);
-                            UIService.OpenLeftSide();
-                            $rootScope.$applyAsync(function () {
-                                MapData.ActiveInteractieKnop = ActiveInteractieButton.GEEN;
-                            });
-
-                            _mapEvents.removeCursorAuto();
-                            break;
-                        case ActiveInteractieButton.SELECT:
-
-                            if (MapData.DrawingType != DrawingOption.GEEN && MapData.ExtendedType == null) {
-                                if (MapData.DrawingType != DrawingOption.VIERKANT) {
-                                    MapData.CleanMap();
-                                }
-                                MapData.CleanSearch();
-                            }
-                            if (MapData.DrawingType === DrawingOption.NIETS) {
-                                MapService.Select(event);
-                                if (MapData.ExtendedType === null) {
-                                    MapData.SetDrawPoint(event.latlng);
-                                }
-                                UIService.OpenLeftSide();
-                                _mapEvents.removeCursorAuto();
-                                $rootScope.$applyAsync(function () {
-                                    MapData.DrawingType = DrawingOption.GEEN;
-                                    MapData.ShowDrawControls = false;
-                                    MapData.ActiveInteractieKnop = ActiveInteractieButton.GEEN;
-                                });
-                            }
-                            break;
-                        case ActiveInteractieButton.WATISHIER:
-                            MapData.CleanWatIsHier();
-                            MapService.WatIsHier(event);
-                            $rootScope.$applyAsync(function () {
-                                MapData.ActiveInteractieKnop = ActiveInteractieButton.GEEN;
-                                _mapEvents.removeCursorAuto();
-                            });
-                            break;
-                        case ActiveInteractieButton.METEN:
-                            break;
-                        case ActiveInteractieButton.GEEN:
-                            break;
-                        default:
-                            console.log('MAG NIET!!!!!!!!');
-                            break;
-                    }
-                } else {
-                    // MapData.DrawingObject = event;
-                    console.log("DrawingObject: ");
-                    console.log(MapData.DrawingObject);
-                    switch (MapData.DrawingType) {
-                        case DrawingOption.AFSTAND:
-                            break;
-                        case DrawingOption.OPPERVLAKTE:
-                            break;
-                        default:
-                            console.log("Aant drawen zonder een gekent type!!!!!!");
-                            break;
-                    }
-                }
-            }
-        });
-
-        map.on('draw:created', function (e) {
-            console.log('draw created');
-            switch (MapData.ActiveInteractieKnop) {
-                case ActiveInteractieButton.SELECT:
-                    if (MapData.ExtendedType == null) {
-                        MapData.DrawLayer = e.layer; // it is used for buffering etc so we don t want it to be added when we are extending (when extendingtype is add or remove)
-                    }
-                    MapService.Query(e.layer);
-                    UIService.OpenLeftSide();
-                    break;
-                case ActiveInteractieButton.METEN:
-                    switch (MapData.DrawingType) {
-                        case DrawingOption.AFSTAND:
-                            var afstand = berekendAfstand(e.layer._latlngs);
-                            var popup = e.layer.bindPopup('Afstand (m): ' + afstand + ' ');
-                            popup.on('popupclose', function (event) {
-                                map.removeLayer(e.layer);
-                                // MapData.CleanDrawings();
-                                // MapData.CleanMap();
-                            });
-                            e.layer.openPopup();
-                            break;
-                        case DrawingOption.OPPERVLAKTE:
-                            var omtrek = berkenOmtrek(e.layer._latlngs[0]);
-                            var popuptekst = '<p>Opp  (m<sup>2</sup>): ' + LGeo.area(e.layer).toFixed(2) + '</p>' + '<p>Omtrek (m): ' + omtrek + ' </p>';
-                            var popup = e.layer.bindPopup(popuptekst);
-                            popup.on('popupclose', function (event) {
-                                map.removeLayer(e.layer);
-                                // MapData.CleanDrawings();
-                                // MapData.CleanMap();
-                            });
-                            e.layer.openPopup();
-                            break;
-                        default:
-                            break;
-                    }
-                    break;
-                default:
-                    console.log('MAG NIET!!!!!!!!');
-                    break;
-            }
-            $rootScope.$applyAsync(function () {
-                MapData.DrawingType = DrawingOption.GEEN;
-                MapData.ShowDrawControls = false;
-                MapData.ShowMetenControls = false;
-                MapData.ActiveInteractieKnop = ActiveInteractieButton.GEEN;
-            });
-            MapData.IsDrawing = false;
-        });
-        var gpsmarker = null;
-
-        _mapEvents.ClearGPS = function () {
-            if (gpsmarker) {
-                gpsmarker.removeFrom(map);
-            }
-        };
-        map.on('locationerror', function (e) {
-            console.log('LOCATIONERROR', e);
-        });
-
-        return _mapEvents;
+      }
+      // MapData.CleanDrawings();
+    });
+    var berekendAfstand = function berekendAfstand(arrayOfPoints) {
+      var totalDistance = 0.0;
+      for (var x = 0; x != arrayOfPoints.length - 1; x++) {
+        // do min 1 because we the last point don t have to calculate distance to the next one
+        var currpoint = arrayOfPoints[x];
+        var nextpoint = arrayOfPoints[x + 1];
+        totalDistance += currpoint.distanceTo(nextpoint);
+      }
+      return totalDistance.toFixed(2);
     };
-    module.$inject = ['map', 'MapService', 'MapData', 'UIService', '$rootScope'];
+    var berkenOmtrek = function berkenOmtrek(arrayOfPoints) {
+      var totalDistance = 0.0;
+      for (var x = 0; x != arrayOfPoints.length; x++) {
+        var currpoint = arrayOfPoints[x];
+        if (x == arrayOfPoints.length - 1) {
+          var nextpoint = arrayOfPoints[0]; // if it is the last point, check the distance to the first point
+        } else {
+          var nextpoint = arrayOfPoints[x + 1];
+        }
+        totalDistance += currpoint.distanceTo(nextpoint); // from this point to the next point the distance and sum it
+      }
+      return totalDistance.toFixed(2);
+    };
 
-    module.factory('MapEvents', mapEvents);
+    map.on("zoom", function (event) {
+      console.log("Zoomend!!!");
+      MapData.UpdateDisplayed();
+      MapData.Apply();
+    });
+    _mapEvents.removeCursorAuto = function () {
+      if ($(".leaflet-container").hasClass("cursor-auto")) {
+        $(".leaflet-container").removeClass("cursor-auto");
+      }
+    };
+    map.on("click", function (event) {
+      if (event.originalEvent instanceof MouseEvent) {
+        console.log("click op map! Is drawing: " + MapData.IsDrawing);
+        if (!MapData.IsDrawing) {
+          switch (MapData.ActiveInteractieKnop) {
+            case ActiveInteractieButton.IDENTIFY:
+              MapData.CleanMap();
+              MapData.LastIdentifyBounds = map.getBounds();
+              MapService.Identify(event, 3);
+              UIService.OpenLeftSide();
+              $rootScope.$applyAsync(function () {
+                MapData.ActiveInteractieKnop = ActiveInteractieButton.GEEN;
+              });
+
+              _mapEvents.removeCursorAuto();
+              break;
+            case ActiveInteractieButton.SELECT:
+              if (MapData.DrawingType != DrawingOption.GEEN && MapData.ExtendedType == null) {
+                if (MapData.DrawingType != DrawingOption.VIERKANT) {
+                  MapData.CleanMap();
+                }
+                MapData.CleanSearch();
+              }
+              if (MapData.DrawingType === DrawingOption.NIETS) {
+                MapService.Select(event);
+                if (MapData.ExtendedType === null) {
+                  MapData.SetDrawPoint(event.latlng);
+                }
+                UIService.OpenLeftSide();
+                _mapEvents.removeCursorAuto();
+                $rootScope.$applyAsync(function () {
+                  MapData.DrawingType = DrawingOption.GEEN;
+                  MapData.ShowDrawControls = false;
+                  MapData.ActiveInteractieKnop = ActiveInteractieButton.GEEN;
+                });
+              }
+              break;
+            case ActiveInteractieButton.WATISHIER:
+              MapData.CleanWatIsHier();
+              MapService.WatIsHier(event);
+              $rootScope.$applyAsync(function () {
+                MapData.ActiveInteractieKnop = ActiveInteractieButton.GEEN;
+                _mapEvents.removeCursorAuto();
+              });
+              break;
+            case ActiveInteractieButton.METEN:
+              break;
+            case ActiveInteractieButton.GEEN:
+              break;
+            default:
+              console.log("MAG NIET!!!!!!!!");
+              break;
+          }
+        } else {
+          // MapData.DrawingObject = event;
+          console.log("DrawingObject: ");
+          console.log(MapData.DrawingObject);
+          switch (MapData.DrawingType) {
+            case DrawingOption.AFSTAND:
+              break;
+            case DrawingOption.OPPERVLAKTE:
+              break;
+            default:
+              console.log("Aant drawen zonder een gekent type!!!!!!");
+              break;
+          }
+        }
+      }
+    });
+
+    map.on("draw:created", function (e) {
+      console.log("draw created");
+      switch (MapData.ActiveInteractieKnop) {
+        case ActiveInteractieButton.SELECT:
+          if (MapData.ExtendedType == null) {
+            MapData.DrawLayer = e.layer; // it is used for buffering etc so we don t want it to be added when we are extending (when extendingtype is add or remove)
+          }
+          MapService.Query(e.layer);
+          UIService.OpenLeftSide();
+          break;
+        case ActiveInteractieButton.METEN:
+          switch (MapData.DrawingType) {
+            case DrawingOption.AFSTAND:
+              var afstand = berekendAfstand(e.layer._latlngs);
+              MapData.CreateDistanceMarker(afstand, e);
+              break;
+            case DrawingOption.OPPERVLAKTE:
+              var omtrek = berkenOmtrek(e.layer._latlngs[0]);
+              MapData.CreatePerimeterMarker(omtrek, LGeo.area(e.layer).toFixed(2), e);
+              break;
+            default:
+              break;
+          }
+          break;
+        default:
+          console.log("MAG NIET!!!!!!!!");
+          break;
+      }
+      $rootScope.$applyAsync(function () {
+        MapData.DrawingType = DrawingOption.GEEN;
+        MapData.ShowDrawControls = false;
+        MapData.ShowMetenControls = false;
+        MapData.ActiveInteractieKnop = ActiveInteractieButton.GEEN;
+      });
+      MapData.IsDrawing = false;
+    });
+    var gpsmarker = null;
+
+    _mapEvents.ClearGPS = function () {
+      if (gpsmarker) {
+        gpsmarker.removeFrom(map);
+      }
+    };
+    map.on("locationerror", function (e) {
+      console.log("LOCATIONERROR", e);
+    });
+
+    return _mapEvents;
+  };
+  module.$inject = ["map", "MapService", "MapData", "UIService", "$rootScope"];
+
+  module.factory("MapEvents", mapEvents);
 })();
 ;'use strict';
 
@@ -5186,7 +5520,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                                         if (data) {
                                             data = GisHelperService.UnwrapProxiedData(data);
                                         }
-                                        ResultsData.RequestCompleted++;
                                         var processedjson = null;
                                         switch (theme.GetFeatureInfoType) {
                                             case "text/xml":
@@ -5241,6 +5574,19 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                     }
                 }
             });
+
+            _.each(MapData.QueryLayers.filter(function (x) {
+                return x.showLayer === true;
+            }), function (queryLayer) {
+                if (queryLayer.layer.mapData) {
+                    ResultsData.RequestStarted++;
+
+                    queryLayer.layer.mapData.query().where(queryLayer.layer.mapData.options.where).layer(queryLayer.layer.layerId).nearby(event.latlng, 10).run(function (error, featureCollection, response) {
+                        ResultsData.RequestCompleted++;
+                        MapData.AddFeatures(featureCollection, queryLayer.theme, queryLayer.layer.layerId, featureCollection.length);
+                    });
+                }
+            });
         };
         _mapService.IdentifyProm = function (theme, latlng, layerids) {
 
@@ -5255,6 +5601,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         };
         _mapService.Select = function (event) {
             // MapData.CleanSearch();
+            var queryLayers = MapData.QueryLayers;
             console.log(event);
             if (MapData.SelectedLayer.id === '') {
                 // alle layers selected
@@ -5279,15 +5626,31 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 }
             } else {
                 ResultsData.RequestStarted++;
-                MapData.SelectedLayer.theme.MapData.identify().on(map).at(event.latlng).layers('visible: ' + MapData.SelectedLayer.id).run(function (error, featureCollection) {
-                    ResultsData.RequestCompleted++;
-                    MapData.AddFeatures(featureCollection, MapData.SelectedLayer.theme);
-                    if (MapData.ExtendedType != null) {
-                        MapData.ConfirmExtendDialog(MapData.processedFeatureArray);
-                        MapData.processedFeatureArray = [];
-                    }
-                });
+                if (MapData.SelectedLayer.isQueryLayer === true) {
+                    queryLayers = [MapData.QueryLayers.find(function (x) {
+                        return x === MapData.SelectedLayer.layer;
+                    })];
+                } else {
+                    queryLayers = [];
+                    MapData.SelectedLayer.theme.MapData.identify().on(map).at(event.latlng).layers('visible: ' + MapData.SelectedLayer.id).run(function (error, featureCollection) {
+                        ResultsData.RequestCompleted++;
+                        MapData.AddFeatures(featureCollection, MapData.SelectedLayer.theme);
+                        if (MapData.ExtendedType != null) {
+                            MapData.ConfirmExtendDialog(MapData.processedFeatureArray);
+                            MapData.processedFeatureArray = [];
+                        }
+                    });
+                }
             }
+
+            _.each(queryLayers, function (queryLayer) {
+                if (queryLayer.layer.mapData && queryLayer.showLayer === true) {
+                    queryLayer.layer.mapData.query().where(queryLayer.layer.mapData.options.where).layer(queryLayer.layer.layerId).nearby(event.latlng, 10).run(function (error, featureCollection, response) {
+                        ResultsData.RequestCompleted++;
+                        MapData.AddFeatures(featureCollection, queryLayer.theme, queryLayer.layer.layerId, featureCollection.length);
+                    });
+                }
+            });
         };
         _mapService.LayerQuery = function (theme, layerid, geometry) {
 
@@ -5456,22 +5819,58 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                         });
                     }
                 });
+                //handle queryLayers query
+                _mapService.QueryQueryLayer(MapData.QueryLayers.filter(function (x) {
+                    return x.showLayer === true;
+                }), box);
             } else {
-                var prom = _mapService.LayerQueryCount(layer.theme, layer.id, box);
-                prom.then(function (arg) {
-                    if (arg.count > _mapService.MaxFeatures) {
-                        PopupService.Warning("U selecteerde " + arg.count + " resultaten.", "Bij meer dan " + _mapService.MaxFeatures + " resultaten kan het laden wat langer duren en zijn de resultaten niet zichtbaar op de kaart en in de lijst. Exporteren naar CSV blijft mogelijk.");
-                    }
-                    var prom = _mapService.LayerQuery(layer.theme, layer.id, box);
-                    prom.then(function (arg) {
-                        MapData.AddFeatures(arg.featureCollection, layer.theme, layer.id, arg.featureCollection.length);
-                        if (MapData.ExtendedType != null) {
-                            MapData.ConfirmExtendDialog(MapData.processedFeatureArray);
-                            MapData.processedFeatureArray = [];
-                        }
+                //check if 
+                if (layer.isQueryLayer) {
+                    var queryLayer = MapData.QueryLayers.find(function (queryLayer) {
+                        return queryLayer.layer.baseUrl === layer.layer.layer.baseUrl && queryLayer.layer.layerId === layer.layer.layer.layerId && queryLayer.layer.name === layer.layer.layer.name;
                     });
-                });
+                    if (queryLayer) {
+                        _mapService.QueryQueryLayer([queryLayer], box);
+                    }
+                } else {
+                    var prom = _mapService.LayerQueryCount(layer.theme, layer.id, box);
+                    prom.then(function (arg) {
+                        if (arg.count > _mapService.MaxFeatures) {
+                            PopupService.Warning("U selecteerde " + arg.count + " resultaten.", "Bij meer dan " + _mapService.MaxFeatures + " resultaten kan het laden wat langer duren en zijn de resultaten niet zichtbaar op de kaart en in de lijst. Exporteren naar CSV blijft mogelijk.");
+                        }
+                        var prom = _mapService.LayerQuery(layer.theme, layer.id, box);
+                        prom.then(function (arg) {
+                            MapData.AddFeatures(arg.featureCollection, layer.theme, layer.id, arg.featureCollection.length);
+                            if (MapData.ExtendedType != null) {
+                                MapData.ConfirmExtendDialog(MapData.processedFeatureArray);
+                                MapData.processedFeatureArray = [];
+                            }
+                        });
+                    });
+                }
             }
+        };
+
+        _mapService.QueryQueryLayer = function (queryLayers, box) {
+            _.each(queryLayers, function (queryLayer) {
+                if (queryLayer.theme && queryLayer.theme.Type == ThemeType.ESRI) {
+                    var prom = new Promise(function (resolve, reject) {
+                        ResultsData.RequestStarted++;
+                        if (box.mapItem != undefined) {
+                            box = box.mapItem;
+                        }
+
+                        queryLayer.theme.MapDataWithCors.query().layer(queryLayer.layer.layerId).where(queryLayer.layer.mapData.options.where).intersects(box).run(function (error, featureCollection, response) {
+                            ResultsData.RequestCompleted++;
+                            resolve({ error: error, featureCollection: featureCollection, response: response });
+                        });
+                    });
+
+                    prom.then(function (arg) {
+                        MapData.AddFeatures(arg.featureCollection, queryLayer.theme, queryLayer.layer.layerId, arg.featureCollection.length);
+                    });
+                }
+            });
         };
         _mapService.WatIsHier = function (event) {
             var prom = GISService.ReverseGeocode(event);
@@ -5657,187 +6056,446 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     };
     module.factory('PopupService', popupService);
 })();
-;'use strict';
+;"use strict";
 
 (function () {
-    var module = angular.module('tink.gis');
-    var service = function service(map, ThemeCreater, MapData, GISService) {
-        var _service = {};
-        _service.AddAndUpdateThemes = function (themesBatch) {
-            console.log('Themes batch for add and updates...');
-            console.log(themesBatch);
-            themesBatch.forEach(function (theme) {
-                var existingTheme = MapData.Themes.find(function (x) {
-                    return x.cleanUrl == theme.cleanUrl;
-                });
-                console.log('addorupdate or del theme, ', theme, theme.status);
-                switch (theme.status) {
-                    case ThemeStatus.NEW:
-                        if (theme.Type == ThemeType.ESRI) {
-                            GISService.GetAditionalLayerInfo(theme);
-                            theme.UpdateDisplayed(MapData.GetScale());
-                        }
-                        _service.AddNewTheme(theme);
-                        break;
-                    case ThemeStatus.DELETED:
-                        _service.DeleteTheme(existingTheme);
-                        break;
-                    case ThemeStatus.UNMODIFIED:
-                        // niets doen niets veranderd!
-                        break;
-                    case ThemeStatus.UPDATED:
-                        _service.UpdateTheme(theme, existingTheme);
-                        _service.UpdateThemeVisibleLayers(existingTheme);
-                        break;
-                    default:
-                        console.log('Er is iets fout, status niet bekend!!!: ' + theme.status);
-                        break;
-                }
-                //Theme is proccessed, now make it unmodified again
-                theme.status = ThemeStatus.UNMODIFIED;
-            });
-            // console.log('refresh of sortableThemes');
-            $('#sortableThemes').sortable('refresh');
-
-            MapData.SetZIndexes();
-        };
-        _service.UpdateThemeVisibleLayers = function (theme) {
-            MapData.ResetVisibleLayers();
-            theme.UpdateMap(map);
-        };
-        _service.UpdateTheme = function (updatedTheme, existingTheme) {
-            //lets update the existingTheme
-            for (var x = 0; x < updatedTheme.AllLayers.length; x++) {
-                var updatedLayer = updatedTheme.AllLayers[x];
-                var existingLayer = existingTheme.AllLayers[x];
-
-                //laten we alle Visible Layers nu terug toevoegen meteen juiste ref etc uit de geupdate theme.
-                if (updatedLayer.enabled && updatedLayer.visible) {
-                    //eerst checken dat ze nog niet bestaan!.
-                    if (existingTheme.Type == ThemeType.ESRI && MapData.VisibleLayers.indexOf(existingLayer) == -1) {
-                        MapData.VisibleLayers.push(existingLayer);
-                    }
-                    if (existingTheme.VisibleLayers.indexOf(existingLayer) == -1) {
-                        existingTheme.VisibleLayers.push(existingLayer);
-                    }
-                } else {
-                    //Anders halen we hem ook moest hij bij VisLayers aanwezig zijn er van af!
-                    if (existingTheme.Type == ThemeType.ESRI && MapData.VisibleLayers.indexOf(existingLayer) != -1) {
-                        MapData.VisibleLayers.splice(MapData.VisibleLayers.indexOf(existingLayer), 1);
-                    }
-                    if (existingTheme.VisibleLayers.indexOf(existingLayer) != -1) {
-                        existingTheme.VisibleLayers.splice(existingTheme.VisibleLayers.indexOf(existingLayer), 1);
-                    }
-                }
-                existingLayer.enabled = updatedLayer.enabled;
-                existingLayer.visible = updatedLayer.visible;
-            }
-            // existingTheme.RecalculateVisibleLayerIds();
-        };
-        _service.AddNewTheme = function (theme) {
-            MapData.Themes.unshift(theme);
+  var module = angular.module("tink.gis");
+  var service = function service(map, ThemeCreater, MapData, GISService, $q, MapService, PopupService) {
+    var _service = {};
+    _service.AddAndUpdateThemes = function (themesBatch) {
+      console.log("Themes batch for add and updates...");
+      console.log(themesBatch);
+      themesBatch.forEach(function (theme) {
+        var existingTheme = MapData.Themes.find(function (x) {
+          return x.cleanUrl == theme.cleanUrl;
+        });
+        console.log("addorupdate or del theme, ", theme, theme.status);
+        switch (theme.status) {
+          case ThemeStatus.NEW:
             if (theme.Type == ThemeType.ESRI) {
-                MapData.VisibleLayers = MapData.VisibleLayers.concat(theme.VisibleLayers);
+              GISService.GetAditionalLayerInfo(theme);
+              theme.UpdateDisplayed(MapData.GetScale());
             }
-            switch (theme.Type) {
-                case ThemeType.ESRI:
-                    var visLayerIds = theme.VisibleLayerIds;
-                    if (visLayerIds.length == 0) {
-                        visLayerIds.push(-1);
-                    }
-                    if (theme.Opacity === null || theme.Opacity === undefined) {
-                        theme.Opacity = 1;
-                    }
-                    theme.MapData = L.esri.dynamicMapLayer({
-                        maxZoom: 20,
-                        minZoom: 0,
-                        url: theme.cleanUrl,
-                        opacity: theme.Opacity,
-                        layers: visLayerIds,
-                        continuousWorld: true,
-                        useCors: false,
-                        f: 'image'
-                    }).addTo(map);
-                    // theme.SetOpacity(theme.Opacity);
-                    theme.MapDataWithCors = L.esri.dynamicMapLayer({
-                        maxZoom: 20,
-                        minZoom: 0,
-                        url: theme.cleanUrl,
-                        opacity: 1,
-                        layers: visLayerIds,
-                        continuousWorld: true,
-                        useCors: true,
-                        f: 'image'
-                    });
-                    theme.MapData.on('authenticationrequired', function (e) {
-                        debugger;
-                        serverAuth(function (error, response) {
-                            debugger;
-                            e.authenticate(response.token);
-                        });
-                    });
-                    theme.MapData.on('load', function (e) {
-                        if (theme.MapData._currentImage) {
-                            theme.MapData._currentImage._image.style.zIndex = theme.MapData.ZIndex;
-                            console.log('Zindex on ' + theme.Naam + ' set to ' + theme.MapData.ZIndex);
-                        }
-                    });
+            _service.AddNewTheme(theme);
+            break;
+          case ThemeStatus.DELETED:
+            _service.DeleteTheme(existingTheme);
+            break;
+          case ThemeStatus.UNMODIFIED:
+            // niets doen niets veranderd!
+            break;
+          case ThemeStatus.UPDATED:
+            _service.UpdateTheme(theme, existingTheme);
+            _service.UpdateThemeVisibleLayers(existingTheme);
+            break;
+          default:
+            console.log("Er is iets fout, status niet bekend!!!: " + theme.status);
+            break;
+        }
+        //Theme is proccessed, now make it unmodified again
+        theme.status = ThemeStatus.UNMODIFIED;
+      });
+      // console.log('refresh of sortableThemes');
+      $("#sortableThemes").sortable("refresh");
 
-                    break;
-                case ThemeType.WMS:
-                    theme.MapData = L.tileLayer.betterWms(theme.cleanUrl, {
-                        maxZoom: 20,
-                        minZoom: 0,
-                        format: 'image/png',
-                        layers: theme.VisibleLayerIds.join(','),
-                        transparent: true,
-                        continuousWorld: true,
-                        useCors: true
-                    }).addTo(map);
-
-                    theme.MapData.on('load', function (e) {
-                        console.log('LOAD VAN ' + theme.Naam);
-                        console.log(theme.MapData);
-                        if (theme.MapData._container.childNodes) {
-                            [].slice.call(theme.MapData._container.childNodes).forEach(function (imgNode) {
-                                imgNode.style.zIndex = theme.MapData.ZIndex;
-                            });
-                            // theme.MapData._currentImage._image.style.zIndex = theme.MapData.ZIndex;
-                            console.log('Zindex on ' + theme.Naam + ' set to ' + theme.MapData.ZIndex);
-                        }
-                    });
-                    break;
-                default:
-                    console.log('UNKNOW TYPE');
-                    break;
-            }
-        };
-        _service.CleanThemes = function () {
-            while (MapData.Themes.length != 0) {
-                console.log('DELETING THIS THEME', MapData.Themes[0]);
-                _service.DeleteTheme(MapData.Themes[0]);
-            }
-        };
-
-        _service.DeleteTheme = function (theme) {
-            map.removeLayer(theme.MapData); // this one works with ESRI And leaflet
-            var themeIndex = MapData.Themes.indexOf(theme);
-            if (themeIndex > -1) {
-                MapData.Themes.splice(themeIndex, 1);
-            }
-            theme.VisibleLayers.forEach(function (visLayer) {
-                var visLayerIndex = MapData.VisibleLayers.indexOf(visLayer);
-                if (visLayerIndex > -1) {
-                    MapData.VisibleLayers.splice(visLayerIndex, 1);
-                }
-            });
-            MapData.CleanSearch();
-        };
-
-        return _service;
+      MapData.SetZIndexes();
     };
-    module.$inject = ['map', 'ThemeCreater', 'MapData', 'GISService'];
-    module.factory('ThemeService', service);
+    _service.UpdateThemeVisibleLayers = function (theme) {
+      MapData.ResetVisibleLayers();
+      theme.UpdateMap(map);
+    };
+
+    _service.updateQueryVisibility = function (index, showQuery) {
+      var queryLayer = MapData.QueryLayers[index];
+      if (queryLayer.showLayer === true) {
+        map.addLayer(queryLayer.layer.mapData);
+      } else {
+        map.removeLayer(queryLayer.layer.mapData);
+      }
+
+      //updates the visible layers
+      MapData.ResetVisibleLayers();
+    };
+    _service.UpdateTheme = function (updatedTheme, existingTheme) {
+      //lets update the existingTheme
+      for (var x = 0; x < updatedTheme.AllLayers.length; x++) {
+        var updatedLayer = updatedTheme.AllLayers[x];
+        var existingLayer = existingTheme.AllLayers[x];
+
+        //laten we alle Visible Layers nu terug toevoegen meteen juiste ref etc uit de geupdate theme.
+        if (updatedLayer.enabled && updatedLayer.visible) {
+          //eerst checken dat ze nog niet bestaan!.
+          if (existingTheme.Type == ThemeType.ESRI && MapData.VisibleLayers.indexOf(existingLayer) == -1) {
+            MapData.VisibleLayers.push(existingLayer);
+          }
+          if (existingTheme.VisibleLayers.indexOf(existingLayer) == -1) {
+            existingTheme.VisibleLayers.push(existingLayer);
+          }
+        } else {
+          //Anders halen we hem ook moest hij bij VisLayers aanwezig zijn er van af!
+          if (existingTheme.Type == ThemeType.ESRI && MapData.VisibleLayers.indexOf(existingLayer) != -1) {
+            MapData.VisibleLayers.splice(MapData.VisibleLayers.indexOf(existingLayer), 1);
+          }
+          if (existingTheme.VisibleLayers.indexOf(existingLayer) != -1) {
+            existingTheme.VisibleLayers.splice(existingTheme.VisibleLayers.indexOf(existingLayer), 1);
+          }
+        }
+        existingLayer.enabled = updatedLayer.enabled;
+        existingLayer.visible = updatedLayer.visible;
+      }
+      // existingTheme.RecalculateVisibleLayerIds();
+    };
+    _service.AddNewTheme = function (theme) {
+      MapData.Themes.unshift(theme);
+      if (theme.Type == ThemeType.ESRI) {
+        MapData.VisibleLayers = MapData.VisibleLayers.concat(theme.VisibleLayers);
+      }
+      switch (theme.Type) {
+        case ThemeType.ESRI:
+          var visLayerIds = theme.VisibleLayerIds;
+          if (visLayerIds.length == 0) {
+            visLayerIds.push(-1);
+          }
+          if (theme.Opacity === null || theme.Opacity === undefined) {
+            theme.Opacity = 1;
+          }
+          theme.MapData = L.esri.dynamicMapLayer({
+            maxZoom: 20,
+            minZoom: 0,
+            url: theme.cleanUrl,
+            opacity: theme.Opacity,
+            layers: visLayerIds,
+            continuousWorld: true,
+            useCors: false,
+            f: "image"
+          }).addTo(map);
+          // theme.SetOpacity(theme.Opacity);
+          theme.MapDataWithCors = L.esri.dynamicMapLayer({
+            maxZoom: 20,
+            minZoom: 0,
+            url: theme.cleanUrl,
+            opacity: 1,
+            layers: visLayerIds,
+            continuousWorld: true,
+            useCors: true,
+            f: "image"
+          });
+          theme.MapData.on("authenticationrequired", function (e) {
+            debugger;
+            serverAuth(function (error, response) {
+              debugger;
+              e.authenticate(response.token);
+            });
+          });
+          theme.MapData.on("load", function (e) {
+            if (theme.MapData._currentImage) {
+              theme.MapData._currentImage._image.style.zIndex = theme.MapData.ZIndex;
+              console.log("Zindex on " + theme.Naam + " set to " + theme.MapData.ZIndex);
+            }
+          });
+
+          break;
+        case ThemeType.WMS:
+          theme.MapData = L.tileLayer.betterWms(theme.cleanUrl, {
+            maxZoom: 20,
+            minZoom: 0,
+            format: "image/png",
+            layers: theme.VisibleLayerIds.join(","),
+            transparent: true,
+            continuousWorld: true,
+            useCors: true
+          }).addTo(map);
+
+          theme.MapData.on("load", function (e) {
+            console.log("LOAD VAN " + theme.Naam);
+            console.log(theme.MapData);
+            if (theme.MapData._container.childNodes) {
+              [].slice.call(theme.MapData._container.childNodes).forEach(function (imgNode) {
+                imgNode.style.zIndex = theme.MapData.ZIndex;
+              });
+              // theme.MapData._currentImage._image.style.zIndex = theme.MapData.ZIndex;
+              console.log("Zindex on " + theme.Naam + " set to " + theme.MapData.ZIndex);
+            }
+          });
+          break;
+        default:
+          console.log("UNKNOW TYPE");
+          break;
+      }
+    };
+
+    _service.AddQueryLayerFromImport = function (name, layerId, query, layerName, visible, theme) {
+      // only gets called from externservice.import ==> extra mapData object is necessary to use identify call on dynamicmaplayer, is not available on featurelayer
+      theme.MapDataWithCors = L.esri.dynamicMapLayer({
+        maxZoom: 20,
+        minZoom: 0,
+        url: theme.cleanUrl,
+        opacity: theme.Opacity,
+        layers: layerId,
+        continuousWorld: true,
+        useCors: true,
+        f: "image"
+      });
+      _service.AddQueryLayer(name, layerId, query, layerName, visible, theme, false);
+    };
+
+    _service.CheckIfQueryLayerExists = function (themeUrl, layerId, name) {
+      return MapData.QueryLayers.find(function (queryLayer) {
+        return queryLayer.layer.baseUrl === themeUrl && queryLayer.layer.layerId === layerId && queryLayer.layer.name === name;
+      });
+    };
+
+    _service.AddQueryLayer = function (name, layerId, query, layerName, visible, theme) {
+      var count = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : true;
+
+      var existingQueryLayer = _service.CheckIfQueryLayerExists(theme.cleanUrl, layerId, name);
+
+      // currently only allowed to add 1 querylayer for a specific layer
+      if (existingQueryLayer) {
+        swal({
+          title: 'Updaten querylaag',
+          text: "U staat op het punt bestaande querylaag " + existingQueryLayer.layer.name + " bij te werken.",
+          type: 'warning',
+          showCancelButton: true,
+          cancelButtonText: "Annuleer",
+          confirmButtonColor: '#149142',
+          confirmButtonText: 'Update',
+          closeOnConfirm: true,
+          reverseButtons: false
+
+        }, function (isConfirm) {
+          if (existingQueryLayer.layer.mapData) {
+            if (count) {
+              _service.QueryLayerCount(theme, layerId, query);
+            }
+            existingQueryLayer.layer.mapData.setWhere(query);
+            existingQueryLayer.layer.query = query;
+          }
+        });
+      } else {
+        //maximum number of queryLayers for performance reasons is 5
+        if (MapData.QueryLayers.length === 5) {
+          PopupService.Error("Het maximum aantal toegelaten query lagen is gelimiteerd tot 5. Dit omwille de impact van een query laag op de performantie van SIK.");
+        } else {
+          if (count) {
+            _service.QueryLayerCount(theme, layerId, query);
+          }
+          var queryLayer = {
+            layer: {
+              baseUrl: theme.cleanUrl,
+              name: name,
+              layerName: layerName,
+              layerId: layerId,
+              query: query,
+              legend: []
+            },
+            showLayer: visible
+          };
+
+          var promLegend = GISService.GetLegendData(queryLayer.layer.baseUrl);
+          var promLayerInfo = GISService.GetLayerSpecification(queryLayer.layer.baseUrl + "/" + queryLayer.layer.layerId);
+
+          var allpromises = $q.all([promLegend, promLayerInfo]);
+
+          allpromises.then(function (data) {
+            var _this = this;
+
+            var layerInfo = data[0].layers.find(function (x) {
+              return x.layerId == layerId;
+            });
+            if (layerInfo && layerInfo.legend && layerInfo.legend.length > 0) {
+              queryLayer.layer.legend = layerInfo.legend.map(function (x) {
+                var layer = x;
+                layer.fullurl = "data:" + x.contentType + ";base64, " + x.imageData;
+                return layer;
+              });
+            }
+
+            if (data[1].geometryType !== "esriGeometryPoint") {
+              // check if multiple colors are defined
+              if (data[1].drawingInfo.renderer.uniqueValueInfos) {
+                queryLayer.layer.colors = data[1].drawingInfo.renderer.uniqueValueInfos.map(function (uniqueValue) {
+                  var fillColor = "";
+                  var color = "";
+                  var fill = false;
+                  var weight = 1;
+                  switch (data[1].geometryType) {
+                    case "esriGeometryPolyline":
+                      color = _service.RGBToHex(uniqueValue.symbol.color[0], uniqueValue.symbol.color[1], uniqueValue.symbol.color[2]);
+                      weight = uniqueValue.symbol.width;
+                      break;
+                    case "esriGeometryPolygon":
+                      if (uniqueValue.symbol.color) {
+                        fillColor = _this.RGBToHex(uniqueValue.symbol.color[0], uniqueValue.symbol.color[1], uniqueValue.symbol.color[2]);
+                        fill = uniqueValue.symbol.color[3] > 0 ? true : false;
+                      }
+                      color = _this.RGBToHex(uniqueValue.symbol.outline.color[0], uniqueValue.symbol.outline.color[1], uniqueValue.symbol.outline.color[2]);
+                      weight = uniqueValue.symbol.outline.width;
+                      break;
+                    default:
+                      break;
+                  }
+                  return {
+                    values: uniqueValue.value.split(","),
+                    weight: weight,
+                    color: color,
+                    fillColor: fillColor,
+                    fill: fill
+                  };
+                });
+              } else {
+                // get color from renderer
+                if (data[1].drawingInfo.renderer.symbol) {
+                  var fillColor = "";
+                  var color = "";
+                  var fill = false;
+                  var weight = 1;
+                  var drawingSymbol = data[1].drawingInfo.renderer.symbol;
+                  switch (data[1].geometryType) {
+                    case 'esriGeometryPolyline':
+                      color = _service.RGBToHex(drawingSymbol.color[0], drawingSymbol.color[1], drawingSymbol.color[2]);
+                      weight = drawingSymbol.width;
+                      break;
+                    case 'esriGeometryPolygon':
+                      fillColor = _service.RGBToHex(drawingSymbol.color[0], drawingSymbol.color[1], drawingSymbol.color[2]);
+                      color = _service.RGBToHex(drawingSymbol.outline.color[0], drawingSymbol.outline.color[1], drawingSymbol.outline.color[2]);
+                      fill = drawingSymbol.color[0] > 0 || drawingSymbol.color[1] > 0 || drawingSymbol.color[2] > 0 ? true : false;
+                      weight = drawingSymbol.outline.width;
+                      break;
+                    default:
+                      break;
+                  }
+
+                  queryLayer.layer.colors = [{
+                    values: '',
+                    weight: weight,
+                    color: color,
+                    fillColor: fillColor,
+                    fill: fill,
+                    fillOpacity: 1
+                  }];
+                }
+              }
+            }
+
+            queryLayer.layer.mapData = L.esri.featureLayer({
+              maxZoom: 20,
+              minZoom: 0,
+              url: queryLayer.layer.baseUrl + "/" + queryLayer.layer.layerId + "/query",
+              where: query,
+              continuousWorld: true,
+              useCors: false,
+              f: "image",
+              style: function style(feature, layer) {
+                // //is used to style polygon and polyline
+                if (queryLayer.layer.colors) {
+                  var colorValue = feature.properties[data[1].drawingInfo.renderer.field1];
+                  if (colorValue) {
+                    return queryLayer.layer.colors.find(function (x) {
+                      return x.values.includes(colorValue);
+                    });
+                  } else {
+                    return queryLayer.layer.colors.find(function (x) {
+                      return x.values.includes('');
+                    }) ? queryLayer.layer.colors.find(function (x) {
+                      return x.values.includes('');
+                    }) : queryLayer.layer.colors[0];
+                  }
+                }
+              },
+              pointToLayer: function pointToLayer(feature, latlng) {
+                //is usesd to style points
+                var legendValue = feature.properties[data[1].drawingInfo.renderer.field1];
+                var legendItem = queryLayer.layer.legend.find(function (x) {
+                  return x.values && x.values.map(function (x) {
+                    return x.toLowerCase();
+                  }).includes(legendValue.toLowerCase());
+                });
+                var iconUrl = legendItem ? legendItem.fullurl : queryLayer.layer.legend[0].fullurl;
+                return MapData.CreateFeatureLayerMarker(latlng, iconUrl);
+              }
+            }).addTo(map);
+
+            queryLayer.theme = theme;
+            MapData.QueryLayers.push(queryLayer);
+            MapData.VisibleLayers = MapData.VisibleLayers.concat({
+              name: queryLayer.layer.name + " (query)",
+              isQueryLayer: true,
+              layer: queryLayer
+            });
+          });
+        }
+      }
+    };
+
+    _service.DeleteAllQueryLayers = function () {
+      _.each(MapData.QueryLayers, function (queryLayer) {
+        //remove all querylayers, foreach remove the first index
+        _service.DeleteQueryLayer(0);
+      });
+    };
+
+    _service.DeleteQueryLayer = function (index) {
+      if (index > -1) {
+        var queryLayer = MapData.QueryLayers[index];
+        if (queryLayer) {
+          map.removeLayer(queryLayer.layer.mapData);
+          MapData.QueryLayers.splice(index, 1);
+          //remove querylayer from visiblelayers
+          var visLayer = MapData.VisibleLayers.find(function (x) {
+            return x.isQueryLayer === true & x.layer === queryLayer;
+          });
+          if (visLayer) {
+            MapData.VisibleLayers.splice(MapData.VisibleLayers.indexOf(visLayer), 1);
+          }
+        }
+      }
+    };
+
+    _service.CleanThemes = function () {
+      while (MapData.Themes.length != 0) {
+        console.log("DELETING THIS THEME", MapData.Themes[0]);
+        _service.DeleteTheme(MapData.Themes[0]);
+      }
+    };
+
+    _service.DeleteTheme = function (theme) {
+      map.removeLayer(theme.MapData); // this one works with ESRI And leaflet
+      var themeIndex = MapData.Themes.indexOf(theme);
+      if (themeIndex > -1) {
+        MapData.Themes.splice(themeIndex, 1);
+      }
+      theme.VisibleLayers.forEach(function (visLayer) {
+        var visLayerIndex = MapData.VisibleLayers.indexOf(visLayer);
+        if (visLayerIndex > -1) {
+          MapData.VisibleLayers.splice(visLayerIndex, 1);
+        }
+      });
+      MapData.CleanSearch();
+    };
+
+    _service.QueryLayerCount = function (theme, layerId, query) {
+      var prom = MapService.AdvancedQueryCount(theme, layerId, query);
+      prom.then(function (arg) {
+        if (arg.count > 1000) {
+          PopupService.Warning("U selecteerde " + arg.count + " resultaten.", "Bij meer dan 1000 resultaten kan het laden wat langer duren en heeft dit een negatieve impact op de performantie van SIK.");
+        }
+      });
+    };
+
+    _service.RGBToHex = function (red, green, blue) {
+      return "#" + _service.ComponentToHex(red) + _service.ComponentToHex(green) + _service.ComponentToHex(blue);
+    };
+
+    _service.ComponentToHex = function (c) {
+      var hex = c.toString(16);
+      return hex.length == 1 ? "0" + hex : hex;
+    };
+
+    return _service;
+  };
+  module.$inject = ["map", "ThemeCreater", "MapData", "GISService", "MapService", "PopupService"];
+  module.factory("ThemeService", service);
 })();
 ;'use strict';
 
@@ -5884,6 +6542,13 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 source: function source(query, syncResults, asyncResults) {
                     if (query.replace(/[^0-9]/g, '').length < 6) {
                         // if less then 6 numbers then we just search
+                        var hasComma = query.indexOf(',');
+
+                        // if search isn't coordinates only search for the first part
+                        if (hasComma > -1) {
+                            query = query.replace(query.substr(hasComma, query.length), '');
+                        }
+
                         var splitquery = query.split(' ');
                         var numbers = splitquery.filter(function (x) {
                             return isCharDigit(x[0]);
@@ -5896,7 +6561,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                             //FIXES BUG SIK-496
                             _typeAheadService.lastStreetNameId = null;
                         }
-                        if (numbers.length == 1 && notnumbers.length >= 1) {
+                        if (numbers.length == 1 && notnumbers.length >= 1 && !(notnumbers.length === 1 && notnumbers[0].toUpperCase() === 'KAAINUMMER')) {
                             var huisnummer = numbers[0];
                             var strnmid = [];
                             var count = 0;
@@ -5949,36 +6614,47 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                                     asyncResults(features);
                                 });
                             } else {
-                                GISService.QueryCrabName(straatnaam, huisnummer).then(function (data) {
-                                    console.log(data);
-                                    var features = data.features.map(function (feature) {
+                                GISService.QueryLocationPickerAddress(straatnaam, huisnummer).then(function (data) {
+                                    var features = data.map(function (feature) {
                                         var obj = {};
-                                        obj.straatnaam = feature.attributes.STRAATNM;
-                                        obj.huisnummer = feature.attributes.HUISNR;
-                                        // obj.busnummer = feature.attributes.BUSNR;
-                                        obj.id = feature.attributes.OBJECTID;
-                                        obj.x = feature.geometry.x;
-                                        obj.y = feature.geometry.y;
-                                        obj.name = (obj.straatnaam.split('_')[0] + " " + obj.huisnummer).trim();
-                                        obj.postcode = feature.attributes.POSTCODE;
-                                        _typeAheadService.districts.forEach(function (district) {
-                                            if (district.postcode == obj.postcode) {
-                                                obj.district = district.district;
-                                            }
-                                        });
-                                        if (obj.straatnaam.split('_')[1]) {
-                                            obj.name = obj.straatnaam.split('_')[0] + " " + obj.huisnummer + ", " + obj.postcode + " " + obj.district;
-                                        } else {
-                                            obj.name = obj.straatnaam + " " + obj.huisnummer + ", " + obj.postcode + " " + obj.district;
-                                        }
+                                        obj.straatnaam = feature.street.streetName;
+                                        obj.huisnummer = feature.houseNumber.houseNumber;
+                                        obj.id = feature.id;
+                                        obj.x = feature.addressPosition.lambert72.x;
+                                        obj.y = feature.addressPosition.lambert72.y;
+                                        obj.name = feature.formattedAddress;
+                                        obj.postcode = feature.municipalityPost.postCode;
+                                        obj.district = feature.municipalityPost.antwerpDistrict;
                                         return obj;
                                     }).slice(0, 10);
+
                                     asyncResults(features);
                                 });
                             }
                         } else {
-                            GISService.QuerySOLRLocatie(query.trim()).then(function (data) {
-                                var arr = data.response.docs;
+                            GISService.QueryLocationPickerLocation(query.trim()).then(function (data) {
+                                var arr = data.map(function (feature) {
+                                    var obj = {};
+                                    obj.key = feature.id;
+                                    obj.id = feature.fullId;
+                                    obj.name = feature.name;
+                                    obj.layer = feature.layer;
+                                    obj.layerString = feature.layer;
+                                    if (feature.antwerpDistrict !== null && feature.antwerpDistrict.match(/^ *$/) === null) {
+                                        obj.districts = [feature.antwerpDistrict];
+                                    }
+                                    if (feature.position) {
+                                        if (feature.position.geometry) {
+                                            obj.geometry = feature.position.geometry;
+                                        }
+                                        if (feature.position.lambert72) {
+                                            obj.x = feature.position.lambert72.x;
+                                            obj.y = feature.position.lambert72.y;
+                                        }
+                                    }
+
+                                    return obj;
+                                });
                                 _typeAheadService.lastData = arr;
                                 asyncResults(arr);
                             });
@@ -6011,9 +6687,11 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                         var xyWGS84 = GisHelperService.ConvertLambert72ToWSG84(cors);
                         setViewAndPutDot(xyWGS84);
                     } else {
-                        var idsplitted = suggestion.id.split("/");
-                        var layerid = idsplitted[3];
-                        QueryForTempFeatures(layerid, 'ObjectID=' + suggestion.key);
+                        if (suggestion.id) {
+                            var idsplitted = suggestion.id.split("/");
+                            var layerid = idsplitted[3];
+                            QueryForTempFeatures(layerid, 'ObjectID=' + suggestion.key);
+                        }
                     }
                 }
 
@@ -6181,7 +6859,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     module.controller('BufferController', ['$scope', '$modalInstance', 'MapData', function ($scope, $modalInstance, MapData) {
         var vm = this;
         $scope.buffer = MapData.LastBufferedDistance;
-        $scope.SelectableLayers = angular.copy(MapData.VisibleLayers);
+        $scope.SelectableLayers = _.cloneDeep(MapData.VisibleLayers);
         $scope.SelectableLayers.shift(); // remove the alllayers for buffer
         var bufferDefault = MapData.LastBufferedLayer || MapData.DefaultLayer;
         if (bufferDefault) {
@@ -6215,10 +6893,11 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     } catch (e) {
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'ui.sortable', 'tink.modal', 'angular.filter']); //'leaflet-directive'
     }
-    var theController = module.controller('searchAdvancedController', ['$scope', '$modalInstance', 'SearchAdvancedService', 'MapData', 'GISService', 'UIService', 'ResultsData', function ($scope, $modalInstance, SearchAdvancedService, MapData, GISService, UIService, ResultsData) {
+    var theController = module.controller('searchAdvancedController', ['$scope', '$modalInstance', 'SearchAdvancedService', 'MapData', 'GISService', 'UIService', 'ResultsData', 'ThemeService', 'PopupService', function ($scope, $modalInstance, SearchAdvancedService, MapData, GISService, UIService, ResultsData, ThemeService, PopupService) {
         $scope.editor = false;
         $scope.selectedLayer = null;
         $scope.operations = [];
+        $scope.queryLayerName = '';
         if ($scope.query == undefined) $scope.query = null;
 
         $scope.openQueryEditor = function () {
@@ -6231,20 +6910,35 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         $scope.SelectedLayers = function () {
             //display only usable layers
             var layers = MapData.VisibleLayers.filter(function (data) {
-                return data.name !== "Alle lagen";
+                return data.name !== "Alle lagen" && data.fields;
             });
-            if (layers.length == 1) {
-                $scope.selectedLayer = layers[0];
-                SearchAdvancedService.UpdateFields($scope.selectedLayer);
+            if (layers.length === 1) {
+                if ($scope.selectedLayer) {
+                    $scope.selectedLayer = layers[0];
+                    SearchAdvancedService.UpdateFields($scope.selectedLayer);
+                } else {
+                    $scope.selectedLayer = layers[0];
+                    $scope.updateFields();
+                }
             }
             return layers;
         };
 
         $scope.updateFields = function () {
             if ($scope.selectedLayer != null && $scope.selectedLayer != undefined) {
+                var numberOfQueryLayers = MapData.QueryLayers.filter(function (x) {
+                    return x.layer.layerId === $scope.selectedLayer.id && x.layer.layerName === $scope.selectedLayer.name;
+                }).length;
+                if (numberOfQueryLayers > 0) {
+                    $scope.queryLayerName = $scope.selectedLayer.name + ' (' + numberOfQueryLayers + ')';
+                } else {
+                    $scope.queryLayerName = $scope.selectedLayer.name;
+                }
                 SearchAdvancedService.UpdateFields($scope.selectedLayer);
             }
         };
+
+        $scope.checkAddOrUpdate;
 
         $scope.$on('queryBuild', function (event, data) {
             $scope.query = data;
@@ -6278,12 +6972,14 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
         $scope.QueryAPI = function () {
             if (!$scope.editor) {
-                SearchAdvancedService.BuildQuery($scope.selectedLayer);
+                SearchAdvancedService.BuildQuery($scope.selectedLayer.name);
                 var query = SearchAdvancedService.TranslateOperations($scope.operations);
-                var result = SearchAdvancedService.ExecuteQuery($scope.selectedLayer, query);
-                console.log("editor = false");
+                if (query !== '') {
+                    var result = SearchAdvancedService.ExecuteQuery($scope.selectedLayer, query);
+                }
             } else {
                 var rawQueryResult = SearchAdvancedService.MakeNewRawQuery($scope.query);
+                SearchAdvancedService.UpdateQuery($scope.query);
                 if (rawQueryResult.layer != null) {
                     var result = SearchAdvancedService.ExecuteQuery(rawQueryResult.layer, rawQueryResult.query);
                 }
@@ -6294,12 +6990,44 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             $modalInstance.$close();
         };
 
+        $scope.FilterQueriedLayer = function () {
+            var closeModal = true;
+
+            if ($scope.queryLayerName === '') {
+                PopupService.Warning('Query laag naam leeg', 'Gelieve een querylaagnaam in te geven.');
+                return;
+            }
+
+            if (!$scope.editor) {
+                SearchAdvancedService.BuildQuery($scope.selectedLayer.name);
+                var query = SearchAdvancedService.TranslateOperations($scope.operations);
+                if ($scope.selectedLayer && query !== '') {
+                    ThemeService.AddQueryLayer($scope.queryLayerName, $scope.selectedLayer.id, query, $scope.selectedLayer.name, true, $scope.selectedLayer.theme);
+                }
+            } else {
+                var rawQueryResult = SearchAdvancedService.MakeNewRawQuery($scope.query);
+                SearchAdvancedService.UpdateQuery($scope.query);
+                if ($scope.selectedLayer) {
+                    ThemeService.AddQueryLayer($scope.queryLayerName, $scope.selectedLayer.id, rawQueryResult.query, $scope.selectedLayer.name, true, $scope.selectedLayer.theme);
+                } else {
+                    if (rawQueryResult.layer) {
+                        ThemeService.AddQueryLayer($scope.queryLayerName, rawQueryResult.layer.id, rawQueryResult.query, rawQueryResult.layer.name, true, rawQueryResult.layer.theme);
+                    } else {
+                        closeModal = false;
+                    }
+                }
+            }
+            if (closeModal) {
+                $modalInstance.$close();
+            }
+        };
+
         if ($scope.query != null && $scope.query != "") {
             $scope.openQueryEditor();
         }
     }]);
 
-    theController.$inject = ['$scope', '$modalInstance', 'SearchAdvancedService', 'MapData', 'UIService', 'GISService', 'ResultsData'];
+    theController.$inject = ['$scope', '$modalInstance', 'SearchAdvancedService', 'MapData', 'UIService', 'GISService', 'ResultsData', 'ThemeService'];
 })();
 ;'use strict';
 
@@ -6706,14 +7434,32 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         });
 
         $scope.$watch(function () {
+            return FeatureService.secondResultButtonIsEnabled;
+        }, function (newValue, oldValue) {
+            vm.secondResultButtonIsEnabled = FeatureService.secondResultButtonIsEnabled;
+            vm.secondResultButton = FeatureService.secondResultButtonCallBack;
+            vm.secondResultButtonText = FeatureService.secondResultButtonText;
+        });
+
+        $scope.$watch(function () {
             return FeatureService.extraResultButtonConditionCallBack();
         }, function (newValue, oldValue) {
             // console.log(newValue, oldValue, "ZZZZZZZZZZZZZZZZZZZZZ");
             vm.extraResultButtonIsEnabled = newValue;
         });
+
+        $scope.$watch(function () {
+            return FeatureService.secondResultButtonConditionCallBack();
+        }, function (newValue, oldValue) {
+            vm.secondResultButtonIsEnabled = newValue;
+        });
         vm.extraResultButtonIsEnabled = FeatureService.extraResultButtonIsEnabled;
         vm.extraResultButton = FeatureService.extraResultButtonCallBack;
         vm.resultButtonText = FeatureService.resultButtonText;
+
+        vm.secondResultButtonIsEnabled = FeatureService.secondResultButtonIsEnabled;
+        vm.secondResultButton = FeatureService.secondResultButtonCallBack;
+        vm.secondResultButtonText = FeatureService.secondResultButtonText;
     });
     theController.$inject = ['$scope', 'ResultsData', 'map', 'SearchService', 'MapData', 'FeatureService', '$modal', 'GeometryService'];
 })();
@@ -7020,6 +7766,13 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             $rootScope.$broadcast('queryBuild', $rootScope.query);
         };
 
+        _service.UpdateQuery = function (query) {
+
+            $rootScope.query = query;
+
+            $rootScope.$broadcast('queryBuild', $rootScope.query);
+        };
+
         _service.ExecuteQuery = function (layer, query) {
             MapService.AdvancedQuery(layer, query);
             MapData.ShowDrawControls = false;
@@ -7032,12 +7785,19 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 if (operation.addition != null) {
                     query += ' ' + operation.addition + ' (';
                 }
-                query += operation.attribute.name + ' ';
-                query += _service.HandleOperator(operation);
+                if (operation.attribute != null) {
+                    query += operation.attribute.name + ' ';
+                }
+                if (operation.value != null) {
+                    query += _service.HandleOperator(operation);
+                }
                 if (operation.addition != null) {
                     query += ')';
                 }
             });
+            if (query === '') {
+                PopupService.Warning("Ongeldige query", "Kijk na of u een geldige query heeft samengesteld.");
+            }
             return query;
         };
 
@@ -7707,7 +8467,7 @@ L.drawLocal = {
     "<div class=\"row margin-top margin-bottom\">\n" +
     "<div class=\"col-xs-12 col-sm-6\">\n" +
     "<form>\n" +
-    "<input auto-focus type=search ng-keydown=\"$event.keyCode === 13 && enterPressed()\" ng-model=searchTerm ng-change=searchChanged() ng-model-options=\"{debounce: 100}\" placeholder=\"Geef een trefwoord in (minimum 3 tekens)\">\n" +
+    "<input auto-focus type=search ng-keydown=\"$event.keyCode === 13 && enterPressed()\" ng-model=searchTerm ng-change=searchChanged() ng-model-options=\"{debounce: 500}\" placeholder=\"Geef een trefwoord in (minimum 3 tekens)\">\n" +
     "</form>\n" +
     "</div>\n" +
     "</div>\n" +
@@ -7717,13 +8477,13 @@ L.drawLocal = {
     "<li role=presentation ng-class=\"{'active': active=='solr'}\"><a href=\"\" ng-click=\"active='solr'\">Stad <span ng-if=\"solrLoading==true\" class=loader></span><span ng-if=\"solrLoading==false && solrCount != null\">({{solrCount}})</span></a></li>\n" +
     "<li ng-show=!mobile role=presentation ng-class=\"{'active': active=='geopunt'}\"><a href=\"\" ng-click=\"active='geopunt'\">GeoPunt <span ng-if=\"geopuntLoading==true\" class=loader></span><span ng-if=\"geopuntLoading==false && geopuntCount != null\">({{geopuntCount}})</span></a></li>\n" +
     "<li role=presentation class=pull-right ng-class=\"{'active': active=='beheer'}\"><a href=\"\" ng-click=\"active='beheer'\">Lagenbeheer</a></li>\n" +
-    "<li ng-show=!mobile role=presentation class=pull-right ng-class=\"{'active': active=='wmsurl'}\"><a href=\"\" ng-click=\"active='wmsurl'\">URL ingeven</a></li>\n" +
+    "<li ng-show=!mobile role=presentation class=pull-right ng-class=\"{'active': active=='themeurl'}\"><a href=\"\" ng-click=\"active='themeurl'\">URL ingeven</a></li>\n" +
     "</ul>\n" +
     "</div>\n" +
     "</div>\n" +
     "<solr-gis ng-show=\"active=='solr'\"></solr-gis>\n" +
     "<geo-punt ng-show=\"active=='geopunt'\"></geo-punt>\n" +
-    "<wms-url ng-show=\"active=='wmsurl'\"></wms-url>\n" +
+    "<theme-url ng-show=\"active=='themeurl'\"></theme-url>\n" +
     "<layers-management ng-if=\"active=='beheer'\"></layers-management></div>"
   );
 
@@ -7732,6 +8492,13 @@ L.drawLocal = {
     "<div class=\"layersManagementTemplate row relative-container flex-grow-1\">\n" +
     "<div class=\"col-xs-4 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
     "<div class=\"overflow-wrapper flex-grow-1 list-selectable margin-top margin-bottom border-right\">\n" +
+    "<div ng-repeat=\"queryLayer in queryLayers\">\n" +
+    "<dl ng-class=\"{active: isActiveQueryLayer(queryLayer)}\">\n" +
+    "<a href=# class=theme-layer ng-click=QueryLayerChanged(queryLayer)>\n" +
+    "<dt>{{queryLayer.layer.name}} (query)<button class=\"trash pull-right\" prevent-default ng-click=delQueryLayer(queryLayer)></button></dt>\n" +
+    "</a>\n" +
+    "</dl>\n" +
+    "</div>\n" +
     "<div ng-repeat=\"theme in availableThemes | filter:{name: searchTerm}\">\n" +
     "<dl ng-class=\"{active: isActive(theme)}\">\n" +
     "<a href=# class=theme-layer ng-click=ThemeChanged(theme)>\n" +
@@ -7743,6 +8510,7 @@ L.drawLocal = {
     "</div>\n" +
     "</div>\n" +
     "<div class=\"col-xs-8 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
+    "<preview-query-layer ng-if=selectedQueryLayer querylayer=selectedQueryLayer query=query></preview-query-layer>\n" +
     "<preview-layer ng-if=copySelectedTheme theme=copySelectedTheme addorupdatefunc=AddOrUpdateTheme()>\n" +
     "</preview-layer>\n" +
     "</div>\n" +
@@ -7795,6 +8563,18 @@ L.drawLocal = {
   );
 
 
+  $templateCache.put('templates/layermanagement/previewQueryLayerTemplate.html',
+    "<div class=\"flex-column flex-grow-1\">\n" +
+    "<div class=margin-top>\n" +
+    "<h4>{{querylayer.layer.name}}</h4>\n" +
+    "<p>Laag: {{querylayer.layer.layerName}}</p>\n" +
+    "<p><small>Query laag opgemaakt op basis van onderstaande query</small></p>\n" +
+    "<textarea ng-readonly=true class=text-cursor rows=4>{{query}}</textarea>\n" +
+    "</div>\n" +
+    "</div>"
+  );
+
+
   $templateCache.put('templates/layermanagement/solrGISTemplate.html',
     "<div class=\"solrGISTemplate row relative-container flex-grow-1\">\n" +
     "<div class=\"col-xs-5 flex-column flex-grow-1\">\n" +
@@ -7837,14 +8617,14 @@ L.drawLocal = {
   );
 
 
-  $templateCache.put('templates/layermanagement/wmsUrlTemplate.html',
-    "<div class=\"wmsUrlTemplate row relative-container\">\n" +
-    "<div class=\"col-xs-8 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
+  $templateCache.put('templates/layermanagement/themeUrlTemplate.html',
+    "<div class=\"themeUrlTemplate row relative-container\">\n" +
+    "<div class=\"col-xs-6 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
     "<div>\n" +
-    "<input class=searchbox type=url ng-model=url ng-change=urlChanged() placeholder=\"Geef een wms url in\">\n" +
+    "<input class=searchbox ng-model=url ng-change=urlChanged() placeholder=\"Geef een URL in van een webmapservice (wms) of ArcGIS mapservice (enkel arcgissql)\" style=width:100%>\n" +
     "</div>\n" +
     "</div>\n" +
-    "<div class=\"col-xs-4 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
+    "<div class=\"col-xs-6 flex-column flex-grow-1 margin-top margin-bottom\">\n" +
     "<div>\n" +
     "<button ng-disabled=!urlIsValid ng-click=laadUrl()>Laad url</button>\n" +
     "</div>\n" +
@@ -7875,6 +8655,26 @@ L.drawLocal = {
     "</div>\n" +
     "</div>\n" +
     "<div class=\"overflow-wrapper flex-grow-1 extra-padding\">\n" +
+    "<div class=\"can-open margin-bottom\" ng-show=\"lyrsctrl.queryLayers.length > 0\" ng-class=\"{'open': lyrsctrl.showQueryLayers}\">\n" +
+    "<label class=black-label>Query lagen:</label>\n" +
+    "<span class=show-layer ng-click=\"lyrsctrl.showQueryLayers = !lyrsctrl.showQueryLayers\"></span>\n" +
+    "<ul class=ul-level id=queryLayers ng-show=\"lyrsctrl.showQueryLayers && lyrsctrl.queryLayers.length > 0\">\n" +
+    "<li class=\"li-item querylayer-item\" ng-repeat=\"queryLayer in lyrsctrl.queryLayers track by $index\">\n" +
+    "<div class=can-open-second ng-class=\"{'open': showMultiLegend}\">\n" +
+    "<img class=layer-icon ng-if=\"queryLayer.layer.legend.length ===1 && queryLayer.layer.legend[0].fullurl\" class=layer-icon ng-src=\"{{queryLayer.layer.legend[0].fullurl}} \">\n" +
+    "<input class=\"visible-box hidden-print\" type=checkbox id=queryDataChk{{$index}} ng-model=queryLayer.showLayer ng-change=lyrsctrl.updateQueryVisibility($index)>\n" +
+    "<label for=queryDataChk{{$index}} title=\"{{ queryLayer.layer.name }}\"> {{ queryLayer.layer.name }}</label>\n" +
+    "<span style=color:#76b9f4 class=show-layer-second ng-show=\"queryLayer.layer.legend.length>1\" ng-click=\"showMultiLegend = !showMultiLegend\"></span>\n" +
+    "<span class=\"label-info hidden-print\">Query</span>\n" +
+    "<button style=\"flex-grow: 2\" class=\"trash hidden-print pull-right\" ng-click=lyrsctrl.deleteQueryLayer($index)></button>\n" +
+    "<ul class=querylayer-legend ng-show=\"showMultiLegend && queryLayer.layer.legend.length>1\">\n" +
+    "<li ng-repeat=\"legend in queryLayer.layer.legend\"><img class=layer-icon ng-src={{legend.fullurl}}><span>{{legend.label}}</span></li>\n" +
+    "</ul>\n" +
+    "</div>\n" +
+    "</li>\n" +
+    "</ul>\n" +
+    "<hr>\n" +
+    "</div>\n" +
     "<ul class=ul-level id=sortableThemes ui-sortable=lyrsctrl.sortableOptions ng-model=lyrsctrl.themes>\n" +
     "<li class=li-item ng-repeat=\"theme in lyrsctrl.themes\">\n" +
     "<tink-theme theme=theme layercheckboxchange=lyrsctrl.updatethemevisibility(theme) hidedelete=!lyrsctrl.deleteLayerButtonIsEnabled>\n" +
@@ -7925,7 +8725,7 @@ L.drawLocal = {
     "<img style=\"width:20px; height:20px\" ng-src=\"{{legend.fullurl}} \"><span title={{legend.label}}>{{legend.label}}</span>\n" +
     "</li>\n" +
     "</ul>\n" +
-    "</div>"
+    "</div>\n"
   );
 
 
@@ -7992,6 +8792,9 @@ L.drawLocal = {
     "</div>\n" +
     "<div class=map-buttons-right>\n" +
     "<div class=\"btn-group btn-group-vertical ll viewbtns\">\n" +
+    "<button type=button class=btn ng-click=mapctrl.setCityView() tink-tooltip=\"Stad weergeven\" tink-tooltip-align=left prevent-default-map>\n" +
+    "<i class=\"fa fa-home\"></i>\n" +
+    "</button>\n" +
     "<button type=button class=btn ng-click=mapctrl.zoomIn() tink-tooltip=\"Zoom in\" tink-tooltip-align=left prevent-default-map>\n" +
     "<i class=\"fa fa-plus\"></i>\n" +
     "</button>\n" +
@@ -8065,7 +8868,7 @@ L.drawLocal = {
 
   $templateCache.put('templates/other/themeTemplate.html',
     "<div>\n" +
-    "<div style=display:flex>\n" +
+    "<div style=\"display:flex; position: relative\">\n" +
     "<input class=\"visible-box hidden-print\" type=checkbox id=chk{{thmctrl.theme.Naam}} ng-model=thmctrl.theme.Visible ng-change=layercheckboxchange(thmctrl.theme)>\n" +
     "<label for=chk{{thmctrl.theme.Naam}} title={{thmctrl.theme.Naam}}> {{thmctrl.theme.Naam}}\n" +
     "<span class=\"label-info hidden-print\" ng-show=\"thmctrl.theme.Type=='esri'\">ArcGIS</span>\n" +
@@ -8164,9 +8967,12 @@ L.drawLocal = {
     "</div>\n" +
     "</div>\n" +
     "<div class=\"searchAdvancedTemplate modal-footer\">\n" +
-    "<div class=margin-top>\n" +
+    "<div class=\"margin-top row\">\n" +
     "<button type=button class=\"btn btn-info\" ng-click=QueryAPI()>Pas toe</button>\n" +
     "<button type=button class=btn ng-click=cancel()> Annuleer</button>\n" +
+    "<button type=button class=\"btn btn-info\" ng-click=FilterQueriedLayer()>Query laag maken/bijwerken</button>\n" +
+    "<label for=queryLayerName class=\"margin-left black-label\">Query laag naam:</label>\n" +
+    "<input class=small-input id=queryLayerName ng-model=queryLayerName>\n" +
     "</div>\n" +
     "</div>"
   );
@@ -8215,6 +9021,7 @@ L.drawLocal = {
     "<i class=\"fa fa-minus\" aria-hidden=true></i>\n" +
     "</button>\n" +
     "<button class=btn-sm ng-if=srchrsltsctrl.extraResultButtonIsEnabled ng-click=srchrsltsctrl.extraResultButton()>{{srchrsltsctrl.resultButtonText}}</button>\n" +
+    "<button class=btn-sm ng-if=srchrsltsctrl.secondResultButtonIsEnabled ng-click=srchrsltsctrl.secondResultButton()>{{srchrsltsctrl.secondResultButtonText}}</button>\n" +
     "</div>\n" +
     "<div class=col-xs-12>\n" +
     "<select ng-model=srchrsltsctrl.layerGroupFilter>\n" +
@@ -8235,7 +9042,7 @@ L.drawLocal = {
     "<data-content ng-show=\"srchrsltsctrl.aantalFeaturesMetType(layerGroupName) <= 1000\">\n" +
     "<li ng-repeat=\"feature in srchrsltsctrl.features | filter: { layerName:layerGroupName } :true\" ng-mouseover=srchrsltsctrl.HoverOver(feature)>\n" +
     "<div class=mouse-over>\n" +
-    "<a tink-tooltip={{feature.displayValue}} tink-tooltip-align=top ng-click=srchrsltsctrl.showDetails(feature)>{{ feature.displayValue| limitTo : 23 }}\n" +
+    "<a tink-tooltip={{feature.displayValue}} tink-tooltip-align=top ng-click=srchrsltsctrl.showDetails(feature)>{{ feature.displayValue| limitTo : 40 }}\n" +
     "</a>\n" +
     "<button class=\"trash pull-right mouse-over-toshow\" prevent-default ng-click=srchrsltsctrl.deleteFeature(feature)></button>\n" +
     "</div>\n" +
@@ -8251,7 +9058,7 @@ L.drawLocal = {
     "<data-content ng-show=\"srchrsltsctrl.aantalFeaturesMetType(layerGroupName) <= 1000\">\n" +
     "<li ng-repeat=\"feature in srchrsltsctrl.features | filter: { layerName:layerGroupName } :true\" ng-mouseover=srchrsltsctrl.HoverOver(feature)>\n" +
     "<div class=mouse-over>\n" +
-    "<a tink-tooltip={{feature.displayValue}} tink-tooltip-align=top ng-click=srchrsltsctrl.showDetails(feature)>{{ feature.displayValue| limitTo : 23 }}\n" +
+    "<a tink-tooltip={{feature.displayValue}} tink-tooltip-align=top ng-click=srchrsltsctrl.showDetails(feature)>{{ feature.displayValue| limitTo : 40 }}\n" +
     "</a>\n" +
     "<button class=\"trash pull-right mouse-over-toshow\" prevent-default ng-click=srchrsltsctrl.deleteFeature(feature)></button>\n" +
     "</div>\n" +
@@ -8289,6 +9096,7 @@ L.drawLocal = {
     "<dt>{{ prop.key}}</dt>\n" +
     "<div ng-if=\"prop.value.toLowerCase() != 'null'\">\n" +
     "<a ng-if=\"prop.value.indexOf('https://')==0 || prop.value.indexOf( 'http://')==0 \" ng-href={{prop.value}} target=_blank>% Link</a>\n" +
+    "<a ng-if=\"prop.value.indexOf('file://')==0\" ng-href={{prop.value}} target=_blank>{{prop.value}}</a>\n" +
     "<dd ng-if=\"prop.value.indexOf('https://') !=0 && prop.value.indexOf( 'http://') !=0 \"><pre>{{ prop.value }}</pre></dd>\n" +
     "</div>\n" +
     "</dl>\n" +
@@ -8517,6 +9325,8 @@ var TinkGis;
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
@@ -8608,8 +9418,10 @@ var TinkGis;
 
             var _this2 = _possibleConstructorReturn(this, (ArcGIStheme.__proto__ || Object.getPrototypeOf(ArcGIStheme)).call(this));
 
+            var urlParts = themeData.cleanUrl.split("/");
+            var nameFromUrl = urlParts.length > 2 ? urlParts[urlParts.length - 2] : "";
             var rawlayers = rawdata.layers;
-            _this2.name = _this2.Naam = rawdata.documentInfo.Title;
+            _this2.name = _this2.Naam = rawdata.documentInfo.Title === "" ? nameFromUrl : rawdata.documentInfo.Title;
             _this2.Description = rawdata.documentInfo.Subject;
             _this2.cleanUrl = themeData.cleanUrl;
             _this2.Opacity = themeData.opacity;
@@ -8688,7 +9500,15 @@ var TinkGis;
                 if (layers.length === undefined) {
                     lays.push(layers);
                 } else {
-                    lays = layers;
+                    var tempLayers = [];
+                    layers.forEach(function (element) {
+                        if (element.layer) {
+                            tempLayers = [].concat(_toConsumableArray(tempLayers), _toConsumableArray(element.layer));
+                        } else {
+                            tempLayers.push(element);
+                        }
+                    });
+                    lays = tempLayers;
                 }
             } else {
                 lays.push(data.capability.layer);

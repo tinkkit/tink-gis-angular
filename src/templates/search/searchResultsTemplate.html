@@ -18,6 +18,7 @@
                       <i class="fa fa-minus" aria-hidden="true"></i>
                 </button>
                 <button class="btn-sm" ng-if="srchrsltsctrl.extraResultButtonIsEnabled" ng-click="srchrsltsctrl.extraResultButton()">{{srchrsltsctrl.resultButtonText}}</button>
+                <button class="btn-sm" ng-if="srchrsltsctrl.secondResultButtonIsEnabled" ng-click="srchrsltsctrl.secondResultButton()">{{srchrsltsctrl.secondResultButtonText}}</button>
             </div>
 
             <div class="col-xs-12">
@@ -39,7 +40,7 @@
                         <data-content ng-show="srchrsltsctrl.aantalFeaturesMetType(layerGroupName) <= 1000">
                             <li ng-repeat="feature in srchrsltsctrl.features | filter: { layerName:layerGroupName } :true" ng-mouseover="srchrsltsctrl.HoverOver(feature)">
                                 <div class="mouse-over">
-                                    <a tink-tooltip="{{feature.displayValue}}" tink-tooltip-align="top" ng-click="srchrsltsctrl.showDetails(feature)">{{ feature.displayValue| limitTo : 23 }}
+                                    <a tink-tooltip="{{feature.displayValue}}" tink-tooltip-align="top" ng-click="srchrsltsctrl.showDetails(feature)">{{ feature.displayValue| limitTo : 40 }}
                                      </a>
                                     <button class="trash pull-right mouse-over-toshow" prevent-default ng-click="srchrsltsctrl.deleteFeature(feature)"></button>
                                 </div>
@@ -55,7 +56,7 @@
                         <data-content ng-show="srchrsltsctrl.aantalFeaturesMetType(layerGroupName) <= 1000">
                             <li ng-repeat="feature in srchrsltsctrl.features | filter: { layerName:layerGroupName } :true" ng-mouseover="srchrsltsctrl.HoverOver(feature)">
                                 <div class="mouse-over">
-                                    <a tink-tooltip="{{feature.displayValue}}" tink-tooltip-align="top" ng-click="srchrsltsctrl.showDetails(feature)">{{ feature.displayValue| limitTo : 23 }}
+                                    <a tink-tooltip="{{feature.displayValue}}" tink-tooltip-align="top" ng-click="srchrsltsctrl.showDetails(feature)">{{ feature.displayValue| limitTo : 40 }}
                                      </a>
                                     <button class="trash pull-right mouse-over-toshow" prevent-default ng-click="srchrsltsctrl.deleteFeature(feature)"></button>
                                 </div>

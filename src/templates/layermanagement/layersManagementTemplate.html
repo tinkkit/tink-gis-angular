@@ -1,6 +1,13 @@
 <div class="layersManagementTemplate row relative-container flex-grow-1">
     <div class="col-xs-4 flex-column flex-grow-1 margin-top margin-bottom">
         <div class="overflow-wrapper flex-grow-1 list-selectable margin-top margin-bottom border-right">
+            <div ng-repeat="queryLayer in queryLayers">
+                <dl ng-class="{active: isActiveQueryLayer(queryLayer)}">
+                    <a href="#" class="theme-layer" ng-click="QueryLayerChanged(queryLayer)">
+                        <dt>{{queryLayer.layer.name}} (query)<button class="trash pull-right" prevent-default ng-click="delQueryLayer(queryLayer)"></button></dt>
+                    </a>
+                </dl>
+            </div>
             <div ng-repeat="theme in availableThemes | filter:{name: searchTerm}">
                 <dl ng-class="{active: isActive(theme)}">
                     <a href="#" class="theme-layer" ng-click="ThemeChanged(theme)">
@@ -12,6 +19,7 @@
         </div>
     </div>
     <div class="col-xs-8 flex-column flex-grow-1 margin-top margin-bottom">
+        <preview-query-layer ng-if="selectedQueryLayer" querylayer="selectedQueryLayer" query="query"></preview-query-layer>
         <preview-layer ng-if="copySelectedTheme" theme="copySelectedTheme" addorupdatefunc="AddOrUpdateTheme()">
 
         </preview-layer>

@@ -37,7 +37,7 @@
       console.log("Tink-Gis-Angular component init!!!!!!!!!");
       if (window.location.href.startsWith("http://localhost:9000/")) {
         var externproj = JSON.parse(
-          '{"themes":[{"Naam":"Planon","cleanUrl":"https://geoint.antwerpen.be/arcgissql/rest/services/P_Planon/planon/MapServer","type":"esri","visible":true,"layers":[{"visible":true,"name":"PLANON_DOSSIER","id":1},{"visible":true,"name":"perceel","id":4}]},{"Naam":"Patrimonium","cleanUrl":"https://geoint.antwerpen.be/arcgis/rest/services/P_Sik/Patrimonium/MapServer","type":"esri","visible":true,"layers":[{"visible":true,"name":"KAVIA","id":17}]}],"extent":{"_southWest":{"lat":51.20536146014249,"lng":4.409578736245564},"_northEast":{"lat":51.206417795952646,"lng":4.411724381984817}},"isKaart":true}'
+          '{"naam":"sorteerstraat 2","extent":{"_northEast":{"lat":"51.2302167641279","lng":"4.42211298202784"},"_southWest":{"lat":"51.2296967607896","lng":"4.42029424518419"}},"guid":"376edeed-60e1-44cc-93ff-4e149cc4d4bc","extentString":"51.2302167641279,4.42211298202784,51.2296967607896,4.42029424518419","isKaart":true,"uniqId":202,"creatorId":38,"creator":null,"createDate":"2021-02-09T10:33:01.774872","updaterId":38,"updater":null,"lastUpdated":"2021-02-09T10:33:01.774872","themes":[{"cleanUrl":"https://geoint.antwerpen.be/arcgissql/rest/services/P_Stad/Afval/Mapserver","naam":"Afval","type":"esri","visible":true,"layers":[{"id":"5","name":"sorteerstraat_ondergronds","visible":true},{"id":"2","name":"papiermand","visible":false},{"id":"0","name":"Afval-inzameling","visible":true}],"opacity":1}],"queryLayers":[{"layerId":5,"name":"sorteerstraat_ondergronds","baseUrl":"https://geoint.antwerpen.be/arcgissql/rest/services/P_Stad/Afval/Mapserver","where":"OBJECTID = \'20\' "}],"isReadOnly":false}'
         );
         ExternService.Import(externproj);
 
@@ -195,6 +195,13 @@
       }
     };
     vm.drawingButtonChanged = function (drawOption) {
+      MapData.RemovedUnfinishedDrawings = false;
+      // if there is an unfinished intake, remove first before starting new intake
+      if (MapData.DrawingObject && MapData.DrawingObject._enabled) {
+        MapData.RemovedUnfinishedDrawings = true;
+        MapData.CleanDrawings();
+      }
+
       if (MapData.ExtendedType == null) {
         // else we don t have to clean the map!
 
@@ -274,6 +281,9 @@
     vm.fullExtent = function () {
       map.setView(new L.LatLng(51.2192159, 4.4028818), 16);
     };
+    vm.setCityView = function () {
+      ExternService.SetCityExtent();
+    }
     vm.IsBaseMap1 = true;
     vm.IsBaseMap2 = false;
     vm.IsBaseMapGeen = false;
