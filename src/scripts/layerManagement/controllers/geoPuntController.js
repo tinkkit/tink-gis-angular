@@ -86,10 +86,18 @@
                 $scope.QueryGeoPunt($scope.searchTerm, page);
             };
             $scope.geopuntThemeChanged = function (theme) {
-                var questionmarkPos = theme.Url.trim().indexOf('?');
-                var url = theme.Url.trim();
+                let themeUrl = '';
+                if (theme.Url) {
+                    themeUrl = theme.Url;
+                } else {
+                    if (theme.TMPMETADATA && theme.TMPMETADATA["dc:uri"] && theme.TMPMETADATA["dc:uri"][0] && theme.TMPMETADATA["dc:uri"][0]["_"]) {
+                        themeUrl = theme.TMPMETADATA["dc:uri"][0]["_"];
+                    }
+                }
+                var questionmarkPos = themeUrl.trim().indexOf('?');
+                var url = themeUrl;
                 if (questionmarkPos != -1) {
-                    url = theme.Url.trim().substring(0, questionmarkPos);
+                    url = themeUrl.substring(0, questionmarkPos);
                 }
                 createWMS(url);
             };
