@@ -6991,7 +6991,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 if (rawQueryResult.layer != null) {
                     var result = SearchAdvancedService.ExecuteQuery(rawQueryResult.layer, rawQueryResult.query);
                 }
-                console.log("editor = true ");
             }
 
             UIService.OpenLeftSide();
