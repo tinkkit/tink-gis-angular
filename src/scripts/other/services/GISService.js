@@ -56,7 +56,7 @@
             // });
             query += '%20and%20' +
             '(HUISNR%20like%20%27' + huisnummer + '%27%20or%20Huisnr%20like%20%27' + huisnummer + '%5Ba-z%5D%27or%20Huisnr%20like%20%27' + huisnummer + '%5B_%5D%25%27)%20and%20APPTNR%20%3D%20%27%27%20and%20busnr%20%3D%20%27%27' +
-            '&text=&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=*&returnGeometry=true&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&f=pjson';
+            '&text=&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=*&returnGeometry=true&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&f=json';
             // var originalQuery = 'https://geoint.antwerpen.be/arcgissql/rest/services/P_Stad/CRAB_adresposities/MapServer/0/query?' +
             // 'where=GEMEENTE%3D%27Antwerpen%27%20and%20STRAATNMID%20%3D%27' + straatnaamid + '%27%20and%20' +
             // '(HUISNR%20like%20%27' + huisnummer + '%27%20or%20Huisnr%20like%20%27' + huisnummer + '%5Ba-z%5D%27or%20Huisnr%20like%20%27' + huisnummer + '%5B_%5D%25%27)%20and%20APPTNR%20%3D%20%27%27%20and%20busnr%20%3D%20%27%27' +
@@ -98,7 +98,7 @@
             // });
             query += '%20and%20' +
             '(HUISNR%20like%20%27' + huisnummer + '%27%20or%20Huisnr%20like%20%27' + huisnummer + '%5Ba-z%5D%27or%20Huisnr%20like%20%27' + huisnummer + '%5B_%5D%25%27)%20and%20APPTNR%20%3D%20%27%27%20and%20busnr%20%3D%20%27%27' +
-            '&text=&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=*&returnGeometry=true&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&f=pjson';
+            '&text=&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=*&returnGeometry=true&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&f=json';
             // var originalQuery = 'https://geoint.antwerpen.be/arcgissql/rest/services/P_Stad/CRAB_adresposities/MapServer/0/query?' +
             // 'where=GEMEENTE%3D%27Antwerpen%27%20and%20STRAATNMID%20%3D%27' + straatnaamid + '%27%20and%20' +
             // '(HUISNR%20like%20%27' + huisnummer + '%27%20or%20Huisnr%20like%20%27' + huisnummer + '%5Ba-z%5D%27or%20Huisnr%20like%20%27' + huisnummer + '%5B_%5D%25%27)%20and%20APPTNR%20%3D%20%27%27%20and%20busnr%20%3D%20%27%27' +
@@ -199,7 +199,7 @@
         _service.GetThemeData = function(mapserver) {
             var prom = $q.defer();
 
-            var url = completeUrl(mapserver) + '?f=pjson';
+            var url = completeUrl(mapserver) + '?f=json';
             console.log("ZZZZZ");
             
             $http.get(url, generateOptionsBasedOnUrl(url))
@@ -220,7 +220,7 @@
         _service.GetThemeLayerData = function(cleanurl) {
             var prom = $q.defer();
 
-            var url = completeUrl(cleanurl) + '/layers?f=pjson';
+            var url = completeUrl(cleanurl) + '/layers?f=json';
             $http.get(url, generateOptionsBasedOnUrl(url))
                 .success(function(data, status, headers, config) {
                     // data = GisHelperService.UnwrapProxiedData(data);
@@ -235,7 +235,7 @@
         _service.GetLegendData = function(cleanurl) {
             var prom = $q.defer();
 
-            var url = completeUrl(cleanurl) + '/legend?f=pjson';
+            var url = completeUrl(cleanurl) + '/legend?f=json';
             $http.get(url, generateOptionsBasedOnUrl(url))
                 .success(function(data, status, headers, config) {
                     // data = GisHelperService.UnwrapProxiedData(data);
@@ -249,7 +249,7 @@
 
         _service.GetLayerSpecification = function(layerUrl) {
             var prom = $q.defer()
-            var url = `${layerUrl}?f=pjson`;
+            var url = `${layerUrl}?f=json`;
 
             $http.get(url, generateOptionsBasedOnUrl(url))
                 .success(function(data, status, headers, config) {
