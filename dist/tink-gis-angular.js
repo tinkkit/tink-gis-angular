@@ -3073,6 +3073,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
 (function (module) {
     module = angular.module('tink.gis');
     module.controller('themeController', ['$scope', 'MapService', 'ThemeService', function ($scope, MapService, ThemeService, $timeout) {
+        $scope.showTheme = true;
         var vm = this;
         console.log('Theme geladen');
         vm.theme = $scope.theme;
@@ -8880,18 +8881,19 @@ L.drawLocal = {
 
   $templateCache.put('templates/other/themeTemplate.html',
     "<div>\n" +
-    "<div style=\"display:flex; position: relative\">\n" +
+    "<div style=\"display:flex; position: relative\" class=can-open ng-class=\"{'open': showTheme}\">\n" +
     "<input class=\"visible-box hidden-print\" type=checkbox id=chk{{thmctrl.theme.Naam}} ng-model=thmctrl.theme.Visible ng-change=layercheckboxchange(thmctrl.theme)>\n" +
     "<label for=chk{{thmctrl.theme.Naam}} title={{thmctrl.theme.Naam}}> {{thmctrl.theme.Naam}}\n" +
     "<span class=\"label-info hidden-print\" ng-show=\"thmctrl.theme.Type=='esri'\">ArcGIS</span>\n" +
     "<span class=\"label-info hidden-print\" ng-hide=\"thmctrl.theme.Type=='esri'\">{{thmctrl.theme.Type}}</span>\n" +
     "</label>\n" +
+    "<span class=show-layer ng-click=\"showTheme = !showTheme\"></span>\n" +
     "<button ng-hide=\"hidedelete == true\" style=\"flex-grow: 2\" class=\"trash hidden-print pull-right\" ng-click=thmctrl.deleteTheme()></button>\n" +
     "</div>\n" +
-    "<div style=display:flex class=hidden-print ng-show=\"thmctrl.theme.Type=='esri'\">\n" +
+    "<div style=display:flex class=hidden-print ng-show=\"thmctrl.theme.Type=='esri'\" ng-if=showTheme>\n" +
     "<rzslider class=\"custom-slider hidden-print\" rz-slider-model=thmctrl.transpSlider.value rz-slider-options=thmctrl.transpSlider.options></rzslider>\n" +
     "</div>\n" +
-    "<ul class=\"ul-level no-theme-layercontroller-checkbox\" ng-repeat=\"layer in thmctrl.theme.Layers | filter: { enabled: true }\">\n" +
+    "<ul class=\"ul-level no-theme-layercontroller-checkbox\" ng-repeat=\"layer in thmctrl.theme.Layers | filter: { enabled: true }\" ng-if=showTheme>\n" +
     "<tink-layer layer=layer layercheckboxchange=layercheckboxchange(layer.theme)>\n" +
     "</tink-layer>\n" +
     "</ul>\n" +
