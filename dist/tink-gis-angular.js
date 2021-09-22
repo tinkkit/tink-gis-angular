@@ -5597,10 +5597,13 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             });
         };
         _mapService.IdentifyProm = function (theme, latlng, layerids) {
-
+            var layersProp = 'all: ' + layerids;
+            if (layerids.length === 0) {
+                layersProp = 'visible:-1';
+            }
             var promise = new Promise(function (resolve, reject) {
                 ResultsData.RequestStarted++;
-                theme.MapData.identify().on(map).layers('visible: ' + layerids).at(latlng).run(function (error, featureCollection, response) {
+                theme.MapData.identify().on(map).layers(layersProp).at(latlng).run(function (error, featureCollection, response) {
                     ResultsData.RequestCompleted++;
                     resolve({ error: error, featureCollection: featureCollection, response: response });
                 });
@@ -5620,7 +5623,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                     // dus doen we de qry op alle lagen.
                     if (theme.VisibleLayerIds.length !== 0 && theme.VisibleLayerIds[0] !== -1) {
                         // ResultsData.RequestStarted++;
-                        var prom = _mapService.IdentifyProm(theme, event.latlng, theme.VisibleLayerIds);
+                        var prom = _mapService.IdentifyProm(theme, event.latlng, theme.VisibleAndDisplayedLayerIds);
                         allproms.push(prom);-prom.then(function (arg) {
                             MapData.AddFeatures(arg.featureCollection, theme);
                         });
