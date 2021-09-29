@@ -1,7 +1,7 @@
 "use strict";
 (function () {
   var module = angular.module("tink.gis");
-  var service = function (map, ThemeCreater, MapData, GISService, $q, MapService, PopupService) {
+  var service = function (map, ThemeCreater, MapData, GISService, $q, MapService, PopupService, ProjectStatusService) {
     var _service = {};
     _service.AddAndUpdateThemes = function (themesBatch) {
       console.log("Themes batch for add and updates...");
@@ -146,6 +146,9 @@
               e.authenticate(response.token);
             });
           });
+          theme.MapData.on("loading", function(e) {
+            console.log("ESRI loading");
+          });
           theme.MapData.on("load", function (e) {
             if (theme.MapData._currentImage) {
               theme.MapData._currentImage._image.style.zIndex =
@@ -154,12 +157,13 @@
                 "Zindex on " + theme.Naam + " set to " + theme.MapData.ZIndex
               );
             }
+            ProjectStatusService.ThemeLoaded();
           });
 
           break;
         case ThemeType.WMS:
           theme.MapData = L.tileLayer
-            .betterWms(theme.cleanUrl, {
+            .betterWms('http://tile.informatievlaanderen.be/ws/raadpleegdiensten/wmts', {
               maxZoom: 20,
               minZoom: 0,
               format: "image/png",
@@ -170,6 +174,9 @@
             })
             .addTo(map);
 
+          theme.MapData.on("loading", function (e) {
+            console.log("loading");
+          });
           theme.MapData.on("load", function (e) {
             console.log("LOAD VAN " + theme.Naam);
             console.log(theme.MapData);

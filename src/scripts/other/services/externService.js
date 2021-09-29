@@ -7,8 +7,7 @@
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'tink.modal']); //'leaflet-directive'
     }
     // module.$inject = ['MapData', 'map', 'GISService', 'ThemeCreater', 'WMSService', 'ThemeService', '$q','BaseLayersService'];
-
-    var externService = function(MapData, map, GISService, ThemeCreater, WMSService, ThemeService, $q, BaseLayersService, FeatureService, ResultsData, PopupService) {
+    var externService = function(MapData, map, GISService, ThemeCreater, WMSService, ThemeService, $q, BaseLayersService, FeatureService, ResultsData, PopupService, ProjectStatusService) {
         var _externService = {};
         _externService.GetAllThemes = function() {
             let legendItem = {};
@@ -81,6 +80,7 @@
 
         _externService.Import = function(project) {
             console.log(project);
+            ProjectStatusService.SetProject(project);
             _externService.setExtent(project.extent);
             ThemeService.DeleteAllQueryLayers();
 
