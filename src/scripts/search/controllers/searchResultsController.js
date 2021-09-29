@@ -68,6 +68,7 @@
                 vm.extendedType = newValue;
             });
             vm.addSelection = function () {
+                MapData.CleanDrawings();
                 if (vm.extendedType != "add") {
                     MapData.ActiveInteractieKnop = ActiveInteractieButton.SELECT;
                     MapData.DrawingType = DrawingOption.NIETS;
@@ -82,6 +83,7 @@
                 }
             };
             vm.removeSelection = function () {
+                MapData.CleanDrawings();
                 if (vm.extendedType != "remove") {
                     MapData.ActiveInteractieKnop = ActiveInteractieButton.SELECT;
                     MapData.DrawingType = DrawingOption.NIETS;

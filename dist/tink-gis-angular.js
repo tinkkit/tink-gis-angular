@@ -3073,6 +3073,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
 (function (module) {
     module = angular.module('tink.gis');
     module.controller('themeController', ['$scope', 'MapService', 'ThemeService', function ($scope, MapService, ThemeService, $timeout) {
+        $scope.showTheme = true;
         var vm = this;
         console.log('Theme geladen');
         vm.theme = $scope.theme;
@@ -4062,7 +4063,7 @@ var esri2geo = {};
             // straatnaamid.forEach(id => {
             //     query += '%20and%20STRAATNMID%20%3D%27' + straatnaamid;
             // });
-            query += '%20and%20' + '(HUISNR%20like%20%27' + huisnummer + '%27%20or%20Huisnr%20like%20%27' + huisnummer + '%5Ba-z%5D%27or%20Huisnr%20like%20%27' + huisnummer + '%5B_%5D%25%27)%20and%20APPTNR%20%3D%20%27%27%20and%20busnr%20%3D%20%27%27' + '&text=&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=*&returnGeometry=true&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&f=pjson';
+            query += '%20and%20' + '(HUISNR%20like%20%27' + huisnummer + '%27%20or%20Huisnr%20like%20%27' + huisnummer + '%5Ba-z%5D%27or%20Huisnr%20like%20%27' + huisnummer + '%5B_%5D%25%27)%20and%20APPTNR%20%3D%20%27%27%20and%20busnr%20%3D%20%27%27' + '&text=&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=*&returnGeometry=true&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&f=json';
             // var originalQuery = 'https://geoint.antwerpen.be/arcgissql/rest/services/P_Stad/CRAB_adresposities/MapServer/0/query?' +
             // 'where=GEMEENTE%3D%27Antwerpen%27%20and%20STRAATNMID%20%3D%27' + straatnaamid + '%27%20and%20' +
             // '(HUISNR%20like%20%27' + huisnummer + '%27%20or%20Huisnr%20like%20%27' + huisnummer + '%5Ba-z%5D%27or%20Huisnr%20like%20%27' + huisnummer + '%5B_%5D%25%27)%20and%20APPTNR%20%3D%20%27%27%20and%20busnr%20%3D%20%27%27' +
@@ -4099,7 +4100,7 @@ var esri2geo = {};
             // straatnaamid.forEach(id => {
             //     query += '%20and%20STRAATNMID%20%3D%27' + straatnaamid;
             // });
-            query += '%20and%20' + '(HUISNR%20like%20%27' + huisnummer + '%27%20or%20Huisnr%20like%20%27' + huisnummer + '%5Ba-z%5D%27or%20Huisnr%20like%20%27' + huisnummer + '%5B_%5D%25%27)%20and%20APPTNR%20%3D%20%27%27%20and%20busnr%20%3D%20%27%27' + '&text=&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=*&returnGeometry=true&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&f=pjson';
+            query += '%20and%20' + '(HUISNR%20like%20%27' + huisnummer + '%27%20or%20Huisnr%20like%20%27' + huisnummer + '%5Ba-z%5D%27or%20Huisnr%20like%20%27' + huisnummer + '%5B_%5D%25%27)%20and%20APPTNR%20%3D%20%27%27%20and%20busnr%20%3D%20%27%27' + '&text=&objectIds=&time=&geometry=&geometryType=esriGeometryEnvelope&inSR=&spatialRel=esriSpatialRelIntersects&relationParam=&outFields=*&returnGeometry=true&maxAllowableOffset=&geometryPrecision=&outSR=&returnIdsOnly=false&returnCountOnly=false&orderByFields=&groupByFieldsForStatistics=&outStatistics=&returnZ=false&returnM=false&gdbVersion=&returnDistinctValues=false&f=json';
             // var originalQuery = 'https://geoint.antwerpen.be/arcgissql/rest/services/P_Stad/CRAB_adresposities/MapServer/0/query?' +
             // 'where=GEMEENTE%3D%27Antwerpen%27%20and%20STRAATNMID%20%3D%27' + straatnaamid + '%27%20and%20' +
             // '(HUISNR%20like%20%27' + huisnummer + '%27%20or%20Huisnr%20like%20%27' + huisnummer + '%5Ba-z%5D%27or%20Huisnr%20like%20%27' + huisnummer + '%5B_%5D%25%27)%20and%20APPTNR%20%3D%20%27%27%20and%20busnr%20%3D%20%27%27' +
@@ -4196,7 +4197,7 @@ var esri2geo = {};
         _service.GetThemeData = function (mapserver) {
             var prom = $q.defer();
 
-            var url = completeUrl(mapserver) + '?f=pjson';
+            var url = completeUrl(mapserver) + '?f=json';
             console.log("ZZZZZ");
 
             $http.get(url, generateOptionsBasedOnUrl(url)).success(function (data, status, headers, config) {
@@ -4216,7 +4217,7 @@ var esri2geo = {};
         _service.GetThemeLayerData = function (cleanurl) {
             var prom = $q.defer();
 
-            var url = completeUrl(cleanurl) + '/layers?f=pjson';
+            var url = completeUrl(cleanurl) + '/layers?f=json';
             $http.get(url, generateOptionsBasedOnUrl(url)).success(function (data, status, headers, config) {
                 // data = GisHelperService.UnwrapProxiedData(data);
                 prom.resolve(data);
@@ -4229,7 +4230,7 @@ var esri2geo = {};
         _service.GetLegendData = function (cleanurl) {
             var prom = $q.defer();
 
-            var url = completeUrl(cleanurl) + '/legend?f=pjson';
+            var url = completeUrl(cleanurl) + '/legend?f=json';
             $http.get(url, generateOptionsBasedOnUrl(url)).success(function (data, status, headers, config) {
                 // data = GisHelperService.UnwrapProxiedData(data);
                 prom.resolve(data);
@@ -4242,7 +4243,7 @@ var esri2geo = {};
 
         _service.GetLayerSpecification = function (layerUrl) {
             var prom = $q.defer();
-            var url = layerUrl + '?f=pjson';
+            var url = layerUrl + '?f=json';
 
             $http.get(url, generateOptionsBasedOnUrl(url)).success(function (data, status, headers, config) {
                 // data = GisHelperService.UnwrapProxiedData(data);
@@ -5597,10 +5598,13 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             });
         };
         _mapService.IdentifyProm = function (theme, latlng, layerids) {
-
+            var layersProp = 'all: ' + layerids;
+            if (layerids.length === 0) {
+                layersProp = 'visible:-1';
+            }
             var promise = new Promise(function (resolve, reject) {
                 ResultsData.RequestStarted++;
-                theme.MapData.identify().on(map).layers('visible: ' + layerids).at(latlng).run(function (error, featureCollection, response) {
+                theme.MapData.identify().on(map).layers(layersProp).at(latlng).run(function (error, featureCollection, response) {
                     ResultsData.RequestCompleted++;
                     resolve({ error: error, featureCollection: featureCollection, response: response });
                 });
@@ -5620,7 +5624,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                     // dus doen we de qry op alle lagen.
                     if (theme.VisibleLayerIds.length !== 0 && theme.VisibleLayerIds[0] !== -1) {
                         // ResultsData.RequestStarted++;
-                        var prom = _mapService.IdentifyProm(theme, event.latlng, theme.VisibleLayerIds);
+                        var prom = _mapService.IdentifyProm(theme, event.latlng, theme.VisibleAndDisplayedLayerIds);
                         allproms.push(prom);-prom.then(function (arg) {
                             MapData.AddFeatures(arg.featureCollection, theme);
                         });
@@ -7412,6 +7416,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             vm.extendedType = newValue;
         });
         vm.addSelection = function () {
+            MapData.CleanDrawings();
             if (vm.extendedType != "add") {
                 MapData.ActiveInteractieKnop = ActiveInteractieButton.SELECT;
                 MapData.DrawingType = DrawingOption.NIETS;
@@ -7425,6 +7430,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             }
         };
         vm.removeSelection = function () {
+            MapData.CleanDrawings();
             if (vm.extendedType != "remove") {
                 MapData.ActiveInteractieKnop = ActiveInteractieButton.SELECT;
                 MapData.DrawingType = DrawingOption.NIETS;
@@ -8919,18 +8925,19 @@ L.drawLocal = {
 
   $templateCache.put('templates/other/themeTemplate.html',
     "<div>\n" +
-    "<div style=\"display:flex; position: relative\">\n" +
+    "<div style=\"display:flex; position: relative\" class=can-open ng-class=\"{'open': showTheme}\">\n" +
     "<input class=\"visible-box hidden-print\" type=checkbox id=chk{{thmctrl.theme.Naam}} ng-model=thmctrl.theme.Visible ng-change=layercheckboxchange(thmctrl.theme)>\n" +
     "<label for=chk{{thmctrl.theme.Naam}} title={{thmctrl.theme.Naam}}> {{thmctrl.theme.Naam}}\n" +
     "<span class=\"label-info hidden-print\" ng-show=\"thmctrl.theme.Type=='esri'\">ArcGIS</span>\n" +
     "<span class=\"label-info hidden-print\" ng-hide=\"thmctrl.theme.Type=='esri'\">{{thmctrl.theme.Type}}</span>\n" +
     "</label>\n" +
+    "<span class=show-layer ng-click=\"showTheme = !showTheme\"></span>\n" +
     "<button ng-hide=\"hidedelete == true\" style=\"flex-grow: 2\" class=\"trash hidden-print pull-right\" ng-click=thmctrl.deleteTheme()></button>\n" +
     "</div>\n" +
-    "<div style=display:flex class=hidden-print ng-show=\"thmctrl.theme.Type=='esri'\">\n" +
+    "<div style=display:flex class=hidden-print ng-show=\"thmctrl.theme.Type=='esri'\" ng-if=showTheme>\n" +
     "<rzslider class=\"custom-slider hidden-print\" rz-slider-model=thmctrl.transpSlider.value rz-slider-options=thmctrl.transpSlider.options></rzslider>\n" +
     "</div>\n" +
-    "<ul class=\"ul-level no-theme-layercontroller-checkbox\" ng-repeat=\"layer in thmctrl.theme.Layers | filter: { enabled: true }\">\n" +
+    "<ul class=\"ul-level no-theme-layercontroller-checkbox\" ng-repeat=\"layer in thmctrl.theme.Layers | filter: { enabled: true }\" ng-if=showTheme>\n" +
     "<tink-layer layer=layer layercheckboxchange=layercheckboxchange(layer.theme)>\n" +
     "</tink-layer>\n" +
     "</ul>\n" +
