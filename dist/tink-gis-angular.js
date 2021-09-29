@@ -3562,8 +3562,7 @@ var esri2geo = {};
         module = angular.module('tink.gis', ['tink.accordion', 'tink.tinkApi', 'tink.modal']); //'leaflet-directive'
     }
     // module.$inject = ['MapData', 'map', 'GISService', 'ThemeCreater', 'WMSService', 'ThemeService', '$q','BaseLayersService'];
-
-    var externService = function externService(MapData, map, GISService, ThemeCreater, WMSService, ThemeService, $q, BaseLayersService, FeatureService, ResultsData, PopupService) {
+    var externService = function externService(MapData, map, GISService, ThemeCreater, WMSService, ThemeService, $q, BaseLayersService, FeatureService, ResultsData, PopupService, ProjectStatusService) {
         var _externService = {};
         _externService.GetAllThemes = function () {
             var legendItem = {};
@@ -3642,6 +3641,7 @@ var esri2geo = {};
 
         _externService.Import = function (project) {
             console.log(project);
+            ProjectStatusService.SetProject(project);
             _externService.setExtent(project.extent);
             ThemeService.DeleteAllQueryLayers();
 
@@ -5985,7 +5985,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             if (!options) {
                 options = {};
             }
-            if (!options.timeOut) {
+            if (!options.timeOut && options.timeOut !== 0) {
                 options.timeOut = 3000;
             }
             if (!options.extendedTimeOut) {
@@ -5994,7 +5994,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             if (callback) {
                 options.onclick = callback;
             }
-            toastr[messagetype](message, title, options);
+            return toastr[messagetype](message, title, options);
         };
         _popupService.ExceptionFunc = function (exception) {
             console.log(exception);
@@ -6050,7 +6050,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             _popupService.popupGenerator('Error', title, message + "\nKlik hier om te melden.", callback, options);
         };
         _popupService.Warning = function (title, message, callback, options) {
-            _popupService.popupGenerator('Warning', title, message, callback, options);
+            return _popupService.popupGenerator('Warning', title, message, callback, options);
         };
         _popupService.Info = function (title, message, callback, options) {
             _popupService.popupGenerator('Info', title, message, callback, options);
@@ -6064,15 +6064,55 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             }
             _popupService.popupGenerator('Success', title, message, callback, options);
         };
+        _popupService.ClearToast = function (toast) {
+            toastr.clear(toast);
+        };
         return _popupService;
     };
     module.factory('PopupService', popupService);
 })();
 ;"use strict";
 
+"use strict";
+(function () {
+  var module;
+  try {
+    module = angular.module("tink.gis");
+  } catch (e) {
+    module = angular.module("tink.gis", ["tink.accordion", "tink.tinkApi", "tink.modal"]); //'leaflet-directive'
+  }
+  var projectStatusService = function projectStatusService(PopupService) {
+    var toast = null;
+    var themes = [];
+    var _projectStatusService = {};
+    //todo check if we are importing project
+    //==> project to import ==> set toast notification that application is loading the project
+    //==> hold status if every theme of project is loaded
+    //==> if loaded remove the toast that application is loading
+    _projectStatusService.SetProject = function (project) {
+      if (toast == null && project.themes.length > 0) {
+        toast = PopupService.Warning("Laden project", "Project wordt geladen...", null, { timeOut: 0 });
+        themes = project.themes;
+      }
+    };
+    _projectStatusService.ThemeLoaded = function () {
+      if (themes.length > 0) {
+        themes.pop();
+        if (themes.length === 0) {
+          PopupService.ClearToast(toast);
+          toast = null;
+        }
+      }
+    };
+    return _projectStatusService;
+  };
+  module.factory("ProjectStatusService", projectStatusService);
+})();
+;"use strict";
+
 (function () {
   var module = angular.module("tink.gis");
-  var service = function service(map, ThemeCreater, MapData, GISService, $q, MapService, PopupService) {
+  var service = function service(map, ThemeCreater, MapData, GISService, $q, MapService, PopupService, ProjectStatusService) {
     var _service = {};
     _service.AddAndUpdateThemes = function (themesBatch) {
       console.log("Themes batch for add and updates...");
@@ -6204,6 +6244,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
               theme.MapData._currentImage._image.style.zIndex = theme.MapData.ZIndex;
               console.log("Zindex on " + theme.Naam + " set to " + theme.MapData.ZIndex);
             }
+            ProjectStatusService.ThemeLoaded();
           });
 
           break;
@@ -6228,6 +6269,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
               // theme.MapData._currentImage._image.style.zIndex = theme.MapData.ZIndex;
               console.log("Zindex on " + theme.Naam + " set to " + theme.MapData.ZIndex);
             }
+            ProjectStatusService.ThemeLoaded();
           });
           break;
         default:

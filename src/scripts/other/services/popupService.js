@@ -22,7 +22,7 @@
             if (!options) {
                 options = {}
             }
-            if (!options.timeOut) {
+            if (!options.timeOut && options.timeOut !== 0) {
                 options.timeOut = 3000;
             }
             if (!options.extendedTimeOut) {
@@ -31,7 +31,7 @@
             if (callback) {
                 options.onclick = callback;
             }
-            toastr[messagetype](message, title, options);
+            return toastr[messagetype](message, title, options);
         }
         _popupService.ExceptionFunc = function (exception) {
             console.log(exception);
@@ -86,7 +86,7 @@
             _popupService.popupGenerator('Error', title, message + "\nKlik hier om te melden.", callback, options)
         };
         _popupService.Warning = function (title, message, callback, options) {
-            _popupService.popupGenerator('Warning', title, message, callback, options)
+            return _popupService.popupGenerator('Warning', title, message, callback, options)
         };
         _popupService.Info = function (title, message, callback, options) {
             _popupService.popupGenerator('Info', title, message, callback, options)
@@ -100,6 +100,9 @@
             }
             _popupService.popupGenerator('Success', title, message, callback, options)
         };
+        _popupService.ClearToast = function (toast) {
+            toastr.clear(toast);
+        }
         return _popupService;
     };
     module.factory('PopupService', popupService);

@@ -1,7 +1,7 @@
 "use strict";
 (function () {
   var module = angular.module("tink.gis");
-  var service = function (map, ThemeCreater, MapData, GISService, $q, MapService, PopupService) {
+  var service = function (map, ThemeCreater, MapData, GISService, $q, MapService, PopupService, ProjectStatusService) {
     var _service = {};
     _service.AddAndUpdateThemes = function (themesBatch) {
       console.log("Themes batch for add and updates...");
@@ -154,6 +154,7 @@
                 "Zindex on " + theme.Naam + " set to " + theme.MapData.ZIndex
               );
             }
+            ProjectStatusService.ThemeLoaded();
           });
 
           break;
@@ -184,6 +185,7 @@
                 "Zindex on " + theme.Naam + " set to " + theme.MapData.ZIndex
               );
             }
+            ProjectStatusService.ThemeLoaded();
           });
           break;
         default:
