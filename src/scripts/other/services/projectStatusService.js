@@ -19,15 +19,22 @@
     //==> hold status if every theme of project is loaded
     //==> if loaded remove the toast that application is loading
     _projectStatusService.SetProject = function (project) {
-      toast = PopupService.Warning("Laden project", "Project wordt geladen...", null, {timeOut: 0});
-      themes = project.themes;
+      if (toast == null && project.themes.length > 0) {
+        toast = PopupService.Warning(
+          "Laden project",
+          "Project wordt geladen...",
+          null,
+          { timeOut: 0 }
+        );
+        themes = project.themes;
+      }
     };
     _projectStatusService.ThemeLoaded = function () {
       if (themes.length > 0) {
         themes.pop();
-        if (themes.length === 0)
-        {
+        if (themes.length === 0) {
           PopupService.ClearToast(toast);
+          toast = null;
         }
       }
     };

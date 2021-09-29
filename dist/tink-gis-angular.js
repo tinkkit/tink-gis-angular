@@ -6090,14 +6090,17 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
     //==> hold status if every theme of project is loaded
     //==> if loaded remove the toast that application is loading
     _projectStatusService.SetProject = function (project) {
-      toast = PopupService.Warning("Laden project", "Project wordt geladen...", null, { timeOut: 0 });
-      themes = project.themes;
+      if (toast == null && project.themes.length > 0) {
+        toast = PopupService.Warning("Laden project", "Project wordt geladen...", null, { timeOut: 0 });
+        themes = project.themes;
+      }
     };
     _projectStatusService.ThemeLoaded = function () {
       if (themes.length > 0) {
         themes.pop();
         if (themes.length === 0) {
           PopupService.ClearToast(toast);
+          toast = null;
         }
       }
     };
@@ -6236,9 +6239,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
               e.authenticate(response.token);
             });
           });
-          theme.MapData.on("loading", function (e) {
-            console.log("ESRI loading");
-          });
           theme.MapData.on("load", function (e) {
             if (theme.MapData._currentImage) {
               theme.MapData._currentImage._image.style.zIndex = theme.MapData.ZIndex;
@@ -6249,7 +6249,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
           break;
         case ThemeType.WMS:
-          theme.MapData = L.tileLayer.betterWms('http://tile.informatievlaanderen.be/ws/raadpleegdiensten/wmts', {
+          theme.MapData = L.tileLayer.betterWms(theme.cleanUrl, {
             maxZoom: 20,
             minZoom: 0,
             format: "image/png",
@@ -6259,9 +6259,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             useCors: true
           }).addTo(map);
 
-          theme.MapData.on("loading", function (e) {
-            console.log("loading");
-          });
           theme.MapData.on("load", function (e) {
             console.log("LOAD VAN " + theme.Naam);
             console.log(theme.MapData);
@@ -6272,6 +6269,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
               // theme.MapData._currentImage._image.style.zIndex = theme.MapData.ZIndex;
               console.log("Zindex on " + theme.Naam + " set to " + theme.MapData.ZIndex);
             }
+            ProjectStatusService.ThemeLoaded();
           });
           break;
         default:

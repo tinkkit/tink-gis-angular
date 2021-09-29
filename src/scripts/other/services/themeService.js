@@ -146,9 +146,6 @@
               e.authenticate(response.token);
             });
           });
-          theme.MapData.on("loading", function(e) {
-            console.log("ESRI loading");
-          });
           theme.MapData.on("load", function (e) {
             if (theme.MapData._currentImage) {
               theme.MapData._currentImage._image.style.zIndex =
@@ -163,7 +160,7 @@
           break;
         case ThemeType.WMS:
           theme.MapData = L.tileLayer
-            .betterWms('http://tile.informatievlaanderen.be/ws/raadpleegdiensten/wmts', {
+            .betterWms(theme.cleanUrl, {
               maxZoom: 20,
               minZoom: 0,
               format: "image/png",
@@ -174,9 +171,6 @@
             })
             .addTo(map);
 
-          theme.MapData.on("loading", function (e) {
-            console.log("loading");
-          });
           theme.MapData.on("load", function (e) {
             console.log("LOAD VAN " + theme.Naam);
             console.log(theme.MapData);
@@ -191,6 +185,7 @@
                 "Zindex on " + theme.Naam + " set to " + theme.MapData.ZIndex
               );
             }
+            ProjectStatusService.ThemeLoaded();
           });
           break;
         default:
