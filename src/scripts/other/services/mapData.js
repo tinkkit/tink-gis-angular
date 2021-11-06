@@ -419,8 +419,13 @@
                 }
                 if (_data.ExtendedType == null) { // else we don t have to clean the map!
                     featureArray.forEach(featureItem => {
-                        var selectedFeature = ResultsData.JsonFeatures.filter(x => x.id == featureItem.id);
-                        if (selectedFeature.length === 0) {
+                        //check if featureitem has id to check if it already extists in the resultsdata (https://jira.antwerpen.be/browse/SIK-633)
+                        if (featureItem.id) {
+                            var selectedFeature = ResultsData.JsonFeatures.filter(x => x.id == featureItem.id);
+                            if (selectedFeature.length === 0) {
+                                ResultsData.JsonFeatures.push(featureItem);
+                            }
+                        } else {
                             ResultsData.JsonFeatures.push(featureItem);
                         }
                     });
