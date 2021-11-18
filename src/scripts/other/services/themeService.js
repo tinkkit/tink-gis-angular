@@ -300,14 +300,14 @@
                         break;
                       case "esriGeometryPolygon":
                         if (uniqueValue.symbol.color) {
-                          fillColor = this.RGBToHex(
+                          fillColor = _service.RGBToHex(
                             uniqueValue.symbol.color[0],
                             uniqueValue.symbol.color[1],
                             uniqueValue.symbol.color[2]
                           );
                           fill = uniqueValue.symbol.color[3] > 0 ? true : false;
                         }
-                        color = this.RGBToHex(
+                        color = _service.RGBToHex(
                           uniqueValue.symbol.outline.color[0],
                           uniqueValue.symbol.outline.color[1],
                           uniqueValue.symbol.outline.color[2]
