@@ -6357,8 +6357,6 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
           var allpromises = $q.all([promLegend, promLayerInfo]);
 
           allpromises.then(function (data) {
-            var _this = this;
-
             var layerInfo = data[0].layers.find(function (x) {
               return x.layerId == layerId;
             });
@@ -6385,10 +6383,10 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                       break;
                     case "esriGeometryPolygon":
                       if (uniqueValue.symbol.color) {
-                        fillColor = _this.RGBToHex(uniqueValue.symbol.color[0], uniqueValue.symbol.color[1], uniqueValue.symbol.color[2]);
+                        fillColor = _service.RGBToHex(uniqueValue.symbol.color[0], uniqueValue.symbol.color[1], uniqueValue.symbol.color[2]);
                         fill = uniqueValue.symbol.color[3] > 0 ? true : false;
                       }
-                      color = _this.RGBToHex(uniqueValue.symbol.outline.color[0], uniqueValue.symbol.outline.color[1], uniqueValue.symbol.outline.color[2]);
+                      color = _service.RGBToHex(uniqueValue.symbol.outline.color[0], uniqueValue.symbol.outline.color[1], uniqueValue.symbol.outline.color[2]);
                       weight = uniqueValue.symbol.outline.width;
                       break;
                     default:
