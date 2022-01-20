@@ -4,34 +4,25 @@
     var module = angular.module('tink.gis');
     var service = function($http, GisHelperService, $q, PopupService) {
         var _service = {};
-        _service.ReverseGeocode = function(event) {
+        _service.AddressByCoordinate = function(event) {
             var lambert72Cords = GisHelperService.ConvertWSG84ToLambert72(event.latlng);
-            var loc = lambert72Cords.x + ',' + lambert72Cords.y;
-            var urlloc = encodeURIComponent(loc);
-            //CHANGE BACK BEFORE MTP NEEDS TO BE A LINK TO REVGEOCODE FROM API STORE AND THIS IS ONLY FOR TESTING IN ACC!!!!!!
-            // var url = GAAS.ReversedGeocodeUrl + 'ReservedGeocoding/GetAntwerpAdresByPoint?SR=31370&X=' + lambert72Cords.x + '&Y=' + lambert72Cords.y + '&buffer=50&count=1';
-            var url = GAAS.ReversedGeocodeUrl + 'antwerpaddressbypoint?SR=31370&X=' + lambert72Cords.x + '&Y=' + lambert72Cords.y + '&buffer=50&count=1';
             
-            // -------------------------- to go through the api store when the api key is not exposed
-            // var req = {
-            //     method: 'GET',
-            //     url: url,
-            //     headers: {
-            //         'apikey': config apikey
-            //     },
-            // }
-            // var prom = $http(req);
-            // ---------------------------
+            var url = GEOAPI.BaseUrl + 'addresses?sr=Lambert72&x=' + lambert72Cords.x + '&y=' + lambert72Cords.y + '&buffer=50&count=1';
 
-            var prom = $http.get(url);
-            prom.success(function(data, status, headers, config) {
+            var req = $http({
+                method: 'GET',
+                url: url,
+                headers: {
+                    'apikey': GEOAPI.ApiKey
+                }
+            });
+            req.success(function(data, status, headers, config) {
                 // nothing we just give back the prom do the stuff not here!
             }).error(function(data, status, headers, config) {
                 PopupService.ErrorFromHttp(data, status, url);
             });
-            return prom;
-
-        };
+            return req;
+        }
         _service.QueryCrab = function(straatnaamid, huisnummer) {
             var prom = $q.defer();
             var query = 'https://geoint.antwerpen.be/arcgissql/rest/services/P_Stad/CRAB_adresposities/MapServer/0/query?' +

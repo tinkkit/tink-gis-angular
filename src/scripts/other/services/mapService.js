@@ -487,13 +487,14 @@
             });
         }
         _mapService.WatIsHier = function(event) {
-            var prom = GISService.ReverseGeocode(event);
+            var prom = GISService.AddressByCoordinate(event);
             prom.success(function(data, status, headers, config) {
                 MapData.CleanWatIsHier();
-                if (data.length > 0) {
-                    var converted = GisHelperService.ConvertLambert72ToWSG84(data[0].xy);
+                if (data.addressDetail.length > 0) {
+                    let firstResult = data.addressDetail[0];
+                    var converted = GisHelperService.ConvertLambert72ToWSG84(firstResult.addressPosition.lambert72);
                     MapData.CreateDot(converted);
-                    MapData.CreateOrigineleMarker(event.latlng, true, data[0].straatnm.split('_')[0] + ' ' + data[0].huisnr + ' (' + data[0].postcode + ' ' + data[0].district + ')');
+                    MapData.CreateOrigineleMarker(event.latlng, true, firstResult.street.streetName + ' ' + firstResult.houseNumber.houseNumber + ' (' + firstResult.municipalityPost.postCode + ' ' + firstResult.municipalityPost.antwerpDistrict + ')');
                 } else {
                     MapData.CreateOrigineleMarker(event.latlng, false);
                 }

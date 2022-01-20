@@ -1537,9 +1537,6 @@ var ActiveInteractieButton = {
     METEN: 'meten',
     WATISHIER: 'watishier'
 };
-var GAAS = {
-    ReversedGeocodeUrl: 'https://reversedgeocoding-app1-p.antwerpen.be/'
-};
 var Gis = {
     Arcgissql: '',
     BaseUrl: 'https://geoint.antwerpen.be/',
@@ -1553,6 +1550,10 @@ var Solr = {
 };
 var LocationPicker = {
     BaseUrl: 'https://api-gw-o.antwerpen.be/gis/locationpicker/v2/',
+    ApiKey: '04c0f399-9e6a-4655-9b9b-a1b3f567c877'
+};
+var GEOAPI = {
+    BaseUrl: 'https://api-gw-o.antwerpen.be/gis/geo/v2/',
     ApiKey: '04c0f399-9e6a-4655-9b9b-a1b3f567c877'
 };
 var DrawingOption = {
@@ -4015,32 +4016,24 @@ var esri2geo = {};
     var module = angular.module('tink.gis');
     var service = function service($http, GisHelperService, $q, PopupService) {
         var _service = {};
-        _service.ReverseGeocode = function (event) {
+        _service.AddressByCoordinate = function (event) {
             var lambert72Cords = GisHelperService.ConvertWSG84ToLambert72(event.latlng);
-            var loc = lambert72Cords.x + ',' + lambert72Cords.y;
-            var urlloc = encodeURIComponent(loc);
-            //CHANGE BACK BEFORE MTP NEEDS TO BE A LINK TO REVGEOCODE FROM API STORE AND THIS IS ONLY FOR TESTING IN ACC!!!!!!
-            // var url = GAAS.ReversedGeocodeUrl + 'ReservedGeocoding/GetAntwerpAdresByPoint?SR=31370&X=' + lambert72Cords.x + '&Y=' + lambert72Cords.y + '&buffer=50&count=1';
-            var url = GAAS.ReversedGeocodeUrl + 'antwerpaddressbypoint?SR=31370&X=' + lambert72Cords.x + '&Y=' + lambert72Cords.y + '&buffer=50&count=1';
 
-            // -------------------------- to go through the api store when the api key is not exposed
-            // var req = {
-            //     method: 'GET',
-            //     url: url,
-            //     headers: {
-            //         'apikey': config apikey
-            //     },
-            // }
-            // var prom = $http(req);
-            // ---------------------------
+            var url = GEOAPI.BaseUrl + 'addresses?sr=Lambert72&x=' + lambert72Cords.x + '&y=' + lambert72Cords.y + '&buffer=50&count=1';
 
-            var prom = $http.get(url);
-            prom.success(function (data, status, headers, config) {
+            var req = $http({
+                method: 'GET',
+                url: url,
+                headers: {
+                    'apikey': GEOAPI.ApiKey
+                }
+            });
+            req.success(function (data, status, headers, config) {
                 // nothing we just give back the prom do the stuff not here!
             }).error(function (data, status, headers, config) {
                 PopupService.ErrorFromHttp(data, status, url);
             });
-            return prom;
+            return req;
         };
         _service.QueryCrab = function (straatnaamid, huisnummer) {
             var prom = $q.defer();
@@ -5890,13 +5883,14 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
             });
         };
         _mapService.WatIsHier = function (event) {
-            var prom = GISService.ReverseGeocode(event);
+            var prom = GISService.AddressByCoordinate(event);
             prom.success(function (data, status, headers, config) {
                 MapData.CleanWatIsHier();
-                if (data.length > 0) {
-                    var converted = GisHelperService.ConvertLambert72ToWSG84(data[0].xy);
+                if (data.addressDetail.length > 0) {
+                    var firstResult = data.addressDetail[0];
+                    var converted = GisHelperService.ConvertLambert72ToWSG84(firstResult.addressPosition.lambert72);
                     MapData.CreateDot(converted);
-                    MapData.CreateOrigineleMarker(event.latlng, true, data[0].straatnm.split('_')[0] + ' ' + data[0].huisnr + ' (' + data[0].postcode + ' ' + data[0].district + ')');
+                    MapData.CreateOrigineleMarker(event.latlng, true, firstResult.street.streetName + ' ' + firstResult.houseNumber.houseNumber + ' (' + firstResult.municipalityPost.postCode + ' ' + firstResult.municipalityPost.antwerpDistrict + ')');
                 } else {
                     MapData.CreateOrigineleMarker(event.latlng, false);
                 }
