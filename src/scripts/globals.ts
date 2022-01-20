@@ -16,13 +16,6 @@ var ActiveInteractieButton = {
     METEN: 'meten',
     WATISHIER: 'watishier'
 };
-var GAAS = {
-    // ReversedGeocodeUrl : ' https://reversedgeocode-p.antwerpen.be/api/' CHANGE BACK BEFORE MTP!!! ONLY FOR TESTING IN ACC 
-    // NEEDS TO BE A LINK TO APISTORE AS WELL
-    ReversedGeocodeUrl : 'https://reversedgeocoding-app1-p.antwerpen.be/'
-    // link to API Store
-    // ReversedGeocodeUrl : 'https://api-gw-p.antwerpen.be/gis/reversedgeocoding/v1/'
-}
 var Gis = {
     Arcgissql: '',
     BaseUrl: 'https://geoint.antwerpen.be/',
@@ -36,6 +29,10 @@ var Solr = {
 }
 var LocationPicker = {
     BaseUrl: 'https://api-gw-o.antwerpen.be/gis/locationpicker/v2/',
+    ApiKey: '04c0f399-9e6a-4655-9b9b-a1b3f567c877'
+}
+var GEOAPI = {
+    BaseUrl: 'https://api-gw-o.antwerpen.be/gis/geo/v2/',
     ApiKey: '04c0f399-9e6a-4655-9b9b-a1b3f567c877'
 }
 const DrawingOption = {
