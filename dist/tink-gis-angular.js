@@ -2616,6 +2616,8 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
     var theController = module.controller('layerController', function ($scope) {
         var vm = this;
         vm.layer = $scope.layer;
+        //use random id for input id's because we calculated id on layer name, id and theme name but could match
+        vm.randomId = Math.floor(Math.random() * 101);
         console.log(vm.layer);
     });
     // theController.$inject = ['ThemeService'];
@@ -8745,8 +8747,8 @@ L.drawLocal = {
     "<div ng-if=lyrctrl.layer.hasLayers>\n" +
     "<li class=\"li-item toc-item-without-icon can-open\" ng-class=\"{'open': showLayer}\">\n" +
     "<div>\n" +
-    "<input class=\"visible-box hidden-print\" type=checkbox id={{lyrctrl.layer.name}}{{lyrctrl.layer.id}}{{lyrctrl.layer.theme.Naam}} ng-model=lyrctrl.layer.visible ng-change=layercheckboxchange(lyrctrl.layer.theme)>\n" +
-    "<label title={{lyrctrl.layer.name}} for={{lyrctrl.layer.name}}{{lyrctrl.layer.id}}{{lyrctrl.layer.theme.Naam}}>{{lyrctrl.layer.name}}</label>\n" +
+    "<input class=\"visible-box hidden-print\" type=checkbox id={{lyrctrl.layer.name}}{{lyrctrl.layer.id}}{{lyrctrl.layer.theme.Naam}}{{lyrctrl.randomId}} ng-model=lyrctrl.layer.visible ng-change=layercheckboxchange(lyrctrl.layer.theme)>\n" +
+    "<label title={{lyrctrl.layer.name}} for={{lyrctrl.layer.name}}{{lyrctrl.layer.id}}{{lyrctrl.layer.theme.Naam}}{{lyrctrl.randomId}}>{{lyrctrl.layer.name}}</label>\n" +
     "</div>\n" +
     "<div>\n" +
     "<span class=show-layer ng-click=\"showLayer = !showLayer\"></span>\n" +
@@ -8760,8 +8762,8 @@ L.drawLocal = {
     "<li class=\"li-item toc-item-with-icon\" ng-if=!lyrctrl.layer.hasLayers>\n" +
     "<img class=layer-icon ng-if=\"lyrctrl.layer.theme.Type=='esri' && lyrctrl.layer.legend.length===1\" class=layer-icon ng-src=\"{{lyrctrl.layer.legend[0].fullurl}} \">\n" +
     "<div class=can-open ng-class=\"{'open': showLayer2 || showMultiLegend}\">\n" +
-    "<input class=\"visible-box hidden-print\" type=checkbox ng-model=lyrctrl.layer.visible ng-change=layercheckboxchange(lyrctrl.layer.theme) id={{lyrctrl.layer.name}}{{lyrctrl.layer.id}}{{lyrctrl.layer.theme.Naam}}>\n" +
-    "<label ng-class=\"{ 'greytext': lyrctrl.layer.displayed==false} \" for={{lyrctrl.layer.name}}{{lyrctrl.layer.id}}{{lyrctrl.layer.theme.Naam}} title={{lyrctrl.layer.title}}>{{lyrctrl.layer.title}}\n" +
+    "<input class=\"visible-box hidden-print\" type=checkbox ng-model=lyrctrl.layer.visible ng-change=layercheckboxchange(lyrctrl.layer.theme) id={{lyrctrl.layer.name}}{{lyrctrl.layer.id}}{{lyrctrl.layer.theme.Naam}}{{lyrctrl.randomId}}>\n" +
+    "<label ng-class=\"{ 'greytext': lyrctrl.layer.displayed==false} \" for={{lyrctrl.layer.name}}{{lyrctrl.layer.id}}{{lyrctrl.layer.theme.Naam}}{{lyrctrl.randomId}} title={{lyrctrl.layer.title}}>{{lyrctrl.layer.title}}\n" +
     "<span class=\"hidden-print greytext\" ng-show=\"lyrctrl.layer.theme.Type=='wms' && lyrctrl.layer.queryable\"> <i class=\"fa fa-info\"></i></span>\n" +
     "</label>\n" +
     "<span style=color:#76b9f4 class=show-layer ng-show=\"lyrctrl.layer.theme.Type=='wms'\" ng-click=\"showLayer2 = !showLayer2\"></span>\n" +
