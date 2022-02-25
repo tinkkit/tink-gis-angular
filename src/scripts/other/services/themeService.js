@@ -360,6 +360,11 @@
                   }
               }
             }
+
+            let queryPane = map.getPane('query');
+            if (!queryPane) {
+              map.createPane('query');
+            }
   
             queryLayer.layer.mapData = L.esri
               .featureLayer({
@@ -367,6 +372,7 @@
                 minZoom: 0,
                 url: `${queryLayer.layer.baseUrl}/${queryLayer.layer.layerId}/query`,
                 where: query,
+                pane: 'query',
                 continuousWorld: true,
                 useCors: false,
                 f: "image",
@@ -393,7 +399,7 @@
                   let iconUrl = legendItem
                     ? legendItem.fullurl
                     : queryLayer.layer.legend[0].fullurl;
-                  return MapData.CreateFeatureLayerMarker(latlng, iconUrl);
+                  return MapData.CreateFeatureLayerMarker(latlng, iconUrl, 'query');
                 },
               })
               .addTo(map);

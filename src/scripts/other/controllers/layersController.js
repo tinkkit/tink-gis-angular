@@ -13,6 +13,18 @@
                 MapData.SetZIndexes();
             }
         };
+          
+          //these lists only serve purpose to track where the querylayers are
+          vm.topQueryLayers = [{}];
+          vm.bottomQueryLayers = [];
+
+        vm.sortableOptionsQueryLayers = {
+            placeholder: "query-layers",
+            connectWith: ".query-layers-container",
+            stop: function (e, ui) {
+                MapData.UpdateZIndexQueryPane(vm.topQueryLayers.length > 0);
+            }
+          };
         vm.asidetoggle = function () {
             if (L.Browser.mobile) {
                 let html = $('html');

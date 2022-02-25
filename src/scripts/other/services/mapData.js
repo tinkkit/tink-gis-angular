@@ -336,12 +336,12 @@
             WatIsHierMarker = L.marker([loc.x, loc.y], { icon: dotIcon }).addTo(map);
         }
 
-        _data.CreateFeatureLayerMarker = function (loc, iconUrl) {
+        _data.CreateFeatureLayerMarker = function (loc, iconUrl, pane = 'markerPane') {
             var icon = L.icon({
                 iconUrl: iconUrl,
                 iconAnchor: [10, 10],
             });
-            return L.marker(loc, { icon: icon});
+            return L.marker(loc, { icon: icon, pane: pane});
         }
         _data.CleanSearch = function () {
             ResultsData.CleanSearch();
@@ -397,6 +397,19 @@
                 counter--;
             });
         };
+
+        _data.UpdateZIndexQueryPane = function(onTop) {
+            let pane = map.getPane('query');
+            if (pane) {
+                if (onTop) {
+                    // 599 is lower than the marker pane 600
+                    map.getPane('query').style.zIndex = 599;
+                } else {    
+                    // 399 is lower than the overlay pane 400 (dynamic map layer)
+                    map.getPane('query').style.zIndex = 399;                    
+                }
+            }
+        }
         var tempFeatures = [];
         _data.AddTempFeatures = function (featureCollection) {
             featureCollection.features.forEach(feature => {
