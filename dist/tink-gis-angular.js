@@ -2638,6 +2638,18 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 MapData.SetZIndexes();
             }
         };
+
+        //these lists only serve purpose to track where the querylayers are
+        vm.topQueryLayers = [{}];
+        vm.bottomQueryLayers = [];
+
+        vm.sortableOptionsQueryLayers = {
+            placeholder: "query-layers",
+            connectWith: ".query-layers-container",
+            stop: function stop(e, ui) {
+                MapData.UpdateZIndexQueryPane(vm.topQueryLayers.length > 0);
+            }
+        };
         vm.asidetoggle = function () {
             if (L.Browser.mobile) {
                 var html = $('html');
@@ -4941,11 +4953,13 @@ L.control.typeahead = function (args) {
         };
 
         _data.CreateFeatureLayerMarker = function (loc, iconUrl) {
+            var pane = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 'markerPane';
+
             var icon = L.icon({
                 iconUrl: iconUrl,
                 iconAnchor: [10, 10]
             });
-            return L.marker(loc, { icon: icon });
+            return L.marker(loc, { icon: icon, pane: pane });
         };
         _data.CleanSearch = function () {
             ResultsData.CleanSearch();
@@ -4999,6 +5013,19 @@ L.control.typeahead = function (args) {
                 }
                 counter--;
             });
+        };
+
+        _data.UpdateZIndexQueryPane = function (onTop) {
+            var pane = map.getPane('query');
+            if (pane) {
+                if (onTop) {
+                    // 599 is lower than the marker pane 600
+                    map.getPane('query').style.zIndex = 599;
+                } else {
+                    // 399 is lower than the overlay pane 400 (dynamic map layer)
+                    map.getPane('query').style.zIndex = 399;
+                }
+            }
         };
         var tempFeatures = [];
         _data.AddTempFeatures = function (featureCollection) {
@@ -6431,11 +6458,17 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
               }
             }
 
+            var queryPane = map.getPane('query');
+            if (!queryPane) {
+              map.createPane('query');
+            }
+
             queryLayer.layer.mapData = L.esri.featureLayer({
               maxZoom: 20,
               minZoom: 0,
               url: queryLayer.layer.baseUrl + "/" + queryLayer.layer.layerId + "/query",
               where: query,
+              pane: 'query',
               continuousWorld: true,
               useCors: false,
               f: "image",
@@ -6465,7 +6498,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                   }).includes(legendValue.toLowerCase());
                 });
                 var iconUrl = legendItem ? legendItem.fullurl : queryLayer.layer.legend[0].fullurl;
-                return MapData.CreateFeatureLayerMarker(latlng, iconUrl);
+                return MapData.CreateFeatureLayerMarker(latlng, iconUrl, 'query');
               }
             }).addTo(map);
 
@@ -8709,7 +8742,8 @@ L.drawLocal = {
     "</div>\n" +
     "</div>\n" +
     "<div class=\"overflow-wrapper flex-grow-1 extra-padding\">\n" +
-    "<div class=\"can-open margin-bottom\" ng-show=\"lyrsctrl.queryLayers.length > 0\" ng-class=\"{'open': lyrsctrl.showQueryLayers}\">\n" +
+    "<ul ui-sortable=lyrsctrl.sortableOptionsQueryLayers class=query-layers-container ng-model=lyrsctrl.topQueryLayers style=\"min-height: 20px\">\n" +
+    "<li class=query-layers ng-repeat=\"app in lyrsctrl.topQueryLayers\"> <div class=\"can-open margin-bottom\" ng-show=\"lyrsctrl.queryLayers.length > 0\" ng-class=\"{'open': lyrsctrl.showQueryLayers}\">\n" +
     "<label class=black-label>Query lagen:</label>\n" +
     "<span class=show-layer ng-click=\"lyrsctrl.showQueryLayers = !lyrsctrl.showQueryLayers\"></span>\n" +
     "<ul class=ul-level id=queryLayers ng-show=\"lyrsctrl.showQueryLayers && lyrsctrl.queryLayers.length > 0\">\n" +
@@ -8728,14 +8762,37 @@ L.drawLocal = {
     "</li>\n" +
     "</ul>\n" +
     "<hr>\n" +
-    "</div>\n" +
+    "</div> </li>\n" +
+    "</ul>\n" +
     "<ul class=ul-level id=sortableThemes ui-sortable=lyrsctrl.sortableOptions ng-model=lyrsctrl.themes>\n" +
     "<li class=li-item ng-repeat=\"theme in lyrsctrl.themes\">\n" +
     "<tink-theme theme=theme layercheckboxchange=lyrsctrl.updatethemevisibility(theme) hidedelete=!lyrsctrl.deleteLayerButtonIsEnabled>\n" +
     "</tink-theme>\n" +
     "</li>\n" +
     "</ul>\n" +
+    "<ul ui-sortable=lyrsctrl.sortableOptionsQueryLayers class=query-layers-container ng-model=lyrsctrl.bottomQueryLayers style=\"min-height: 20px\">\n" +
+    "<li class=query-layers ng-repeat=\"app in lyrsctrl.bottomQueryLayers\"><div class=\"can-open margin-bottom\" ng-show=\"lyrsctrl.queryLayers.length > 0\" ng-class=\"{'open': lyrsctrl.showQueryLayers}\">\n" +
+    "<hr>\n" +
+    "<label class=black-label>Query lagen:</label>\n" +
+    "<span class=show-layer ng-click=\"lyrsctrl.showQueryLayers = !lyrsctrl.showQueryLayers\"></span>\n" +
+    "<ul class=ul-level id=queryLayers ng-show=\"lyrsctrl.showQueryLayers && lyrsctrl.queryLayers.length > 0\">\n" +
+    "<li class=\"li-item querylayer-item\" ng-repeat=\"queryLayer in lyrsctrl.queryLayers track by $index\">\n" +
+    "<div class=can-open-second ng-class=\"{'open': showMultiLegend}\">\n" +
+    "<img class=layer-icon ng-if=\"queryLayer.layer.legend.length ===1 && queryLayer.layer.legend[0].fullurl\" class=layer-icon ng-src=\"{{queryLayer.layer.legend[0].fullurl}} \">\n" +
+    "<input class=\"visible-box hidden-print\" type=checkbox id=queryDataChk{{$index}} ng-model=queryLayer.showLayer ng-change=lyrsctrl.updateQueryVisibility($index)>\n" +
+    "<label for=queryDataChk{{$index}} title=\"{{ queryLayer.layer.name }}\"> {{ queryLayer.layer.name }}</label>\n" +
+    "<span style=color:#76b9f4 class=show-layer-second ng-show=\"queryLayer.layer.legend.length>1\" ng-click=\"showMultiLegend = !showMultiLegend\"></span>\n" +
+    "<span class=\"label-info hidden-print\">Query</span>\n" +
+    "<button style=\"flex-grow: 2\" class=\"trash hidden-print pull-right\" ng-click=lyrsctrl.deleteQueryLayer($index)></button>\n" +
+    "<ul class=querylayer-legend ng-show=\"showMultiLegend && queryLayer.layer.legend.length>1\">\n" +
+    "<li ng-repeat=\"legend in queryLayer.layer.legend\"><img class=layer-icon ng-src={{legend.fullurl}}><span>{{legend.label}}</span></li>\n" +
+    "</ul>\n" +
     "</div>\n" +
+    "</li>\n" +
+    "</ul>\n" +
+    "</div></li>\n" +
+    "\n" +
+    "</ul></div>\n" +
     "</div>\n" +
     "</aside>\n" +
     "</div>\n"

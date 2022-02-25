@@ -221,21 +221,6 @@
 svg.leaflet-zoom-animated {
   z-index: 999; }
 
-.leaflet-marker-pane {
-  z-index: 999; }
-
-.leaflet-popup-pane {
-  z-index: 1000; }
-
-.leaflet-overlay-pane {
-  z-index: auto; }
-
-.leaflet-objects-pane {
-  z-index: auto; }
-
-.leaflet-tile-pane {
-  z-index: auto; }
-
 .leaflet-top .leaflet-control {
   left: 7.1428571429rem ;
   margin: 0; }
@@ -354,6 +339,10 @@ button.btn.active {
 /**
  * Map buttons right side
  */
+.leaflet-container .leaflet-query-pane img {
+  max-width: none !important;
+  max-height: none !important; }
+
 .viewbtns {
   right: 0.7142857143rem ;
   bottom: 0.7142857143rem ; }
@@ -550,6 +539,9 @@ button.trashcan {
 
 .layercontroller-checkbox {
   margin-left: 10px; }
+
+.apps-container {
+  border: 3px solid black; }
 
 img.normal-size {
   display: block;

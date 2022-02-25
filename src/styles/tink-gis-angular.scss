@@ -84,22 +84,24 @@ $leaflet-control-position-left-sm: $map-buttons-position-left-sm + 90px;
 svg.leaflet-zoom-animated {
     z-index: 999;
 }
-.leaflet-marker-pane {
-    z-index: 999;
-}
-.leaflet-popup-pane {
-    z-index: 1000;
-}
 
-.leaflet-overlay-pane {
-    z-index: auto;
-}
-.leaflet-objects-pane {
-    z-index: auto;
-}
-.leaflet-tile-pane {
-    z-index: auto;
-}
+// SIK-723 voor custom panes query layers dit disabled omdat anders de z-index auto is waardoor dit niet de standaarden van leaflet volgt waardoor niet kan worden bepaald welke boven elkaar moeten liggen
+// .leaflet-marker-pane {
+//     z-index: 999;
+// }
+// .leaflet-popup-pane {
+//     z-index: 1000;
+// }
+
+// .leaflet-overlay-pane {
+//     z-index: auto;
+// }
+// .leaflet-objects-pane {
+//     z-index: auto;
+// }
+// .leaflet-tile-pane {
+//     z-index: auto;
+// }
 
 .leaflet-top {
   .leaflet-control {
@@ -280,6 +282,11 @@ button.btn.active {
 //     bottom: rem(20);
 //   }
 // }
+
+.leaflet-container .leaflet-query-pane img {
+  max-width: none !important;
+  max-height: none !important;
+}
 
 .viewbtns {
   right: rem(10);
@@ -568,6 +575,10 @@ button.trashcan {
 .layercontroller-checkbox
 {
     margin-left:10px; // better to use list styling
+}
+
+.apps-container {
+  border: 3px solid black;
 }
 
 img {
