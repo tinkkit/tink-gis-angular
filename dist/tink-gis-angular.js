@@ -9567,7 +9567,7 @@ var TinkGis;
                 if (this.VisibleLayerIds.length !== 0) {
                     this.MapData.setLayers(this.VisibleLayerIds);
                 } else {
-                    this.MapData.setLayers([-1]);
+                    this.MapData.setLayers([]);
                 }
             }
         }, {
