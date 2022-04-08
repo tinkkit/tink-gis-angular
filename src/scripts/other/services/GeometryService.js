@@ -14,15 +14,33 @@
             if (loc.mapItem) {
                 loc.mapItem.isBufferedItem = true;
             }
-            var body = 'inSR=4326&outSR=4326&bufferSR=31370&distances=' + distance * 100 + '&unit=109006&unionResults=true&geodesic=false&geometries=%7B' + sergeo + '%7D&f=json';
-            var prom = $http({
-                method: 'POST',
-                url: url,
-                data: body,
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded;'
-                }
+            // var body = 'inSR=4326&outSR=4326&bufferSR=31370&distances=' + distance * 100 + '&unit=109006&unionResults=true&geodesic=false&geometries=%7B' + sergeo + '%7D&f=json';
+            var data = $.param({
+                inSR: 4326,
+                outSR: 4326,
+                bufferSR: 31370,
+                distances: distance * 100,
+                unit: 109006,
+                unionResults: true,
+                geodesic: false,
+                geometries: `{${sergeo}}`,
+                f: 'json'
             });
+
+            var config = {
+                headers : {
+                    'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8;'
+                }
+            }
+            var prom = $http.post(url, data, config);
+            // var prom = $http({
+            //     method: 'POST',
+            //     url: url,
+            //     data: body,
+            //     headers: {
+            //         'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+            //     }
+            // });
             prom.success(function (response) {
                 MapData.CleanSearch();
                 var buffer = MapData.CreateBuffer(response);
@@ -116,9 +134,9 @@
                         value = '"' + param + '"';
                     }
                     if (key == 'geometries') {
-                        data += encodeURIComponent('"' + key + '"') + ':' + encodeURIComponent('[' + value + ']');
+                        data += '"' + key + '"' + ':' + '[' + value + ']';
                     } else {
-                        data += encodeURIComponent('"' + key + '"') + ':' + encodeURIComponent(value);
+                        data += '"' + key + '"' + ':' + value;
                     }
                 }
             }
