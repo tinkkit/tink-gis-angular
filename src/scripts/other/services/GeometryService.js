@@ -29,6 +29,7 @@
 
             var config = {
                 headers : {
+                    'Accept': '*/*',
                     'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8;'
                 }
             }
