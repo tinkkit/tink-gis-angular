@@ -434,7 +434,7 @@
                     featureArray.forEach(featureItem => {
                         //check if featureitem has id to check if it already extists in the resultsdata (https://jira.antwerpen.be/browse/SIK-633)
                         if (featureItem.id) {
-                            var selectedFeature = ResultsData.JsonFeatures.filter(x => x.id == featureItem.id);
+                            var selectedFeature = ResultsData.JsonFeatures.filter(x => x.id == featureItem.id && x.layerId == featureItem.layerId);
                             if (selectedFeature.length === 0) {
                                 ResultsData.JsonFeatures.push(featureItem);
                             }
