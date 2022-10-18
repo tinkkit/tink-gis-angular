@@ -5064,7 +5064,7 @@ L.control.typeahead = function (args) {
                         //check if featureitem has id to check if it already extists in the resultsdata (https://jira.antwerpen.be/browse/SIK-633)
                         if (featureItem.id) {
                             var selectedFeature = ResultsData.JsonFeatures.filter(function (x) {
-                                return x.id == featureItem.id;
+                                return x.id == featureItem.id && x.layerId == featureItem.layerId;
                             });
                             if (selectedFeature.length === 0) {
                                 ResultsData.JsonFeatures.push(featureItem);
