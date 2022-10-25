@@ -24,14 +24,14 @@
                 if ($scope.searchTerm.length > 2) {
                     if ($scope.searchTerm != null && $scope.searchTerm != '') {
                         $scope.$parent.solrLoading = true;
-                        $scope.QueryGISSOLR($scope.searchTerm, 1);
+                        $scope.QueryElasticGis($scope.searchTerm);
                     }
                 }
                 else {
                     if($scope.searchTerm == '*'){ 
                         $scope.searchTerm = 'arcgis';
                         $scope.$parent.solrLoading = true;
-                        $scope.QueryGISSOLR('arcgis', 1);
+                        $scope.QueryElasticGis('arcgis');
                      
                     } else {
                         $scope.availableThemes.length = 0;
@@ -60,28 +60,61 @@
                 }
                 return url;
             }
-            $scope.QueryGISSOLR = function (searchterm, page) {
+            $scope.QueryElasticGis = function (searchterm, page) {
                 $scope.loading = true;
 
-                var prom = GISService.QuerySOLRGIS(searchterm, ((page - 1) * 5) + 1, 5);
-                prom.then(function (data) {
+                var prom = GISService.QueryElasticGis(searchterm);
+                prom.then(function(data) {
                     $scope.loading = false;
                     $scope.$parent.solrLoading = false;
                     $scope.currentPage = 1;
-                    var allitems = data.facet_counts.facet_fields.parent;
-                    var itemsMetData = data.grouped.parent.groups;
-                    $scope.$parent.solrCount = itemsMetData.length;
-                    // var aantalitems = allitems.length;
-                    var x = 0;
-                    var themes = [];
-                    itemsMetData.forEach(itemMetData => {
-                        switch (itemMetData.doclist.docs[0].type) {
+
+                    let metadata = data.object._embedded.resourceList;
+                    let themes = [];
+
+                    metadata.forEach(itemMetadata => {
+                        let source = itemMetadata.source;
+                        let afterservicespart = itemMetadata.parent.split('/services/')[1].split('/');
+                        switch(itemMetadata.type) {
+                            case "Layer":
+                                var themeName = afterservicespart[1];
+                                var url = itemMetadata.parent + '/Mapserver'; //generateUrl(themeName, type);
+
+                                var theme = themes.find(x => x.name == themeName)
+                                if (!theme) {
+                                    theme = {
+                                        layers: [],
+                                        layersCount: 1,
+                                        name: themeName,
+                                        cleanUrl: url,
+                                        url: url //'services/' + type +'/' + themeName + '/MapServer'
+                                    }
+                                    themes.push(theme);
+                                } else {
+                                    theme.layersCount += 1;
+                                }
+                                
+                                if (itemMetadata.titels[0].replace(/ /g,'').replace(/_/g,'').replace(/-/g,'').toLowerCase().includes(searchterm.toLowerCase())) {
+                                    var layer = theme.layers.find(x => x.id == itemMetadata.key);
+                                    if (!layer) {
+                                        layer = {
+                                            naam: itemMetadata.titels[0],
+                                            id: itemMetadata.key,
+                                            isMatch: true,
+                                            featuresCount: 0,
+                                            features: []
+                                        };
+                                        theme.layers.push(layer);
+                                    } else {
+                                        layer.isMatch = true;
+                                    }
+                                }
+                                break;
                             case "Feature":
-                                var afterservicespart = itemMetData.groupValue.split('/services/')[1].split('/'); //  ["P_Stad", "ATLAS", "14"]
-                                var url = itemMetData.groupValue.split('/').splice(0,itemMetData.groupValue.split('/').length - 1).join('/') + '/Mapserver' // url without id
+                                var url = itemMetadata.parent.split('/').splice(0,itemMetadata.parent.split('/').length - 1).join('/') + '/Mapserver' // url without id
                                 var themeName = afterservicespart[1];
                                 var layerId = afterservicespart[2];
-                                var layerName = itemMetData.doclist.docs[0].parentname;
+                                var layerName = itemMetadata.parentName;
                                 var theme = themes.find(x => x.name == themeName);
                                 if (!theme) {
                                     var theme = {
@@ -99,69 +132,29 @@
                                         naam: layerName,
                                         id: layerId,
                                         features: [],
-                                        featuresCount: itemMetData.doclist.numFound,
+                                        featuresCount: 1,
                                         isMatch: false
                                     };
                                     theme.layers.push(layer);
                                 } else {
-                                    layer.featuresCount = itemMetData.doclist.numFound;
+                                    layer.featuresCount += 1;
                                 }
-                                itemMetData.doclist.docs.slice(0,5).forEach(item => {
-                                    var feature = item.titel.join(' ');
-                                    // id: item.id
+                                
+                                if (layer.features.length < 5) {
+                                    var feature = itemMetadata.titels.join(' ');
                                     layer.features.push(feature);
-                                });
-                                break;
-                            case "Layer":
-                                var afterservicespart = itemMetData.groupValue.split('/services/')[1].split('/');
-                                var themeName = afterservicespart[1];
-                                var type = itemMetData.groupValue.split('/')[0];
-                                var url = itemMetData.groupValue + '/Mapserver'; //generateUrl(themeName, type);
-
-                                var theme = themes.find(x => x.name == themeName)
-                                if (!theme) {
-                                    theme = {
-                                        layers: [],
-                                        layersCount: itemMetData.doclist.numFound,
-                                        name: themeName,
-                                        cleanUrl: url,
-                                        url: url //'services/' + type +'/' + themeName + '/MapServer'
-                                    }
-                                    themes.push(theme);
-                                } else {
-                                    theme.layersCount = itemMetData.doclist.numFound;
                                 }
-                                itemMetData.doclist.docs.forEach(item => {
-                                    if (item.titel[0].replace(/ /g,'').replace(/_/g,'').replace(/-/g,'').toLowerCase().includes(searchterm.toLowerCase())) {
-                                        var layer = theme.layers.find(x => x.id == item.key);
-                                        if (!layer) {
-                                            layer = {
-                                                naam: item.titel[0],
-                                                id: item.key,
-                                                isMatch: true,
-                                                featuresCount: 0,
-                                                features: []
-                                            };
-                                            theme.layers.push(layer);
-                                        } else {
-                                            layer.isMatch = true;
-                                        }
-                                    }
-                                });
                                 break;
-                            default:
-                                console.log("UNKOWN TYPE:", item)
-                                break;
+                            default: 
+                                break;  
                         }
-                    });
+                    })
+
                     $scope.availableThemes = themes.slice(0, 5);
                     $scope.allThemes = themes;
                     $scope.numberofrecordsmatched = themes.length;
-                    console.log(data);
-                }, function (reason) {
-                    console.log(reason);
-                });
-            };
+                })
+            }
             $scope.pageChanged = function (page, recordsAPage) {
                 let startItem = ((page - 1) * recordsAPage);
                 $scope.availableThemes = $scope.allThemes.slice(startItem, startItem + recordsAPage)
