@@ -117,6 +117,23 @@
                 });
             return prom.promise;
         };
+        _service.QueryElasticGis = function(search) {
+            var prom = $q.defer();
+            // var url = GisHelperService.getApiURL() + 'gismetadata?query=' + search;
+            var url = GisHelperService.CreateMetadataUrl(search);
+
+            $http.get(url)
+                .success(function(data, status, headers, config)
+                {
+                    prom.resolve(data)
+                })
+                .error(function(data, status, headers, config)
+                {
+                    prom.reject(null);
+                    PopupService.ErrorFromHttp(data, status, url);
+                });
+                return prom.promise;
+        };
         _service.QueryLocationPickerLocation = function(search) {
             var prom = $q.defer();
             var req = $http({

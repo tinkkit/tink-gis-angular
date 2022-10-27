@@ -44,6 +44,9 @@
         _service.CreateProxyUrl = function (url) {
             return getApiURL() + 'Proxy/go?url=' + encodeURIComponent(url);
         };
+        _service.CreateMetadataUrl = function(query) {
+            return getApiURL() + 'gismetadata?query=' + encodeURIComponent(query);
+        }
         _service.UnwrapProxiedData = function (data) {
             if (typeof data == 'string' && data.startsWith('{"listOfString":')) {
                 data = $.parseJSON(data).listOfString;
