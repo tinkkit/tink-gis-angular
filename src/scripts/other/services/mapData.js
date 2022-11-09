@@ -584,6 +584,11 @@
                 }
                 featureItem.theme = theme;
                 featureItem.layerName = layer.name;
+                if (layerId && featureItem.layerId === undefined)
+                {
+                    featureItem.layerId = layerId;
+                }
+
                 if (theme.Type === ThemeType.ESRI) {
                     var checkforitem = function () {
                         if (!layer.fields) {
