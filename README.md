@@ -9,7 +9,7 @@ The Tink Angular GIS component provides a simple way to integrate maps into your
 Tink is an in-house developed easy-to-use front end framework for quick prototyping and simple deployment of all kinds of websites and apps, keeping a uniform and consistent look and feel.
 
 ## Setup
-
+ 
 ### Prerequisites
 
 * nodeJS [http://nodejs.org/download/](http://nodejs.org/download/)
