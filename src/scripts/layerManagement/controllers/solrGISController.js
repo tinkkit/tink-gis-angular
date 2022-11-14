@@ -153,6 +153,7 @@
                     $scope.availableThemes = themes.slice(0, 5);
                     $scope.allThemes = themes;
                     $scope.numberofrecordsmatched = themes.length;
+                    $scope.$parent.solrCount = themes.length;
                 })
             }
             $scope.pageChanged = function (page, recordsAPage) {
