@@ -2112,6 +2112,7 @@ var Scales = [250000, 200000, 150000, 100000, 50000, 25000, 20000, 15000, 12500,
                 $scope.availableThemes = themes.slice(0, 5);
                 $scope.allThemes = themes;
                 $scope.numberofrecordsmatched = themes.length;
+                $scope.$parent.solrCount = themes.length;
             });
         };
         $scope.pageChanged = function (page, recordsAPage) {
