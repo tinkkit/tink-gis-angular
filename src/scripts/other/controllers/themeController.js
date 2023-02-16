@@ -3,6 +3,7 @@
     module = angular.module('tink.gis');
     module.controller('themeController', ['$scope', 'MapService', 'ThemeService',
         function ($scope, MapService, ThemeService, $timeout) {
+            $scope.showTheme = true;
             var vm = this;
             console.log('Theme geladen');
             vm.theme = $scope.theme;
