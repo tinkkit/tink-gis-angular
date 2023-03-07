@@ -43,7 +43,13 @@
 
                     csvContent += layName + ";" + layfirstline + '\n';
                 }
-                var infoArray = _.values(feature.properties);
+                var infoArray = _.values(feature.properties).map((value) => {
+                    if (typeof value === 'string' || value instanceof String) {
+                        return value.replace(/(\r\n|\n|\r)/gm, " ");
+                    }
+                    
+                    return value;
+                });
                 //adding geometry field values
                 infoArray.push(feature.geometry.type);
                 infoArray.push(feature.geometry.coordinates);
