@@ -7244,26 +7244,29 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         };
 
         $scope.up = function (index) {
-
             var op = $scope.operations[index];
             var ac = $scope.autoComplete[index];
+
             if (index == 1) {
+                $scope.operations[0].addition = op.addition;
                 op.addition = null;
-                $scope.operations[0].addition = "AND";
             }
+
             $scope.operations.splice(index, 1);
             $scope.operations.splice(index - 1, 0, op);
 
             $scope.autoComplete.splice(index, 1);
             $scope.autoComplete.splice(index - 1, 0, ac);
+
             $scope.changeoperation();
         };
 
         $scope.down = function (index) {
             var op = $scope.operations[index];
             var ac = $scope.autoComplete[index];
+
             if (index == 0) {
-                op.addition = "AND";
+                op.addition = $scope.operations[1].addition;
                 $scope.operations[1].addition = null;
             }
 
@@ -7272,6 +7275,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
             $scope.autoComplete.splice(index, 1);
             $scope.autoComplete.splice(index + 1, 0, ac);
+
             $scope.changeoperation();
         };
 
