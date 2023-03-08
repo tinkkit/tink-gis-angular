@@ -5136,6 +5136,7 @@ L.control.typeahead = function (args) {
                                     return x.toGeoJSON().features[0].id == featureItem.id && x.toGeoJSON().features[0].layerName == featureItem.layerName;
                                 });
                                 if (itemIndex > -1) {
+                                    map.removeLayer(_data.VisibleFeatures[itemIndex]);
                                     _data.VisibleFeatures.splice(itemIndex, 1);
                                 }
                             });
