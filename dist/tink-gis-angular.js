@@ -5136,6 +5136,7 @@ L.control.typeahead = function (args) {
                                     return x.toGeoJSON().features[0].id == featureItem.id && x.toGeoJSON().features[0].layerName == featureItem.layerName;
                                 });
                                 if (itemIndex > -1) {
+                                    map.removeLayer(_data.VisibleFeatures[itemIndex]);
                                     _data.VisibleFeatures.splice(itemIndex, 1);
                                 }
                             });
@@ -7244,26 +7245,29 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
         };
 
         $scope.up = function (index) {
-
             var op = $scope.operations[index];
             var ac = $scope.autoComplete[index];
+
             if (index == 1) {
+                $scope.operations[0].addition = op.addition;
                 op.addition = null;
-                $scope.operations[0].addition = "AND";
             }
+
             $scope.operations.splice(index, 1);
             $scope.operations.splice(index - 1, 0, op);
 
             $scope.autoComplete.splice(index, 1);
             $scope.autoComplete.splice(index - 1, 0, ac);
+
             $scope.changeoperation();
         };
 
         $scope.down = function (index) {
             var op = $scope.operations[index];
             var ac = $scope.autoComplete[index];
+
             if (index == 0) {
-                op.addition = "AND";
+                op.addition = $scope.operations[1].addition;
                 $scope.operations[1].addition = null;
             }
 
@@ -7272,6 +7276,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
             $scope.autoComplete.splice(index, 1);
             $scope.autoComplete.splice(index + 1, 0, ac);
+
             $scope.changeoperation();
         };
 
@@ -8061,7 +8066,13 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
                     csvContent += layName + ";" + layfirstline + '\n';
                 }
-                var infoArray = _.values(feature.properties);
+                var infoArray = _.values(feature.properties).map(function (value) {
+                    if (typeof value === 'string' || value instanceof String) {
+                        return value.replace(/(\r\n|\n|\r)/gm, " ");
+                    }
+
+                    return value;
+                });
                 //adding geometry field values
                 infoArray.push(feature.geometry.type);
                 infoArray.push(feature.geometry.coordinates);
