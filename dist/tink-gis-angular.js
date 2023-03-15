@@ -8577,12 +8577,17 @@ L.drawLocal = {
 
   $templateCache.put('templates/layermanagement/layerManagerTemplate.html',
     "<div class=\"layermanagerTemplate modal-header\">\n" +
-    "<div class=\"row margin-bottom\">\n" +
+    "<div class=row>\n" +
     "<div class=col-xs-10>\n" +
     "<h4>Zoeken in geodata</h4>\n" +
     "</div>\n" +
     "<div class=col-xs-2>\n" +
     "<button class=\"close pull-right\" type=button data-ng-click=cancel()></button>\n" +
+    "</div>\n" +
+    "</div>\n" +
+    "<div class=\"row margin-bottom-sm\">\n" +
+    "<div class=col-xs-12>\n" +
+    "<em>OPGEPAST:</em> niet alle lagen worden al terug automatisch geüpdatet uit hun bron. Bij sommige lagen wordt dus nog de toestand van 6 december getoond.\n" +
     "</div>\n" +
     "</div>\n" +
     "</div>\n" +
