@@ -5717,22 +5717,50 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 }
             });
         };
-        _mapService.LayerQuery = function (theme, layerid, geometry) {
-
-            var promise = new Promise(function (resolve, reject) {
-                ResultsData.RequestStarted++;
-                if (geometry.mapItem != undefined) {
-                    geometry = geometry.mapItem;
-                }
-                theme.MapDataWithCors.query().layer(layerid).intersects(geometry).run(function (error, featureCollection, response) {
-                    ResultsData.RequestCompleted++;
-                    if (featureCollection) {
-                        validateFeatureCollectionGeometry(featureCollection.features);
+        _mapService.LayerQuery = function (theme, layerid, geometry, featureCount) {
+            if (featureCount === null || featureCount == undefined) {
+                var promise = new Promise(function (resolve, reject) {
+                    ResultsData.RequestStarted++;
+                    if (geometry.mapItem != undefined) {
+                        geometry = geometry.mapItem;
                     }
-                    resolve({ error: error, featureCollection: featureCollection, response: response });
+                    theme.MapDataWithCors.query().layer(layerid).intersects(geometry).run(function (error, featureCollection, response) {
+                        ResultsData.RequestCompleted++;
+                        if (featureCollection) {
+                            validateFeatureCollectionGeometry(featureCollection.features);
+                        }
+                        resolve({ error: error, featureCollection: featureCollection, response: response });
+                    });
                 });
-            });
-            return promise;
+                return promise;
+            } else {
+                var promise = new Promise(function (resolve, reject) {
+                    var features = [];
+
+                    var _loop = function _loop(index) {
+                        ResultsData.RequestStarted++;
+                        if (geometry.mapItem != undefined) {
+                            geometry = geometry.mapItem;
+                        }
+                        theme.MapDataWithCors.query().layer(layerid).intersects(geometry).offset(index).run(function (error, featureCollection, response) {
+                            ResultsData.RequestCompleted++;
+                            if (featureCollection) {
+                                validateFeatureCollectionGeometry(featureCollection.features);
+                            }
+                            features = features.concat(featureCollection.features);
+                            if (index + 1000 >= featureCount) {
+                                featureCollection.features = features;
+                                resolve({ error: error, featureCollection: featureCollection, response: response });
+                            }
+                        });
+                    };
+
+                    for (var index = 0; index < featureCount; index = index + 1000) {
+                        _loop(index);
+                    }
+                });
+                return promise;
+            }
         };
 
         var validateFeatureCollectionGeometry = function validateFeatureCollectionGeometry(features) {
@@ -5869,7 +5897,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                         // dus doen we de qry op alle lagen.
                         if (theme.Type === ThemeType.ESRI) {
                             theme.VisibleLayers.forEach(function (lay) {
-                                var prom = _mapService.LayerQuery(theme, lay.id, box);
+                                var prom = _mapService.LayerQuery(theme, lay.id, box, featureCount);
                                 allproms.push(prom);
                                 prom.then(function (arg) {
                                     MapData.AddFeatures(arg.featureCollection, theme, lay.id, featureCount);
