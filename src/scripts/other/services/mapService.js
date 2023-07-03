@@ -233,7 +233,7 @@
             });
 
         };
-        _mapService.LayerQuery = function(theme, layerid, geometry, featureCount) {
+        _mapService.LayerQuery = function (theme, layerid, geometry, featureCount) {
             if (featureCount === null || featureCount == undefined) {
                 var promise = new Promise(
                     function (resolve, reject) {
@@ -254,11 +254,11 @@
                     });
                 return promise;
             }
-            else { 
-                var promise = new Promise(
-                    function (resolve, reject) {
-                        var features = [];
-                        for (let index = 0; index < featureCount; index = index + 1000) {
+            else {
+                var promise;
+                for (let index = 0; index < featureCount; index = index + 1000) {
+                    if (index === 0) {
+                        var promise = new Promise(function (resolve, reject) {
                             ResultsData.RequestStarted++;
                             if (geometry.mapItem != undefined) {
                                 geometry = geometry.mapItem;
@@ -272,14 +272,33 @@
                                     if (featureCollection) {
                                         validateFeatureCollectionGeometry(featureCollection.features);
                                     }
-                                    features = features.concat(featureCollection.features);
-                                    if(index + 1000 >= featureCount) {
-                                        featureCollection.features = features;
-                                        resolve({ error,  featureCollection, response });
-                                    }
+                                    resolve({ error, featureCollection, response });
                                 });
-                        }    
-                    });
+                        });
+                    } else {
+                        promise = promise.then(function (result) {
+                            return new Promise(function (resolve, reject) {
+                                ResultsData.RequestStarted++;
+                                if (geometry.mapItem != undefined) {
+                                    geometry = geometry.mapItem;
+                                }
+                                theme.MapDataWithCors.query()
+                                    .layer(layerid)
+                                    .intersects(geometry)
+                                    .offset(index)
+                                    .run(function (error, featureCollection, response) {
+                                        ResultsData.RequestCompleted++;
+                                        if (featureCollection) {
+                                            validateFeatureCollectionGeometry(featureCollection.features);
+                                        }
+
+                                        featureCollection.features = result.featureCollection.features.concat(featureCollection.features);
+                                        resolve({ error, featureCollection, response });
+                                    });
+                            });
+                        });
+                    }
+                }
                 return promise;
             }
         };

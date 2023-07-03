@@ -5734,31 +5734,49 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 });
                 return promise;
             } else {
-                var promise = new Promise(function (resolve, reject) {
-                    var features = [];
+                var promise;
 
-                    var _loop = function _loop(index) {
-                        ResultsData.RequestStarted++;
-                        if (geometry.mapItem != undefined) {
-                            geometry = geometry.mapItem;
-                        }
-                        theme.MapDataWithCors.query().layer(layerid).intersects(geometry).offset(index).run(function (error, featureCollection, response) {
-                            ResultsData.RequestCompleted++;
-                            if (featureCollection) {
-                                validateFeatureCollectionGeometry(featureCollection.features);
+                var _loop = function _loop(index) {
+                    if (index === 0) {
+                        promise = new Promise(function (resolve, reject) {
+                            ResultsData.RequestStarted++;
+                            if (geometry.mapItem != undefined) {
+                                geometry = geometry.mapItem;
                             }
-                            features = features.concat(featureCollection.features);
-                            if (index + 1000 >= featureCount) {
-                                featureCollection.features = features;
+                            theme.MapDataWithCors.query().layer(layerid).intersects(geometry).offset(index).run(function (error, featureCollection, response) {
+                                ResultsData.RequestCompleted++;
+                                if (featureCollection) {
+                                    validateFeatureCollectionGeometry(featureCollection.features);
+                                }
                                 resolve({ error: error, featureCollection: featureCollection, response: response });
-                            }
+                            });
                         });
-                    };
+                    } else {
+                        promise = promise.then(function (result) {
+                            return new Promise(function (resolve, reject) {
+                                ResultsData.RequestStarted++;
+                                if (geometry.mapItem != undefined) {
+                                    geometry = geometry.mapItem;
+                                }
+                                theme.MapDataWithCors.query().layer(layerid).intersects(geometry).offset(index).run(function (error, featureCollection, response) {
+                                    ResultsData.RequestCompleted++;
+                                    if (featureCollection) {
+                                        validateFeatureCollectionGeometry(featureCollection.features);
+                                    }
 
-                    for (var index = 0; index < featureCount; index = index + 1000) {
-                        _loop(index);
+                                    featureCollection.features = result.featureCollection.features.concat(featureCollection.features);
+                                    resolve({ error: error, featureCollection: featureCollection, response: response });
+                                });
+                            });
+                        });
                     }
-                });
+                };
+
+                for (var index = 0; index < featureCount; index = index + 1000) {
+                    var promise;
+
+                    _loop(index);
+                }
                 return promise;
             }
         };
