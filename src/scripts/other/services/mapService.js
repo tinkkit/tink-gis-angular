@@ -233,55 +233,55 @@
             });
 
         };
-        _mapService.LayerQuery = function(theme, layerid, geometry, featureCount) {
-            if (featureCount === null || featureCount == undefined) {
-                var promise = new Promise(
-                    function (resolve, reject) {
-                        ResultsData.RequestStarted++;
-                        if (geometry.mapItem != undefined) {
-                            geometry = geometry.mapItem;
+
+        _mapService.LayerQuery = function(theme, layerid, geometry) {
+            return new Promise(async function (resolve, reject) {
+                let recordOffset = 0;
+                let features = [];
+                let error = null;
+                let featureCollection = null;
+                let response = null
+    
+                do {
+                    ResultsData.RequestStarted++;
+                    var result = await _mapService.QueryTheme(theme, layerid, geometry, recordOffset)
+                    ResultsData.RequestCompleted++;
+
+                    recordOffset += 1000;
+
+                    error = result.error;
+                    featureCollection = result.featureCollection;
+                    response = result.response;
+
+                    features = features.concat(featureCollection.features);
+                    
+                } while (response.exceededTransferLimit)
+
+                featureCollection.features = features;
+
+                resolve({error, featureCollection, response})
+            });
+        };
+
+        _mapService.QueryTheme = function(theme, layerid, geometry, recordOffset) {
+            return new Promise(function (resolve, reject) {
+                if (geometry.mapItem != undefined) {
+                    geometry = geometry.mapItem;
+                }
+
+                theme.MapDataWithCors.query()
+                    .layer(layerid)
+                    .intersects(geometry)
+                    .offset(recordOffset)
+                    .limit(1000)
+                    .run(function (error, featureCollection, response) {
+                        if (featureCollection) {
+                            validateFeatureCollectionGeometry(featureCollection.features);
                         }
-                        theme.MapDataWithCors.query()
-                            .layer(layerid)
-                            .intersects(geometry)
-                            .run(function (error, featureCollection, response) {
-                                ResultsData.RequestCompleted++;
-                                if (featureCollection) {
-                                    validateFeatureCollectionGeometry(featureCollection.features);
-                                }
-                                resolve({ error, featureCollection, response });
-                            });
+
+                        resolve({ error, featureCollection, response });
                     });
-                return promise;
-            }
-            else { 
-                var promise = new Promise(
-                    function (resolve, reject) {
-                        var features = [];
-                        for (let index = 0; index < featureCount; index = index + 1000) {
-                            ResultsData.RequestStarted++;
-                            if (geometry.mapItem != undefined) {
-                                geometry = geometry.mapItem;
-                            }
-                            theme.MapDataWithCors.query()
-                                .layer(layerid)
-                                .intersects(geometry)
-                                .offset(index)
-                                .run(function (error, featureCollection, response) {
-                                    ResultsData.RequestCompleted++;
-                                    if (featureCollection) {
-                                        validateFeatureCollectionGeometry(featureCollection.features);
-                                    }
-                                    features = features.concat(featureCollection.features);
-                                    if(index + 1000 >= featureCount) {
-                                        featureCollection.features = features;
-                                        resolve({ error,  featureCollection, response });
-                                    }
-                                });
-                        }    
-                    });
-                return promise;
-            }
+            });
         };
 
         var validateFeatureCollectionGeometry = function(features) {
@@ -434,7 +434,7 @@
                         MapData.Themes.forEach(theme => { // dus doen we de qry op alle lagen.
                             if (theme.Type === ThemeType.ESRI) {
                                 theme.VisibleLayers.forEach(lay => {
-                                    var prom = _mapService.LayerQuery(theme, lay.id, box, featureCount);
+                                    var prom = _mapService.LayerQuery(theme, lay.id, box);
                                     allproms.push(prom);
                                     prom.then(function(arg) {
                                         MapData.AddFeatures(arg.featureCollection, theme, lay.id, featureCount);

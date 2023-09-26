@@ -5717,50 +5717,49 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                 }
             });
         };
-        _mapService.LayerQuery = function (theme, layerid, geometry, featureCount) {
-            if (featureCount === null || featureCount == undefined) {
-                var promise = new Promise(function (resolve, reject) {
+
+        _mapService.LayerQuery = function (theme, layerid, geometry) {
+            return new Promise(async function (resolve, reject) {
+                var recordOffset = 0;
+                var features = [];
+                var error = null;
+                var featureCollection = null;
+                var response = null;
+
+                do {
                     ResultsData.RequestStarted++;
-                    if (geometry.mapItem != undefined) {
-                        geometry = geometry.mapItem;
-                    }
-                    theme.MapDataWithCors.query().layer(layerid).intersects(geometry).run(function (error, featureCollection, response) {
-                        ResultsData.RequestCompleted++;
-                        if (featureCollection) {
-                            validateFeatureCollectionGeometry(featureCollection.features);
-                        }
-                        resolve({ error: error, featureCollection: featureCollection, response: response });
-                    });
-                });
-                return promise;
-            } else {
-                var promise = new Promise(function (resolve, reject) {
-                    var features = [];
+                    var result = await _mapService.QueryTheme(theme, layerid, geometry, recordOffset);
+                    ResultsData.RequestCompleted++;
 
-                    var _loop = function _loop(index) {
-                        ResultsData.RequestStarted++;
-                        if (geometry.mapItem != undefined) {
-                            geometry = geometry.mapItem;
-                        }
-                        theme.MapDataWithCors.query().layer(layerid).intersects(geometry).offset(index).run(function (error, featureCollection, response) {
-                            ResultsData.RequestCompleted++;
-                            if (featureCollection) {
-                                validateFeatureCollectionGeometry(featureCollection.features);
-                            }
-                            features = features.concat(featureCollection.features);
-                            if (index + 1000 >= featureCount) {
-                                featureCollection.features = features;
-                                resolve({ error: error, featureCollection: featureCollection, response: response });
-                            }
-                        });
-                    };
+                    recordOffset += 1000;
 
-                    for (var index = 0; index < featureCount; index = index + 1000) {
-                        _loop(index);
+                    error = result.error;
+                    featureCollection = result.featureCollection;
+                    response = result.response;
+
+                    features = features.concat(featureCollection.features);
+                } while (response.exceededTransferLimit);
+
+                featureCollection.features = features;
+
+                resolve({ error: error, featureCollection: featureCollection, response: response });
+            });
+        };
+
+        _mapService.QueryTheme = function (theme, layerid, geometry, recordOffset) {
+            return new Promise(function (resolve, reject) {
+                if (geometry.mapItem != undefined) {
+                    geometry = geometry.mapItem;
+                }
+
+                theme.MapDataWithCors.query().layer(layerid).intersects(geometry).offset(recordOffset).limit(1000).run(function (error, featureCollection, response) {
+                    if (featureCollection) {
+                        validateFeatureCollectionGeometry(featureCollection.features);
                     }
+
+                    resolve({ error: error, featureCollection: featureCollection, response: response });
                 });
-                return promise;
-            }
+            });
         };
 
         var validateFeatureCollectionGeometry = function validateFeatureCollectionGeometry(features) {
@@ -5897,7 +5896,7 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
                         // dus doen we de qry op alle lagen.
                         if (theme.Type === ThemeType.ESRI) {
                             theme.VisibleLayers.forEach(function (lay) {
-                                var prom = _mapService.LayerQuery(theme, lay.id, box, featureCount);
+                                var prom = _mapService.LayerQuery(theme, lay.id, box);
                                 allproms.push(prom);
                                 prom.then(function (arg) {
                                     MapData.AddFeatures(arg.featureCollection, theme, lay.id, featureCount);
@@ -9220,15 +9219,6 @@ L.drawLocal = {
     "<button prevent-default ng-click=srchrsltsctrl.deleteFeatureGroup(layerGroupName) class=\"trash pull-right trash-xl\" style=pointer-events:all></button>\n" +
     "</p>\n" +
     "</data-header>\n" +
-    "<data-content ng-show=\"srchrsltsctrl.aantalFeaturesMetType(layerGroupName) <= 1000\">\n" +
-    "<li ng-repeat=\"feature in srchrsltsctrl.features | filter: { layerName:layerGroupName } :true\" ng-mouseover=srchrsltsctrl.HoverOver(feature)>\n" +
-    "<div class=mouse-over>\n" +
-    "<a tink-tooltip={{feature.displayValue}} tink-tooltip-align=top ng-click=srchrsltsctrl.showDetails(feature)>{{ feature.displayValue| limitTo : 40 }}\n" +
-    "</a>\n" +
-    "<button class=\"trash pull-right mouse-over-toshow\" prevent-default ng-click=srchrsltsctrl.deleteFeature(feature)></button>\n" +
-    "</div>\n" +
-    "</li>\n" +
-    "</data-content>\n" +
     "</div>\n" +
     "<tink-accordion-panel data-is-collapsed=srchrsltsctrl.collapsestatepergroup[layerGroupName] ng-show=\"srchrsltsctrl.aantalFeaturesMetType(layerGroupName) <= 1000\">\n" +
     "<data-header>\n" +
