@@ -1,7 +1,7 @@
 {
   "name": "tink-gis-angular",
   "description": "Tink gis Angular directive",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "repository": {
     "type": "git",
     "url": "git@github.com:tinkkit/tink-gis-angular.git"
@@ -27,7 +27,7 @@
     "grunt-contrib-copy": "~1.0.0",
     "grunt-contrib-cssmin": "^2.2.1",
     "grunt-contrib-jshint": "~1.1.0",
-    "grunt-contrib-uglify": "~3.3.0",
+    "grunt-contrib-uglify": "^4.0.1",
     "grunt-contrib-watch": "~1.0.0",
     "grunt-css-url-embed": "~1.10.0",
     "grunt-karma": "~2.0.0",
